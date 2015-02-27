@@ -25,6 +25,7 @@
   console.log('***   - DB_PASSWORD: %s', sthConfiguration.DB_PASSWORD);
   console.log('***   - DB_HOST: %s', sthConfiguration.DB_HOST);
   console.log('***   - DB_PORT: %s', sthConfiguration.DB_PORT);
+  console.log('***   - DB_NAME: %s', sthConfiguration.DB_NAME);
   console.log('***   - CLEAN: %s ', sthTestConfiguration.CLEAN);
 
   var collectionName4Events = sthDatabase.getCollectionName4Events(
