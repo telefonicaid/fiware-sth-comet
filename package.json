@@ -1,0 +1,22 @@
+{
+  "name": "fiware-sth-rest-api",
+  "description": "Node.js app exposing the Short Time Historic (STH) FIWARE component REST API for reading",
+  "version": "0.0.1",
+  "devDependencies": {
+    "expect.js": "^0.3.1",
+    "mocha": "^2.1.0"
+  },
+  "dependencies": {
+    "good": "^5.1.2",
+    "good-console": "^4.1.0",
+    "good-file": "^4.0.2",
+    "hapi": "^8.2.0",
+    "joi": "^5.1.0",
+    "mongoose": "^3.8.23",
+    "winston": "^0.9.0"
+  },
+  "scripts": {
+    "start": "node ./src/sth_app",
+    "test": "././node_modules/mocha/bin/mocha --reporter list --ui bdd test/sth_app_test.js"
+  }
+}
