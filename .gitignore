@@ -1,0 +1,16 @@
+### Node modules ###
+/node_modules
+
+### Logs ###
+/logs
+
+### Database ###
+/data
+
+### Specific files ###
+npm-debug.log
+
+### WebStorm ###
+
+## Directory-based project format:
+.idea/
