@@ -4,9 +4,9 @@
   "use strict";
 
   var sthConfig = require('./sth_configuration');
-  var sthLogger = require('./sth_logger');
+  var sthLogger = require('./sth_logger')(sthConfig);
   var sthHelper = require('./sth_helper.js')(sthConfig);
-  var sthDatabase = require('./sth_database')(sthConfig, sthHelper);
+  var sthDatabase = require('./sth_database')(sthConfig, sthLogger, sthHelper);
   var sthServer = require('./sth_server')(sthConfig, sthLogger, sthHelper);
 
   /**
@@ -24,7 +24,9 @@
     }
 
     if (err) {
-      sthLogger.error(err);
+      sthLogger.fatal(err.toString(), {
+        operationType: sthConfig.OPERATION_TYPE.SHUTDOWN
+      });
     }
 
     sthServer.stopServer(sthDatabase.closeConnection.bind(null, callback));
@@ -39,22 +41,37 @@
       }
 
       // Connection to the MongoDB database successfully established
-      sthLogger.info('Connection to MongoDB %s successfully established',
-        sthDatabase.connectionURL);
+      sthLogger.info(
+        'Connection to MongoDB %s successfully established',
+        sthDatabase.connectionURL,
+        {
+          operationType: sthConfig.OPERATION_TYPE.DB_CONN_OPEN
+        }
+      );
 
       // Start the hapi server
       sthServer.startServer(
         sthConfig.HOST, sthConfig.PORT, sthDatabase, function (err) {
           if (err) {
-            sthLogger.error(err);
+            sthLogger.fatal(err.toString(), {
+              operationType: sthConfig.OPERATION_TYPE.SERVER_START
+            });
           } else {
-            sthLogger.info('Server started at', sthServer.server.info.uri);
+            sthLogger.info('Server started at', sthServer.server.info.uri, {
+              operationType: sthConfig.OPERATION_TYPE.SERVER_START
+            });
           }
         });
     }
   );
 
+  // In case Control+C is clicked, exit gracefully
   process.on('SIGINT', function () {
     return exitGracefully(null);
+  });
+
+  // In case of an uncaught exception exis gracefully
+  process.on('uncaughtException', function(exception) {
+    return exitGracefully(exception);
   });
 })();
