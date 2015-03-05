@@ -15,7 +15,7 @@
       if (err) {
         // Error when connecting to the MongoDB database
         return sthHelper.exitGracefully(
-          err, sthServer.server, sthDatabase.driver);
+          err, sthServer.server, sthDatabase.driver.connection);
       }
 
       // Connection to the MongoDB database successfully established

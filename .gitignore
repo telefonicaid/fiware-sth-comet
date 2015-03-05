@@ -1,16 +1,15 @@
-### Node modules ###
+# Node modules #
 /node_modules
 
-### Logs ###
+# Logs #
 /logs
 
-### Database ###
+# Database #
 /data
 
-### Specific files ###
+# Specific files #
 npm-debug.log
 
-### WebStorm ###
-
+# JetBrains IDEs #
 ## Directory-based project format:
 .idea/

@@ -5,6 +5,12 @@
 
   var sthConfig, sthLogger;
 
+  /**
+   * Stops the server asynchronously
+   * @param {hapi.Server} server The server to be stopped
+   * @param {Function} callback Callback function to notify the result
+   *  of the operation
+   */
   function stopServer(server, callback) {
     if (server) {
       server.stop(function () {
@@ -17,6 +23,12 @@
     }
   }
 
+  /**
+   * Closes a connection to the database asynchronously
+   * @param {mongoose.connection} connection The connection to be closed
+   * @param {Function} callback Callback function to notify the result
+   *  of the operation
+   */
   function closeDBConnection(connection, callback) {
     if (connection &&
       (connection.readyState === 1 || connection.readyState === 2)) {
@@ -30,6 +42,14 @@
     }
   }
 
+  /**
+   * Stops the application stopping the server after completing all the
+   *  pending requests and closing the server afterwards
+   * @param {Error} err
+   * @param {hapi.Server} server The server to stop
+   * @param {mongoose.connection} connection The connection to the database
+   *  to close
+   */
   function exitGracefully(err, server, connection) {
     if (err) {
       sthLogger.error(err);
@@ -44,6 +64,15 @@
     }));
   }
 
+  /**
+   * Returns the 'origin' based on a date and a resolution. The 'origin' is the
+   *  date taken as the reference and starting point for the aggregated data
+   *  provided to the clients
+   * @param {Date} aDate The data for which the origin has to be calculated
+   * @param {string} resolution The resolution (typically, second, minute, hour,
+   *  day or month)
+   * @returns {Date} The origin calculated for the passed date and resolution
+   */
   function getOrigin(aDate, resolution) {
     var year = aDate.getUTCFullYear(),
       month = aDate.getUTCMonth(),
@@ -74,6 +103,12 @@
     return new Date(Date.UTC(year, month, date, hours, minutes, seconds));
   }
 
+  /**
+   * Returns the range associated to certain resolution
+   * @param {string} resolution The resolution (typically, second, minute,
+   *  hour, day or month)
+   * @returns {string} The range associated to the passed resolution
+   */
   function getRange(resolution) {
     var RESOLUTION = sthConfig.RESOLUTION,
       RANGE = sthConfig.RANGE;
@@ -94,6 +129,16 @@
     }
   }
 
+  /**
+   * Returns the object to return in case no aggregated data exists for
+   *  certain criteria
+   * @param {string} resolution The resolution (typically, second, minute,
+   *  hour, day or month)
+   * @param {string} range The range (typically, minute, hour, day, month,
+   *  or year)
+   * @returns {{resolution: *, range: *, origin: null, values: Array}} The
+   *  empty response to be responded to the client
+   */
   function getEmptyResponse(resolution, range) {
     return {
       resolution: resolution,

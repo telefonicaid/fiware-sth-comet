@@ -8,6 +8,14 @@
 
   var server, sthDatabase, sthConfig, sthLogger, sthHelper;
 
+  /**
+   * Starts the server asynchronously
+   * @param {string} host The host where the server will be running
+   * @param {string} port The port where the server will be listening
+   * @param {string} aSTHDatabase The database to be used by the server
+   * @param {Function} callback Callback function to notify the result
+   *  of the operation
+   */
   function startServer(host, port, aSTHDatabase, callback) {
     sthDatabase = aSTHDatabase;
 
