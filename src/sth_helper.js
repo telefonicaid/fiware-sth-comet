@@ -3,66 +3,7 @@
 (function() {
   "use strict";
 
-  var sthConfig, sthLogger;
-
-  /**
-   * Stops the server asynchronously
-   * @param {hapi.Server} server The server to be stopped
-   * @param {Function} callback Callback function to notify the result
-   *  of the operation
-   */
-  function stopServer(server, callback) {
-    if (server) {
-      server.stop(function () {
-        // Server successfully stopped
-        sthLogger.info('hapi server successfully stopped');
-        return callback();
-      });
-    } else {
-        return callback();
-    }
-  }
-
-  /**
-   * Closes a connection to the database asynchronously
-   * @param {mongoose.connection} connection The connection to be closed
-   * @param {Function} callback Callback function to notify the result
-   *  of the operation
-   */
-  function closeDBConnection(connection, callback) {
-    if (connection &&
-      (connection.readyState === 1 || connection.readyState === 2)) {
-      connection.close(function () {
-        // Connection to database closed
-        sthLogger.info('Connection to MongoDb succesfully closed');
-          return callback();
-      });
-    } else {
-        return callback();
-    }
-  }
-
-  /**
-   * Stops the application stopping the server after completing all the
-   *  pending requests and closing the server afterwards
-   * @param {Error} err
-   * @param {hapi.Server} server The server to stop
-   * @param {mongoose.connection} connection The connection to the database
-   *  to close
-   */
-  function exitGracefully(err, server, connection) {
-    if (err) {
-      sthLogger.error(err);
-    }
-
-    stopServer(server, closeDBConnection.bind(null, connection, function () {
-      if (err) {
-        process.exit(1);
-      } else {
-        process.exit(0);
-      }
-    }));
-  }
+  var sthConfig;
 
   /**
    * Returns the 'origin' based on a date and a resolution. The 'origin' is the
@@ -148,11 +89,9 @@
     };
   }
 
-  module.exports = function (aSthConfig, aSthLogger) {
+  module.exports = function (aSthConfig) {
     sthConfig = aSthConfig;
-    sthLogger = aSthLogger;
     return {
-      exitGracefully: exitGracefully,
       getOrigin: getOrigin,
       getRange: getRange,
       getEmptyResponse: getEmptyResponse

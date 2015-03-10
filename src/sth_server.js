@@ -145,6 +145,23 @@
     });
   }
 
+  /**
+   * Stops the server asynchronously
+   * @param {Function} callback Callback function to notify the result
+   *  of the operation
+   */
+  function stopServer(callback) {
+    if (server) {
+      server.stop(function () {
+        // Server successfully stopped
+        sthLogger.info('hapi server successfully stopped');
+        return callback();
+      });
+    } else {
+      return process.nextTick(callback);
+    }
+  }
+
   module.exports = function (aSthConfig, aSthLogger, aSthHelper) {
     sthConfig = aSthConfig;
     sthLogger = aSthLogger;
@@ -153,7 +170,8 @@
       get server() {
         return server;
       },
-      startServer: startServer
+      startServer: startServer,
+      stopServer: stopServer
     };
   };
 })();

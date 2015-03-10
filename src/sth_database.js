@@ -5,7 +5,7 @@
 
   var mongoose = require('mongoose');
 
-  var sthConfig, sthHelper, connectionURL, eventSchema, aggregatedSchema;
+  var sthConfig, sthLogger, sthHelper, connectionURL, eventSchema, aggregatedSchema;
 
   /**
    * Connects to a (MongoDB) database endpoint asynchronously
@@ -50,6 +50,25 @@
 
       return callback();
     });
+  }
+
+  /**
+   * Closes a connection to the database asynchronously
+   * @param {Function} callback Callback function to notify the result
+   *  of the operation
+   */
+  function closeConnection(callback) {
+    var connection = mongoose.connection;
+    if (connection &&
+      (connection.readyState === 1 || connection.readyState === 2)) {
+      connection.close(function () {
+        // Connection to database closed
+        sthLogger.info('Connection to MongoDb succesfully closed');
+        return callback();
+      });
+    } else {
+      return process.nextTick(callback);
+    }
   }
 
   /**
@@ -159,8 +178,9 @@
     ).sort({'origin': 'asc'}).exec(callback);
   }
 
-  module.exports = function (theSthConfig, theSthHelper) {
+  module.exports = function (theSthConfig, theSthLogger, theSthHelper) {
     sthConfig = theSthConfig;
+    sthLogger = theSthLogger;
     sthHelper = theSthHelper;
     return {
       get driver() {
@@ -170,6 +190,7 @@
         return connectionURL;
       },
       connect: connect,
+      closeConnection: closeConnection,
       getEventModel: getEventModel,
       getAggregatedModel: getAggregatedModel,
       getCollectionName4Events: getCollectionName4Events,

@@ -6,7 +6,7 @@
   var sthTestConfiguration = require('./sth_app_test_configuration');
   var sthConfiguration = require('../src/sth_configuration');
   var sthLogger = require('../src/sth_logger');
-  var sthHelper = require('../src/sth_helper')(sthConfiguration, sthLogger);
+  var sthHelper = require('../src/sth_helper')(sthConfiguration);
   var sthDatabase = require('../src/sth_database.js')(sthConfiguration);
   var sthTestHelper = require('./sth_app_test_helper.js')
   (sthTestConfiguration, sthConfiguration, sthDatabase, sthHelper);
