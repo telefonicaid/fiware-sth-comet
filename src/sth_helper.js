@@ -89,12 +89,66 @@
     };
   }
 
+  /**
+   * Generates a 32 bit integer hash code
+   * @param str The seed
+   * @returns {number} The hash code
+   */
+  function getHashCode(str) {
+    var hash = 0, i, chr, len;
+    if (str && str.length === 0) {
+      return hash;
+    }
+    for (i = 0, len = str.length; i < len; i++) {
+      chr = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + chr;
+      hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
+  }
+
+  /**
+   * Generates the UNICA correlator based on a request
+   * @param request The HTTP request
+   * @returns {string} The generated UNICA correlator
+   */
+  function getUnicaCorrelator(request) {
+    if (!request) {
+      return sthConfig.UNICA_CORRELATOR.NOT_AVAILABLE;
+    } else {
+      return getHashCode('from: ' + request.info.remoteAddress +
+                         ':' + request.info.remotePort +
+                         ', method: ' + request.method.toUpperCase() +
+                         ', url: ' + request.url.path);
+    }
+  }
+
+  /**
+   * Generates the transaction identifier to be used when for logging
+   * @returns {string} The generated transaction id
+   */
+  function getTransactionId() {
+    return new Date().getTime();
+  }
+
+  /**
+   * Returns the operation type for a concrete request to be used for logging
+   * @param request The request
+   * @returns {string} The operation type
+   */
+  function getOperationType(request) {
+    return sthConfig.OPERATION_TYPE_PREFIX + request.method.toUpperCase();
+  }
+
   module.exports = function (aSthConfig) {
     sthConfig = aSthConfig;
     return {
       getOrigin: getOrigin,
       getRange: getRange,
-      getEmptyResponse: getEmptyResponse
+      getEmptyResponse: getEmptyResponse,
+      getUnicaCorrelator: getUnicaCorrelator,
+      getTransactionId: getTransactionId,
+      getOperationType: getOperationType
     };
   };
 })();

@@ -21,6 +21,34 @@
 
     server = new hapi.Server();
 
+    server.on('log', function(event, tags) {
+      if (tags.load) {
+        sthLogger.fatal('event=' + event, {
+          operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
+        });
+      }
+    });
+
+    server.on('request-internal', function (request, event, tags) {
+      if (tags.error) {
+        if (tags.auth || tags.handler || tags.state || tags.payload || tags.validation) {
+          sthLogger.warn(
+            request.method.toUpperCase() + ' ' + request.url.path +
+            ', event=' + JSON.stringify(event), {
+              operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
+            }
+          );
+        } else {
+          sthLogger.fatal(
+            request.method.toUpperCase() + ' ' + request.url.path +
+            ', event=' + JSON.stringify(event), {
+              operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
+            }
+          );
+        }
+      }
+    });
+
     server.connection({
       host: host,
       port: port
@@ -31,6 +59,17 @@
         method: 'GET',
         path: '/STH/v1/contextEntities/type/{type}/id/{entityId}/attributes/{attributeId}',
         handler: function (request, reply) {
+          var response,
+              unicaCorrelatorPassed = request.headers[sthConfig.UNICA_CORRELATOR_HEADER];
+
+          request.info.sth = {
+            unicaCorrelator: unicaCorrelatorPassed || sthHelper.getUnicaCorrelator(request),
+            transactionId: sthHelper.getTransactionId(),
+            operationType: sthHelper.getOperationType(request)
+            };
+
+          sthLogger.trace(request.method.toUpperCase() + ' ' + request.url.path, request.info.sth);
+
           // Compose the collection name for the required data
           var collectionName = sthDatabase.getCollectionName4Aggregated(
             request.params.entityId, request.params.attributeId);
@@ -41,35 +80,43 @@
             function (err, collection) {
               if (err) {
                 // The collection does not exist, reply with en empty response
-                sthLogger.info('The collection %s does not exist', collectionName);
+                sthLogger.warn(
+                  'The collection %s does not exist', collectionName, request.info.sth);
 
                 var range = sthHelper.getRange(request.query.aggrPeriod);
-                return reply(sthHelper.getEmptyResponse(request.query.aggrPeriod, range));
-              }
+                sthLogger.trace('Responding with no values', request.info.sth);
+                response = reply(sthHelper.getEmptyResponse(request.query.aggrPeriod, range));
+              } else {
+                // The collection exists
+                sthLogger.trace('The collection %s exists', collectionName, request.info.sth);
 
-              // The collection exists
-              sthLogger.info('The collection %s exists', collectionName);
+                sthDatabase.getAggregatedData(collectionName, request.query.aggrMethod,
+                  request.query.aggrPeriod, request.query.dateFrom, request.query.dateTo,
+                  function (err, result) {
+                    if (err) {
+                      // Error when getting the aggregated data
+                      sthLogger.error(
+                        'Error when getting data from %s', collectionName, request.info.sth);
+                      sthLogger.trace('Responding with 500 - Internal Error', request.info.sth);
+                      response = reply(err);
+                    } else if (!result || !result.length) {
+                      // No aggregated data available for the request
+                      sthLogger.trace(
+                        'No aggregated data available for the request: ' + request.url.path, request.info.sth);
 
-              sthDatabase.getAggregatedData(collectionName, request.query.aggrMethod,
-                request.query.aggrPeriod, request.query.dateFrom, request.query.dateTo,
-                function (err, result) {
-                  if (err) {
-                    // Error when getting the aggregated data
-                    sthLogger.error('Error when getting data from %s', collectionName);
-                    reply(err);
-                  } else if (!result || !result.length) {
-                    // No aggregated data available for the request
-                    sthLogger.info('No aggregated data available for the request: ' + request.path);
-                    sthLogger.info('Query parameters:');
-                    sthLogger.info(request.query);
-
-                    var range = sthHelper.getRange(request.query.aggrPeriod);
-                    return reply(sthHelper.getEmptyResponse(request.query.aggrPeriod, range));
-                  } else {
-                    return reply(result);
+                      var range = sthHelper.getRange(request.query.aggrPeriod);
+                      sthLogger.trace('Responding with no values', request.info.sth);
+                      response = reply(sthHelper.getEmptyResponse(request.query.aggrPeriod, range));
+                    } else {
+                      sthLogger.trace('Responding with %s docs', result.length, request.info.sth);
+                      response = reply(result);
+                    }
+                    if (unicaCorrelatorPassed) {
+                      response.header('Unica-Correlator', unicaCorrelatorPassed);
+                    }
                   }
-                }
-              );
+                );
+              }
             }
           );
         },
@@ -86,63 +133,32 @@
       }
     ]);
 
-    // Logging configuration for the server
-    // TODO: Use the logging format used in FIWARE
-    var options = {
-      opsInterval: 1000,
-      reporters: [
-        {
-          reporter: require('good-file'),
-          args: [
-            {
-              path: './logs',
-              prefix: 'server-error'
-            },
-            {
-              error: '*'
-            }
-          ]
-        },
-        {
-          reporter: require('good-file'),
-          args: [
-            {
-              path: './logs',
-              prefix: 'server-ops'
-            },
-            {
-              ops: '*'
-            }
-          ]
-        },
-        {
-          reporter: require('good-file'),
-          args: [
-            {
-              path: './logs',
-              prefix: 'server-response'
-            },
-            {
-              response: '*'
-            }
-          ]
-        }
-      ]
-    };
-
-    // Register the plugins (logging configuration) in the server
-    server.register({
-      register: require('good'),
-      options: options
-    }, function (err) {
-      if (err) {
-        return callback(err);
-      } else {
-        server.start(function () {
-          return callback(null, server);
-        });
-      }
+    // Start the server
+    server.start(function () {
+      return callback(null, server);
     });
+  }
+
+  /**
+   * Stops the server asynchronously
+   * @param {Function} callback Callback function to notify the result
+   *  of the operation
+   */
+  function stopServer(callback) {
+    if (server) {
+      server.stop(function () {
+        // Server successfully stopped
+        sthLogger.info('hapi server successfully stopped', {
+          operationType: sthConfig.OPERATION_TYPE.SERVER_STOP
+        });
+        return callback();
+      });
+    } else {
+      sthLogger.info('No hapi server running', {
+        operationType: sthConfig.OPERATION_TYPE.SERVER_STOP
+      });
+      return process.nextTick(callback);
+    }
   }
 
   /**

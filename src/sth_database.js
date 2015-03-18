@@ -63,10 +63,15 @@
       (connection.readyState === 1 || connection.readyState === 2)) {
       connection.close(function () {
         // Connection to database closed
-        sthLogger.info('Connection to MongoDb succesfully closed');
+        sthLogger.info('Connection to MongoDb succesfully closed', {
+          operationType: sthConfig.OPERATION_TYPE.DB_CONN_CLOSE
+        });
         return callback();
       });
     } else {
+      sthLogger.info('No connection to the database established', {
+        operationType: sthConfig.OPERATION_TYPE.DB_CONN_CLOSE
+      });
       return process.nextTick(callback);
     }
   }
