@@ -4,6 +4,7 @@
   "use strict";
 
   var fs = require('fs');
+  var mkdirp = require('mkdirp');
   var path = require('path');
   var winston = require('winston');
 
@@ -65,11 +66,14 @@
 
     // Create the directory for the logging files if it does not exist
     if (fs.existsSync(sthConfig.LOG_DIR)) {
+      // The path exists
       if (!fs.statSync(sthConfig.LOG_DIR).isDirectory()) {
-        fs.mkdirSync(sthConfig.LOG_DIR);
+        // The paths exists but it is not a directory
+        mkdirp.sync(sthConfig.LOG_DIR);
       }
     } else {
-      fs.mkdirSync(sthConfig.LOG_DIR);
+      // The path does not exist
+      mkdirp.sync(sthConfig.LOG_DIR);
     }
 
     // Logger configuration
