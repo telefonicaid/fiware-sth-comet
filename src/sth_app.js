@@ -70,7 +70,7 @@
     return exitGracefully(null);
   });
 
-  // In case of an uncaught exception exis gracefully
+  // In case of an uncaught exception exists gracefully
   process.on('uncaughtException', function(exception) {
     return exitGracefully(exception);
   });
