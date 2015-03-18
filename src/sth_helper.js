@@ -3,7 +3,7 @@
 (function() {
   "use strict";
 
-  var sthConfig;
+  var sthConfig, sthLogger;
 
   /**
    * Returns the 'origin' based on a date and a resolution. The 'origin' is the
@@ -117,9 +117,9 @@
       return sthConfig.UNICA_CORRELATOR.NOT_AVAILABLE;
     } else {
       return getHashCode('from: ' + request.info.remoteAddress +
-                         ':' + request.info.remotePort +
-                         ', method: ' + request.method.toUpperCase() +
-                         ', url: ' + request.url.path);
+      ':' + request.info.remotePort +
+      ', method: ' + request.method.toUpperCase() +
+      ', url: ' + request.url.path);
     }
   }
 
@@ -140,15 +140,43 @@
     return sthConfig.OPERATION_TYPE_PREFIX + request.method.toUpperCase();
   }
 
-  module.exports = function (aSthConfig) {
+  /**
+   * Returns a date in RFC 3339 format
+   * @return {string} The formatted date
+   */
+  function getISODateString(date){
+    function pad(n, isMs){
+      var result = n;
+      if (!isMs) {
+        result = (n < 10) ? '0' + n : n;
+      } else if (n < 10) {
+        result = '00' + n;
+      } else if (n < 100) {
+        result = '0' + n;
+      }
+      return result;
+    }
+
+    return date.getUTCFullYear() + '-' +
+      pad(date.getUTCMonth() + 1) + '-' +
+      pad(date.getUTCDate()) + 'T' +
+      pad(date.getUTCHours()) + ':' +
+      pad(date.getUTCMinutes()) + ':' +
+      pad(date.getUTCSeconds()) + '.' +
+      pad(date.getUTCMilliseconds(), true) + 'Z';
+  }
+
+  module.exports = function(aSthConfig, aSthLogger) {
     sthConfig = aSthConfig;
+    sthLogger = aSthLogger;
     return {
       getOrigin: getOrigin,
       getRange: getRange,
       getEmptyResponse: getEmptyResponse,
       getUnicaCorrelator: getUnicaCorrelator,
       getTransactionId: getTransactionId,
-      getOperationType: getOperationType
+      getOperationType: getOperationType,
+      getISODateString: getISODateString
     };
   };
 })();
