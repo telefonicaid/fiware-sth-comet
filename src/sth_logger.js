@@ -33,8 +33,16 @@
    * @return {string} The formatted date
    */
   function getISODateString(date){
-    function pad(n){
-      return (n < 10) ? '0' + n : n;
+    function pad(n, isMs){
+      var result = n;
+      if (!isMs) {
+        result = (n < 10) ? '0' + n : n;
+      } else if (n < 10) {
+        result = '00' + n;
+      } else if (n < 100) {
+        result = '0' + n;
+      }
+      return result;
     }
 
     return date.getUTCFullYear() + '-' +
@@ -43,7 +51,7 @@
       pad(date.getUTCHours()) + ':' +
       pad(date.getUTCMinutes()) + ':' +
       pad(date.getUTCSeconds()) + '.' +
-      pad(date.getUTCMilliseconds()) + 'Z';
+      pad(date.getUTCMilliseconds(), true) + 'Z';
   }
 
   /**

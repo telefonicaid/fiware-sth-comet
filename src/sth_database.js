@@ -58,10 +58,13 @@
    *  of the operation
    */
   function closeConnection(callback) {
+    sthLogger.info('Closing the connection to the database...', {
+      operationType: sthConfig.OPERATION_TYPE.DB_CONN_CLOSE
+    });
     var connection = mongoose.connection;
     if (connection &&
       (connection.readyState === 1 || connection.readyState === 2)) {
-      connection.close(function () {
+      connection.close(function() {
         // Connection to database closed
         sthLogger.info('Connection to MongoDb succesfully closed', {
           operationType: sthConfig.OPERATION_TYPE.DB_CONN_CLOSE
@@ -69,7 +72,7 @@
         return callback();
       });
     } else {
-      sthLogger.info('No connection to the database established', {
+      sthLogger.info('No connection to the database available', {
         operationType: sthConfig.OPERATION_TYPE.DB_CONN_CLOSE
       });
       return process.nextTick(callback);
@@ -132,8 +135,6 @@
    * @param {Function} callback Callback function to be called with the results
    */
   function getCollection(name, callback) {
-    // Passing {strict: true} makes the collection() function to call
-    //  the callback with an error if the collection does not exist
     mongoose.connection.db.collection(name, {strict: true}, callback);
   }
 
@@ -160,13 +161,22 @@
     fieldFilter['values.' + aggregatedFunction] = 1;
 
     var originFilter;
-    if (!from || !to) {
+    if (from && to) {
+      if (from !== to) {
+        originFilter = {
+          $lte: sthHelper.getOrigin(to, resolution),
+          $gte: sthHelper.getOrigin(from, resolution)
+        };
+      } else {
+        originFilter = sthHelper.getOrigin(from, resolution);
+      }
+    } else if (!from && !to) {
       originFilter = sthHelper.getOrigin(new Date(), resolution);
-    } else if (from === to) {
-      originFilter = sthHelper.getOrigin(from, resolution);
-    } else {
+    } else if (!from) {
+      originFilter = sthHelper.getOrigin(to, resolution);
+    } else if (!to) {
       originFilter = {
-        $lte: sthHelper.getOrigin(to, resolution),
+        $lte: sthHelper.getOrigin(new Date(), resolution),
         $gte: sthHelper.getOrigin(from, resolution)
       };
     }

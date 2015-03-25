@@ -124,7 +124,7 @@
           validate: {
             query: {
               aggrMethod: joi.any().required().valid('max', 'min', 'sum', 'sum2'),
-              aggrPeriod: joi.any().valid('month', 'day', 'hour', 'minute', 'second'),
+              aggrPeriod: joi.any().required().valid('month', 'day', 'hour', 'minute', 'second'),
               dateFrom: joi.date().optional(),
               dateTo: joi.date().optional()
             }
@@ -145,6 +145,9 @@
    *  of the operation
    */
   function stopServer(callback) {
+    sthLogger.info('Stopping the STH server...', {
+      operationType: sthConfig.OPERATION_TYPE.SERVER_STOP
+    });
     if (server) {
       server.stop(function () {
         // Server successfully stopped
@@ -157,23 +160,6 @@
       sthLogger.info('No hapi server running', {
         operationType: sthConfig.OPERATION_TYPE.SERVER_STOP
       });
-      return process.nextTick(callback);
-    }
-  }
-
-  /**
-   * Stops the server asynchronously
-   * @param {Function} callback Callback function to notify the result
-   *  of the operation
-   */
-  function stopServer(callback) {
-    if (server) {
-      server.stop(function () {
-        // Server successfully stopped
-        sthLogger.info('hapi server successfully stopped');
-        return callback();
-      });
-    } else {
       return process.nextTick(callback);
     }
   }
