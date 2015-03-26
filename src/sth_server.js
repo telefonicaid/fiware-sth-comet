@@ -84,7 +84,7 @@
                   'The collection %s does not exist', collectionName, request.info.sth);
 
                 var range = sthHelper.getRange(request.query.aggrPeriod);
-                sthLogger.trace('Responding with no values', request.info.sth);
+                sthLogger.trace('Responding with no points', request.info.sth);
                 response = reply(sthHelper.getEmptyResponse(request.query.aggrPeriod, range));
               } else {
                 // The collection exists
@@ -92,6 +92,7 @@
 
                 sthDatabase.getAggregatedData(collectionName, request.query.aggrMethod,
                   request.query.aggrPeriod, request.query.dateFrom, request.query.dateTo,
+                  sthConfig.FILTER_OUT_EMPTY,
                   function (err, result) {
                     if (err) {
                       // Error when getting the aggregated data
@@ -105,12 +106,22 @@
                         'No aggregated data available for the request: ' + request.url.path, request.info.sth);
 
                       var range = sthHelper.getRange(request.query.aggrPeriod);
-                      sthLogger.trace('Responding with no values', request.info.sth);
-                      response = reply(sthHelper.getEmptyResponse(request.query.aggrPeriod, range));
+                      sthLogger.trace('Responding with no points', request.info.sth);
+                      response = reply(
+                        sthHelper.getNGSIPayload(
+                          request.params.entityId,
+                          request.params.attributeId,
+                          sthHelper.getEmptyResponse(request.query.aggrPeriod, range)
+                        )
+                      );
                     } else {
                       sthLogger.trace('Responding with %s docs', result.length, request.info.sth);
-                      response = reply(result);
-                    }
+                      response = reply(
+                        sthHelper.getNGSIPayload(
+                          request.params.entityId,
+                          request.params.attributeId,
+                          result));
+                      }
                     if (unicaCorrelatorPassed) {
                       response.header('Unica-Correlator', unicaCorrelatorPassed);
                     }

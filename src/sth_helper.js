@@ -73,20 +73,10 @@
   /**
    * Returns the object to return in case no aggregated data exists for
    *  certain criteria
-   * @param {string} resolution The resolution (typically, second, minute,
-   *  hour, day or month)
-   * @param {string} range The range (typically, minute, hour, day, month,
-   *  or year)
-   * @returns {{resolution: *, range: *, origin: null, values: Array}} The
-   *  empty response to be responded to the client
+   * @returns {Array} An empty array
    */
   function getEmptyResponse(resolution, range) {
-    return {
-      resolution: resolution,
-      range: range,
-      origin: null,
-      values: []
-    };
+    return [];
   }
 
   /**
@@ -166,6 +156,39 @@
       pad(date.getUTCMilliseconds(), true) + 'Z';
   }
 
+  /**
+   * Transforms a response payload into a NGSI formatted response
+   *  payload
+   * @param entityId The id of the requested entity's data
+   * @param attributeId The id of the requestedattribute's data
+   * @param payload The payload to transform
+   * @return {Object} The payload using NGSI format
+   */
+  function getNGSIPayload(entityId, attributeId, payload) {
+    var ngsiResponse = {
+      contextResponses: [
+        {
+          contextElement: {
+            attributes: [
+              {
+                name: attributeId,
+                values: payload
+              }
+            ],
+            id: entityId,
+            isPattern: false/*,
+             type: "type"*/
+          },
+          statusCode: {
+            code: '200',
+            reasonPhrase: 'OK'
+          }
+        }
+      ]
+    };
+    return ngsiResponse;
+  }
+
   module.exports = function(aSthConfig, aSthLogger) {
     sthConfig = aSthConfig;
     sthLogger = aSthLogger;
@@ -176,7 +199,8 @@
       getUnicaCorrelator: getUnicaCorrelator,
       getTransactionId: getTransactionId,
       getOperationType: getOperationType,
-      getISODateString: getISODateString
+      getISODateString: getISODateString,
+      getNGSIPayload: getNGSIPayload
     };
   };
 })();

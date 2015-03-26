@@ -34,11 +34,16 @@
 
       // Aggregated collection schema
       aggregatedSchema = mongoose.Schema({
-        range: String,
-        resolution: String,
-        type: String,
-        origin: Date,
-        values: [{
+        _id: {
+          type: {
+            range: String,
+            resolution: String,
+            attrType: String,
+            origin: Date
+          },
+          select: true
+        },
+        points: [{
           offset: Number,
           samples: Number,
           sum: Number,
@@ -146,19 +151,15 @@
    * @param {string} resolution The resolution of the data to use
    * @param {Date} from The date from which retrieve the aggregated data
    * @param {Date} to The date to which retrieve the aggregated data
+   * @param {boolean} shouldFilter If true, the null results are filter out
    * @param {Function} callback Callback to inform about any possible error or results
    */
-  function getAggregatedData(collectionName, aggregatedFunction, resolution, from, to, callback) {
+  function getAggregatedData(collectionName, aggregatedFunction, resolution, from, to, shouldFilter, callback) {
     var fieldFilter = {
-      '_id': 0,
-      'resolution': 1,
-      'range': 1,
-      'origin': 1,
-      'type': 1,
-      'values.offset': 1,
-      'values.samples': 1
+      'points.offset': 1,
+      'points.samples': 1
     };
-    fieldFilter['values.' + aggregatedFunction] = 1;
+    fieldFilter['points.' + aggregatedFunction] = 1;
 
     var originFilter;
     if (from && to) {
@@ -181,16 +182,58 @@
       };
     }
 
-    // Get the aggregated data from the database
-    // Return the data in ascending order based on the origin
-    getAggregatedModel(collectionName).find(
-      {
-        resolution: resolution,
-        range: sthHelper.getRange(resolution),
-        origin: originFilter
-      },
-      fieldFilter
-    ).sort({'origin': 'asc'}).exec(callback);
+    if (shouldFilter) {
+      var pushAccumulator = {
+        offset: '$points.offset',
+        samples: '$points.samples'
+      };
+      pushAccumulator[aggregatedFunction] = '$points.' + aggregatedFunction;
+      getAggregatedModel(collectionName).aggregate([
+        {
+          $match: {
+            '_id.resolution': resolution,
+            '_id.range': sthHelper.getRange(resolution),
+            '_id.origin': originFilter
+          }
+        },
+        {
+          $project: fieldFilter
+        },
+        {
+          $unwind: '$points'
+        },
+        {
+          $match: {
+            'points.samples': {
+              $gt: 0
+            }
+          }
+        },
+        {
+          $group: {
+            _id: {
+              origin: '$_id.origin',
+              range: '$_id.range',
+              resolution: '$_id.resolution'
+            },
+            points: {
+              $push: pushAccumulator
+            }
+          }
+        }
+      ]).exec(callback);
+    } else {
+      // Get the aggregated data from the database
+      // Return the data in ascending order based on the origin
+      getAggregatedModel(collectionName).find(
+        {
+          '_id.resolution': resolution,
+          '_id.range': sthHelper.getRange(resolution),
+          '_id.origin': originFilter
+        },
+        fieldFilter
+      ).sort({'_id.origin': 'asc'}).exec(callback);
+    }
   }
 
   module.exports = function (theSthConfig, theSthLogger, theSthHelper) {
