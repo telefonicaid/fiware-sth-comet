@@ -23,7 +23,12 @@ values change, calculating the aggregated time series information and storing it
 This option is called the minimalist option.
 2. A new sink can be enabled in the <a href="https://github.com/telefonicaid/fiware-cygnus" target="_blank">Cygnus</a>
 component to calculate and to update the aggregated time series information
-as the entity attribute values change over time. This option is the formal one.
+as the entity attribute values change over time. Using Cygnus adds a set of capabilities not available in the minimalist
+option such as advanced filtering regarding the attributes to consider in the time series, advanced flow and congestion
+management, amongst others. This option is provided as a
+<a href="https://github.com/telefonicaid/fiware-cygnus/blob/master/flume/doc/devel/add_new_sink.md" target="_blank">Cygnus sink</a>
+just like the <a href="https://github.com/telefonicaid/fiware-cygnus/tree/master/flume/src/main/java/es/tid/fiware/fiwareconnectors/cygnus/sinks" target="_blank">other data stores</a> already supported by Cygnus.
+This option is the formal one.
 
 Regarding the aggregated time series information provided by the STH component, there are 4 main concepts which are
 important to know about:
