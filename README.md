@@ -3,9 +3,9 @@
 * [Introduction] (#section1)
 * [Dependencies](#section2)
 * [Installation](#section3)
-* [Inserting data (single events and aggregated data) into the database](#section4)
-* [Querying data from the database](#section5)
-* [Running the STH server](#section6)
+* [Running the STH server](#section4)
+* [Inserting data (single events and aggregated data) into the database](#section5)
+* [Querying data from the database](#section6)
 * [Contact](#section7)
 
 ##<a id="section1"></a> Introduction
@@ -134,7 +134,34 @@ The STH component server is ready to be started.
 
 [Top](#section0)
 
-##<a id="section4"></a> Inserting data (single events and aggregated data) into the database
+##<a id="section4"></a>Running the STH server
+1. To run the STH server, just execute:
+<pre> npm start </pre>
+
+The script accepts the following parameters as environment variables:
+
+- HOST: The host where the STH server will be started. Optional. Default value: "localhost".
+- PORT: The port where the STH server will be listening. Optional. Default value: 8666.
+- LOG_LEVEL: The logging level of the messages. Messages with a level equal or superior to this will be logged. Optional. Default value: "info".
+- LOG_TO_CONSOLE: A flag indicating if the logs should be sent to the console. Optional. Default value: true.
+- LOG_TO_FILE: A flag indicating if the logs should be sent to a file. Optional. Default value: true.
+- LOG_DIR: The path to a directory where the log file will be searched for or created if it does not exist. Optional. Default value: "./log".
+- LOG_FILE_NAME: The name of the file where the logs will be stored. Optional. Default value: "sth_app.log".
+- DB_USERNAME: The username to use for the database connection. Optional. Default value: "".
+- DB_PASSWORD: The password to use for the database connection. Optional. Default value: "".
+- DB_HOST: The host to use for the database connection. Optional. Default value: "localhost".
+- DB_PORT: The port to use for the database connection. Optional. Default value: "27017".
+- DB_NAME: The name of the database to use. Optional. Default value: "test".
+- FILTER_OUT_EMPTY: A flag indicating if the empty results should be removed from the response. Optional. Default value: "true".
+
+For example, to start the STH server listening on port 7777, connecting to a MongoDB instance listening on mymongo.com:27777 and
+without filtering out the empty results, use:
+
+<pre> PORT=7777 DB_HOST=mymongo.com DB_PORT=27777 FILTER_OUT_EMPTY=false npm start</pre>
+
+[Top](#section0)
+
+##<a id="section5"></a> Inserting data (single events and aggregated data) into the database
 The STH component source code includes a set of tests to validate the correct functioning of the component. Amongst these
 tests, there is a suite to validate the insertion of aggregated time series information into the MongoDB instance.
 
@@ -170,7 +197,7 @@ In case of executing the tests with the CLEAN option set to false, the contents 
 
 [Top](#section0)
 
-##<a id="section5"></a> Querying data from the database
+##<a id="section6"></a> Querying data from the database
 The STH component source code includes a set of tests to validate the correct functioning of the component. Amongst these
 tests, there is a suite to validate the query of the aggregated time series information into the MongoDB instance. Some
 random aggregated time series data is previously inserted (using the previous test suite) to validate it querying.
@@ -206,33 +233,6 @@ each one of the possible combinations of aggregation method, aggregation period,
 
 In case of executing the tests with the CLEAN option set to false, the contents of the database can be inspected using the MongoDB
 (```mongo```) shell.
-
-[Top](#section0)
-
-##<a id="section6"></a>Running the STH server
-1. To run the STH server, just execute:
-<pre> npm start </pre>
-
-The script accepts the following parameters as environment variables:
-
-- HOST: The host where the STH server will be started. Optional. Default value: "localhost".
-- PORT: The port where the STH server will be listening. Optional. Default value: 8666.
-- LOG_LEVEL: The logging level of the messages. Messages with a level equal or superior to this will be logged. Optional. Default value: "info".
-- LOG_TO_CONSOLE: A flag indicating if the logs should be sent to the console. Optional. Default value: true.
-- LOG_TO_FILE: A flag indicating if the logs should be sent to a file. Optional. Default value: true.
-- LOG_DIR: The path to a directory where the log file will be searched for or created if it does not exist. Optional. Default value: "./log".
-- LOG_FILE_NAME: The name of the file where the logs will be stored. Optional. Default value: "sth_app.log".
-- DB_USERNAME: The username to use for the database connection. Optional. Default value: "".
-- DB_PASSWORD: The password to use for the database connection. Optional. Default value: "".
-- DB_HOST: The host to use for the database connection. Optional. Default value: "localhost".
-- DB_PORT: The port to use for the database connection. Optional. Default value: "27017".
-- DB_NAME: The name of the database to use. Optional. Default value: "test".
-- FILTER_OUT_EMPTY: A flag indicating if the empty results should be removed from the response. Optional. Default value: "true".
-
-For example, to start the STH server listening on port 7777, connecting to a MongoDB instance listening on mymongo.com:27777 and
-without filtering out the empty results, use:
-
-<pre> PORT=7777 DB_HOST=mymongo.com DB_PORT=27777 FILTER_OUT_EMPTY=false npm start</pre>
 
 [Top](#section0)
 
