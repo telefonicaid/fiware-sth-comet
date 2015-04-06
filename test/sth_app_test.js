@@ -9,27 +9,16 @@
   var sthLogger = require('../src/sth_logger')(sthConfig);
   var sthHelper = require('../src/sth_helper.js')(sthConfig, sthLogger);
   var sthTestHelper = require('./sth_app_test_helper.js')
-  (sthTestConfig, sthConfig, sthApp.sthDatabase, sthHelper);
+    (sthTestConfig, sthConfig, sthApp.sthDatabase, sthHelper);
   var hapi = require('hapi');
   var request = require('request');
   var expect = require('expect.js');
 
   console.log('*** Running the server tests with the following environment variables:');
-  console.log('***   - SAMPLES: %s', sthTestConfig.SAMPLES);
-  console.log('***   - HOST: %s', sthConfig.HOST);
-  console.log('***   - PORT: %s', sthConfig.PORT);
-  console.log('***   - DB_USERNAME: %s', sthConfig.DB_USERNAME);
-  console.log('***   - DB_PASSWORD: %s', sthConfig.DB_PASSWORD);
-  console.log('***   - DB_HOST: %s', sthConfig.DB_HOST);
-  console.log('***   - DB_PORT: %s', sthConfig.DB_PORT);
-  console.log('***   - DB_NAME: %s', sthConfig.DB_NAME);
-  console.log('***   - ENTITY_ID: %s', sthTestConfig.ENTITY_ID);
-  console.log('***   - ATTRIBUTE_ID: %s', sthTestConfig.ATTRIBUTE_ID);
-  console.log('***   - TYPE: %s', sthTestConfig.TYPE);
-  console.log('***   - START_DATE: %s', sthTestConfig.START_DATE);
-  console.log('***   - END_DATE: %s', sthTestConfig.END_DATE);
-  console.log('***   - MIN_VALUE: %s', sthTestConfig.MIN_VALUE);
-  console.log('***   - MAX_VALUE: %s', sthTestConfig.MAX_VALUE);
+  console.log('\n***** STH app environment variables:');
+  console.log(sthConfig);
+  console.log('\n***** Unit tests environment variables:');
+  console.log(sthTestConfig);
 
   describe('database connection', function() {
     it('should be a database available', function(done) {
@@ -147,9 +136,8 @@
         expect(err).to.equal(null);
         expect(response.statusCode).to.equal(200);
         expect(response.statusMessage).to.equal('OK');
-        expect(bodyJSON.origin).to.equal(null);
-        expect(bodyJSON.values).to.be.an(Array);
-        expect(bodyJSON.values.length).to.equal(0);
+        expect(bodyJSON).to.be.an(Array);
+        expect(bodyJSON.length).to.equal(0);
         done();
       });
     });
@@ -165,9 +153,8 @@
         expect(err).to.equal(null);
         expect(response.statusCode).to.equal(200);
         expect(response.statusMessage).to.equal('OK');
-        expect(bodyJSON.origin).to.equal(null);
-        expect(bodyJSON.values).to.be.an(Array);
-        expect(bodyJSON.values.length).to.equal(0);
+        expect(bodyJSON).to.be.an(Array);
+        expect(bodyJSON.length).to.equal(0);
         done();
       });
     });
@@ -184,9 +171,8 @@
         expect(err).to.equal(null);
         expect(response.statusCode).to.equal(200);
         expect(response.statusMessage).to.equal('OK');
-        expect(bodyJSON.origin).to.equal(null);
-        expect(bodyJSON.values).to.be.an(Array);
-        expect(bodyJSON.values.length).to.equal(0);
+        expect(bodyJSON).to.be.an(Array);
+        expect(bodyJSON.length).to.equal(0);
         done();
       });
     });

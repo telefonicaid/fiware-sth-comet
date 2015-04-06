@@ -13,20 +13,10 @@
   var expect = require('expect.js');
 
   console.log('*** Running the database tests with the following environment variables:');
-  console.log('***   - SAMPLES: %s', sthTestConfig.SAMPLES);
-  console.log('***   - ENTITY_ID: %s', sthTestConfig.ENTITY_ID);
-  console.log('***   - ATTRIBUTE_ID: %s', sthTestConfig.ATTRIBUTE_ID);
-  console.log('***   - TYPE: %s', sthTestConfig.TYPE);
-  console.log('***   - START_DATE: %s', sthTestConfig.START_DATE);
-  console.log('***   - END_DATE: %s', sthTestConfig.END_DATE);
-  console.log('***   - MIN_VALUE: %s', sthTestConfig.MIN_VALUE);
-  console.log('***   - MAX_VALUE: %s', sthTestConfig.MAX_VALUE);
-  console.log('***   - DB_USERNAME: %s', sthConfig.DB_USERNAME);
-  console.log('***   - DB_PASSWORD: %s', sthConfig.DB_PASSWORD);
-  console.log('***   - DB_HOST: %s', sthConfig.DB_HOST);
-  console.log('***   - DB_PORT: %s', sthConfig.DB_PORT);
-  console.log('***   - DB_NAME: %s', sthConfig.DB_NAME);
-  console.log('***   - CLEAN: %s ', sthTestConfig.CLEAN);
+  console.log('\n***** STH app environment variables:');
+  console.log(sthConfig);
+  console.log('\n***** Unit tests environment variables:');
+  console.log(sthTestConfig);
 
   var collectionName4Events = sthDatabase.getCollectionName4Events(
     sthTestConfig.ENTITY_ID, sthTestConfig.ATTRIBUTE_ID);

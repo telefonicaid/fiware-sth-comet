@@ -48,7 +48,7 @@
    *  of the operation
    */
   function prePopulateAggregated(event, resolution, callback) {
-    var values = [],
+    var points = [],
       totalValues,
       range,
       offsetOrigin = 0;
@@ -78,7 +78,7 @@
     }
 
     for (var i = offsetOrigin; i < totalValues; i++) {
-      values.push({
+      points.push({
         offset: i,
         samples: 0,
         sum: 0,
@@ -92,11 +92,13 @@
       sthTestConfig.ENTITY_ID, sthTestConfig.ATTRIBUTE_ID);
 
     var aggregatedData = new sthDatabase.getAggregatedModel(collectionName4Aggregated)({
-      range: range,
-      resolution: resolution,
-      type: sthTestConfig.TYPE,
-      origin: sthHelper.getOrigin(event.timestamp, resolution),
-      values: values
+      _id: {
+        range: range,
+        resolution: resolution,
+        attrType: sthTestConfig.TYPE,
+        origin: sthHelper.getOrigin(event.timestamp, resolution)
+      },
+      points: points
     });
 
     aggregatedData.save(function (err) {
@@ -131,10 +133,10 @@
     }
 
     return {
-      'origin': sthHelper.getOrigin(event.timestamp, resolution),
-      'resolution': resolution,
-      'range': sthHelper.getRange(resolution),
-      'values.offset': offset
+      '_id.origin': sthHelper.getOrigin(event.timestamp, resolution),
+      '_id.resolution': resolution,
+      '_id.range': sthHelper.getRange(resolution),
+      'points.offset': offset
     };
   }
 
@@ -147,15 +149,15 @@
     var value = event.value;
     return {
       '$inc': {
-        'values.$.samples': 1,
-        'values.$.sum': value,
-        'values.$.sum2': Math.pow(value, 2)
+        'points.$.samples': 1,
+        'points.$.sum': value,
+        'points.$.sum2': Math.pow(value, 2)
       },
       '$min': {
-        'values.$.min': value
+        'points.$.min': value
       },
       '$max': {
-        'values.$.max': value
+        'points.$.max': value
       }
     };
   }
@@ -219,14 +221,13 @@
 
     // Check if the document for the aggregated data associated to the event already exists
     sthDatabase.getAggregatedModel(collectionName4Aggregated).findOne({
-      resolution: resolution,
-      range: sthHelper.getRange(resolution),
-      origin: origin
+      '_id.resolution': resolution,
+      '_id.range': sthHelper.getRange(resolution),
+      '_id.origin': origin
     }, function (err, result) {
       if (err) {
         done(err);
       }
-
       if (!result) {
         // The document for this aggregated data has not been created
         // Create and pre-populate it
@@ -487,12 +488,24 @@
     }, function (err, response, body) {
       var bodyJSON = JSON.parse(body);
       expect(err).to.equal(null);
-      expect(bodyJSON.resolution).to.equal(resolution);
-      expect(bodyJSON.range).to.equal(
-        sthHelper.getRange(resolution),
-        resolution);
-      expect(bodyJSON.origin).to.equal(null);
-      expect(bodyJSON.values.length).to.equal(0);
+      expect(bodyJSON.contextResponses[0].contextElement.id).
+        to.equal(sthTestConfig.ENTITY_ID);
+      expect(bodyJSON.contextResponses[0].contextElement.isPattern).
+        to.equal(false);
+      /* TODO: The type property is not passed nor available
+      expect(bodyJSON.contextResponses[0].contextElement.type).
+        to.equal(sthTestConfig.TYPE);
+      */
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).
+        to.equal(sthTestConfig.ATTRIBUTE_ID);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).
+        to.be.an(Array);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).
+        to.equal(0);
+      expect(bodyJSON.contextResponses[0].statusCode.code).
+        to.equal('200');
+      expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).
+        to.equal('OK');
       done();
     });
   }
@@ -540,20 +553,32 @@
       }
       var bodyJSON = JSON.parse(body);
       expect(err).to.equal(null);
-      expect(bodyJSON[0].resolution).to.equal(resolution);
-      expect(bodyJSON[0].range).to.equal(
-        sthHelper.getRange(resolution),
-        resolution);
-      expect(bodyJSON[0].origin).to.equal(
-        sthHelper.getISODateString(
+      expect(bodyJSON.contextResponses[0].contextElement.id).
+        to.equal(sthTestConfig.ENTITY_ID);
+      expect(bodyJSON.contextResponses[0].contextElement.isPattern).
+        to.equal(false);
+      /* TODO: The type property is not passed nor available
+      expect(bodyJSON.contextResponses[0].contextElement.type).
+        to.equal(sthTestConfig.TYPE);
+      */
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).
+        to.equal(sthTestConfig.ATTRIBUTE_ID);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0]._id.resolution).
+        to.equal(resolution);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0]._id.range).
+        to.equal(sthHelper.getRange(resolution));
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0]._id.origin).
+        to.be(sthHelper.getISODateString(
           sthHelper.getOrigin(
             theEvent.timestamp,
             resolution
           )
-        )
-      );
-      expect(bodyJSON[0].values.length).to.equal(entries);
-      expect(bodyJSON[0].values[index].samples).to.equal(events.length);
+        ));
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points.length).
+        to.equal(sthConfig.FILTER_OUT_EMPTY ? 1 : entries);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].
+        points[sthConfig.FILTER_OUT_EMPTY ? 0 : index].samples).
+        to.equal(events.length);
       var value;
       switch(aggrMethod) {
         case 'min':
@@ -566,7 +591,12 @@
         case 'sum2':
           value = (events.length * (Math.pow(parseFloat(theEvent.value), 2))).toFixed(2);
       }
-      expect(parseFloat(bodyJSON[0].values[index][aggrMethod]).toFixed(2)).to.equal(value);
+      expect(parseFloat(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].
+        points[sthConfig.FILTER_OUT_EMPTY ? 0 : index][aggrMethod]).toFixed(2)).to.equal(value);
+      expect(bodyJSON.contextResponses[0].statusCode.code).
+        to.equal('200');
+      expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).
+        to.equal('OK');
       done();
     });
   }
@@ -674,9 +704,6 @@
       prePopulateAggregatedTest: prePopulateAggregatedTest,
       addAggregatedDataTest: addAggregatedDataTest,
       eachEventTestSuite: eachEventTestSuite,
-      get events() {
-        return events;
-      },
       dropRawEventCollectionTest: dropRawEventCollectionTest,
       dropAggregatedDataCollectionTest: dropAggregatedDataCollectionTest,
       getValidURL: getValidURL,
