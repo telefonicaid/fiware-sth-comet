@@ -4,7 +4,7 @@
 * [Dependencies](#section2)
 * [Installation](#section3)
 * [Running the STH server](#section4)
-* [Inserting data (single events and aggregated data) into the database](#section5)
+* [Inserting data (random single events and its aggregated data) into the database](#section5)
 * [Querying data from the database](#section6)
 * [Contact](#section7)
 
@@ -161,7 +161,7 @@ without filtering out the empty results, use:
 
 [Top](#section0)
 
-##<a id="section5"></a> Inserting data (single events and aggregated data) into the database
+##<a id="section5"></a> Inserting data (random single events and its aggregated data) into the database
 The STH component source code includes a set of tests to validate the correct functioning of the component. Amongst these
 tests, there is a suite to validate the insertion of aggregated time series information into the MongoDB instance.
 
