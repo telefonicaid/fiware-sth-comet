@@ -39,7 +39,7 @@ ranges values are: year, month, day, hour, minute.
 Possible valid resolution values are: month, day, hour, minute and second. For the time being, we only consider the
 following range-resolution pairs: year-month, month-day, day-hour, hour-minute and minute-second.
 * <b>Origin</b>: For certain range-resolution pair, it is the origin of time for which the aggregated time series
-information applies. For example, for a pair hour-minute, a valid origin value could be: ``2015-03-01T13:00:00.000Z```,
+information applies. For example, for a pair hour-minute, a valid origin value could be: ```2015-03-01T13:00:00.000Z```,
 meaning the 13th hour of March, the 3rd, 2015. The origin is stored using UTC time to avoid locale issues.
 * <b>Offset</b>: For certain range-resolution pair, it is the offset from the origin for which the aggregated time series
 information applies. For example, for a pair hour-minute and an origin ```2015-03-01T13:00:00.000Z```, an offset of 10
