@@ -47,7 +47,7 @@ refers to the 10th minute of the concrete hour pointed by the origin. In this ex
 offsets from 0 to 59 corresponding to each one of the 60 minutes within the concrete hour.
 * <b>Samples</b>: For a quadruple range-resolution-origin-offset, it is the number of samples, values, events or notifications available.
 
-The STH component exposes an HTTP ReST API to let external clients query this aggregated time series information. A
+The STH component exposes an HTTP REST API to let external clients query this aggregated time series information. A
 typical URL querying for this information using a GET request is the following:
 
 <pre>http://localhost:8666/STH/v1/contextEntities/type/&lt;quantity&gt;/id/&lt;entityId&gt;/attributes/&lt;attributeId&gt;?aggrMethod=sum&aggrPeriod=second&dateFrom=2015-02-22T00:00:00&dateTo=2015-02-22T23:00:00</pre>
