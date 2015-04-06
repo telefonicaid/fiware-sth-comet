@@ -21,7 +21,8 @@ means:
 1. The STH component can directly subscribe to the Context Broker to receive notifications when the entity attribute
 values change, calculating the aggregated time series information and storing it in the MongoDB instance.
 This option is called the minimalist option.
-2. A new sink can be enabled in the Cygnus component to calculate and to update the aggregated time series information
+2. A new sink can be enabled in the <a href="https://github.com/telefonicaid/fiware-cygnus" target="_blank">Cygnus</a>
+component to calculate and to update the aggregated time series information
 as the entity attribute values change over time. This option is the formal one.
 
 Regarding the aggregated time series information provided by the STH component, there are 4 main concepts which are
