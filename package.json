@@ -19,6 +19,6 @@
   },
   "scripts": {
     "start": "node ./src/sth_app",
-    "test": "././node_modules/mocha/bin/mocha --reporter list --ui bdd test/sth_app_test.js"
+    "test": "././node_modules/mocha/bin/mocha --reporter list --ui bdd test/node/sth_app_test.js"
   }
 }

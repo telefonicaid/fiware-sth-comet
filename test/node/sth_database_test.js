@@ -4,10 +4,10 @@
   "use strict";
 
   var sthTestConfig = require('./sth_app_test_configuration');
-  var sthConfig = require('../src/sth_configuration');
-  var sthLogger = require('../src/sth_logger')(sthConfig);
-  var sthHelper = require('../src/sth_helper')(sthConfig, sthLogger);
-  var sthDatabase = require('../src/sth_database')(sthConfig, sthLogger, sthHelper);
+  var sthConfig = require('../../src/sth_configuration');
+  var sthLogger = require('../../src/sth_logger')(sthConfig);
+  var sthHelper = require('../../src/sth_helper')(sthConfig, sthLogger);
+  var sthDatabase = require('../../src/sth_database')(sthConfig, sthLogger, sthHelper);
   var sthTestHelper = require('./sth_app_test_helper')
     (sthTestConfig, sthConfig, sthDatabase, sthHelper);
   var expect = require('expect.js');
