@@ -3,11 +3,11 @@
 (function() {
   'use strict';
 
-  var sthApp = require('../src/sth_app');
+  var sthApp = require('../../src/sth_app');
   var sthTestConfig = require('./sth_app_test_configuration');
-  var sthConfig = require('../src/sth_configuration');
-  var sthLogger = require('../src/sth_logger')(sthConfig);
-  var sthHelper = require('../src/sth_helper.js')(sthConfig, sthLogger);
+  var sthConfig = require('../../src/sth_configuration');
+  var sthLogger = require('../../src/sth_logger')(sthConfig);
+  var sthHelper = require('../../src/sth_helper.js')(sthConfig, sthLogger);
   var sthTestHelper = require('./sth_app_test_helper.js')
     (sthTestConfig, sthConfig, sthApp.sthDatabase, sthHelper);
   var hapi = require('hapi');
