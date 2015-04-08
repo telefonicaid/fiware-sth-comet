@@ -62,7 +62,6 @@
         expect(err).to.equal(null);
         expect(response.statusCode).to.equal(404);
         expect(bodyJSON.statusCode).to.equal(404);
-        expect(response.statusMessage).to.equal('Not Found');
         expect(bodyJSON.error).to.equal('Not Found');
         done();
       });
@@ -79,7 +78,6 @@
         expect(err).to.equal(null);
         expect(response.statusCode).to.equal(404);
         expect(bodyJSON.statusCode).to.equal(404);
-        expect(response.statusMessage).to.equal('Not Found');
         expect(bodyJSON.error).to.equal('Not Found');
         done();
       });
@@ -96,7 +94,6 @@
         expect(err).to.equal(null);
         expect(response.statusCode).to.equal(400);
         expect(bodyJSON.statusCode).to.equal(400);
-        expect(response.statusMessage).to.equal('Bad Request');
         expect(bodyJSON.error).to.equal('Bad Request');
         expect(bodyJSON.validation.source).to.equal('query');
         expect(bodyJSON.validation.keys).to.be.an(Array);
@@ -116,7 +113,6 @@
         expect(err).to.equal(null);
         expect(response.statusCode).to.equal(400);
         expect(bodyJSON.statusCode).to.equal(400);
-        expect(response.statusMessage).to.equal('Bad Request');
         expect(bodyJSON.error).to.equal('Bad Request');
         expect(bodyJSON.validation.source).to.equal('query');
         expect(bodyJSON.validation.keys).to.be.an(Array);
@@ -135,7 +131,6 @@
         var bodyJSON = JSON.parse(body);
         expect(err).to.equal(null);
         expect(response.statusCode).to.equal(200);
-        expect(response.statusMessage).to.equal('OK');
         expect(bodyJSON).to.be.an(Array);
         expect(bodyJSON.length).to.equal(0);
         done();
@@ -152,7 +147,6 @@
         var bodyJSON = JSON.parse(body);
         expect(err).to.equal(null);
         expect(response.statusCode).to.equal(200);
-        expect(response.statusMessage).to.equal('OK');
         expect(bodyJSON).to.be.an(Array);
         expect(bodyJSON.length).to.equal(0);
         done();
@@ -170,7 +164,6 @@
         var bodyJSON = JSON.parse(body);
         expect(err).to.equal(null);
         expect(response.statusCode).to.equal(200);
-        expect(response.statusMessage).to.equal('OK');
         expect(bodyJSON).to.be.an(Array);
         expect(bodyJSON.length).to.equal(0);
         done();
