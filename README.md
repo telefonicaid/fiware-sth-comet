@@ -30,6 +30,11 @@ management, amongst others. This option is provided as a
 just like the <a href="https://github.com/telefonicaid/fiware-cygnus/tree/master/flume/src/main/java/es/tid/fiware/fiwareconnectors/cygnus/sinks" target="_blank">other data stores</a> already supported by Cygnus.
 This option is the formal one.
 
+Since both mechanisms (the formal one using Cygnus and the minimalist one using the STH component directly) update the same database,
+it is the responsibility of the people or software in charge of creating the needed subscriptions to avoid updating the
+time series database twice (i.e. to avoid enabling both mechanisms at the same time). This would happen if both mechanisms
+are enabled for the same attribute of the same entity.
+
 Regarding the aggregated time series information provided by the STH component, there are 4 main concepts which are
 important to know about:
 
