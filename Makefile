@@ -18,4 +18,4 @@ test-watch:
 	echo STARTING TESTS ********************
 	./node_modules/mocha/bin/mocha --reporter $(REPORTER) --growl --watch $(MOCHA_OPTIONS) test/*.js
 
-.PHONY: test test-watch
+.PHONY: test test-database test-watch
