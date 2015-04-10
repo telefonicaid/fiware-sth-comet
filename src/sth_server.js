@@ -68,7 +68,9 @@
             operationType: sthHelper.getOperationType(request)
             };
 
-          sthLogger.trace(request.method.toUpperCase() + ' ' + request.url.path, request.info.sth);
+          sthLogger.trace(
+            request.method.toUpperCase() + ' ' + request.url.path,
+            request.info.sth);
 
           // Compose the collection name for the required data
           var collectionName = sthDatabase.getCollectionName4Aggregated(
@@ -81,14 +83,19 @@
               if (err) {
                 // The collection does not exist, reply with en empty response
                 sthLogger.warn(
-                  'The collection %s does not exist', collectionName, request.info.sth);
+                  'The collection %s does not exist', collectionName,
+                  request.info.sth);
 
                 var range = sthHelper.getRange(request.query.aggrPeriod);
-                sthLogger.trace('Responding with no points', request.info.sth);
+                sthLogger.trace(
+                  'Responding with no points',
+                  request.info.sth);
                 response = reply(sthHelper.getEmptyResponse(request.query.aggrPeriod, range));
               } else {
                 // The collection exists
-                sthLogger.trace('The collection %s exists', collectionName, request.info.sth);
+                sthLogger.trace(
+                  'The collection %s exists', collectionName,
+                  request.info.sth);
 
                 sthDatabase.getAggregatedData(collectionName, request.query.aggrMethod,
                   request.query.aggrPeriod, request.query.dateFrom, request.query.dateTo,
@@ -98,15 +105,20 @@
                       // Error when getting the aggregated data
                       sthLogger.error(
                         'Error when getting data from %s', collectionName, request.info.sth);
-                      sthLogger.trace('Responding with 500 - Internal Error', request.info.sth);
+                      sthLogger.trace(
+                        'Responding with 500 - Internal Error',
+                        request.info.sth);
                       response = reply(err);
                     } else if (!result || !result.length) {
                       // No aggregated data available for the request
                       sthLogger.trace(
-                        'No aggregated data available for the request: ' + request.url.path, request.info.sth);
+                        'No aggregated data available for the request: ' + request.url.path,
+                        request.info.sth);
 
                       var range = sthHelper.getRange(request.query.aggrPeriod);
-                      sthLogger.trace('Responding with no points', request.info.sth);
+                      sthLogger.trace(
+                        'Responding with no points',
+                        request.info.sth);
                       response = reply(
                         sthHelper.getNGSIPayload(
                           request.params.entityId,
@@ -115,7 +127,9 @@
                         )
                       );
                     } else {
-                      sthLogger.trace('Responding with %s docs', result.length, request.info.sth);
+                      sthLogger.trace(
+                        'Responding with %s docs', result.length,
+                        request.info.sth);
                       response = reply(
                         sthHelper.getNGSIPayload(
                           request.params.entityId,
@@ -140,6 +154,86 @@
               dateTo: joi.date().optional()
             }
           }
+        }
+      },
+      {
+        method: 'POST',
+        path: '/STH/v1/notify',
+        handler: function(request, reply) {
+          var timestamp = new Date(),
+              unicaCorrelatorPassed = request.headers[sthConfig.UNICA_CORRELATOR_HEADER],
+              contextResponses,
+              attributes;
+
+          request.info.sth = {
+            unicaCorrelator: unicaCorrelatorPassed || sthHelper.getUnicaCorrelator(request),
+            transactionId: sthHelper.getTransactionId(),
+            operationType: sthHelper.getOperationType(request)
+          };
+
+          if (request.payload && request.payload.contextResponses &&
+            Array.isArray(request.payload.contextResponses)) {
+            contextResponses = request.payload.contextResponses;
+            for (var i = 0; i < contextResponses.length; i++) {
+              if (contextResponses[i].contextElement &&
+                contextResponses[i].contextElement.attributes &&
+                Array.isArray(contextResponses[i].contextElement.attributes)) {
+                attributes = contextResponses[i].contextElement.attributes;
+                for (var j = 0; j < attributes.length; j++) {
+                  if (isNaN(attributes[j].value)) {
+                    // The attribute value is not a number and consequently not able to be aggregated.
+                    sthLogger.fatal('Attribute value not aggregatable', {
+                      operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
+                    });
+                    continue;
+                  }
+                  sthDatabase.storeRawData(
+                    timestamp,
+                    contextResponses[i].contextElement.id,
+                    contextResponses[i].contextElement.type,
+                    attributes[j].name,
+                    attributes[j].type,
+                    attributes[j].value,
+                    function(err) {
+                      if (err) {
+                        sthLogger.fatal(
+                          'Error when storing the raw data associated to a notification event',
+                          request.info.sth
+                        );
+                      } else {
+                        sthLogger.trace(
+                          'Raw data associated to a notification event successfully stored',
+                          request.info.sth
+                        );
+                      }
+                    }
+                  );
+                  sthDatabase.storeAggregatedData(
+                    timestamp,
+                    contextResponses[i].contextElement.id,
+                    contextResponses[i].contextElement.type,
+                    attributes[j].name,
+                    attributes[j].type,
+                    attributes[j].value,
+                    function(err) {
+                      if (err) {
+                        sthLogger.fatal(
+                          'Error when storing the aggregated data associated to a notification event',
+                          request.info.sth
+                        );
+                      } else {
+                        sthLogger.trace(
+                          'Aggregated data associated to a notification event successfully stored',
+                          request.info.sth
+                        );
+                      }
+                    }
+                  );
+                }
+              }
+            }
+          }
+          reply();
         }
       }
     ]);

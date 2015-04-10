@@ -1,11 +1,13 @@
 #<a id="section0"></a> IoT-STH
 
 * [Introduction] (#section1)
+    * [Consuming aggregated time series information] (#section1.1)
+    * [Updating aggregated time series information] (#section1.2)
 * [Dependencies](#section2)
 * [Installation](#section3)
 * [Running the STH server](#section4)
 * [Inserting data (random single events and its aggregated data) into the database](#section5)
-* [Querying data from the database](#section6)
+* [STH component complete test coverage](#section6)
 * [Contact](#section7)
 
 ##<a id="section1"></a> Introduction
@@ -21,7 +23,7 @@ means:
 1. The STH component can directly subscribe to the Context Broker to receive notifications when the entity attribute
 values change, calculating the aggregated time series information and storing it in the MongoDB instance.
 This option is called the minimalist option.
-2. A new sink can be enabled in the <a href="https://github.com/telefonicaid/fiware-cygnus" target="_blank">Cygnus</a>
+2. A new sink will be enabled in the <a href="https://github.com/telefonicaid/fiware-cygnus" target="_blank">Cygnus</a>
 component to calculate and to update the aggregated time series information
 as the entity attribute values change over time. Using Cygnus adds a set of capabilities not available in the minimalist
 option such as advanced filtering regarding the attributes to consider in the time series, advanced flow and congestion
@@ -51,6 +53,8 @@ information applies. For example, for a pair hour-minute and an origin ```2015-0
 refers to the 10th minute of the concrete hour pointed by the origin. In this example, there would be a maximum of 60
 offsets from 0 to 59 corresponding to each one of the 60 minutes within the concrete hour.
 * <b>Samples</b>: For a quadruple range-resolution-origin-offset, it is the number of samples, values, events or notifications available.
+
+###<a id="section1.1"></a> Consuming aggregated time series information
 
 The STH component exposes an HTTP REST API to let external clients query this aggregated time series information. A
 typical URL querying for this information using a GET request is the following:
@@ -113,6 +117,75 @@ An example response provided by the STH component to a request such as the previ
 In this example response, aggregated time series information for a range of minutes and a resolution of seconds is returned.
 This information has as its origin the 46nd minute, of the 2nd hour of February, the 18th, 2015. And includes data for the
 13th second, for which there is a sample and the sum (and value of that sample) is 34.59.
+
+[Top](#section0)
+
+###<a id="section1.2"></a> Updating aggregated time series information
+
+As already mentioned, there are 2 main ways to update the aggregated time series information associated to attributes.
+The so-called minimalist option and the formal one.
+
+Regarding the formal option (based on using the Cygnus component for the updating), please refer to the documentation available at the
+<a href="https://github.com/telefonicaid/fiware-cygnus" target="_blank">Cygnus component repository</a>, and more concretely at the following links:
+
+* <a href="https://github.com/telefonicaid/fiware-cygnus/tree/master/flume" href="_blank">Cygnus connector documentation</a>
+* <a href="https://github.com/telefonicaid/fiware-cygnus/tree/master/flume#orion-subscription" href="_blank">Orion subscription</a>
+
+The another option to update the aggregated time series information consists on directly subscribing the STH component
+to the Orion Context Broker to receive the corresponding notifications and generate and update the aggregated data.
+
+To subscribe the STH component to the Orion Context Broker as a way to receive attribute value updates, the following
+curl command can be used:
+
+<pre>
+curl orion.contextBroker.host:1026/v1/subscribeContext -s -S --header 'Content-Type: application/json' --header 'Accept: application/json' -d @- &lt;&lt;EOF
+{
+    "entities": [
+        {
+            "type": "Room",
+            "isPattern": "false",
+            "id": "Room1-gtv"
+        }
+    ],
+    "attributes": [
+        "temperature"
+    ],
+    "reference": "http://sth.host:1028/STH/v1/notify",
+    "duration": "P1M",
+    "notifyConditions": [
+        {
+            "type": "ONCHANGE",
+            "condValues": [
+                "pressure"
+            ]
+        }
+    ],
+    "throttling": "PT1S"
+}
+EOF
+</pre>
+
+In this request, a subscription to be notified the value of the temperature attribute of the Room1 entity whenever
+the value of the pressure attribute changes is made to an instance of the Orion Context Broker listening at orion.contextBroker.host:1026.
+The notifications will be sent to the endpoint made available by the STH component at http://sth.host:1028/STH/v1/notify
+Although it may not seem a logical subscription, it outlines the flexibility and power of the Orion Context Broker subscription mechanism.
+
+A more typical subscription will use the same attributes in the "attributes" property as well as in the "condValues".
+To this regard, take into consideration that if the list of "attributes" is empty, this is interpreted by the Orion Context Broker
+as "all the attributes of the selected entities". On the other hand, if the "condValues" includes more than one attribute,
+it is interpreted by the Orion Context Broker as an OR, this is, to send a notification if the value of any of the included attribute
+change.
+
+Remember that subscription expire. In fact, the "duration" property sets the duration of the subscription. One month in the
+proposed example.
+
+On the other hand, for the time being the STH component only is able to manage notifications in JSON format and consequently
+it is very important to set the "Accept" header to "application/json".
+
+Last but not least, the "throttling" makes it possible to control the frequency of the notifications. In this sense and for
+this concrete example, the Orion Context Broker will send notifications separated 1 second in time the least. This is, the
+time between notifications will be at least 1 second. Depending on the resolution of the aggregated data you are interested
+in, the "throttling" should be fine-tuned accordingly.
 
 [Top](#section0)
 
@@ -179,12 +252,18 @@ A running instance of a MongoDB database.
 
 The script accepts the following parameters as environment variables:
 
-- SAMPLES: The number of random events which will be generated and inserted into the database. Optional. Default value: "1".
+- SAMPLES: The number of random events which will be generated and inserted into the database. Optional. Default value: "5".
 - ENTITY_ID: The id of the entity for which the random event will be generated. Optional. Default value: "entityId".
 - ATTRIBUTE_ID: The id of the attribute for which the random event will be generated. Optional. Default value: "attributeId"
 - TYPE: The type of data of the value associated to generated random event. Optional. Default value: "quantity".
-- START_DATE: The date from which the random events will be generated. Optional. Default value: "2015-01-01T00:00:00", UTC time.
-- END_DATE: The date before which the random events will be generated. Optional. Default value: the current date and time.
+- START_DATE: The date from which the random events will be generated. Optional. Default value: the beginning of the previous
+year to avoid collisions with the testing of the Orion Context Broker notifications which use the current time.
+For example if in 2015, the start date is set to "2015-01-01T00:00:00", UTC time. Be very careful if setting the start date,
+since these collisions may arise.
+- END_DATE: The date before which the random events will be generated. Optional. Default value: the end of the previous
+year to avoid collisions with the testing of the Orion Context Broker notifications which use the current time.
+For example if in 2015, the end date is set to "2014-12-31T23:59:59", UTC time. Be very careful if setting the start date,
+since these collisions may arise.
 - MIN_VALUE: The minimum value associated to the random events. Optional. Default value: "0".
 - MAX_VALUE: The maximum value associated to the random events. Optional. Default value: "100".
 - DB_USERNAME: The username to use for the database connection. Optional. Default value: "".
@@ -202,10 +281,18 @@ In case of executing the tests with the CLEAN option set to false, the contents 
 
 [Top](#section0)
 
-##<a id="section6"></a> Querying data from the database
-The STH component source code includes a set of tests to validate the correct functioning of the component. Amongst these
-tests, there is a suite to validate the query of the aggregated time series information into the MongoDB instance. Some
-random aggregated time series data is previously inserted (using the previous test suite) to validate it querying.
+##<a id="section6"></a> STH component complete test coverage
+The STH component source code includes a set of tests to validate the correct functioning of the whole set of capabilities
+exposed by the component. This set includes:
+
+- Tests to check the connection to the database
+- Tests to check the correct starting of the STH component
+- Tests to check the STH component correctly deals with all the possible requests it may receive (including invalid URL paths (routes)
+as well as all the combinations of possible query parameters) 
+- Tests to check the correct aggregate time series information querying after inserting random events (attribute values)
+into the database
+- Tests to check the correct aggregate time series information generation when receiving (simulated) notifications by a
+(fake) Orion Content Broker
 
 ### Preconditions
 A running instance of a MongoDB database.
@@ -216,12 +303,18 @@ A running instance of a MongoDB database.
 
 The script accepts the following parameters as environment variables:
 
-- SAMPLES: The number of random events which will be generated and inserted into the database. Optional. Default value: "1".
+- SAMPLES: The number of random events which will be generated and inserted into the database. Optional. Default value: "5".
 - ENTITY_ID: The id of the entity for which the random event will be generated. Optional. Default value: "entityId".
 - ATTRIBUTE_ID: The id of the attribute for which the random event will be generated. Optional. Default value: "attributeId"
 - TYPE: The type of data of the value associated to generated random event. Optional. Default value: "quantity".
-- START_DATE: The date from which the random events will be generated. Optional. Default value: "2015-01-01T00:00:00", UTC time.
-- END_DATE: The date before which the random events will be generated. Optional. Default value: the current date and time.
+- START_DATE: The date from which the random events will be generated. Optional. Default value: the beginning of the previous
+year to avoid collisions with the testing of the Orion Context Broker notifications which use the current time.
+For example if in 2015, the start date is set to "2015-01-01T00:00:00", UTC time. Be very careful if setting the start date,
+since these collisions may arise.
+- END_DATE: The date before which the random events will be generated. Optional. Default value: the end of the previous
+year to avoid collisions with the testing of the Orion Context Broker notifications which use the current time.
+For example if in 2015, the end date is set to "2014-12-31T23:59:59", UTC time. Be very careful if setting the start date,
+since these collisions may arise.
 - MIN_VALUE: The minimum value associated to the random events. Optional. Default value: "0".
 - MAX_VALUE: The maximum value associated to the random events. Optional. Default value: "100".
 - DB_USERNAME: The username to use for the database connection. Optional. Default value: "".
@@ -230,11 +323,10 @@ The script accepts the following parameters as environment variables:
 - DB_PORT: The port to use for the database connection. Optional. Default value: "27017".
 - DB_NAME: The name of the database to use. Optional. Default value: "test".
 - CLEAN: A flag indicating if the generated collections should be removed after the tests. Optional. Default value: "true".
-- FILTER_OUT_EMPTY: A flag indicating if the empty results should be removed from the response. Optional. Default value: "true".
 
-For example, to insert 100 samples on a certain date without cleaning up the database after running the tests and query
-each one of the possible combinations of aggregation method, aggregation period, range and resolution, use:
-<pre>SAMPLES=100 START_DATE=2015-02-14T00:00:00 END_DATE=2015-02-14T23:59:59 CLEAN=false make test</pre>
+For example, to run the tests using 100 samples, certain start and end data without cleaning up the database after running
+the tests, use:
+<pre>SAMPLES=100 START_DATE=2014-02-14T00:00:00 END_DATE=2014-02-14T23:59:59 CLEAN=false make test</pre>
 
 In case of executing the tests with the CLEAN option set to false, the contents of the database can be inspected using the MongoDB
 (```mongo```) shell.

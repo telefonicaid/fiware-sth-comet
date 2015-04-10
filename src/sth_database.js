@@ -236,6 +236,227 @@
     }
   }
 
+  /**
+   * Returns the condition to be used in the MongoDB update operation for aggregated data
+   * @param {string} resolution The resolution
+   * @param {Date} timestamp The date (or timestamp) of the notification (attribute value change)
+   * @returns {Object} The update condition
+   */
+  function getAggregateUpdateCondition(resolution, timestamp) {
+    var offset;
+    switch (resolution) {
+      case sthConfig.RESOLUTION.SECOND:
+        offset = timestamp.getUTCSeconds();
+        break;
+      case sthConfig.RESOLUTION.MINUTE:
+        offset = timestamp.getUTCMinutes();
+        break;
+      case sthConfig.RESOLUTION.HOUR:
+        offset = timestamp.getUTCHours();
+        break;
+      case sthConfig.RESOLUTION.DAY:
+        offset = timestamp.getUTCDate();
+        break;
+      case sthConfig.RESOLUTION.MONTH:
+        offset = timestamp.getUTCMonth();
+        break;
+    }
+
+    return {
+      '_id.origin': sthHelper.getOrigin(timestamp, resolution),
+      '_id.resolution': resolution,
+      '_id.range': sthHelper.getRange(resolution),
+      'points.offset': offset
+    };
+  }
+
+  /**
+   * Returns the data to prepopulate the aggregated data collection with
+   * @param {string} resolution The resolution
+   */
+  function getAggregatePrepopulatedData(resolution) {
+    var points = [],
+      totalValues,
+      offsetOrigin = 0;
+
+    switch (resolution) {
+      case sthConfig.RESOLUTION.SECOND:
+        totalValues = 60;
+        break;
+      case sthConfig.RESOLUTION.MINUTE:
+        totalValues = 60;
+        break;
+      case sthConfig.RESOLUTION.HOUR:
+        totalValues = 24;
+        break;
+      case sthConfig.RESOLUTION.DAY:
+        offsetOrigin = 1;
+        totalValues = 32;
+        break;
+      case sthConfig.RESOLUTION.MONTH:
+        totalValues = 12;
+        break;
+    }
+
+    for (var i = offsetOrigin; i < totalValues; i++) {
+      points.push({
+        offset: i,
+        samples: 0,
+        sum: 0,
+        sum2: 0,
+        min: Number.POSITIVE_INFINITY,
+        max: Number.NEGATIVE_INFINITY
+      });
+    }
+
+    return points;
+  }
+
+  /**
+   * Returns the update to be used in the MongoDB update operation for aggregated data
+   * @param {number} attributeValue The value of the attribute to aggregate
+   * @returns {Object} The update operation
+   */
+  function getAggregateUpdate4Insert(attributeValue, resolution, timestamp) {
+    return {
+      '$setOnInsert': {
+        points: getAggregatePrepopulatedData(resolution)
+      }
+    };
+  }
+
+  /**
+   * Returns the update to be used in the MongoDB update operation for aggregated data
+   * @param {number} attributeValue The value of the attribute to aggregate
+   * @returns {Object} The update operation
+   */
+  function getAggregateUpdate4Update(attributeValue, resolution, timestamp) {
+    return {
+      '$inc': {
+        'points.$.samples': 1,
+        'points.$.sum': attributeValue,
+        'points.$.sum2': Math.pow(attributeValue, 2)
+      },
+      '$min': {
+        'points.$.min': attributeValue
+      },
+      '$max': {
+        'points.$.max': attributeValue
+      }
+    };
+  }
+
+  /**
+   * Stores the aggregated data for a new event (attribute value)
+   * @param {string} collectionName4Aggregated The collection name for the aggregated data
+   * @param {string} resolution The resolution
+   * @param {Date} timestamp The date the event arrived
+   * @param {string} entityId The entity id associated to updated attribute
+   * @param {string} entityType The entity type associated to the updated attribute
+   * @param {string} attributeId The updated attribute id
+   * @param {string} attributeType The updated attribute type
+   * @param {string} attributeValue The updated attribute value
+   * @param {Function} callback Function to call once the operation completes
+   */
+  function storeAggregatedData4Resolution(
+    collectionName4Aggregated, resolution, timestamp, entityId, entityType,
+    attributeId, attributeType, attributeValue, callback) {
+    /*
+     Currently the MongoDB $ positional update operator cannot be combined with upserts
+      (see http://docs.mongodb.org/manual/reference/operator/update/positional/#upsert).
+      This issue is known and currently under study: https://jira.mongodb.org/browse/SERVER-3326
+      Once the issue is solved, it will be possible to prepopulate collections or update their docs
+      using just one update operation like this:
+      getAggregatedModel(collectionName4Aggregated).update(
+        // Returning all the update operators currently returned by getAggregateUpdate4Insert
+        //  and getAggregateUpdate4Update in the same object
+        getAggregateUpdateCondition(resolution, timestamp),
+        getAggregateUpdate(attributeValue, resolution, timestamp),
+        {upsert: true},
+        function (err) {
+          callback(err);
+        }
+      );
+     */
+    // Prepopulate the aggregated data collection if there is no entry for the concrete
+    //  origin, resolution and range.
+    getAggregatedModel(collectionName4Aggregated).update(
+      getAggregateUpdateCondition(resolution, timestamp),
+      getAggregateUpdate4Insert(attributeValue, resolution, timestamp),
+      {upsert: true},
+      function (err) {
+        // Once the aggregated data collection has been prepopulated (if needed),
+        //  aggregate the new value received.
+        getAggregatedModel(collectionName4Aggregated).update(
+          getAggregateUpdateCondition(resolution, timestamp),
+          getAggregateUpdate4Update(attributeValue, resolution, timestamp),
+          function (err) {
+            if (callback) {
+              callback(err);
+            }
+          }
+        );
+      }
+    );
+  }
+
+  /**
+   * Stores the aggregated data for a new event (attribute value)
+   * @param {Date} timestamp The date the event arrived
+   * @param {string} entityId The entity id associated to updated attribute
+   * @param {string} entityType The entity type associated to the updated attribute
+   * @param {string} attributeId The updated attribute id
+   * @param {string} attributeType The updated attribute type
+   * @param {string} attributeValue The updated attribute value
+   * @param {Function} callback Function to call once the operation completes
+   */
+  function storeAggregatedData(
+    timestamp, entityId, entityType, attributeId, attributeType, attributeValue, callback) {
+    var collectionName4Aggregated = getCollectionName4Aggregated(entityId, attributeId);
+
+    storeAggregatedData4Resolution(collectionName4Aggregated, sthConfig.RESOLUTION.SECOND, timestamp,
+      entityId, entityType, attributeId, attributeType, attributeValue, callback);
+
+    storeAggregatedData4Resolution(collectionName4Aggregated, sthConfig.RESOLUTION.MINUTE, timestamp,
+      entityId, entityType, attributeId, attributeType, attributeValue, callback);
+
+    storeAggregatedData4Resolution(collectionName4Aggregated, sthConfig.RESOLUTION.HOUR, timestamp,
+      entityId, entityType, attributeId, attributeType, attributeValue, callback);
+
+    storeAggregatedData4Resolution(collectionName4Aggregated, sthConfig.RESOLUTION.DAY, timestamp,
+      entityId, entityType, attributeId, attributeType, attributeValue, callback);
+
+    storeAggregatedData4Resolution(collectionName4Aggregated, sthConfig.RESOLUTION.MONTH, timestamp,
+      entityId, entityType, attributeId, attributeType, attributeValue, callback);
+  }
+
+  /**
+   * Stores the raw data for a new event (attribute value)
+   * @param {Date} timestamp The date the event arrived
+   * @param {string} entityId The entity id associated to updated attribute
+   * @param {string} entityType The entity type associated to the updated attribute
+   * @param {string} attributeId The updated attribute id
+   * @param {string} attributeType The updated attribute type
+   * @param {string} attributeValue The updated attribute value
+   * @param {Function} callback Function to call once the operation completes
+   */
+  function storeRawData(
+    timestamp, entityId, entityType, attributeId, attributeType, attributeValue, callback) {
+    var collectionName4Events = getCollectionName4Events(entityId, attributeId);
+    var theEvent = new getEventModel(collectionName4Events)({
+      timestamp: timestamp,
+      type: attributeType,
+      value: attributeValue
+    });
+    theEvent.save(
+      function (err) {
+        if (callback) {
+          callback(err)
+        }
+      }
+    );
+  }
+
   module.exports = function (theSthConfig, theSthLogger, theSthHelper) {
     sthConfig = theSthConfig;
     sthLogger = theSthLogger;
@@ -254,7 +475,11 @@
       getCollectionName4Events: getCollectionName4Events,
       getCollectionName4Aggregated: getCollectionName4Aggregated,
       getCollection: getCollection,
-      getAggregatedData: getAggregatedData
+      getAggregatedData: getAggregatedData,
+      getAggregateUpdateCondition: getAggregateUpdateCondition,
+      getAggregatePrepopulatedData: getAggregatePrepopulatedData,
+      storeAggregatedData: storeAggregatedData,
+      storeRawData: storeRawData
     };
   };
 })();

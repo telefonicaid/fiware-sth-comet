@@ -48,45 +48,8 @@
    *  of the operation
    */
   function prePopulateAggregated(event, resolution, callback) {
-    var points = [],
-      totalValues,
-      range,
-      offsetOrigin = 0;
-
-    switch (resolution) {
-      case sthConfig.RESOLUTION.SECOND:
-        totalValues = 60;
-        range = sthConfig.RANGE.MINUTE;
-        break;
-      case sthConfig.RESOLUTION.MINUTE:
-        totalValues = 60;
-        range = sthConfig.RANGE.HOUR;
-        break;
-      case sthConfig.RESOLUTION.HOUR:
-        totalValues = 24;
-        range = sthConfig.RANGE.DAY;
-        break;
-      case sthConfig.RESOLUTION.DAY:
-        offsetOrigin = 1;
-        totalValues = 32;
-        range = sthConfig.RANGE.MONTH;
-        break;
-      case sthConfig.RESOLUTION.MONTH:
-        totalValues = 12;
-        range = sthConfig.RANGE.YEAR;
-        break;
-    }
-
-    for (var i = offsetOrigin; i < totalValues; i++) {
-      points.push({
-        offset: i,
-        samples: 0,
-        sum: 0,
-        sum2: 0,
-        min: Number.POSITIVE_INFINITY,
-        max: Number.NEGATIVE_INFINITY
-      });
-    }
+    var points = sthDatabase.getAggregatePrepopulatedData(resolution),
+        range = sthHelper.getRange(resolution);
 
     var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
       sthTestConfig.ENTITY_ID, sthTestConfig.ATTRIBUTE_ID);
@@ -104,40 +67,6 @@
     aggregatedData.save(function (err) {
       return callback(err);
     });
-  }
-
-  /**
-   * Returns the condition to be used in the MongoDB update operation for aggregated data
-   * @param {Object} event The event
-   * @param {string} resolution The resolution
-   * @returns {Object} The update condition
-   */
-  function getAggregateUpdateCondition(event, resolution) {
-    var offset;
-    switch (resolution) {
-      case sthConfig.RESOLUTION.SECOND:
-        offset = event.timestamp.getUTCSeconds();
-        break;
-      case sthConfig.RESOLUTION.MINUTE:
-        offset = event.timestamp.getUTCMinutes();
-        break;
-      case sthConfig.RESOLUTION.HOUR:
-        offset = event.timestamp.getUTCHours();
-        break;
-      case sthConfig.RESOLUTION.DAY:
-        offset = event.timestamp.getUTCDate();
-        break;
-      case sthConfig.RESOLUTION.MONTH:
-        offset = event.timestamp.getUTCMonth();
-        break;
-    }
-
-    return {
-      '_id.origin': sthHelper.getOrigin(event.timestamp, resolution),
-      '_id.resolution': resolution,
-      '_id.range': sthHelper.getRange(resolution),
-      'points.offset': offset
-    };
   }
 
   /**
@@ -250,7 +179,7 @@
     var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
       sthTestConfig.ENTITY_ID, sthTestConfig.ATTRIBUTE_ID);
     sthDatabase.getAggregatedModel(collectionName4Aggregated).update(
-      getAggregateUpdateCondition(anEvent, resolution),
+      sthDatabase.getAggregateUpdateCondition(resolution, anEvent.timestamp),
       getAggregateUpdate(anEvent),
       function (err) {
         return done(err);
@@ -379,6 +308,7 @@
   /**
    * Returns a valid URL based on the aggregation method, the aggregation period and
    *  a range of dates
+   * @param {string} type The type of the operation (i.e.: read, notify)
    * @param {string} aggrMethod The aggregation method (typically: 'max', 'min',
    *  'sum', 'sum2')
    * @param {string} aggrPeriod The aggregation period (typically: 'month', 'day',
@@ -389,15 +319,20 @@
    *  format
    * @returns {string} The generated valid URL
    */
-  function getValidURL(aggrMethod, aggrPeriod, dateFrom, dateTo) {
-    return 'http://' + sthConfig.HOST + ':' + sthConfig.PORT +
-      '/STH/v1/contextEntities/type/quantity/' +
-      'id/' + sthTestConfig.ENTITY_ID +
-      '/attributes/' + sthTestConfig.ATTRIBUTE_ID +
-      '?aggrMethod=' + (aggrMethod || 'min') +
-      '&aggrPeriod=' + (aggrPeriod || 'second') +
-      (dateFrom ? '&dateFrom=' + dateFrom : '') +
-      (dateTo ? '&dateTo=' + dateTo : '');
+  function getValidURL(type, aggrMethod, aggrPeriod, dateFrom, dateTo) {
+    var url = 'http://' + sthConfig.HOST + ':' + sthConfig.PORT;
+    switch(type) {
+      case sthTestConfig.API_OPERATION.READ:
+        return url + '/STH/v1/contextEntities/type/quantity/' +
+          'id/' + sthTestConfig.ENTITY_ID +
+          '/attributes/' + sthTestConfig.ATTRIBUTE_ID +
+          '?aggrMethod=' + (aggrMethod || 'min') +
+          '&aggrPeriod=' + (aggrPeriod || 'second') +
+          (dateFrom ? '&dateFrom=' + dateFrom : '') +
+          (dateTo ? '&dateTo=' + dateTo : '');
+      case sthTestConfig.API_OPERATION.NOTIFY:
+        return url + '/STH/v1/notify';
+    }
   }
 
   /**
@@ -407,7 +342,7 @@
    *  'noDateFrom' and 'noDateTo'
    * @returns {string}
    */
-  function getInvalidURL(options) {
+  function getInvalidURL(type, options) {
     var url = 'http://' + sthConfig.HOST + ':' + sthConfig.PORT,
       isParams = false;
 
@@ -422,26 +357,29 @@
       return separator;
     }
 
-    if (!options.invalidPath) {
-      url += '/STH/v1/contextEntities/type/quantity/' +
-      'id/' + sthTestConfig.ENTITY_ID +
-      '/attributes/' + sthTestConfig.ATTRIBUTE_ID;
-    } else {
-      url += '/this/is/an/invalid/path';
+    switch(type) {
+      case 'read':
+        if (!options.invalidPath) {
+          url += '/STH/v1/contextEntities/type/quantity/' +
+          'id/' + sthTestConfig.ENTITY_ID +
+          '/attributes/' + sthTestConfig.ATTRIBUTE_ID;
+        } else {
+          url += '/this/is/an/invalid/path';
+        }
+        if (!options.noAggrMethod) {
+          url += (getQuerySeparator(true) + 'aggrMethod=min');
+        }
+        if (!options.noAggrPeriod) {
+          url += (getQuerySeparator() + 'aggrPeriod=second');
+        }
+        if (!options.noDateFrom) {
+          url += (getQuerySeparator() + 'dateFrom=2015-01-01T00:00:00');
+        }
+        if (!options.noDateTo) {
+          url += (getQuerySeparator() + 'dateTo=2015-02-20T23:00:00');
+        }
+        return url;
     }
-    if (!options.noAggrMethod) {
-      url += (getQuerySeparator(true) + 'aggrMethod=min');
-    }
-    if (!options.noAggrPeriod) {
-      url += (getQuerySeparator() + 'aggrPeriod=second');
-    }
-    if (!options.noDateFrom) {
-      url += (getQuerySeparator() + 'dateFrom=2015-01-01T00:00:00');
-    }
-    if (!options.noDateTo) {
-      url += (getQuerySeparator() + 'dateTo=2015-02-20T23:00:00');
-    }
-    return url;
   }
 
   /**
@@ -477,7 +415,7 @@
     }
 
     request({
-      uri: getValidURL(aggrMethod, resolution,
+      uri: getValidURL(sthTestConfig.API_OPERATION.READ, aggrMethod, resolution,
         sthHelper.getISODateString(
           sthHelper.getOrigin(
             new Date(
@@ -519,7 +457,7 @@
    */
   function dataAvailableSinceDateTest(aggrMethod, resolution, done) {
     request({
-      uri: getValidURL(aggrMethod, resolution,
+      uri: getValidURL(sthTestConfig.API_OPERATION.READ, aggrMethod, resolution,
         sthHelper.getISODateString(
           sthHelper.getOrigin(
             events[0].timestamp,
@@ -688,6 +626,122 @@
     }
   }
 
+  /**
+   * A mocha test suite to check the reception of notifications by the Orion Context Broker
+   */
+  function eventNotificationSuite() {
+    describe('complex notification', function() {
+      before(function () {
+        events = [];
+      });
+
+      describe('reception', function () {
+        it('should attend the notification', complexNotificationTest);
+      });
+
+      describe('for each new notification', function () {
+        describe('data retrieval',
+          dataRetrievalSuite.bind(null, 'min'));
+
+        describe('data retrieval',
+          dataRetrievalSuite.bind(null, 'max'));
+
+        describe('data retrieval',
+          dataRetrievalSuite.bind(null, 'sum'));
+
+        describe('data retrieval',
+          dataRetrievalSuite.bind(null, 'sum2'));
+      });
+    });
+  }
+
+  /**
+   * A mocha test to check the reception of a new notification by the Orion Context Broker
+   * @param {Function} done The mocha done() callback function
+   */
+  function complexNotificationTest(done) {
+    var anEvent = {
+      timestamp: new Date(),
+      type: 'attributeIdType',
+      value: 66.6
+    };
+    request({
+      uri: getValidURL(sthTestConfig.API_OPERATION.NOTIFY),
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      json: true,
+      body: {
+        "subscriptionId" : "1234567890ABCDF123456789",
+        "originator" : "orion.contextBroker.instance",
+        "contextResponses" : [
+          {
+            "contextElement" : {
+              "attributes" : [
+                {
+                  "name" : "attributeId",
+                  "type" : anEvent.type,
+                  "value" : anEvent.value
+                }
+              ],
+              "type" : "entityIdType",
+              "isPattern" : "false",
+              "id" : "entityId"
+            },
+            "statusCode" : {
+              "code" : "200",
+              "reasonPhrase" : "OK"
+            }
+          },
+          {
+            "contextElement" : {
+              "attributes" : [
+                {
+                  "name" : "attributeId",
+                  "type" : anEvent.type,
+                  "value" : anEvent.value
+                }
+              ],
+              "type" : "entityIdType",
+              "isPattern" : "false",
+              "id" : "entityId"
+            },
+            "statusCode" : {
+              "code" : "200",
+              "reasonPhrase" : "OK"
+            }
+          },
+          {
+            "contextElement" : {
+              "attributes" : [
+                {
+                  "name" : "attributeId",
+                  "type" : anEvent.type,
+                  "value" : anEvent.value
+                }
+              ],
+              "type" : "entityIdType",
+              "isPattern" : "false",
+              "id" : "entityId"
+            },
+            "statusCode" : {
+              "code" : "200",
+              "reasonPhrase" : "OK"
+            }
+          }
+        ]
+      }
+    }, function (err, response, body) {
+      for (var i = 0; i < 3; i++) {
+        events.push(anEvent);
+      }
+      expect(body).to.be(undefined);
+      done(err);
+    });
+  }
+
   module.exports = function (theSthTestConfiguration, theSthConfiguration, theSthDatabase, theSthHelper) {
     sthTestConfig = theSthTestConfiguration;
     sthConfig = theSthConfiguration;
@@ -697,7 +751,6 @@
       getRandomDate: getRandomDate,
       createEvent: createEvent,
       prePopulateAggregated: prePopulateAggregated,
-      getAggregateUpdateCondition: getAggregateUpdateCondition,
       getAggregateUpdate: getAggregateUpdate,
       getDayOfYear: getDayOfYear,
       addEventTest: addEventTest,
@@ -711,7 +764,9 @@
       noDataSinceDateTest: noDataSinceDateTest,
       dataAvailableSinceDateTest: dataAvailableSinceDateTest,
       dataRetrievalSuite: dataRetrievalSuite,
-      cleanDatabaseSuite: cleanDatabaseSuite
+      cleanDatabaseSuite: cleanDatabaseSuite,
+      eventNotificationSuite: eventNotificationSuite,
+      complexNotificationTest: complexNotificationTest
     };
   };
 })();

@@ -55,7 +55,7 @@
   describe('invalid routes', function() {
     it('should respond with 404 - Not Found if invalid HTTP method', function(done) {
       request({
-        uri: sthTestHelper.getValidURL(),
+        uri: sthTestHelper.getValidURL(sthTestConfig.API_OPERATION.READ),
         method: 'POST'
       }, function(err, response, body) {
         var bodyJSON = JSON.parse(body);
@@ -69,7 +69,7 @@
 
     it('should respond with 404 - Not Found if invalid path', function(done) {
       request({
-        uri: sthTestHelper.getInvalidURL({
+        uri: sthTestHelper.getInvalidURL(sthTestConfig.API_OPERATION.READ, {
           invalidPath: true
         }),
         method: 'GET'
@@ -85,7 +85,7 @@
 
     it('should respond with 400 - Bad Request if missing aggrMethod param', function(done) {
       request({
-        uri: sthTestHelper.getInvalidURL({
+        uri: sthTestHelper.getInvalidURL(sthTestConfig.API_OPERATION.READ, {
           noAggrMethod: true
         }),
         method: 'GET'
@@ -104,7 +104,7 @@
 
     it('should respond with 400 - Bad Request if missing aggrPeriod param', function(done) {
       request({
-        uri: sthTestHelper.getInvalidURL({
+        uri: sthTestHelper.getInvalidURL(sthTestConfig.API_OPERATION.READ, {
           noAggrPeriod: true
         }),
         method: 'GET'
@@ -123,7 +123,7 @@
 
     it('should respond with 200 - OK if missing fromDate param', function(done) {
       request({
-        uri: sthTestHelper.getInvalidURL({
+        uri: sthTestHelper.getInvalidURL(sthTestConfig.API_OPERATION.READ, {
           noDateFrom: true
         }),
         method: 'GET'
@@ -139,7 +139,7 @@
 
     it('should respond with 200 - OK if missing toDate param', function(done) {
       request({
-        uri: sthTestHelper.getInvalidURL({
+        uri: sthTestHelper.getInvalidURL(sthTestConfig.API_OPERATION.READ, {
           noDateTo: true
         }),
         method: 'GET'
@@ -155,7 +155,7 @@
 
     it('should respond with 200 - OK if missing fromDate and toDate params', function(done) {
       request({
-        uri: sthTestHelper.getInvalidURL({
+        uri: sthTestHelper.getInvalidURL(sthTestConfig.API_OPERATION.READ, {
           noDateFrom: true,
           noDateTo: true
         }),
@@ -190,6 +190,8 @@
     describe('data retrieval',
       sthTestHelper.dataRetrievalSuite.bind(null, 'sum2'));
   }
+
+  describe('event notification by the Orion Context Broker', sthTestHelper.eventNotificationSuite);
 
   describe('should clean the data if requested', sthTestHelper.cleanDatabaseSuite);
 
