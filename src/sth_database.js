@@ -5,7 +5,35 @@
 
   var mongoose = require('mongoose');
 
-  var sthConfig, sthLogger, sthHelper, connectionURL, eventSchema, aggregatedSchema;
+  var sthConfig, sthLogger, sthHelper, connectionURL;
+
+  // Event collection schema
+  var eventSchema = mongoose.Schema({
+    timestamp: Date,
+    type: String,
+    value: Number
+  });
+
+  // Aggregated collection schema
+  var aggregatedSchema = mongoose.Schema({
+    _id: {
+      type: {
+        range: String,
+        resolution: String,
+        attrType: String,
+        origin: Date
+      },
+      select: true
+    },
+    points: [{
+      offset: Number,
+      samples: Number,
+      sum: Number,
+      sum2: Number,
+      min: Number,
+      max: Number
+    }]
+  });
 
   /**
    * Connects to a (MongoDB) database endpoint asynchronously
@@ -13,48 +41,28 @@
    * @param {string} host The host hosting the database
    * @param {string} port The port where the database server is listening to
    * @param {string} database The name of the database to connect to
+   * @param {Number} poolSize The size of the pool of connections to the database
    * @param {Function} callback A callback to inform about the result of the operation
    */
-  function connect(authentication, host, port, database, callback) {
+  function connect(authentication, host, port, database, poolSize, callback) {
     connectionURL = 'mongodb://' + authentication + '@' + host + ':' + port +
     '/' + database;
 
-    mongoose.connect(connectionURL, function (err) {
-      if (err) {
-        // Error when connecting to the MongoDB database
-        return callback(err);
+    mongoose.connect(connectionURL,
+      {
+        server: {
+          poolSize: poolSize
+        }
+      },
+      function (err) {
+        if (err) {
+          // Error when connecting to the MongoDB database
+          return callback(err);
+        }
+
+        return callback();
       }
-
-      // Event collection schema
-      eventSchema = mongoose.Schema({
-        timestamp: Date,
-        type: String,
-        value: Number
-      });
-
-      // Aggregated collection schema
-      aggregatedSchema = mongoose.Schema({
-        _id: {
-          type: {
-            range: String,
-            resolution: String,
-            attrType: String,
-            origin: Date
-          },
-          select: true
-        },
-        points: [{
-          offset: Number,
-          samples: Number,
-          sum: Number,
-          sum2: Number,
-          min: Number,
-          max: Number
-        }]
-      });
-
-      return callback();
-    });
+    );
   }
 
   /**
@@ -115,32 +123,83 @@
   }
 
   /**
+   * Returns the database name based on the service
+   * @param {string} service The service
+   * @return {string} The database name
+   */
+  function getDatabase(service) {
+    return service;
+  }
+
+  /**
    * Return the name of the collection which will store the raw events
+   * @param {string} servicePath The service path of the entity the event is related to
    * @param {string} entityId The entity id related to the event
+   * @param {string} entityType The type of entity related to the event
    * @param {string} attributeId The attribute id related to the event
+   * @param {string} attributeType The type of the attribute related to the event
    * @returns {string} The collection name
    */
-  function getCollectionName4Events(entityId, attributeId) {
-    return 'sth.' + entityId + '.' + attributeId;
+  function getCollectionName4Events(servicePath, entityId, entityType,
+                                    attributeId, attributeType) {
+    switch(sthConfig.DATA_MODEL) {
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+        return 'sth.' + servicePath;
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+        return 'sth.' + servicePath + '_' + entityId + (entityType ? '_' + entityType : '');
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+        return 'sth.' + servicePath + '_' + entityId + (entityType ? '_' + entityType : '') +
+          '_' + attributeId + (attributeType ? '_' + attributeType : '');
+    }
   }
 
   /**
    * Return the name of the collection which will store the aggregated data
+   * @param {string} servicePath The service path of the entity the event is related to
    * @param {string} entityId The entity id related to the event
+   * @param {string} entityType The type of entity related to the event
    * @param {string} attributeId The attribute id related to the event
+   * @param {string} attributeType The type of the attribute related to the event
    * @returns {string} The collection name
    */
-  function getCollectionName4Aggregated(entityId, attributeId) {
-    return getCollectionName4Events(entityId, attributeId) + '.aggregated';
+  function getCollectionName4Aggregated(servicePath, entityId, entityType,
+                                        attributeId, attributeType) {
+    return getCollectionName4Events(
+        servicePath, entityId, entityType, attributeId, attributeType
+      ) + '.aggr';
   }
 
   /**
    * Returns a reference to a collection of the database asynchronously
-   * @param {string} name The collection's name
+   * @param {string} databaseName The database's name
+   * @param {string} collectionName The collection's name
+   * @param {boolean} shouldCreate Flag indicating if the collection should be created
+   *  if it does not exist
    * @param {Function} callback Callback function to be called with the results
    */
-  function getCollection(name, callback) {
-    mongoose.connection.db.collection(name, {strict: true}, callback);
+  function getCollection(databaseName, collectionName, shouldCreate, callback) {
+    // Switch to the right database
+    mongoose.connection.useDb(databaseName);
+    // Get the connection and notify it via the callback.
+    mongoose.connection.db.collection(collectionName, {strict: true},
+      function (err, collection) {
+        if (err &&
+          (err.message === 'Collection ' + collectionName + ' does not exist. Currently in strict mode.') &&
+          shouldCreate) {
+          mongoose.connection.db.createCollection(collectionName, {strict: true},
+            function (err, collection) {
+              callback(err, collection);
+            }
+          );
+        } else {
+          if (err) {
+            callback(err);
+          } else {
+            callback(null, collection);
+          }
+        }
+      }
+    );
   }
 
   /**
@@ -351,16 +410,11 @@
    * @param {string} collectionName4Aggregated The collection name for the aggregated data
    * @param {string} resolution The resolution
    * @param {Date} timestamp The date the event arrived
-   * @param {string} entityId The entity id associated to updated attribute
-   * @param {string} entityType The entity type associated to the updated attribute
-   * @param {string} attributeId The updated attribute id
-   * @param {string} attributeType The updated attribute type
    * @param {string} attributeValue The updated attribute value
    * @param {Function} callback Function to call once the operation completes
    */
   function storeAggregatedData4Resolution(
-    collectionName4Aggregated, resolution, timestamp, entityId, entityType,
-    attributeId, attributeType, attributeValue, callback) {
+    collectionName4Aggregated, resolution, timestamp, attributeValue, callback) {
     /*
      Currently the MongoDB $ positional update operator cannot be combined with upserts
       (see http://docs.mongodb.org/manual/reference/operator/update/positional/#upsert).
@@ -411,23 +465,24 @@
    * @param {Function} callback Function to call once the operation completes
    */
   function storeAggregatedData(
-    timestamp, entityId, entityType, attributeId, attributeType, attributeValue, callback) {
-    var collectionName4Aggregated = getCollectionName4Aggregated(entityId, attributeId);
+    timestamp, servicePath, entityId, entityType, attributeId, attributeType, attributeValue, callback) {
+    var collectionName4Aggregated = getCollectionName4Aggregated(
+      servicePath, entityId, entityType, attributeId, attributeType);
 
     storeAggregatedData4Resolution(collectionName4Aggregated, sthConfig.RESOLUTION.SECOND, timestamp,
-      entityId, entityType, attributeId, attributeType, attributeValue, callback);
+      attributeValue, callback);
 
     storeAggregatedData4Resolution(collectionName4Aggregated, sthConfig.RESOLUTION.MINUTE, timestamp,
-      entityId, entityType, attributeId, attributeType, attributeValue, callback);
+      attributeValue, callback);
 
     storeAggregatedData4Resolution(collectionName4Aggregated, sthConfig.RESOLUTION.HOUR, timestamp,
-      entityId, entityType, attributeId, attributeType, attributeValue, callback);
+      attributeValue, callback);
 
     storeAggregatedData4Resolution(collectionName4Aggregated, sthConfig.RESOLUTION.DAY, timestamp,
-      entityId, entityType, attributeId, attributeType, attributeValue, callback);
+      attributeValue, callback);
 
     storeAggregatedData4Resolution(collectionName4Aggregated, sthConfig.RESOLUTION.MONTH, timestamp,
-      entityId, entityType, attributeId, attributeType, attributeValue, callback);
+      attributeValue, callback);
   }
 
   /**
@@ -441,8 +496,10 @@
    * @param {Function} callback Function to call once the operation completes
    */
   function storeRawData(
-    timestamp, entityId, entityType, attributeId, attributeType, attributeValue, callback) {
-    var collectionName4Events = getCollectionName4Events(entityId, attributeId);
+    timestamp, servicePath, entityId, entityType, attributeId,
+    attributeType, attributeValue, callback) {
+    var collectionName4Events = getCollectionName4Events(
+      servicePath, entityId, entityType, attributeId, attributeType);
     var theEvent = new getEventModel(collectionName4Events)({
       timestamp: timestamp,
       type: attributeType,
@@ -472,6 +529,7 @@
       closeConnection: closeConnection,
       getEventModel: getEventModel,
       getAggregatedModel: getAggregatedModel,
+      getDatabase: getDatabase,
       getCollectionName4Events: getCollectionName4Events,
       getCollectionName4Aggregated: getCollectionName4Aggregated,
       getCollection: getCollection,

@@ -6,9 +6,12 @@
   var ENV = process.env;
 
   module.exports = {
+    DB_NAME: ENV.DB_NAME || 'test',
     SAMPLES: ENV.SAMPLES || 5,
     ENTITY_ID: ENV.ENTITY_ID || 'entityId',
+    ENTITY_TYPE: ENV.ENTITY_TYPE || 'entityType',
     ATTRIBUTE_ID: ENV.ATTRIBUTE_ID || 'attributeId',
+    ATTRIBUTE_TYPE: ENV.ATTRIBUTE_TYPE || 'attributeType',
     TYPE: ENV.TYPE || 'quantity',
     // If not set, the start date for the generation of random events is set
     //  by default to the beginning of the previous year to avoid collisions

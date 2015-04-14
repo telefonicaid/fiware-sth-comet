@@ -10,21 +10,14 @@
   var dbUsername = ENV.DB_USERNAME || '';
   var dbPassword = ENV.DB_PASSWORD || '';
 
+  if (['<servicePath>', '<servicePath-entity>', '<servicePath-entity-attribute>'].indexOf(ENV.DATA_MODEL))
+
   module.exports = {
-    LOG_LEVEL: ENV.LOG_LEVEL || 'info',
-    LOG_TO_CONSOLE: ENV.LOG_TO_CONSOLE !== 'false',
-    LOG_TO_FILE: ENV.LOG_TO_FILE !== 'false',
-    LOG_DIR: ENV.LOG_DIR || '.' + path.sep + 'log',
-    LOG_FILE_NAME: ENV.LOG_FILE_NAME || 'sth_app.log',
-    DB_NAME: ENV.DB_NAME || 'test',
-    DB_USERNAME: dbUsername,
-    DB_PASSWORD: dbPassword,
-    DB_AUTHENTICATION: (dbUsername && dbPassword) ?
-      (dbUsername + ':' + dbPassword) : '',
-    DB_HOST: ENV.DB_HOST || 'localhost',
-    DB_PORT: ENV.DB_PORT || '27017',
-    HOST: ENV.HOST || 'localhost',
-    PORT: ENV.PORT || 8666,
+    DATA_MODELS: {
+      COLLECTIONS_PER_SERVICE_PATH: 1,
+      COLLECTIONS_PER_ENTITY: 2,
+      COLLECTIONS_PER_ATTRIBUTE: 3
+    },
     RANGE: {
       YEAR: 'year',
       MONTH: 'month',
@@ -57,7 +50,30 @@
       SERVER_START: 'OPER_STH_SERVER_START',
       SERVER_LOG: 'OPER_STH_SERVER_LOG',
       SERVER_STOP: 'OPER_STH_SERVER_STOP'
-    },
-    FILTER_OUT_EMPTY: ENV.FILTER_OUT_EMPTY !== 'false'
+    }
   };
+
+  module.exports.LOG_LEVEL = ENV.LOG_LEVEL || 'info';
+  module.exports.LOG_TO_CONSOLE = ENV.LOG_TO_CONSOLE !== 'false';
+  module.exports.LOG_TO_FILE = ENV.LOG_TO_FILE !== 'false';
+  module.exports.LOG_DIR = ENV.LOG_DIR || '.' + path.sep + 'log';
+  module.exports.LOG_FILE_NAME = ENV.LOG_FILE_NAME || 'sth_app.log';
+  module.exports.SERVICE = ENV.SERVICE || 'orion';
+  module.exports.SERVICE_PATH = ENV.SERVICE_PATH || '/';
+  module.exports.POOL_SIZE = ENV.POOL_SIZE && !NaN(ENV.POOL_SIZE) ? parseInt(ENV.POOL_SIZE) : 5;
+  module.exports.DATA_MODEL = [
+      module.exports.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH,
+      module.exports.DATA_MODELS.COLLECTIONS_PER_ENTITY,
+      module.exports.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE
+    ].indexOf(ENV.DATA_MODEL) !== -1 ? ENV.DATA_MODEL :
+      module.exports.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE;
+  module.exports.DB_USERNAME = dbUsername;
+  module.exports.DB_PASSWORD = dbPassword;
+  module.exports.DB_AUTHENTICATION = (dbUsername && dbPassword) ?
+      (dbUsername + ':' + dbPassword) : '';
+  module.exports.DB_HOST = ENV.DB_HOST || 'localhost';
+  module.exports.DB_PORT = ENV.DB_PORT || '27017';
+  module.exports.HOST = ENV.HOST || 'localhost';
+  module.exports.PORT = ENV.PORT || 8666;
+  module.exports.FILTER_OUT_EMPTY = ENV.FILTER_OUT_EMPTY !== 'false';
 })();

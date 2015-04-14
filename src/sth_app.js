@@ -59,7 +59,7 @@
 
     // Connect to the MongoDB database
     sthDatabase.connect(sthConfig.DB_AUTHENTICATION, sthConfig.DB_HOST,
-      sthConfig.DB_PORT, sthConfig.DB_NAME, function (err) {
+      sthConfig.DB_PORT, sthConfig.SERVICE, sthConfig.POOL_SIZE, function (err) {
         if (err) {
           // Error when connecting to the MongoDB database
           return exitGracefully(err, callback.bind(null, err));

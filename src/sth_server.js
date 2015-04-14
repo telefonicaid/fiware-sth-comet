@@ -5,6 +5,7 @@
 
   var hapi = require('hapi');
   var joi = require('joi');
+  var boom = require('boom');
 
   var server, sthDatabase, sthConfig, sthLogger, sthHelper;
 
@@ -73,18 +74,28 @@
             request.info.sth);
 
           // Compose the collection name for the required data
+          var databaseName = sthDatabase.getDatabase(
+            request.headers['fiware-service']);
+
+          // Compose the collection name for the required data
           var collectionName = sthDatabase.getCollectionName4Aggregated(
-            request.params.entityId, request.params.attributeId);
+            request.headers['fiware-servicepath'],
+            request.params.entityId,
+            'entityType',
+            request.params.attributeId,
+            'attributeType'
+          );
 
           // Check if the collection exists
           sthDatabase.getCollection(
+            databaseName,
             collectionName,
+            false,
             function (err, collection) {
               if (err) {
                 // The collection does not exist, reply with en empty response
                 sthLogger.warn(
-                  'The collection %s does not exist', collectionName,
-                  request.info.sth);
+                  'The collection %s does not exist', collectionName, request.info.sth);
 
                 var range = sthHelper.getRange(request.query.aggrPeriod);
                 sthLogger.trace(
@@ -94,8 +105,7 @@
               } else {
                 // The collection exists
                 sthLogger.trace(
-                  'The collection %s exists', collectionName,
-                  request.info.sth);
+                  'The collection %s exists', collectionName, request.info.sth);
 
                 sthDatabase.getAggregatedData(collectionName, request.query.aggrMethod,
                   request.query.aggrPeriod, request.query.dateFrom, request.query.dateTo,
@@ -106,8 +116,7 @@
                       sthLogger.error(
                         'Error when getting data from %s', collectionName, request.info.sth);
                       sthLogger.trace(
-                        'Responding with 500 - Internal Error',
-                        request.info.sth);
+                        'Responding with 500 - Internal Error', request.info.sth);
                       response = reply(err);
                     } else if (!result || !result.length) {
                       // No aggregated data available for the request
@@ -117,8 +126,7 @@
 
                       var range = sthHelper.getRange(request.query.aggrPeriod);
                       sthLogger.trace(
-                        'Responding with no points',
-                        request.info.sth);
+                        'Responding with no points', request.info.sth);
                       response = reply(
                         sthHelper.getNGSIPayload(
                           request.params.entityId,
@@ -128,8 +136,7 @@
                       );
                     } else {
                       sthLogger.trace(
-                        'Responding with %s docs', result.length,
-                        request.info.sth);
+                        'Responding with %s docs', result.length, request.info.sth);
                       response = reply(
                         sthHelper.getNGSIPayload(
                           request.params.entityId,
@@ -147,9 +154,23 @@
         },
         config: {
           validate: {
+            headers: function(value, options, next) {
+              var error;
+              if (!value['fiware-service']) {
+                error = boom.badRequest('child "fiware-service" fails because [fiware-service is required]');
+                error.output.payload.validation = { source: 'headers', keys: ['fiware-service'] };
+                next(error);
+
+              } else if (!value['fiware-servicepath']) {
+                error = boom.badRequest('child "fiware-servicepath" fails because [fiware-servicepath is required]');
+                error.output.payload.validation = { source: 'headers', keys: ['fiware-servicepath'] };
+                next(error);
+              }
+              next();
+            },
             query: {
-              aggrMethod: joi.any().required().valid('max', 'min', 'sum', 'sum2'),
-              aggrPeriod: joi.any().required().valid('month', 'day', 'hour', 'minute', 'second'),
+              aggrMethod: joi.string().required().valid('max', 'min', 'sum', 'sum2'),
+              aggrPeriod: joi.string().required().valid('month', 'day', 'hour', 'minute', 'second'),
               dateFrom: joi.date().optional(),
               dateTo: joi.date().optional()
             }
@@ -163,7 +184,9 @@
           var timestamp = new Date(),
               unicaCorrelatorPassed = request.headers[sthConfig.UNICA_CORRELATOR_HEADER],
               contextResponses,
-              attributes;
+              contextElement,
+              attributes,
+              attribute;
 
           request.info.sth = {
             unicaCorrelator: unicaCorrelatorPassed || sthHelper.getUnicaCorrelator(request),
@@ -178,7 +201,8 @@
               if (contextResponses[i].contextElement &&
                 contextResponses[i].contextElement.attributes &&
                 Array.isArray(contextResponses[i].contextElement.attributes)) {
-                attributes = contextResponses[i].contextElement.attributes;
+                contextElement = contextResponses[i].contextElement;
+                attributes = contextElement.attributes;
                 for (var j = 0; j < attributes.length; j++) {
                   if (isNaN(attributes[j].value)) {
                     // The attribute value is not a number and consequently not able to be aggregated.
@@ -187,44 +211,85 @@
                     });
                     continue;
                   }
-                  sthDatabase.storeRawData(
-                    timestamp,
-                    contextResponses[i].contextElement.id,
-                    contextResponses[i].contextElement.type,
-                    attributes[j].name,
-                    attributes[j].type,
-                    attributes[j].value,
-                    function(err) {
-                      if (err) {
-                        sthLogger.fatal(
-                          'Error when storing the raw data associated to a notification event',
-                          request.info.sth
-                        );
-                      } else {
-                        sthLogger.trace(
-                          'Raw data associated to a notification event successfully stored',
-                          request.info.sth
-                        );
-                      }
-                    }
+
+                  attribute = attributes[j];
+
+                  // Compose the collection name for the required data
+                  var databaseName = sthDatabase.getDatabase(
+                    request.headers['fiware-service']);
+
+                  var servicePath = request.headers['fiware-servicepath'];
+
+                  // Compose the collection name for the raw events
+                  var collectionName4Events = sthDatabase.getCollectionName4Events(
+                    servicePath,
+                    contextElement.id,
+                    contextElement.type,
+                    attribute.name,
+                    attribute.type
                   );
-                  sthDatabase.storeAggregatedData(
-                    timestamp,
-                    contextResponses[i].contextElement.id,
-                    contextResponses[i].contextElement.type,
-                    attributes[j].name,
-                    attributes[j].type,
-                    attributes[j].value,
-                    function(err) {
+
+                  // Check if the collection exists
+                  sthDatabase.getCollection(
+                    databaseName,
+                    collectionName4Events,
+                    true,
+                    function (err, collection) {
                       if (err) {
-                        sthLogger.fatal(
-                          'Error when storing the aggregated data associated to a notification event',
-                          request.info.sth
-                        );
+                        // There was an error when getting the collection
+                        sthLogger.warn(
+                          'Error when getting the collection %s', collectionName4Events,
+                          request.info.sth);
                       } else {
+                        // The collection exists
                         sthLogger.trace(
-                          'Aggregated data associated to a notification event successfully stored',
-                          request.info.sth
+                          'The collection %s exists', collectionName4Events,
+                          request.info.sth);
+
+                        sthDatabase.storeRawData(
+                          timestamp,
+                          servicePath,
+                          contextElement.id,
+                          contextElement.type,
+                          attribute.name,
+                          attribute.type,
+                          attribute.value,
+                          function(err) {
+                            if (err) {
+                              sthLogger.fatal(
+                                'Error when storing the raw data associated to a notification event',
+                                request.info.sth
+                              );
+                            } else {
+                              sthLogger.trace(
+                                'Raw data associated to a notification event successfully stored',
+                                request.info.sth
+                              );
+                            }
+                          }
+                        );
+
+                        sthDatabase.storeAggregatedData(
+                          timestamp,
+                          servicePath,
+                          contextElement.id,
+                          contextElement.type,
+                          attribute.name,
+                          attribute.type,
+                          attribute.value,
+                          function(err) {
+                            if (err) {
+                              sthLogger.fatal(
+                                'Error when storing the aggregated data associated to a notification event',
+                                request.info.sth
+                              );
+                            } else {
+                              sthLogger.trace(
+                                'Aggregated data associated to a notification event successfully stored',
+                                request.info.sth
+                              );
+                            }
+                          }
                         );
                       }
                     }
@@ -234,6 +299,29 @@
             }
           }
           reply();
+        },
+        config: {
+          validate: {
+            headers: function(value, options, next) {
+              var error;
+              if (!value['fiware-service']) {
+                /*
+                error = boom.badRequest('child "fiware-service" fails because [fiware-service is required]');
+                error.output.payload.validation = { source: 'headers', keys: ['fiware-service'] };
+                next(error);
+                */
+                value['fiware-service'] = sthConfig.SERVICE;
+              } /*else*/ if (!value['fiware-servicepath']) {
+                /*
+                error = boom.badRequest('child "fiware-servicepath" fails because [fiware-servicepath is required]');
+                error.output.payload.validation = { source: 'headers', keys: ['fiware-servicepath'] };
+                next(error);
+                */
+                value['fiware-servicepath'] = sthConfig.SERVICE_PATH;
+              }
+              next();
+            }
+          }
         }
       }
     ]);

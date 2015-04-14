@@ -52,7 +52,8 @@
         range = sthHelper.getRange(resolution);
 
     var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
-      sthTestConfig.ENTITY_ID, sthTestConfig.ATTRIBUTE_ID);
+      sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+      sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
 
     var aggregatedData = new sthDatabase.getAggregatedModel(collectionName4Aggregated)({
       _id: {
@@ -110,7 +111,8 @@
    */
   function addEventTest(anEvent, done) {
     var collectionName4Events = sthDatabase.getCollectionName4Events(
-      sthTestConfig.ENTITY_ID, sthTestConfig.ATTRIBUTE_ID);
+      sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+      sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
     var theEvent = new sthDatabase.getEventModel(collectionName4Events)(anEvent);
     theEvent.save(
       function (err) {
@@ -129,7 +131,8 @@
   function prePopulateAggregatedTest(anEvent, resolution, done) {
     var origin;
     var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
-      sthTestConfig.ENTITY_ID, sthTestConfig.ATTRIBUTE_ID);
+      sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+      sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
     switch(resolution) {
       case sthConfig.RESOLUTION.SECOND:
         origin = sthHelper.getOrigin(anEvent.timestamp, sthConfig.RESOLUTION.SECOND);
@@ -177,7 +180,8 @@
    */
   function addAggregatedDataTest(anEvent, resolution, done) {
     var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
-      sthTestConfig.ENTITY_ID, sthTestConfig.ATTRIBUTE_ID);
+      sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+      sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
     sthDatabase.getAggregatedModel(collectionName4Aggregated).update(
       sthDatabase.getAggregateUpdateCondition(resolution, anEvent.timestamp),
       getAggregateUpdate(anEvent),
@@ -281,7 +285,8 @@
    */
   function dropRawEventCollectionTest(done) {
     var collectionName4Events = sthDatabase.getCollectionName4Events(
-      sthTestConfig.ENTITY_ID, sthTestConfig.ATTRIBUTE_ID);
+      sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+      sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
     sthDatabase.driver.connection.db.dropCollection(collectionName4Events, function (err) {
       if (err && err.message === 'ns not found') {
         err = null;
@@ -296,7 +301,8 @@
    */
   function dropAggregatedDataCollectionTest(done) {
     var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
-      sthTestConfig.ENTITY_ID, sthTestConfig.ATTRIBUTE_ID);
+      sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+      sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
     sthDatabase.driver.connection.db.dropCollection(collectionName4Aggregated, function (err) {
       if (err && err.message === 'ns not found') {
         err = null;
@@ -422,7 +428,11 @@
               events[0].timestamp.getTime() + offset),
             resolution)),
         null),
-      method: 'GET'
+      method: 'GET',
+      headers: {
+        'Fiware-Service': 'orion',
+        'Fiware-ServicePath': '/'
+      }
     }, function (err, response, body) {
       var bodyJSON = JSON.parse(body);
       expect(err).to.equal(null);
@@ -463,7 +473,11 @@
             events[0].timestamp,
             resolution)),
         null),
-      method: 'GET'
+      method: 'GET',
+      headers: {
+        'Fiware-Service': 'orion',
+        'Fiware-ServicePath': '/'
+      }
     }, function (err, response, body) {
       var theEvent = events[0];
       var index, entries;
@@ -606,22 +620,34 @@
     if (sthTestConfig.CLEAN) {
       it('should drop the collection created for the events', function (done) {
         var collectionName4Events = sthDatabase.getCollectionName4Events(
-          sthTestConfig.ENTITY_ID, sthTestConfig.ATTRIBUTE_ID);
-        sthDatabase.getCollection(collectionName4Events, function (err, collection) {
-          collection.drop(function (err) {
-            done(err);
-          });
-        });
+          sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+          sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
+        sthDatabase.getCollection(sthConfig.SERVICE, collectionName4Events, false,
+          function (err, collection) {
+            if (err) {
+              return done(err);
+            }
+            collection.drop(function (err) {
+              done(err);
+            });
+          }
+        );
       });
 
       it('should drop the collection created for the aggregated data', function (done) {
         var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
-          sthTestConfig.ENTITY_ID, sthTestConfig.ATTRIBUTE_ID);
-        sthDatabase.getCollection(collectionName4Aggregated, function (err, collection) {
-          collection.drop(function (err) {
-            done(err);
-          });
-        });
+          sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+          sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
+        sthDatabase.getCollection(sthConfig.SERVICE, collectionName4Aggregated, false,
+          function (err, collection) {
+            if (err) {
+              return done(err);
+            }
+            collection.drop(function (err) {
+              done(err);
+            });
+          }
+        );
       });
     }
   }
@@ -662,7 +688,7 @@
   function complexNotificationTest(done) {
     var anEvent = {
       timestamp: new Date(),
-      type: 'attributeIdType',
+      type: 'attributeType',
       value: 66.6
     };
     request({
@@ -686,7 +712,7 @@
                   "value" : anEvent.value
                 }
               ],
-              "type" : "entityIdType",
+              "type" : "entityType",
               "isPattern" : "false",
               "id" : "entityId"
             },
@@ -704,7 +730,7 @@
                   "value" : anEvent.value
                 }
               ],
-              "type" : "entityIdType",
+              "type" : "entityType",
               "isPattern" : "false",
               "id" : "entityId"
             },
@@ -722,7 +748,7 @@
                   "value" : anEvent.value
                 }
               ],
-              "type" : "entityIdType",
+              "type" : "entityType",
               "isPattern" : "false",
               "id" : "entityId"
             },

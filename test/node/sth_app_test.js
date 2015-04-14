@@ -1,5 +1,15 @@
 /* globals console, describe, it, require */
 
+/*
+ Currently there is an issue (https://github.com/Automattic/mongoose/issues/2073) about a possible memory leak
+  when using #connection.useDB() which makes the following warning to be shown during the tests: "(node) warning:
+  possible EventEmitter memory leak detected. 11 error listeners added. Use emitter.setMaxListeners() to increase limit."
+ Another issue in Node.js related to this issue can be located at https://github.com/joyent/node/issues/5108
+ There are also some StackOverflow questions about this issue at:
+  - http://stackoverflow.com/questions/26018752/warning-when-connecting-to-mongodb-warning-possible-eventemitter-memory-leak
+  - http://stackoverflow.com/questions/15581978/nodejs-how-to-debug-eventemitter-memory-leak-detected-11-listeners-added
+ */
+
 (function() {
   'use strict';
 
@@ -14,6 +24,13 @@
   var request = require('request');
   var expect = require('expect.js');
 
+  console.log();
+  console.log('*** IMPORTANT NOTE: Currently there is an issue (https://github.com/Automattic/mongoose/issues/2073) ' +
+  'about a possible memory leak when using #connection.useDB() which makes the following warning to be shown ' +
+  'during the tests: "(node) warning: possible EventEmitter memory leak detected. 11 error listeners added. ' +
+  'Use emitter.setMaxListeners() to increase limit." It does not affect the result of the execution of the tests.');
+  console.log();
+
   console.log('*** Running the server tests with the following environment variables:');
   console.log('\n***** STH app environment variables:');
   console.log(sthConfig);
@@ -23,7 +40,7 @@
   describe('database connection', function() {
     it('should be a database available', function(done) {
       sthApp.sthDatabase.connect(sthConfig.DB_AUTHENTICATION, sthConfig.DB_HOST,
-        sthConfig.DB_PORT, sthConfig.DB_NAME, function(err) {
+        sthConfig.DB_PORT, sthConfig.SERVICE, sthConfig.POOL_SIZE, function(err) {
           done(err);
         });
 
@@ -56,7 +73,7 @@
     it('should respond with 404 - Not Found if invalid HTTP method', function(done) {
       request({
         uri: sthTestHelper.getValidURL(sthTestConfig.API_OPERATION.READ),
-        method: 'POST'
+        method: 'PUT'
       }, function(err, response, body) {
         var bodyJSON = JSON.parse(body);
         expect(err).to.equal(null);
@@ -83,12 +100,49 @@
       });
     });
 
+    it('should respond with 400 - Bad Request if missing Fiware-Service header', function(done) {
+      request({
+        uri: sthTestHelper.getValidURL(sthTestConfig.API_OPERATION.READ),
+        method: 'GET'
+      }, function(err, response, body) {
+        var bodyJSON = JSON.parse(body);
+        expect(err).to.equal(null);
+        expect(response.statusCode).to.equal(400);
+        expect(bodyJSON.statusCode).to.equal(400);
+        expect(response.statusMessage).to.equal('Bad Request');
+        expect(bodyJSON.error).to.equal('Bad Request');
+        done();
+      });
+    });
+
+    it('should respond with 400 - Bad Request if missing Fiware-ServicePath header', function(done) {
+      request({
+        uri: sthTestHelper.getValidURL(sthTestConfig.API_OPERATION.READ),
+        method: 'GET',
+        headers: {
+          'Fiware-Service': 'orion'
+        }
+      }, function(err, response, body) {
+        var bodyJSON = JSON.parse(body);
+        expect(err).to.equal(null);
+        expect(response.statusCode).to.equal(400);
+        expect(bodyJSON.statusCode).to.equal(400);
+        expect(response.statusMessage).to.equal('Bad Request');
+        expect(bodyJSON.error).to.equal('Bad Request');
+        done();
+      });
+    });
+
     it('should respond with 400 - Bad Request if missing aggrMethod param', function(done) {
       request({
         uri: sthTestHelper.getInvalidURL(sthTestConfig.API_OPERATION.READ, {
           noAggrMethod: true
         }),
-        method: 'GET'
+        method: 'GET',
+        headers: {
+          'Fiware-Service': 'orion',
+          'Fiware-ServicePath': '/'
+        }
       }, function(err, response, body) {
         var bodyJSON = JSON.parse(body);
         expect(err).to.equal(null);
@@ -107,7 +161,11 @@
         uri: sthTestHelper.getInvalidURL(sthTestConfig.API_OPERATION.READ, {
           noAggrPeriod: true
         }),
-        method: 'GET'
+        method: 'GET',
+        headers: {
+          'Fiware-Service': 'orion',
+          'Fiware-ServicePath': '/'
+        }
       }, function(err, response, body) {
         var bodyJSON = JSON.parse(body);
         expect(err).to.equal(null);
@@ -126,7 +184,11 @@
         uri: sthTestHelper.getInvalidURL(sthTestConfig.API_OPERATION.READ, {
           noDateFrom: true
         }),
-        method: 'GET'
+        method: 'GET',
+        headers: {
+          'Fiware-Service': 'orion',
+          'Fiware-ServicePath': '/'
+        }
       }, function(err, response, body) {
         var bodyJSON = JSON.parse(body);
         expect(err).to.equal(null);
@@ -142,7 +204,11 @@
         uri: sthTestHelper.getInvalidURL(sthTestConfig.API_OPERATION.READ, {
           noDateTo: true
         }),
-        method: 'GET'
+        method: 'GET',
+        headers: {
+          'Fiware-Service': 'orion',
+          'Fiware-ServicePath': '/'
+        }
       }, function(err, response, body) {
         var bodyJSON = JSON.parse(body);
         expect(err).to.equal(null);
@@ -159,7 +225,11 @@
           noDateFrom: true,
           noDateTo: true
         }),
-        method: 'GET'
+        method: 'GET',
+        headers: {
+          'Fiware-Service': 'orion',
+          'Fiware-ServicePath': '/'
+        }
       }, function(err, response, body) {
         var bodyJSON = JSON.parse(body);
         expect(err).to.equal(null);
