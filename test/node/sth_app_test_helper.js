@@ -29,67 +29,38 @@
    * @returns {{timestamp: Date, type: string, value: string}} The created raw event
    */
   function createEvent(timestamp) {
-    var value = (Math.random() *
+    var theEvent;
+    var attributeValue = (Math.random() *
       (parseFloat(sthTestConfig.MAX_VALUE) - parseFloat(sthTestConfig.MIN_VALUE)) -
         Math.abs(parseFloat(sthTestConfig.MIN_VALUE))).toFixed(2);
-    return {
-      timestamp: timestamp,
-      type: sthTestConfig.TYPE,
-      value: value
-    };
-  }
-
-  /**
-   * Prepopulates the aggregated data collection based on an event and
-   *  a resolution
-   * @param {Object} event The event
-   * @param {string} resolution The resolution
-   * @param {Function} callback Callback function to invoke with the results
-   *  of the operation
-   */
-  function prePopulateAggregated(event, resolution, callback) {
-    var points = sthDatabase.getAggregatePrepopulatedData(resolution),
-        range = sthHelper.getRange(resolution);
-
-    var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
-      sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-      sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
-
-    var aggregatedData = new sthDatabase.getAggregatedModel(collectionName4Aggregated)({
-      _id: {
-        range: range,
-        resolution: resolution,
-        attrType: sthTestConfig.TYPE,
-        origin: sthHelper.getOrigin(event.timestamp, resolution)
-      },
-      points: points
-    });
-
-    aggregatedData.save(function (err) {
-      return callback(err);
-    });
-  }
-
-  /**
-   * Returns the update to be used in the MongoDB update operation for aggregated data
-   * @param {Object} event The event
-   * @returns {Object} The update operation
-   */
-  function getAggregateUpdate(event) {
-    var value = event.value;
-    return {
-      '$inc': {
-        'points.$.samples': 1,
-        'points.$.sum': value,
-        'points.$.sum2': Math.pow(value, 2)
-      },
-      '$min': {
-        'points.$.min': value
-      },
-      '$max': {
-        'points.$.max': value
-      }
-    };
+    switch (sthConfig.DATA_MODEL) {
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+        theEvent = {
+          timestamp: timestamp,
+          entityId: sthTestConfig.ENTITY_ID,
+          entityType: sthTestConfig.ENTITY_TYPE,
+          attributeName: sthTestConfig.ATTRIBUTE_ID,
+          attributeType: sthTestConfig.ATTRIBUTE_TYPE,
+          attributeValue: attributeValue
+        };
+        break;
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+        theEvent = {
+          timestamp: timestamp,
+          attributeName: sthTestConfig.ATTRIBUTE_ID,
+          attributeType: sthTestConfig.ATTRIBUTE_TYPE,
+          attributeValue: attributeValue
+        };
+        break;
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+        theEvent = {
+          timestamp: timestamp,
+          attributeType: sthTestConfig.ATTRIBUTE_TYPE,
+          attributeValue: attributeValue
+        };
+        break;
+    }
+    return theEvent;
   }
 
   /**
@@ -110,65 +81,28 @@
    * @param {Function} done The mocha done() callback function
    */
   function addEventTest(anEvent, done) {
+    var databaseName = sthDatabase.getDatabase(sthConfig.SERVICE);
+
     var collectionName4Events = sthDatabase.getCollectionName4Events(
       sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
       sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
-    var theEvent = new sthDatabase.getEventModel(collectionName4Events)(anEvent);
-    theEvent.save(
-      function (err) {
-        return done(err);
+
+    // Check if the collection exists
+    sthDatabase.getCollection(
+      databaseName,
+      collectionName4Events,
+      true,
+      function (err, collection) {
+        console.log(err);
+        if (err) {
+          done(err);
+        } else {
+          sthDatabase.storeRawData(anEvent.timestamp, sthConfig.SERVICE_PATH,
+            sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE, sthTestConfig.ATTRIBUTE_ID,
+            sthTestConfig.ATTRIBUTE_TYPE, anEvent.attributeValue, done);
+        }
       }
     );
-  }
-
-  /**
-   * A mocha test which pre-populates the aggregated data collection based on
-   *  an event and a resolution
-   * @param {Object} anEvent The event
-   * @param {string} resolution The resolution
-   * @param {Function} done The mocha done() callback function
-   */
-  function prePopulateAggregatedTest(anEvent, resolution, done) {
-    var origin;
-    var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
-      sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-      sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
-    switch(resolution) {
-      case sthConfig.RESOLUTION.SECOND:
-        origin = sthHelper.getOrigin(anEvent.timestamp, sthConfig.RESOLUTION.SECOND);
-        break;
-      case sthConfig.RESOLUTION.MINUTE:
-        origin = sthHelper.getOrigin(anEvent.timestamp, sthConfig.RESOLUTION.MINUTE);
-        break;
-      case sthConfig.RESOLUTION.HOUR:
-        origin = sthHelper.getOrigin(anEvent.timestamp, sthConfig.RESOLUTION.HOUR);
-        break;
-      case sthConfig.RESOLUTION.DAY:
-        origin = sthHelper.getOrigin(anEvent.timestamp, sthConfig.RESOLUTION.DAY);
-        break;
-      case sthConfig.RESOLUTION.MONTH:
-        origin = sthHelper.getOrigin(anEvent.timestamp, sthConfig.RESOLUTION.MONTH);
-        break;
-    }
-
-    // Check if the document for the aggregated data associated to the event already exists
-    sthDatabase.getAggregatedModel(collectionName4Aggregated).findOne({
-      '_id.resolution': resolution,
-      '_id.range': sthHelper.getRange(resolution),
-      '_id.origin': origin
-    }, function (err, result) {
-      if (err) {
-        done(err);
-      }
-      if (!result) {
-        // The document for this aggregated data has not been created
-        // Create and pre-populate it
-        prePopulateAggregated(
-          anEvent, resolution, done);
-      } else {
-        return done();
-      }
-    });
   }
 
   /**
@@ -179,14 +113,26 @@
    * @param {Function} done The mocha done() callback function
    */
   function addAggregatedDataTest(anEvent, resolution, done) {
+    var databaseName = sthDatabase.getDatabase(sthConfig.SERVICE);
+
     var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
       sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
       sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
-    sthDatabase.getAggregatedModel(collectionName4Aggregated).update(
-      sthDatabase.getAggregateUpdateCondition(resolution, anEvent.timestamp),
-      getAggregateUpdate(anEvent),
-      function (err) {
-        return done(err);
+
+    // Check if the collection exists
+    sthDatabase.getCollection(
+      databaseName,
+      collectionName4Aggregated,
+      true,
+      function (err, collection) {
+        if (err) {
+          done(err);
+        } else {
+          sthDatabase.storeAggregatedData4Resolution(
+            collectionName4Aggregated, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+            sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE, anEvent.attributeValue,
+            resolution, anEvent.timestamp, done);
+        }
       }
     );
   }
@@ -208,24 +154,10 @@
       addEventTest(anEvent, done);
     });
 
-    it('should pre-populate the aggregated collection (resolution: second, range: minute)',
-      function(done) {
-        prePopulateAggregatedTest(
-          anEvent, sthConfig.RESOLUTION.SECOND, done);
-      }
-    );
-
     it('should store aggregated data (resolution: second, range: minute)',
       function(done) {
         addAggregatedDataTest(
           anEvent, sthConfig.RESOLUTION.SECOND, done);
-      }
-    );
-
-    it('should pre-populate the aggregated collection (resolution: minute, range: hour)',
-      function(done) {
-        prePopulateAggregatedTest(
-          anEvent, sthConfig.RESOLUTION.MINUTE, done);
       }
     );
 
@@ -236,13 +168,6 @@
       }
     );
 
-    it('should pre-populate the aggregated collection (resolution: hour, range: day)',
-      function(done) {
-        prePopulateAggregatedTest(
-          anEvent, sthConfig.RESOLUTION.HOUR, done);
-      }
-    );
-
     it('should store aggregated data (resolution: hour, range: day)',
       function(done) {
         addAggregatedDataTest(
@@ -250,24 +175,10 @@
       }
     );
 
-    it('should pre-populate the aggregated collection (resolution: day, range: month)',
-      function(done) {
-        prePopulateAggregatedTest(
-          anEvent, sthConfig.RESOLUTION.DAY, done);
-      }
-    );
-
     it('should store aggregated data (resolution: day, range: month)',
       function(done) {
         addAggregatedDataTest(
           anEvent, sthConfig.RESOLUTION.DAY, done);
-      }
-    );
-
-    it('should pre-populate the aggregated collection (resolution: month, range: year)',
-      function(done) {
-        prePopulateAggregatedTest(
-          anEvent, sthConfig.RESOLUTION.MONTH, done);
       }
     );
 
@@ -337,7 +248,7 @@
           (dateFrom ? '&dateFrom=' + dateFrom : '') +
           (dateTo ? '&dateTo=' + dateTo : '');
       case sthTestConfig.API_OPERATION.NOTIFY:
-        return url + '/STH/v1/notify';
+        return url + '/notify';
     }
   }
 
@@ -440,10 +351,6 @@
         to.equal(sthTestConfig.ENTITY_ID);
       expect(bodyJSON.contextResponses[0].contextElement.isPattern).
         to.equal(false);
-      /* TODO: The type property is not passed nor available
-      expect(bodyJSON.contextResponses[0].contextElement.type).
-        to.equal(sthTestConfig.TYPE);
-      */
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).
         to.equal(sthTestConfig.ATTRIBUTE_ID);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).
@@ -509,10 +416,6 @@
         to.equal(sthTestConfig.ENTITY_ID);
       expect(bodyJSON.contextResponses[0].contextElement.isPattern).
         to.equal(false);
-      /* TODO: The type property is not passed nor available
-      expect(bodyJSON.contextResponses[0].contextElement.type).
-        to.equal(sthTestConfig.TYPE);
-      */
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).
         to.equal(sthTestConfig.ATTRIBUTE_ID);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0]._id.resolution).
@@ -535,13 +438,13 @@
       switch(aggrMethod) {
         case 'min':
         case 'max':
-          value = parseFloat(theEvent.value).toFixed(2);
+          value = parseFloat(theEvent.attributeValue).toFixed(2);
           break;
         case 'sum':
-          value = (events.length * parseFloat(theEvent.value)).toFixed(2);
+          value = (events.length * parseFloat(theEvent.attributeValue)).toFixed(2);
           break;
         case 'sum2':
-          value = (events.length * (Math.pow(parseFloat(theEvent.value), 2))).toFixed(2);
+          value = (events.length * (Math.pow(parseFloat(theEvent.attributeValue), 2))).toFixed(2);
       }
       expect(parseFloat(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].
         points[sthConfig.FILTER_OUT_EMPTY ? 0 : index][aggrMethod]).toFixed(2)).to.equal(value);
@@ -688,8 +591,8 @@
   function complexNotificationTest(done) {
     var anEvent = {
       timestamp: new Date(),
-      type: 'attributeType',
-      value: 66.6
+      attributeType: 'attributeType',
+      attributeValue: 66.6
     };
     request({
       uri: getValidURL(sthTestConfig.API_OPERATION.NOTIFY),
@@ -708,8 +611,8 @@
               "attributes" : [
                 {
                   "name" : "attributeId",
-                  "type" : anEvent.type,
-                  "value" : anEvent.value
+                  "type" : anEvent.attributeType,
+                  "value" : anEvent.attributeValue
                 }
               ],
               "type" : "entityType",
@@ -726,8 +629,8 @@
               "attributes" : [
                 {
                   "name" : "attributeId",
-                  "type" : anEvent.type,
-                  "value" : anEvent.value
+                  "type" : anEvent.attributeType,
+                  "value" : anEvent.attributeValue
                 }
               ],
               "type" : "entityType",
@@ -744,8 +647,8 @@
               "attributes" : [
                 {
                   "name" : "attributeId",
-                  "type" : anEvent.type,
-                  "value" : anEvent.value
+                  "type" : anEvent.attributeType,
+                  "value" : anEvent.attributeValue
                 }
               ],
               "type" : "entityType",
@@ -774,25 +677,16 @@
     sthDatabase = theSthDatabase;
     sthHelper = theSthHelper;
     return {
-      getRandomDate: getRandomDate,
-      createEvent: createEvent,
-      prePopulateAggregated: prePopulateAggregated,
-      getAggregateUpdate: getAggregateUpdate,
       getDayOfYear: getDayOfYear,
       addEventTest: addEventTest,
-      prePopulateAggregatedTest: prePopulateAggregatedTest,
-      addAggregatedDataTest: addAggregatedDataTest,
       eachEventTestSuite: eachEventTestSuite,
       dropRawEventCollectionTest: dropRawEventCollectionTest,
       dropAggregatedDataCollectionTest: dropAggregatedDataCollectionTest,
       getValidURL: getValidURL,
       getInvalidURL: getInvalidURL,
-      noDataSinceDateTest: noDataSinceDateTest,
-      dataAvailableSinceDateTest: dataAvailableSinceDateTest,
       dataRetrievalSuite: dataRetrievalSuite,
       cleanDatabaseSuite: cleanDatabaseSuite,
-      eventNotificationSuite: eventNotificationSuite,
-      complexNotificationTest: complexNotificationTest
+      eventNotificationSuite: eventNotificationSuite
     };
   };
 })();

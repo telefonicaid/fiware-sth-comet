@@ -61,7 +61,7 @@
    */
   function formatter(log) {
     return 'time=' + getISODateString(new Date()) +
-      ' | |v|=' + log.level.toUpperCase() +
+      ' | vl=' + log.level.toUpperCase() +
       ' | corr=' + (log.meta.unicaCorrelator || sthConfig.UNICA_CORRELATOR. NOT_AVAILABLE) +
       ' | trans=' + (log.meta.transactionId || sthConfig.TRANSACTION_ID.NOT_AVAILABLE) +
       ' | op=' + (log.meta.operationType || sthConfig.OPERATION_TYPE.NOT_AVAILABLE) +

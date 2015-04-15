@@ -5,35 +5,7 @@
 
   var mongoose = require('mongoose');
 
-  var sthConfig, sthLogger, sthHelper, connectionURL;
-
-  // Event collection schema
-  var eventSchema = mongoose.Schema({
-    timestamp: Date,
-    type: String,
-    value: Number
-  });
-
-  // Aggregated collection schema
-  var aggregatedSchema = mongoose.Schema({
-    _id: {
-      type: {
-        range: String,
-        resolution: String,
-        attrType: String,
-        origin: Date
-      },
-      select: true
-    },
-    points: [{
-      offset: Number,
-      samples: Number,
-      sum: Number,
-      sum2: Number,
-      min: Number,
-      max: Number
-    }]
-  });
+  var sthConfig, sthLogger, sthHelper, connectionURL, eventSchema, aggregatedSchema;
 
   /**
    * Connects to a (MongoDB) database endpoint asynchronously
@@ -45,6 +17,109 @@
    * @param {Function} callback A callback to inform about the result of the operation
    */
   function connect(authentication, host, port, database, poolSize, callback) {
+    // Event collection schema
+    if (!eventSchema) {
+      switch (sthConfig.DATA_MODEL) {
+        case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+          eventSchema = mongoose.Schema({
+            timestamp: Date,
+            entityId: String,
+            entityType: String,
+            attributeName: String,
+            attributeType: String,
+            attributeValue: Number
+          });
+          break;
+        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+          eventSchema = mongoose.Schema({
+            timestamp: Date,
+            attributeName: String,
+            attributeType: String,
+            attributeValue: Number
+          });
+          break;
+        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+          eventSchema = mongoose.Schema({
+            timestamp: Date,
+            attributeType: String,
+            attributeValue: Number
+          });
+          break;
+      }
+    }
+
+    // Aggregated collection schema
+    if (!aggregatedSchema) {
+      switch (sthConfig.DATA_MODEL) {
+        case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+          aggregatedSchema = mongoose.Schema({
+            _id: {
+              type: {
+                entityId: String,
+                entityType: String,
+                attributeName: String,
+                attributeType: String,
+                range: String,
+                resolution: String,
+                origin: Date
+              },
+              select: true
+            },
+            points: [{
+              offset: Number,
+              samples: Number,
+              sum: Number,
+              sum2: Number,
+              min: Number,
+              max: Number
+            }]
+          });
+          break;
+        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+          aggregatedSchema = mongoose.Schema({
+            _id: {
+              type: {
+                attributeName: String,
+                attributeType: String,
+                range: String,
+                resolution: String,
+                origin: Date
+              },
+              select: true
+            },
+            points: [{
+              offset: Number,
+              samples: Number,
+              sum: Number,
+              sum2: Number,
+              min: Number,
+              max: Number
+            }]
+          });
+          break;
+        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+          aggregatedSchema = mongoose.Schema({
+            _id: {
+              type: {
+                range: String,
+                resolution: String,
+                origin: Date
+              },
+              select: true
+            },
+            points: [{
+              offset: Number,
+              samples: Number,
+              sum: Number,
+              sum2: Number,
+              min: Number,
+              max: Number
+            }]
+          });
+          break;
+      }
+    }
+
     connectionURL = 'mongodb://' + authentication + '@' + host + ':' + port +
     '/' + database;
 
@@ -204,7 +279,11 @@
 
   /**
    * Returns the required aggregated data from the database asynchronously
-   * @param {string} collectionName The collection name from which the aggregated data
+   * @param {string} servicePath The service path of the entity the event is related to
+   * @param {string} entityId The entity id related to the event
+   * @param {string} entityType The type of entity related to the event
+   * @param {string} attributeId The attribute id related to the event
+   * @param {string} attributeType The type of the attribute related to the event
    *  should be collected
    * @param {string} aggregatedFunction The aggregated function or method to retrieve
    * @param {string} resolution The resolution of the data to use
@@ -213,7 +292,11 @@
    * @param {boolean} shouldFilter If true, the null results are filter out
    * @param {Function} callback Callback to inform about any possible error or results
    */
-  function getAggregatedData(collectionName, aggregatedFunction, resolution, from, to, shouldFilter, callback) {
+  function getAggregatedData(servicePath, entityId, entityType, attributeId, attributeType,
+                             aggregatedFunction, resolution, from, to, shouldFilter, callback) {
+    var collectionName = getCollectionName4Aggregated(
+      servicePath, entityId, entityType, attributeId, attributeType);
+
     var fieldFilter = {
       'points.offset': 1,
       'points.samples': 1
@@ -247,13 +330,72 @@
         samples: '$points.samples'
       };
       pushAccumulator[aggregatedFunction] = '$points.' + aggregatedFunction;
-      getAggregatedModel(collectionName).aggregate([
-        {
-          $match: {
+
+      var matchCondition;
+      switch (sthConfig.DATA_MODEL) {
+        case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+          matchCondition = {
+            '_id.entityId': entityId,
+            '_id.entityType': entityType,
+            '_id.attributeName': attributeId,
+            '_id.attributeType': attributeType,
             '_id.resolution': resolution,
             '_id.range': sthHelper.getRange(resolution),
             '_id.origin': originFilter
-          }
+          };
+          break;
+        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+          matchCondition = {
+            '_id.attributeName': attributeId,
+            '_id.attributeType': attributeType,
+            '_id.resolution': resolution,
+            '_id.range': sthHelper.getRange(resolution),
+            '_id.origin': originFilter
+          };
+          break;
+        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+          matchCondition = {
+            '_id.resolution': resolution,
+            '_id.range': sthHelper.getRange(resolution),
+            '_id.origin': originFilter
+          };
+          break;
+      }
+
+      var groupId;
+      switch (sthConfig.DATA_MODEL) {
+        case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+          groupId = {
+            entityId: '$_id.entityId',
+            entityType: '$_id.entityType',
+            attributeName: '$_id.attributeName',
+            attributeType: '$_id.attributeType',
+            origin: '$_id.origin',
+            range: '$_id.range',
+            resolution: '$_id.resolution'
+          };
+          break;
+        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+          groupId = {
+            attributeName: '$_id.attributeName',
+            attributeType: '$_id.attributeType',
+            origin: '$_id.origin',
+            range: '$_id.range',
+            resolution: '$_id.resolution'
+          };
+          break;
+        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+          groupId = {
+            origin: '$_id.origin',
+            range: '$_id.range',
+            resolution: '$_id.resolution'
+          };
+          break;
+      }
+
+      getAggregatedModel(collectionName).aggregate([
+        {
+          $match: matchCondition
         },
         {
           $project: fieldFilter
@@ -270,11 +412,7 @@
         },
         {
           $group: {
-            _id: {
-              origin: '$_id.origin',
-              range: '$_id.range',
-              resolution: '$_id.resolution'
-            },
+            _id: groupId,
             points: {
               $push: pushAccumulator
             }
@@ -284,12 +422,39 @@
     } else {
       // Get the aggregated data from the database
       // Return the data in ascending order based on the origin
+      var findCondition;
+      switch (sthConfig.DATA_MODEL) {
+        case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+          findCondition = {
+            '_id.entityId': entityId,
+            '_id.entityType': entityType,
+            '_id.attributeName': attributeId,
+            '_id.attributeType': attributeType,
+            '_id.resolution': resolution,
+            '_id.range': sthHelper.getRange(resolution),
+            '_id.origin': originFilter
+          };
+          break;
+        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+          findCondition = {
+            '_id.attributeName': attributeId,
+            '_id.attributeType': attributeType,
+            '_id.resolution': resolution,
+            '_id.range': sthHelper.getRange(resolution),
+            '_id.origin': originFilter
+          };
+          break;
+        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+          findCondition = {
+            '_id.resolution': resolution,
+            '_id.range': sthHelper.getRange(resolution),
+            '_id.origin': originFilter
+          };
+          break;
+      }
+
       getAggregatedModel(collectionName).find(
-        {
-          '_id.resolution': resolution,
-          '_id.range': sthHelper.getRange(resolution),
-          '_id.origin': originFilter
-        },
+        findCondition,
         fieldFilter
       ).sort({'_id.origin': 'asc'}).exec(callback);
     }
@@ -301,7 +466,8 @@
    * @param {Date} timestamp The date (or timestamp) of the notification (attribute value change)
    * @returns {Object} The update condition
    */
-  function getAggregateUpdateCondition(resolution, timestamp) {
+  function getAggregateUpdateCondition(
+    entityId, entityType, attributeId, attributeType, resolution, timestamp) {
     var offset;
     switch (resolution) {
       case sthConfig.RESOLUTION.SECOND:
@@ -321,12 +487,40 @@
         break;
     }
 
-    return {
-      '_id.origin': sthHelper.getOrigin(timestamp, resolution),
-      '_id.resolution': resolution,
-      '_id.range': sthHelper.getRange(resolution),
-      'points.offset': offset
-    };
+    var aggregateUpdateCondition;
+    switch (sthConfig.DATA_MODEL) {
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+        aggregateUpdateCondition = {
+          '_id.entityId': entityId,
+          '_id.entityType': entityType,
+          '_id.attributeName': attributeId,
+          '_id.attributeType': attributeType,
+          '_id.origin': sthHelper.getOrigin(timestamp, resolution),
+          '_id.resolution': resolution,
+          '_id.range': sthHelper.getRange(resolution),
+          'points.offset': offset
+        };
+        break;
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+        aggregateUpdateCondition = {
+          '_id.attributeName': attributeId,
+          '_id.attributeType': attributeType,
+          '_id.origin': sthHelper.getOrigin(timestamp, resolution),
+          '_id.resolution': resolution,
+          '_id.range': sthHelper.getRange(resolution),
+          'points.offset': offset
+        };
+        break;
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+        aggregateUpdateCondition = {
+          '_id.origin': sthHelper.getOrigin(timestamp, resolution),
+          '_id.resolution': resolution,
+          '_id.range': sthHelper.getRange(resolution),
+          'points.offset': offset
+        };
+        break;
+    }
+    return aggregateUpdateCondition;
   }
 
   /**
@@ -414,7 +608,8 @@
    * @param {Function} callback Function to call once the operation completes
    */
   function storeAggregatedData4Resolution(
-    collectionName4Aggregated, resolution, timestamp, attributeValue, callback) {
+    collectionName4Aggregated, entityId, entityType, attributeId, attributeType, attributeValue,
+    resolution, timestamp, callback) {
     /*
      Currently the MongoDB $ positional update operator cannot be combined with upserts
       (see http://docs.mongodb.org/manual/reference/operator/update/positional/#upsert).
@@ -435,14 +630,16 @@
     // Prepopulate the aggregated data collection if there is no entry for the concrete
     //  origin, resolution and range.
     getAggregatedModel(collectionName4Aggregated).update(
-      getAggregateUpdateCondition(resolution, timestamp),
+      getAggregateUpdateCondition(
+        entityId, entityType, attributeId, attributeType, resolution, timestamp),
       getAggregateUpdate4Insert(attributeValue, resolution, timestamp),
       {upsert: true},
       function (err) {
         // Once the aggregated data collection has been prepopulated (if needed),
         //  aggregate the new value received.
         getAggregatedModel(collectionName4Aggregated).update(
-          getAggregateUpdateCondition(resolution, timestamp),
+          getAggregateUpdateCondition(
+            entityId, entityType, attributeId, attributeType, resolution, timestamp),
           getAggregateUpdate4Update(attributeValue, resolution, timestamp),
           function (err) {
             if (callback) {
@@ -469,20 +666,25 @@
     var collectionName4Aggregated = getCollectionName4Aggregated(
       servicePath, entityId, entityType, attributeId, attributeType);
 
-    storeAggregatedData4Resolution(collectionName4Aggregated, sthConfig.RESOLUTION.SECOND, timestamp,
-      attributeValue, callback);
+    storeAggregatedData4Resolution(
+      collectionName4Aggregated, entityId, entityType, attributeId, attributeType, attributeValue,
+      sthConfig.RESOLUTION.SECOND, timestamp, callback);
 
-    storeAggregatedData4Resolution(collectionName4Aggregated, sthConfig.RESOLUTION.MINUTE, timestamp,
-      attributeValue, callback);
+    storeAggregatedData4Resolution(
+      collectionName4Aggregated, entityId, entityType, attributeId, attributeType, attributeValue,
+      sthConfig.RESOLUTION.MINUTE, timestamp, callback);
 
-    storeAggregatedData4Resolution(collectionName4Aggregated, sthConfig.RESOLUTION.HOUR, timestamp,
-      attributeValue, callback);
+    storeAggregatedData4Resolution(
+      collectionName4Aggregated, entityId, entityType, attributeId, attributeType, attributeValue,
+      sthConfig.RESOLUTION.HOUR, timestamp, callback);
 
-    storeAggregatedData4Resolution(collectionName4Aggregated, sthConfig.RESOLUTION.DAY, timestamp,
-      attributeValue, callback);
+    storeAggregatedData4Resolution(
+      collectionName4Aggregated, entityId, entityType, attributeId, attributeType, attributeValue,
+      sthConfig.RESOLUTION.DAY, timestamp, callback);
 
-    storeAggregatedData4Resolution(collectionName4Aggregated, sthConfig.RESOLUTION.MONTH, timestamp,
-      attributeValue, callback);
+    storeAggregatedData4Resolution(
+      collectionName4Aggregated, entityId, entityType, attributeId, attributeType, attributeValue,
+      sthConfig.RESOLUTION.MONTH, timestamp, callback);
   }
 
   /**
@@ -500,11 +702,34 @@
     attributeType, attributeValue, callback) {
     var collectionName4Events = getCollectionName4Events(
       servicePath, entityId, entityType, attributeId, attributeType);
-    var theEvent = new getEventModel(collectionName4Events)({
-      timestamp: timestamp,
-      type: attributeType,
-      value: attributeValue
-    });
+    var theEvent;
+    switch (sthConfig.DATA_MODEL) {
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+        theEvent = new getEventModel(collectionName4Events)({
+          timestamp: timestamp,
+          entityId: entityId,
+          entityType: entityType,
+          attributeName: attributeId,
+          attributeType: attributeType,
+          attributeValue: attributeValue
+        });
+        break;
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+        theEvent = new getEventModel(collectionName4Events)({
+          timestamp: timestamp,
+          attributeName: attributeId,
+          attributeType: attributeType,
+          attributeValue: attributeValue
+        });
+        break;
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+        theEvent = new getEventModel(collectionName4Events)({
+          timestamp: timestamp,
+          attributeType: attributeType,
+          attributeValue: attributeValue
+        });
+        break;
+    }
     theEvent.save(
       function (err) {
         if (callback) {
@@ -537,6 +762,7 @@
       getAggregateUpdateCondition: getAggregateUpdateCondition,
       getAggregatePrepopulatedData: getAggregatePrepopulatedData,
       storeAggregatedData: storeAggregatedData,
+      storeAggregatedData4Resolution: storeAggregatedData4Resolution,
       storeRawData: storeRawData
     };
   };

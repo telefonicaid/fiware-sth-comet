@@ -107,8 +107,16 @@
                 sthLogger.trace(
                   'The collection %s exists', collectionName, request.info.sth);
 
-                sthDatabase.getAggregatedData(collectionName, request.query.aggrMethod,
-                  request.query.aggrPeriod, request.query.dateFrom, request.query.dateTo,
+                sthDatabase.getAggregatedData(
+                  request.headers['fiware-servicepath'],
+                  request.params.entityId,
+                  'entityType',
+                  request.params.attributeId,
+                  'attributeType',
+                  request.query.aggrMethod,
+                  request.query.aggrPeriod,
+                  request.query.dateFrom,
+                  request.query.dateTo,
                   sthConfig.FILTER_OUT_EMPTY,
                   function (err, result) {
                     if (err) {
@@ -179,7 +187,7 @@
       },
       {
         method: 'POST',
-        path: '/STH/v1/notify',
+        path: '/notify',
         handler: function(request, reply) {
           var timestamp = new Date(),
               unicaCorrelatorPassed = request.headers[sthConfig.UNICA_CORRELATOR_HEADER],

@@ -14,9 +14,9 @@
 
   module.exports = {
     DATA_MODELS: {
-      COLLECTIONS_PER_SERVICE_PATH: 1,
-      COLLECTIONS_PER_ENTITY: 2,
-      COLLECTIONS_PER_ATTRIBUTE: 3
+      COLLECTIONS_PER_SERVICE_PATH: 'collection-per-service-path',
+      COLLECTIONS_PER_ENTITY: 'collection-per-entity',
+      COLLECTIONS_PER_ATTRIBUTE: 'collection-per-attribute'
     },
     RANGE: {
       YEAR: 'year',
@@ -50,7 +50,8 @@
       SERVER_START: 'OPER_STH_SERVER_START',
       SERVER_LOG: 'OPER_STH_SERVER_LOG',
       SERVER_STOP: 'OPER_STH_SERVER_STOP'
-    }
+    },
+    SERVICE_PREFIX: ENV.SERVICE_PREFIX || 'sth'
   };
 
   module.exports.LOG_LEVEL = ENV.LOG_LEVEL || 'info';
@@ -58,15 +59,17 @@
   module.exports.LOG_TO_FILE = ENV.LOG_TO_FILE !== 'false';
   module.exports.LOG_DIR = ENV.LOG_DIR || '.' + path.sep + 'log';
   module.exports.LOG_FILE_NAME = ENV.LOG_FILE_NAME || 'sth_app.log';
-  module.exports.SERVICE = ENV.SERVICE || 'orion';
+  module.exports.SERVICE = ENV.SERVICE ? module.exports.SERVICE_PREFIX + '_' + ENV.SERVICE :
+    module.exports.SERVICE_PREFIX + '_orion';
   module.exports.SERVICE_PATH = ENV.SERVICE_PATH || '/';
-  module.exports.POOL_SIZE = ENV.POOL_SIZE && !NaN(ENV.POOL_SIZE) ? parseInt(ENV.POOL_SIZE) : 5;
+  module.exports.POOL_SIZE = (ENV.POOL_SIZE && !isNaN(ENV.POOL_SIZE) && parseInt(ENV.POOL_SIZE) > 0) ?
+    parseInt(ENV.POOL_SIZE) : 5;
   module.exports.DATA_MODEL = [
       module.exports.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH,
       module.exports.DATA_MODELS.COLLECTIONS_PER_ENTITY,
       module.exports.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE
     ].indexOf(ENV.DATA_MODEL) !== -1 ? ENV.DATA_MODEL :
-      module.exports.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE;
+      module.exports.DATA_MODELS.COLLECTIONS_PER_ENTITY;
   module.exports.DB_USERNAME = dbUsername;
   module.exports.DB_PASSWORD = dbPassword;
   module.exports.DB_AUTHENTICATION = (dbUsername && dbPassword) ?

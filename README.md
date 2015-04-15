@@ -134,11 +134,12 @@ Regarding the formal option (based on using the Cygnus component for the updatin
 The another option to update the aggregated time series information consists on directly subscribing the STH component
 to the Orion Context Broker to receive the corresponding notifications and generate and update the aggregated data.
 
-To subscribe the STH component to the Orion Context Broker as a way to receive attribute value updates, the following
-curl command can be used:
+In the minimalist option, the STH component calculates aggregated data grouped at certain resolutions whenever it receives
+a notification from the Orion Context Broker. To this regard and as a way to subscribe the STH component to the Orion Context Broker
+so it receives the attribute values of interest, the following curl command can be used:
 
 <pre>
-curl orion.contextBroker.host:1026/v1/subscribeContext -s -S --header 'Content-Type: application/json' --header 'Accept: application/json' -d @- &lt;&lt;EOF
+curl orion.contextBroker.host:1026/v1/subscribeContext -s -S --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'Fiware-Service: theService' --header 'Fiware-ServicePath: theServicePath' -d @- &lt;&lt;EOF
 {
     "entities": [
         {
@@ -150,34 +151,30 @@ curl orion.contextBroker.host:1026/v1/subscribeContext -s -S --header 'Content-T
     "attributes": [
         "temperature"
     ],
-    "reference": "http://sth.host:1028/STH/v1/notify",
+    "reference": "http://&lt;sth.host&gt;:&lt;sth.port&gt;/notify",
     "duration": "P1M",
     "notifyConditions": [
         {
-            "type": "ONCHANGE",
+            "type": "ONTIMEINTERVAL",
             "condValues": [
-                "pressure"
+                "PT1S"
             ]
         }
     ],
-    "throttling": "PT1S"
 }
 EOF
 </pre>
 
-In this request, a subscription to be notified the value of the temperature attribute of the Room1 entity whenever
-the value of the pressure attribute changes is made to an instance of the Orion Context Broker listening at orion.contextBroker.host:1026.
-The notifications will be sent to the endpoint made available by the STH component at http://sth.host:1028/STH/v1/notify
-Although it may not seem a logical subscription, it outlines the flexibility and power of the Orion Context Broker subscription mechanism.
+In this request, a subscription to be notified the value of the temperature attribute of the Room1 entity every second
+is made to an instance of the Orion Context Broker listening at orion.contextBroker.host:1026.
+The notifications will be sent to the endpoint made available by the STH component at http://<sth.host>:<sth.port>/notify
 
-A more typical subscription will use the same attributes in the "attributes" property as well as in the "condValues".
-To this regard, take into consideration that if the list of "attributes" is empty, this is interpreted by the Orion Context Broker
-as "all the attributes of the selected entities". On the other hand, if the "condValues" includes more than one attribute,
-it is interpreted by the Orion Context Broker as an OR, this is, to send a notification if the value of any of the included attribute
-change.
+If the list of "attributes" is empty, this is interpreted by the Orion Context Broker as "all the attributes of the selected entities".
 
-Remember that subscription expire. In fact, the "duration" property sets the duration of the subscription. One month in the
-proposed example.
+Of course, the concrete curl command to be used depends on each case but can easily be infered from the previous example.
+
+Remember that subscription expire and must be re-enabled. More concretely, the "duration" property sets the duration of the subscription.
+One month in the proposed example.
 
 On the other hand, for the time being the STH component only is able to manage notifications in JSON format and consequently
 it is very important to set the "Accept" header to "application/json".
@@ -225,6 +222,14 @@ The script accepts the following parameters as environment variables:
 - LOG_TO_FILE: A flag indicating if the logs should be sent to a file. Optional. Default value: true.
 - LOG_DIR: The path to a directory where the log file will be searched for or created if it does not exist. Optional. Default value: "./log".
 - LOG_FILE_NAME: The name of the file where the logs will be stored. Optional. Default value: "sth_app.log".
+- SERVICE_PREFIX: The prefix to be added to the service for the creation of the databases. More information below. Optional. Default value: "sth".
+- SERVICE: The service to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "orion".
+- SERVICE_PATH: The service path to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "/".
+- POOL_SIZE: The default MongoDB pool size of database connections. Optional. Default value: "5".
+- DATA_MODEL: The data model to use. Currently 3 possible values are supported: collections-per-service-path (which creates a MongoDB collection
+ per service patch to store the data), collections-per-entity (which creates a MongoDB collection per service path and entity to store the data)
+ and collections-per-attribute (which creates a collection per service path, entity and attribute to store the data). More information about these
+ values below. Optional. Default value: "collections-per-attribute".
 - DB_USERNAME: The username to use for the database connection. Optional. Default value: "".
 - DB_PASSWORD: The password to use for the database connection. Optional. Default value: "".
 - DB_HOST: The host to use for the database connection. Optional. Default value: "localhost".
@@ -236,6 +241,22 @@ For example, to start the STH server listening on port 7777, connecting to a Mon
 without filtering out the empty results, use:
 
 <pre> PORT=7777 DB_HOST=mymongo.com DB_PORT=27777 FILTER_OUT_EMPTY=false npm start</pre>
+
+Of special interest is the DATA_MODEL environment variable. Currently, the STH component supports 3 possible data distribution
+models as a way to let us evaluate which of them provides the best performance. After running a set of performance tests currently
+under implementation, we will opt for one of the options.
+
+The STH component creates a new database for each <a href="https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Multi_service_tenancy" target="_blank">service</a>.
+The name of these databases will be the concatenation of the SERVICE_PREFIX environment variable and the service, using an underscore ("_") as the separator.
+
+Using these databases, the behavior of the STH component according to each one of the values the DATA_MODEL environment variable may have is the following:
+
+- "collections-per-service": The STH component creates 2 collections per <a href="https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Entity_service_paths" target="_blank">service path</a>
+for each one of the databases, storing in these collection all the raw and aggregated data separately.
+- "collections-per-entity": The STH component creates 2 collections per <a href="https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Entity_service_paths" target="_blank">service path</a>
+and entity duple for each one of the databases, storing in these collection the corresponding raw and aggregated data separately.
+- "collections-per-attribute": The STH component creates 2 collections per <a href="https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Entity_service_paths" target="_blank">service path</a>,
+entity and attribute triple for each one of the databases, storing in these collection the corresponding raw and aggregated data separately.
 
 [Top](#section0)
 
