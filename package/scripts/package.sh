@@ -4,7 +4,6 @@ function clean_up_previous_builds() {
 	_logStage "Cleaning up previous builds of rpm..."
 
 	rm -rf ${RPM_BASE_DIR}/{RPMS,BUILDROOT,BUILD,SRPMS}
-	rm -rf ${RPM_SOURCE_DIR}/{config,usr}
 	return 0
 }
 
@@ -18,7 +17,7 @@ function usage() {
     printf "\n" >&2
     printf "    -h                    show usage\n" >&2
     printf "    -v VERSION            Mandatory parameter. Version for rpm product preferably in format x.y.z \n" >&2
-    printf "    -r RELEASE            Optional parameter. Release for product. I.E. 0.ge58dffa \n" >&2
+    printf "    -r RELEASE            Mandatory parameter. Release for product. I.E. 0.ge58dffa \n" >&2
     printf "\n" >&2
     exit 1
 }
@@ -71,27 +70,18 @@ else
 	exit 2
 fi
 
-describe_tags="$(git describe --tags --long 2>/dev/null)"
-GIT_PRODUCT_RELEASE="${describe_tags#*-}"
-GIT_PRODUCT_RELEASE="${GIT_PRODUCT_RELEASE#*-}"
-GIT_PRODUCT_RELEASE=$(echo ${GIT_PRODUCT_RELEASE} | sed -e "s@-@.@g")
-
 if [[ ! -z ${RELEASE_ARG} ]]; then
 	PRODUCT_RELEASE=${RELEASE_ARG}
 else
-	PRODUCT_RELEASE=${GIT_PRODUCT_RELEASE}
+	_logError "A product reslease must be specified with -r parameter."
+	usage
+	exit 2
 fi
 
 if [[ -d "${RPM_BASE_DIR}" ]]; then
 
 	clean_up_previous_builds 
 	[[ $? -ne 0 ]] && _logError "Cannot clean up previous builds." && exit 1
-
-	# copy_initd_script
-	# [[ $? -ne 0 ]] && _logError "init.d script copy has failed." && exit 1
-
-	# copy_sth_conf
-	# [[ $? -ne 0 ]] && exit 1
 
 	rm -rf ${RPM_BASE_DIR}/BUILD
 	rm -rf ${RPM_BASE_DIR}/BUILDROOT
@@ -101,7 +91,7 @@ if [[ -d "${RPM_BASE_DIR}" ]]; then
 		# Execute command to create RPM
 		RPM_BUILD_COMMAND="rpmbuild -v -ba ${SPEC_FILE} --define '_topdir '${RPM_BASE_DIR} --define '_product_version '${PRODUCT_VERSION} --define '_product_release '${PRODUCT_RELEASE} "
 		_log "Rpm construction command: ${RPM_BUILD_COMMAND}"
-		${RPM_BUILD_COMMAND}
+		rpmbuild -v -ba ${SPEC_FILE} --define '_topdir '${RPM_BASE_DIR} --define '_product_version '${PRODUCT_VERSION} --define '_product_release '${PRODUCT_RELEASE}
 		if [[ $? -ne 0 ]]; then
 			_logError "RPM build has failed!" 
 			exit 1

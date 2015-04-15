@@ -5,10 +5,11 @@ Release:          %{_product_release}
 License:          AGPLv3
 BuildRoot:        %{_topdir}/BUILDROOT/
 BuildArch:        x86_64
-Requires(build):  npm
-Requires(post):   /sbin/chkconfig, /usr/sbin/useradd
-Requires(preun):  /sbin/chkconfig, /sbin/service
+Requires(build):  /usr/bin/npm
+Requires(post):   /usr/sbin/useradd
+Requires(preun):  /sbin/service
 Requires(postun): /sbin/service
+Requires:         nodejs
 Group:            Applications/sth
 Vendor:           Telefonica I+D
 
@@ -23,30 +24,26 @@ registered using the Orion Context Broker
 %define _service_name sth
 
 # System folders
-%define _srcdir $RPM_BUILD_ROOT/../../..
+%define _srcdir $RPM_BUILD_ROOT/../../../..
 %define _install_dir /usr/%{_project_name}
 %define _log_dir %{_localstatedir}/log/%{_project_name}
 
 # RPM Building folder
-%define _build_root_project %{buildroot}%{_project_install_dir}
 # -------------------------------------------------------------------------------------------- #
 # prep section, setup macro:
 # -------------------------------------------------------------------------------------------- #
 %prep
 echo "[INFO] Preparing installation"
 # Create rpm/BUILDROOT folder
-rm -Rf $RPM_BUILD_ROOT && mkdir -p $RPM_BUILD_ROOT
-[ -d %{_build_root_project}/%{_install_dir} ] || mkdir -p %{_build_root_project}/%{_install_dir}
+rm -Rf %{buildroot} && mkdir -p %{buildroot}
+[ ! -d %{buildroot}/%{_install_dir} ] && mkdir -p %{buildroot}/%{_install_dir}
 
 # Copy src files
-cp -R %{_srcdir}/lib \
-      %{_srcdir}/provisioning \
-      %{_srcdir}/index.js \
+cp -R %{_srcdir}/src \
       %{_srcdir}/package.json \
-      %{_srcdir}/invoice_templates \
-      %{_build_root_project}
+      %{buildroot}/%{_install_dir}
 
-# Copy service files
+# Copy service and config files
 cp -R %{_sourcedir}/* %{buildroot}
 
 # -------------------------------------------------------------------------------------------- #
@@ -54,7 +51,7 @@ cp -R %{_sourcedir}/* %{buildroot}
 # -------------------------------------------------------------------------------------------- #
 %build
 echo "[INFO] Building RPM"
-cd %{_build_root_project}
+cd %{buildroot}/%{_install_dir}
 
 # Only production modules
 rm -fR node_modules/
@@ -97,8 +94,6 @@ echo "[INFO] Configuring application"
     mkdir -p %{_log_dir}
     chown -R %{_project_user}:%{_project_user} %{_log_dir}
     chmod -R 755 %{_log_dir}
-    chown -R %{_project_user}:%{_project_user} %{_install_dir}
-    chmod g+s %{_log_dir}
     setfacl -d -m g::rwx %{_log_dir}
     setfacl -d -m o::rx %{_log_dir}
 
@@ -106,10 +101,6 @@ echo "[INFO] Configuring application"
     mkdir -p %{_localstatedir}/run/%{_project_name} 
     chown -R %{_project_user}:%{_project_user} %{_localstatedir}/run/%{_project_name}
 
-    echo "[INFO] Configuring application service"
-    mkdir -p %{_project_forever_dir}
-    chown -R %{_project_user}:%{_project_user} %{_project_forever_dir}
-    cd /etc/init.d
 
 echo "Done"
 
@@ -121,20 +112,9 @@ echo "Done"
 echo "[INFO] stoping service %{_service_name}"
 service %{_service_name} stop &> /dev/null
 
-if [ $1 == 0 ]; then
+echo "[INFO] Removing application user"
+userdel -f %{_project_user}
 
-  echo "[INFO] Removing application log files"
-  # Log
-  [ -d %{_log_dir} ] && rm -rfv %{_log_dir}
-
-  echo "[INFO] Removing application files"
-  # Installed files
-  [ -d %{_project_install_dir} ] && rm -rfv %{_project_install_dir}
-
-  echo "[INFO] Removing application user"
-  userdel -fr %{_project_user}
-
-fi
 
 # -------------------------------------------------------------------------------------------- #
 # post-uninstall section:
@@ -149,5 +129,7 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------------------------------- #
 %files
 %defattr(755,%{_project_user},%{_project_user},755)
-%{_project_install_dir}
-%config /etc/init.d/%{_service_name}
+%{_install_dir}
+%attr(0744, root, root) /etc/init.d/sth
+%attr(0644, root, root) /etc/logrotate.d/logrotate-sth-daily
+

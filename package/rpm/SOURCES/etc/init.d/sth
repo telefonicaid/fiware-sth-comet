@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+
+# Load some fancy functions for init.d
+. /etc/rc.d/init.d/functions
+
+PARAM=$1
+
+COMPONENT_NAME=sth
+PREFIX=/usr
+COMPONENT_DIR=${PREFIX}/${COMPONENT_NAME}
+CONFIG_FILE=${PREFIX}/${COMPONENT_NAME}/conf/sth.conf
+COMPONENT_USER=sth
+COMPONENT_PID_FILE=/var/run/sth/sth.pid
+
+NODE_EXEC="/usr/bin/node"
+
+component_start()
+{
+    local result=0
+
+    if [[ ! -f ${CONFIG_FILE} ]]; then
+        printf "%s\n" "Fail - ${CONFIG_FILE} not exists."
+        exit 1
+    fi
+
+    source ${CONFIG_FILE}
+
+    if [[ ! -f ${COMPONENT_DIR}/src/sth_app.js ]]; then
+        printf "%s\n" "Fail - ${COMPONENT_DIR}/src/sth_app.js application file not exists."
+        exit 1
+    fi
+
+	printf "%s" "Starting STH...  "
+
+    status -p ${COMPONENT_PID_FILE} ${NODE_EXEC} &> /dev/null 
+    if [[ ${?} -eq 0 ]]; then
+        printf "%s\n" " Already running, skipping $(success)"
+        exit 0
+    fi
+
+    sudo -E -u ${COMPONENT_USER} /bin/bash -c "${NODE_EXEC} ${COMPONENT_DIR}/src/sth_app.js &"
+    sleep 2 # some cortesy time to process startup and die
+    local PID=$(ps -ef | grep "sth_app" | grep -v grep | awk '{print $2}')
+    if [[ -z ${PID} ]]; then
+        printf "%s\n" "$(failure)"
+        result=$((${result}+1))
+        rm -f ${COMPONENT_PID_FILE} &> /dev/null 
+    else
+    	echo ${PID} > ${COMPONENT_PID_FILE}
+        chown ${COMPONENT_USER}:${COMPONENT_USER} ${COMPONENT_PID_FILE}
+        printf "%s\n" "$(success)"
+    fi
+
+    return ${result}
+}
+
+component_stop()
+{
+    local result=0
+
+    printf "%s" "Stopping STH..."
+
+    # status of process 
+    status -p ${COMPONENT_PID_FILE} ${NODE_EXEC} &> /dev/null 
+    if [[ ${?} -ne 0 ]]; then
+        printf "%s\n" " No process STH running. Skipping $(success)"
+        rm -f ${COMPONENT_PID_FILE}
+        exit 0
+    fi
+
+    if [[ ! -f ${COMPONENT_PID_FILE} ]]; then
+    	printf "%s\n" "$(success)"
+    fi
+
+    local RUN_PID=$(cat ${COMPONENT_PID_FILE})
+    kill ${RUN_PID}  &> /dev/null
+    sleep 2 # time to die properly
+    local KILLED_PID=$(ps -ef | grep ${RUN_PID} | grep -v grep | awk '{print $2}')
+    if [[ -z ${KILLED_PID} ]]; then
+        printf "%s\n" "$(success)"
+    else
+        printf "%s\n" "$(failure)"
+        result=$((${result}+1))
+    fi
+
+    rm -f ${COMPONENT_PID_FILE} &> /dev/null 
+
+    return ${result}
+}
+
+component_status()
+{
+    local result=0
+
+    printf "%s\n" "STH status..."
+    status -p ${COMPONENT_PID_FILE} ${NODE_EXEC}
+    result=$((${result}+${?}))
+
+    return ${result}
+}
+
+
+case ${PARAM} in
+    'start')
+        component_start
+        ;;
+
+    'stop')
+        component_stop
+        ;;
+
+    'restart')
+        component_stop
+        component_start
+        ;;
+
+    'status')
+        component_status
+        ;;
+esac
