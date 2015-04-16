@@ -226,10 +226,10 @@ The script accepts the following parameters as environment variables:
 - SERVICE: The service to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "orion".
 - SERVICE_PATH: The service path to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "/".
 - POOL_SIZE: The default MongoDB pool size of database connections. Optional. Default value: "5".
-- DATA_MODEL: The data model to use. Currently 3 possible values are supported: collections-per-service-path (which creates a MongoDB collection
- per service patch to store the data), collections-per-entity (which creates a MongoDB collection per service path and entity to store the data)
- and collections-per-attribute (which creates a collection per service path, entity and attribute to store the data). More information about these
- values below. Optional. Default value: "collections-per-attribute".
+- DATA_MODEL: The data model to use. Currently 3 possible values are supported: collection-per-service-path (which creates a MongoDB collection
+ per service patch to store the data), collection-per-entity (which creates a MongoDB collection per service path and entity to store the data)
+ and collection-per-attribute (which creates a collection per service path, entity and attribute to store the data). More information about these
+ values below. Optional. Default value: "collection-per-attribute".
 - DB_USERNAME: The username to use for the database connection. Optional. Default value: "".
 - DB_PASSWORD: The password to use for the database connection. Optional. Default value: "".
 - DB_HOST: The host to use for the database connection. Optional. Default value: "localhost".
@@ -251,11 +251,11 @@ The name of these databases will be the concatenation of the SERVICE_PREFIX envi
 
 Using these databases, the behavior of the STH component according to each one of the values the DATA_MODEL environment variable may have is the following:
 
-- "collections-per-service": The STH component creates 2 collections per <a href="https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Entity_service_paths" target="_blank">service path</a>
+- "collection-per-service": The STH component creates 2 collections per <a href="https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Entity_service_paths" target="_blank">service path</a>
 for each one of the databases, storing in these collection all the raw and aggregated data separately.
-- "collections-per-entity": The STH component creates 2 collections per <a href="https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Entity_service_paths" target="_blank">service path</a>
+- "collection-per-entity": The STH component creates 2 collections per <a href="https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Entity_service_paths" target="_blank">service path</a>
 and entity duple for each one of the databases, storing in these collection the corresponding raw and aggregated data separately.
-- "collections-per-attribute": The STH component creates 2 collections per <a href="https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Entity_service_paths" target="_blank">service path</a>,
+- "collection-per-attribute": The STH component creates 2 collections per <a href="https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Entity_service_paths" target="_blank">service path</a>,
 entity and attribute triple for each one of the databases, storing in these collection the corresponding raw and aggregated data separately.
 
 [Top](#section0)
