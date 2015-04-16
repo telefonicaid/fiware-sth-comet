@@ -40,7 +40,7 @@
   describe('database connection', function() {
     it('should be a database available', function(done) {
       sthApp.sthDatabase.connect(sthConfig.DB_AUTHENTICATION, sthConfig.DB_HOST,
-        sthConfig.DB_PORT, sthConfig.SERVICE, sthConfig.POOL_SIZE, function(err) {
+        sthConfig.DB_PORT, sthApp.sthDatabase.getDatabase(sthConfig.SERVICE), sthConfig.POOL_SIZE, function(err) {
           done(err);
         });
 

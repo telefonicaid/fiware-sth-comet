@@ -28,7 +28,7 @@
   describe('Database operation', function () {
     it('should establish a connection to the database', function (done) {
       sthDatabase.connect(sthConfig.DB_AUTHENTICATION, sthConfig.DB_HOST,
-        sthConfig.DB_PORT, sthConfig.SERVICE, sthConfig.POOL_SIZE, function (err) {
+        sthConfig.DB_PORT, sthDatabase.getDatabase(sthConfig.SERVICE), sthConfig.POOL_SIZE, function (err) {
           done(err);
         });
     });
@@ -85,7 +85,7 @@
       sthTestHelper.dropAggregatedDataCollectionTest);
 
     it('should check if the collection for the aggregated data exists', function (done) {
-      sthDatabase.getCollection(sthConfig.SERVICE, collectionName4Aggregated, false,
+      sthDatabase.getCollection(sthDatabase.getDatabase(sthConfig.SERVICE), collectionName4Aggregated, false,
         function (err, collection) {
           if (err && !collection) {
             // The collection does not exist
@@ -96,13 +96,13 @@
     });
 
     it('should create the collection for the single events', function (done) {
-      sthDatabase.driver.connection.db.createCollection(collectionName4Events, function (err) {
+      sthDatabase.connection.db.createCollection(collectionName4Events, function (err) {
         done(err);
       });
     });
 
     it('should create the collection for the aggregated data', function (done) {
-      sthDatabase.driver.connection.db.createCollection(collectionName4Aggregated, function (err) {
+      sthDatabase.connection.db.createCollection(collectionName4Aggregated, function (err) {
         done(err);
       });
     });

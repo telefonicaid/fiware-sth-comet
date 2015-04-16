@@ -313,18 +313,9 @@
             headers: function(value, options, next) {
               var error;
               if (!value['fiware-service']) {
-                /*
-                error = boom.badRequest('child "fiware-service" fails because [fiware-service is required]');
-                error.output.payload.validation = { source: 'headers', keys: ['fiware-service'] };
-                next(error);
-                */
                 value['fiware-service'] = sthConfig.SERVICE;
-              } /*else*/ if (!value['fiware-servicepath']) {
-                /*
-                error = boom.badRequest('child "fiware-servicepath" fails because [fiware-servicepath is required]');
-                error.output.payload.validation = { source: 'headers', keys: ['fiware-servicepath'] };
-                next(error);
-                */
+              }
+              if (!value['fiware-servicepath']) {
                 value['fiware-servicepath'] = sthConfig.SERVICE_PATH;
               }
               next();

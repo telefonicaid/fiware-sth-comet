@@ -93,7 +93,6 @@
       collectionName4Events,
       true,
       function (err, collection) {
-        console.log(err);
         if (err) {
           done(err);
         } else {
@@ -198,7 +197,7 @@
     var collectionName4Events = sthDatabase.getCollectionName4Events(
       sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
       sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
-    sthDatabase.driver.connection.db.dropCollection(collectionName4Events, function (err) {
+    sthDatabase.connection.db.dropCollection(collectionName4Events, function (err) {
       if (err && err.message === 'ns not found') {
         err = null;
       }
@@ -214,7 +213,7 @@
     var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
       sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
       sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
-    sthDatabase.driver.connection.db.dropCollection(collectionName4Aggregated, function (err) {
+    sthDatabase.connection.db.dropCollection(collectionName4Aggregated, function (err) {
       if (err && err.message === 'ns not found') {
         err = null;
       }
@@ -525,7 +524,7 @@
         var collectionName4Events = sthDatabase.getCollectionName4Events(
           sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
           sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
-        sthDatabase.getCollection(sthConfig.SERVICE, collectionName4Events, false,
+        sthDatabase.getCollection(sthDatabase.getDatabase(sthConfig.SERVICE), collectionName4Events, false,
           function (err, collection) {
             if (err) {
               return done(err);
@@ -541,7 +540,9 @@
         var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
           sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
           sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
-        sthDatabase.getCollection(sthConfig.SERVICE, collectionName4Aggregated, false,
+        sthDatabase.getCollection(sthDatabase.getDatabase(sthConfig.SERVICE),
+          collectionName4Aggregated,
+          false,
           function (err, collection) {
             if (err) {
               return done(err);

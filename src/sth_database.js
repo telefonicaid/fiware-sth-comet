@@ -5,7 +5,109 @@
 
   var mongoose = require('mongoose');
 
-  var sthConfig, sthLogger, sthHelper, connectionURL, eventSchema, aggregatedSchema;
+  var sthConfig, sthLogger, sthHelper, connectionURL, connection, eventSchema, aggregatedSchema;
+
+  /**
+   * Declares the Mongoose schemas.
+   */
+  function defineSchemas() {
+    switch (sthConfig.DATA_MODEL) {
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+        eventSchema = mongoose.Schema({
+          timestamp: Date,
+          entityId: String,
+          entityType: String,
+          attributeName: String,
+          attributeType: String,
+          attributeValue: Number
+        });
+        break;
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+        eventSchema = mongoose.Schema({
+          timestamp: Date,
+          attributeName: String,
+          attributeType: String,
+          attributeValue: Number
+        });
+        break;
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+        eventSchema = mongoose.Schema({
+          timestamp: Date,
+          attributeType: String,
+          attributeValue: Number
+        });
+        break;
+    }
+
+    switch (sthConfig.DATA_MODEL) {
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+        aggregatedSchema = mongoose.Schema({
+          _id: {
+            type: {
+              entityId: String,
+              entityType: String,
+              attributeName: String,
+              attributeType: String,
+              range: String,
+              resolution: String,
+              origin: Date
+            },
+            select: true
+          },
+          points: [{
+            offset: Number,
+            samples: Number,
+            sum: Number,
+            sum2: Number,
+            min: Number,
+            max: Number
+          }]
+        });
+        break;
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+        aggregatedSchema = mongoose.Schema({
+          _id: {
+            type: {
+              attributeName: String,
+              attributeType: String,
+              range: String,
+              resolution: String,
+              origin: Date
+            },
+            select: true
+          },
+          points: [{
+            offset: Number,
+            samples: Number,
+            sum: Number,
+            sum2: Number,
+            min: Number,
+            max: Number
+          }]
+        });
+        break;
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+        aggregatedSchema = mongoose.Schema({
+          _id: {
+            type: {
+              range: String,
+              resolution: String,
+              origin: Date
+            },
+            select: true
+          },
+          points: [{
+            offset: Number,
+            samples: Number,
+            sum: Number,
+            sum2: Number,
+            min: Number,
+            max: Number
+          }]
+        });
+        break;
+    }
+  }
 
   /**
    * Connects to a (MongoDB) database endpoint asynchronously
@@ -17,111 +119,10 @@
    * @param {Function} callback A callback to inform about the result of the operation
    */
   function connect(authentication, host, port, database, poolSize, callback) {
-    // Event collection schema
-    if (!eventSchema) {
-      switch (sthConfig.DATA_MODEL) {
-        case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
-          eventSchema = mongoose.Schema({
-            timestamp: Date,
-            entityId: String,
-            entityType: String,
-            attributeName: String,
-            attributeType: String,
-            attributeValue: Number
-          });
-          break;
-        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
-          eventSchema = mongoose.Schema({
-            timestamp: Date,
-            attributeName: String,
-            attributeType: String,
-            attributeValue: Number
-          });
-          break;
-        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
-          eventSchema = mongoose.Schema({
-            timestamp: Date,
-            attributeType: String,
-            attributeValue: Number
-          });
-          break;
-      }
-    }
-
-    // Aggregated collection schema
-    if (!aggregatedSchema) {
-      switch (sthConfig.DATA_MODEL) {
-        case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
-          aggregatedSchema = mongoose.Schema({
-            _id: {
-              type: {
-                entityId: String,
-                entityType: String,
-                attributeName: String,
-                attributeType: String,
-                range: String,
-                resolution: String,
-                origin: Date
-              },
-              select: true
-            },
-            points: [{
-              offset: Number,
-              samples: Number,
-              sum: Number,
-              sum2: Number,
-              min: Number,
-              max: Number
-            }]
-          });
-          break;
-        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
-          aggregatedSchema = mongoose.Schema({
-            _id: {
-              type: {
-                attributeName: String,
-                attributeType: String,
-                range: String,
-                resolution: String,
-                origin: Date
-              },
-              select: true
-            },
-            points: [{
-              offset: Number,
-              samples: Number,
-              sum: Number,
-              sum2: Number,
-              min: Number,
-              max: Number
-            }]
-          });
-          break;
-        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
-          aggregatedSchema = mongoose.Schema({
-            _id: {
-              type: {
-                range: String,
-                resolution: String,
-                origin: Date
-              },
-              select: true
-            },
-            points: [{
-              offset: Number,
-              samples: Number,
-              sum: Number,
-              sum2: Number,
-              min: Number,
-              max: Number
-            }]
-          });
-          break;
-      }
-    }
-
     connectionURL = 'mongodb://' + authentication + '@' + host + ':' + port +
     '/' + database;
+
+    defineSchemas();
 
     mongoose.connect(connectionURL,
       {
@@ -134,7 +135,7 @@
           // Error when connecting to the MongoDB database
           return callback(err);
         }
-
+        connection = mongoose.connection;
         return callback();
       }
     );
@@ -149,10 +150,9 @@
     sthLogger.info('Closing the connection to the database...', {
       operationType: sthConfig.OPERATION_TYPE.DB_CONN_CLOSE
     });
-    var connection = mongoose.connection;
-    if (connection &&
-      (connection.readyState === 1 || connection.readyState === 2)) {
-      connection.close(function() {
+    if (mongoose.connection &&
+      (mongoose.connection.readyState === 1 || mongoose.connection.readyState === 2)) {
+      mongoose.connection.close(function() {
         // Connection to database closed
         sthLogger.info('Connection to MongoDb succesfully closed', {
           operationType: sthConfig.OPERATION_TYPE.DB_CONN_CLOSE
@@ -176,7 +176,7 @@
    *  events
    */
   function getEventModel(name) {
-    return mongoose.model(
+    return connection.model(
       name,
       eventSchema,
       name);
@@ -191,7 +191,7 @@
    * aggregated data
    */
   function getAggregatedModel(name) {
-    return mongoose.model(
+    return connection.model(
       name,
       aggregatedSchema,
       name);
@@ -203,7 +203,7 @@
    * @return {string} The database name
    */
   function getDatabase(service) {
-    return service;
+    return sthConfig.SERVICE_PREFIX + '_' + service;
   }
 
   /**
@@ -254,14 +254,14 @@
    */
   function getCollection(databaseName, collectionName, shouldCreate, callback) {
     // Switch to the right database
-    mongoose.connection.useDb(databaseName);
+    connection = connection.useDb(databaseName);
     // Get the connection and notify it via the callback.
-    mongoose.connection.db.collection(collectionName, {strict: true},
+    connection.db.collection(collectionName, {strict: true},
       function (err, collection) {
         if (err &&
           (err.message === 'Collection ' + collectionName + ' does not exist. Currently in strict mode.') &&
           shouldCreate) {
-          mongoose.connection.db.createCollection(collectionName, {strict: true},
+          connection.db.createCollection(collectionName, {strict: true},
             function (err, collection) {
               callback(err, collection);
             }
@@ -749,6 +749,9 @@
       },
       get connectionURL() {
         return connectionURL;
+      },
+      get connection() {
+        return connection;
       },
       connect: connect,
       closeConnection: closeConnection,
