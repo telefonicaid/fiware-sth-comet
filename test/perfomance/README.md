@@ -26,8 +26,15 @@ nohup sh startAgent.sh --udp-port 0 --tcp-port 4444 &
 
   >**Scenario**:
 ```
-* N threads (notifications) in the same time against a STH instance specific, where threads are notifications total, entities are the number of entities in each service path
-and service path is the div between notifications (threads) and entities.
+* Multiples Notifications in the same time against a STH instance specific.
+* Ten services always will be used in parallel, therefore:
+      Notifications Total = 10 services (threads groups) * THREADS
+      service path number = THREADS / ENTITIES (in each service path) (see properties)
+      Example (a given data set:):
+        THREADS = 1000
+        ENTITIES = 100
+      Notifications Total = 10000
+      service path number = 10
 ```
   >**Steps**:
 ```
