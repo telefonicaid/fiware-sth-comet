@@ -46,6 +46,13 @@ and service path is the div between notifications (threads) and entities.
 * THREADS      - threads number (notifications total) (1 by default)
 * ENTITIES     - number of entities in each service path  (1 by default, service path is the div between notifications (THREADS) and ENTITIES)
 * CONTENT      - type of content in http (values allowed: JSON | XML )  (JSON by default)
+* SERVICE      - service or tenant name prefix (my_service by default)
+* SERVICE_PATH - service path name prefix (/my_serv_path by default)
+* ENTITY_TYPE  - entity type value (static value) (house by default)
+* ENTITY_ID    - entity id prefix (room by default)
+* ATTR_NAME    - attribute name (temperature by default)
+* ATTR_VALUE   - attribute value (30.5 by default)
+* ATTR_TYPE    - attribute value (float by default)
 ```
 
   >**example**:
