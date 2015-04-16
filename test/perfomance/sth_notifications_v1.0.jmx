@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
+
  Copyright 2015 Telefonica Investigación y Desarrollo, S.A.U
 
  This file is part of Short Term Historic (FI-WARE project).
@@ -7,17 +8,19 @@
  iot-sth is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
  Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
  later version.
+
  iot-sth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  details.
 
- You should have received a copy of the GNU Affero General Public License along with iot-sth. If not, see
- http://www.gnu.org/licenses/.
+ You should have received a copy of the GNU Affero General Public License along with iot-sth. If not, see:
+   http://www.gnu.org/licenses/.
 
  For those usages not covered by the GNU Affero General Public License please contact:
    iot_support at tid.es
 
- author = 'Iván Arias León (ivan.ariasleon at telefonica dot com)'
+ author: 'Iván Arias León (ivan.ariasleon at telefonica dot com)'
+ 
 -->
 <jmeterTestPlan version="1.2" properties="2.6" jmeter="2.11 r1554548">
   <hashTree>
@@ -34,7 +37,7 @@
           </elementProp>
           <elementProp name="HOST" elementType="Argument">
             <stringProp name="Argument.name">HOST</stringProp>
-            <stringProp name="Argument.value">${__P(HOST,10.95.169.58)}</stringProp>
+            <stringProp name="Argument.value">${__P(HOST,127.0.0.1)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="PORT" elementType="Argument">
@@ -62,6 +65,41 @@
             <stringProp name="Argument.value">${__P(CONTENT, JSON)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
+          <elementProp name="SERVICE_PREFIX" elementType="Argument">
+            <stringProp name="Argument.name">SERVICE_PREFIX</stringProp>
+            <stringProp name="Argument.value">${__P(SERVICE, my_service)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="SERVICE_PATH_PREFIX" elementType="Argument">
+            <stringProp name="Argument.name">SERVICE_PATH_PREFIX</stringProp>
+            <stringProp name="Argument.value">${__P(SERVICE_PATH, /my_serv_path)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ENTITY_TYPE_VALUE" elementType="Argument">
+            <stringProp name="Argument.name">ENTITY_TYPE_VALUE</stringProp>
+            <stringProp name="Argument.value">${__P(ENTITY_TYPE, house)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ENTITY_ID_PREFIX" elementType="Argument">
+            <stringProp name="Argument.name">ENTITY_ID_PREFIX</stringProp>
+            <stringProp name="Argument.value">${__P(ENTITY_ID, room)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ATTRIBUTE_NAME_PREFIX" elementType="Argument">
+            <stringProp name="Argument.name">ATTRIBUTE_NAME_PREFIX</stringProp>
+            <stringProp name="Argument.value">${__P(ATTR_NAME, temperature)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ATTRIBUTE_VALUE" elementType="Argument">
+            <stringProp name="Argument.name">ATTRIBUTE_VALUE</stringProp>
+            <stringProp name="Argument.value">${__P(ATTR_VALUE, 30.5)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ATTRIBUTE_TYPE" elementType="Argument">
+            <stringProp name="Argument.name">ATTRIBUTE_TYPE</stringProp>
+            <stringProp name="Argument.value">${__P(ATTR_TYPE, float)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
         </collectionProp>
       </elementProp>
       <stringProp name="TestPlan.user_define_classpath"></stringProp>
@@ -71,7 +109,7 @@
         <collectionProp name="Arguments.arguments">
           <elementProp name="PROJECT" elementType="Argument">
             <stringProp name="Argument.name">PROJECT</stringProp>
-            <stringProp name="Argument.value">load_test</stringProp>
+            <stringProp name="Argument.value">sth_notifications</stringProp>
             <stringProp name="Argument.desc">project name</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
@@ -83,7 +121,7 @@
           </elementProp>
           <elementProp name="POSTFIX_FILES" elementType="Argument">
             <stringProp name="Argument.name">POSTFIX_FILES</stringProp>
-            <stringProp name="Argument.value">__${__time(YMDHMS,)}_IP_${HOST}_x${THREADS}Threads_x${RUNTIME}Sec</stringProp>
+            <stringProp name="Argument.value">__${__time(YMDHMS,)}_IP_${HOST}_x${THREADS}Threads_x${ENTITIES}Entities</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
             <stringProp name="Argument.desc">files postfix in results</stringProp>
           </elementProp>
@@ -105,36 +143,6 @@
             <stringProp name="Argument.desc">number of repetitions</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
-          <elementProp name="SERVICE_PREFIX" elementType="Argument">
-            <stringProp name="Argument.name">SERVICE_PREFIX</stringProp>
-            <stringProp name="Argument.value">valencia</stringProp>
-            <stringProp name="Argument.desc">service prefix</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="SERVICE_PATH_PREFIX" elementType="Argument">
-            <stringProp name="Argument.name">SERVICE_PATH_PREFIX</stringProp>
-            <stringProp name="Argument.value">/electricity</stringProp>
-            <stringProp name="Argument.desc">service_path prefix</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="ENTITY_TYPE_VALUE" elementType="Argument">
-            <stringProp name="Argument.name">ENTITY_TYPE_VALUE</stringProp>
-            <stringProp name="Argument.value">house</stringProp>
-            <stringProp name="Argument.desc">entity type value (static value)</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="ENTITY_ID_PREFIX" elementType="Argument">
-            <stringProp name="Argument.name">ENTITY_ID_PREFIX</stringProp>
-            <stringProp name="Argument.value">room</stringProp>
-            <stringProp name="Argument.desc">entity id prefix</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="ATTRIBUTE_NAME_PREFIX" elementType="Argument">
-            <stringProp name="Argument.name">ATTRIBUTE_NAME_PREFIX</stringProp>
-            <stringProp name="Argument.value">temperature</stringProp>
-            <stringProp name="Argument.desc">attribute name prefix</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
           <elementProp name="PATH" elementType="Argument">
             <stringProp name="Argument.name">PATH</stringProp>
             <stringProp name="Argument.value">/notify</stringProp>
@@ -143,7 +151,7 @@
           </elementProp>
           <elementProp name="USER_AGENT" elementType="Argument">
             <stringProp name="Argument.name">USER_AGENT</stringProp>
-            <stringProp name="Argument.value">orion/0.10.0</stringProp>
+            <stringProp name="Argument.value">orion/0.20.0</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
             <stringProp name="Argument.desc">user agent to http header</stringProp>
           </elementProp>
@@ -235,8 +243,8 @@
         &quot;attributes&quot; : [&#xd;
           {&#xd;
             &quot;name&quot; : &quot;${ATTRIBUTE_NAME_PREFIX}_${ENTITIES_COUNTER}&quot;,&#xd;
-            &quot;type&quot; : &quot;float&quot;,&#xd;
-            &quot;value&quot; : &quot;26.5&quot;&#xd;
+            &quot;type&quot; : &quot;${ATTRIBUTE_TYPE}&quot;,&#xd;
+            &quot;value&quot; : &quot;${ATTRIBUTE_VALUE}&quot;&#xd;
           }&#xd;
         ],&#xd;
         &quot;type&quot; : &quot;${ENTITY_TYPE_VALUE}&quot;,&#xd;
@@ -278,8 +286,6 @@
 int thread_number = ctx.getThreadNum();
 
 int service_path_number = thread_number / entities;
-
-System.out.println (&quot; -------------------  SP:&quot; + service_path_number.toString()+ &quot; - thread: &quot;+ thread_number.toString() + &quot; - entities totales: &quot;+ entities.toString());
 
 vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
 </stringProp>
@@ -335,8 +341,8 @@ vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
         &lt;contextAttributeList&gt;         &#xd;
           &lt;contextAttribute&gt;&#xd;
             &lt;name&gt;&quot;${ATTRIBUTE_NAME_PREFIX}_${ENTITIES_COUNTER}&quot;&lt;/name&gt;&#xd;
-            &lt;type&gt;float&lt;/type&gt;&#xd;
-            &lt;contextValue&gt;27.6&lt;/contextValue&gt;&#xd;
+            &lt;type&gt;${ATTRIBUTE_TYPE}&lt;/type&gt;&#xd;
+            &lt;contextValue&gt;${ATTRIBUTE_VALUE}&lt;/contextValue&gt;&#xd;
     &#xd;
           &lt;/contextAttribute&gt;          &#xd;
         &lt;/contextAttributeList&gt;&#xd;
@@ -377,8 +383,6 @@ vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
 int thread_number = ctx.getThreadNum();
 
 int service_path_number = thread_number / entities;
-
-System.out.println (&quot; -------------------  SP:&quot; + service_path_number.toString()+ &quot; - thread: &quot;+ thread_number.toString() + &quot; - entities totales: &quot;+ entities.toString());
 
 vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
 </stringProp>
@@ -496,39 +500,7 @@ vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
             <bytes>true</bytes>
           </value>
         </objProp>
-        <objProp>
-          <value class="SampleSaveConfiguration">
-            <time>true</time>
-            <latency>true</latency>
-            <timestamp>true</timestamp>
-            <success>true</success>
-            <label>true</label>
-            <code>true</code>
-            <message>true</message>
-            <threadName>true</threadName>
-            <dataType>true</dataType>
-            <encoding>false</encoding>
-            <assertions>true</assertions>
-            <subresults>true</subresults>
-            <responseData>true</responseData>
-            <samplerData>true</samplerData>
-            <xml>true</xml>
-            <fieldNames>true</fieldNames>
-            <responseHeaders>true</responseHeaders>
-            <requestHeaders>true</requestHeaders>
-            <responseDataOnError>false</responseDataOnError>
-            <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
-            <assertionsResultsToSave>0</assertionsResultsToSave>
-            <bytes>true</bytes>
-            <url>true</url>
-            <fileName>true</fileName>
-            <hostname>true</hostname>
-            <threadCounts>true</threadCounts>
-            <sampleCount>true</sampleCount>
-            <idleTime>true</idleTime>
-          </value>
-        </objProp>
-        <stringProp name="filename">${OUTPUT_DIR}/Errors${POSTFIX_FILES}.csv</stringProp>
+        <stringProp name="filename">${OUTPUT_DIR}/ERRORS_${POSTFIX_FILES}.csv</stringProp>
       </ResultCollector>
       <hashTree/>
       <kg.apc.jmeter.perfmon.PerfMonCollector guiclass="kg.apc.jmeter.vizualizers.PerfMonGui" testclass="kg.apc.jmeter.perfmon.PerfMonCollector" testname="PerfMon Metrics main node" enabled="true">
