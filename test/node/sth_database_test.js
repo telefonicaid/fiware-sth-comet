@@ -37,15 +37,15 @@
       var collectionName;
       switch(sthConfig.DATA_MODEL) {
         case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
-          collectionName = 'sth.' + sthConfig.SERVICE_PATH;
+          collectionName = sthConfig.COLLECTION_PREFIX + '_' + sthConfig.SERVICE_PATH;
           break;
         case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
-          collectionName = 'sth.' + sthConfig.SERVICE_PATH +
+          collectionName = sthConfig.COLLECTION_PREFIX + '_' + sthConfig.SERVICE_PATH +
             '_' + sthTestConfig.ENTITY_ID +
             '_' + sthTestConfig.ENTITY_TYPE;
           break;
         case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
-          collectionName = 'sth.' + sthConfig.SERVICE_PATH +
+          collectionName = sthConfig.COLLECTION_PREFIX + '_' + sthConfig.SERVICE_PATH +
             '_' + sthTestConfig.ENTITY_ID +
             '_' + sthTestConfig.ENTITY_TYPE +
             '_' + sthTestConfig.ATTRIBUTE_ID +
@@ -62,15 +62,15 @@
       var collectionName;
       switch(sthConfig.DATA_MODEL) {
         case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
-          collectionName = 'sth.' + sthConfig.SERVICE_PATH;
+          collectionName = sthConfig.COLLECTION_PREFIX + '_' + sthConfig.SERVICE_PATH;
           break;
         case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
-          collectionName = 'sth.' + sthConfig.SERVICE_PATH +
+          collectionName = sthConfig.COLLECTION_PREFIX + '_' + sthConfig.SERVICE_PATH +
           '_' + sthTestConfig.ENTITY_ID +
           '_' + sthTestConfig.ENTITY_TYPE;
           break;
         case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
-          collectionName = 'sth.' + sthConfig.SERVICE_PATH +
+          collectionName = sthConfig.COLLECTION_PREFIX + '_' + sthConfig.SERVICE_PATH +
           '_' + sthTestConfig.ENTITY_ID +
           '_' + sthTestConfig.ENTITY_TYPE +
           '_' + sthTestConfig.ATTRIBUTE_ID +

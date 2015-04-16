@@ -224,6 +224,7 @@ The script accepts the following parameters as environment variables:
 - LOG_FILE_NAME: The name of the file where the logs will be stored. Optional. Default value: "sth_app.log".
 - SERVICE_PREFIX: The prefix to be added to the service for the creation of the databases. More information below. Optional. Default value: "sth".
 - SERVICE: The service to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "orion".
+- COLLECTION_PREFIX: The prefix to be added to the collections in the databases. More information below. Optional. Default value: "sth".
 - SERVICE_PATH: The service path to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "/".
 - POOL_SIZE: The default MongoDB pool size of database connections. Optional. Default value: "5".
 - DATA_MODEL: The data model to use. Currently 3 possible values are supported: collection-per-service-path (which creates a MongoDB collection

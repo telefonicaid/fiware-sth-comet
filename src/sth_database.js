@@ -219,11 +219,11 @@
                                     attributeId, attributeType) {
     switch(sthConfig.DATA_MODEL) {
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
-        return 'sth.' + servicePath;
+        return sthConfig.COLLECTION_PREFIX + '_' + servicePath;
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
-        return 'sth.' + servicePath + '_' + entityId + (entityType ? '_' + entityType : '');
+        return sthConfig.COLLECTION_PREFIX + '_' + servicePath + '_' + entityId + (entityType ? '_' + entityType : '');
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
-        return 'sth.' + servicePath + '_' + entityId + (entityType ? '_' + entityType : '') +
+        return sthConfig.COLLECTION_PREFIX + '_' + servicePath + '_' + entityId + (entityType ? '_' + entityType : '') +
           '_' + attributeId + (attributeType ? '_' + attributeType : '');
     }
   }
