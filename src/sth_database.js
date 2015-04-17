@@ -33,6 +33,7 @@
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
         eventSchema = mongoose.Schema({
           timestamp: Date,
+          attributeType: String,
           attributeValue: Number
         });
         break;
@@ -46,13 +47,13 @@
               entityId: String,
               entityType: String,
               attributeName: String,
-              attributeType: String,
               range: String,
               resolution: String,
               origin: Date
             },
             select: true
           },
+          attributeType: String,
           points: [{
             offset: Number,
             samples: Number,
@@ -68,13 +69,13 @@
           _id: {
             type: {
               attributeName: String,
-              attributeType: String,
               range: String,
               resolution: String,
               origin: Date
             },
             select: true
           },
+          attributeType: String,
           points: [{
             offset: Number,
             samples: Number,
@@ -95,6 +96,7 @@
             },
             select: true
           },
+          attributeType: String,
           points: [{
             offset: Number,
             samples: Number,
@@ -211,11 +213,9 @@
    * @param {string} entityId The entity id related to the event
    * @param {string} entityType The type of entity related to the event
    * @param {string} attributeId The attribute id related to the event
-   * @param {string} attributeType The type of the attribute related to the event
    * @returns {string} The collection name
    */
-  function getCollectionName4Events(servicePath, entityId, entityType,
-                                    attributeId, attributeType) {
+  function getCollectionName4Events(servicePath, entityId, entityType, attributeId) {
     switch(sthConfig.DATA_MODEL) {
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
         return sthConfig.COLLECTION_PREFIX + '_' + servicePath;
@@ -223,7 +223,7 @@
         return sthConfig.COLLECTION_PREFIX + '_' + servicePath + '_' + entityId + (entityType ? '_' + entityType : '');
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
         return sthConfig.COLLECTION_PREFIX + '_' + servicePath + '_' + entityId + (entityType ? '_' + entityType : '') +
-          '_' + attributeId + (attributeType ? '_' + attributeType : '');
+          '_' + attributeId;
     }
   }
 
@@ -233,14 +233,12 @@
    * @param {string} entityId The entity id related to the event
    * @param {string} entityType The type of entity related to the event
    * @param {string} attributeId The attribute id related to the event
-   * @param {string} attributeType The type of the attribute related to the event
    * @returns {string} The collection name
    */
   function getCollectionName4Aggregated(servicePath, entityId, entityType,
-                                        attributeId, attributeType) {
+                                        attributeId) {
     return getCollectionName4Events(
-        servicePath, entityId, entityType, attributeId, attributeType
-      ) + '.aggr';
+        servicePath, entityId, entityType, attributeId) + '.aggr';
   }
 
   /**
@@ -282,8 +280,6 @@
    * @param {string} entityId The entity id related to the event
    * @param {string} entityType The type of entity related to the event
    * @param {string} attributeId The attribute id related to the event
-   * @param {string} attributeType The type of the attribute related to the event
-   *  should be collected
    * @param {string} aggregatedFunction The aggregated function or method to retrieve
    * @param {string} resolution The resolution of the data to use
    * @param {Date} from The date from which retrieve the aggregated data
@@ -291,10 +287,10 @@
    * @param {boolean} shouldFilter If true, the null results are filter out
    * @param {Function} callback Callback to inform about any possible error or results
    */
-  function getAggregatedData(servicePath, entityId, entityType, attributeId, attributeType,
+  function getAggregatedData(servicePath, entityId, entityType, attributeId,
                              aggregatedFunction, resolution, from, to, shouldFilter, callback) {
     var collectionName = getCollectionName4Aggregated(
-      servicePath, entityId, entityType, attributeId, attributeType);
+      servicePath, entityId, entityType, attributeId);
 
     var fieldFilter = {
       'points.offset': 1,
@@ -337,7 +333,6 @@
             '_id.entityId': entityId,
             '_id.entityType': entityType,
             '_id.attributeName': attributeId,
-            '_id.attributeType': attributeType,
             '_id.resolution': resolution,
             '_id.range': sthHelper.getRange(resolution),
             '_id.origin': originFilter
@@ -346,7 +341,6 @@
         case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
           matchCondition = {
             '_id.attributeName': attributeId,
-            '_id.attributeType': attributeType,
             '_id.resolution': resolution,
             '_id.range': sthHelper.getRange(resolution),
             '_id.origin': originFilter
@@ -368,7 +362,6 @@
             entityId: '$_id.entityId',
             entityType: '$_id.entityType',
             attributeName: '$_id.attributeName',
-            attributeType: '$_id.attributeType',
             origin: '$_id.origin',
             range: '$_id.range',
             resolution: '$_id.resolution'
@@ -377,7 +370,6 @@
         case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
           groupId = {
             attributeName: '$_id.attributeName',
-            attributeType: '$_id.attributeType',
             origin: '$_id.origin',
             range: '$_id.range',
             resolution: '$_id.resolution'
@@ -428,7 +420,6 @@
             '_id.entityId': entityId,
             '_id.entityType': entityType,
             '_id.attributeName': attributeId,
-            '_id.attributeType': attributeType,
             '_id.resolution': resolution,
             '_id.range': sthHelper.getRange(resolution),
             '_id.origin': originFilter
@@ -437,7 +428,6 @@
         case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
           findCondition = {
             '_id.attributeName': attributeId,
-            '_id.attributeType': attributeType,
             '_id.resolution': resolution,
             '_id.range': sthHelper.getRange(resolution),
             '_id.origin': originFilter
@@ -461,12 +451,15 @@
 
   /**
    * Returns the condition to be used in the MongoDB update operation for aggregated data
+   * @param {string} entityId The entity id
+   * @param {string} entityType The entity type
+   * @param {string} attributeId The attribute id
    * @param {string} resolution The resolution
    * @param {Date} timestamp The date (or timestamp) of the notification (attribute value change)
    * @returns {Object} The update condition
    */
   function getAggregateUpdateCondition(
-    entityId, entityType, attributeId, attributeType, resolution, timestamp) {
+    entityId, entityType, attributeId, resolution, timestamp) {
     var offset;
     switch (resolution) {
       case sthConfig.RESOLUTION.SECOND:
@@ -493,7 +486,6 @@
           '_id.entityId': entityId,
           '_id.entityType': entityType,
           '_id.attributeName': attributeId,
-          '_id.attributeType': attributeType,
           '_id.origin': sthHelper.getOrigin(timestamp, resolution),
           '_id.resolution': resolution,
           '_id.range': sthHelper.getRange(resolution),
@@ -503,7 +495,6 @@
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
         aggregateUpdateCondition = {
           '_id.attributeName': attributeId,
-          '_id.attributeType': attributeType,
           '_id.origin': sthHelper.getOrigin(timestamp, resolution),
           '_id.resolution': resolution,
           '_id.range': sthHelper.getRange(resolution),
@@ -566,12 +557,15 @@
 
   /**
    * Returns the update to be used in the MongoDB update operation for aggregated data
-   * @param {number} attributeValue The value of the attribute to aggregate
+   * @param {string} attributeType The type of the attribute to aggregate
+   * @param {string} resolution The resolution
    * @returns {Object} The update operation
    */
-  function getAggregateUpdate4Insert(attributeValue, resolution, timestamp) {
+  function getAggregateUpdate4Insert(attributeType, resolution) {
+    console.log('getAggregateUpdate4Insert.attributeType: ' + attributeType);
     return {
       '$setOnInsert': {
+        attributeType: attributeType,
         points: getAggregatePrepopulatedData(resolution)
       }
     };
@@ -579,11 +573,16 @@
 
   /**
    * Returns the update to be used in the MongoDB update operation for aggregated data
+   * @param {number} attributeType The type of the attribute to aggregate
    * @param {number} attributeValue The value of the attribute to aggregate
    * @returns {Object} The update operation
    */
-  function getAggregateUpdate4Update(attributeValue, resolution, timestamp) {
+  function getAggregateUpdate4Update(attributeType, attributeValue) {
+    console.log('getAggregateUpdate4Update.attributeType: ' + attributeType);
     return {
+      '$set': {
+        'attributeType': attributeType
+      },
       '$inc': {
         'points.$.samples': 1,
         'points.$.sum': attributeValue,
@@ -601,9 +600,12 @@
   /**
    * Stores the aggregated data for a new event (attribute value)
    * @param {string} collectionName4Aggregated The collection name for the aggregated data
+   * @param {string} entityId The entity id
+   * @param {string} entityType The entity type
+   * @param {string} attributeId The attribute id
+   * @param {string} attributeType The attribute type
    * @param {string} resolution The resolution
    * @param {Date} timestamp The date the event arrived
-   * @param {string} attributeValue The updated attribute value
    * @param {Function} callback Function to call once the operation completes
    */
   function storeAggregatedData4Resolution(
@@ -618,8 +620,8 @@
       getAggregatedModel(collectionName4Aggregated).update(
         // Returning all the update operators currently returned by getAggregateUpdate4Insert
         //  and getAggregateUpdate4Update in the same object
-        getAggregateUpdateCondition(resolution, timestamp),
-        getAggregateUpdate(attributeValue, resolution, timestamp),
+        getAggregateUpdateCondition(entityId, entityType, attributeId, resolution, timestamp),
+        getAggregateUpdate(attributeValue),
         {upsert: true},
         function (err) {
           callback(err);
@@ -630,16 +632,16 @@
     //  origin, resolution and range.
     getAggregatedModel(collectionName4Aggregated).update(
       getAggregateUpdateCondition(
-        entityId, entityType, attributeId, attributeType, resolution, timestamp),
-      getAggregateUpdate4Insert(attributeValue, resolution, timestamp),
+        entityId, entityType, attributeId, resolution, timestamp),
+      getAggregateUpdate4Insert(attributeType, resolution),
       {upsert: true},
       function (err) {
         // Once the aggregated data collection has been prepopulated (if needed),
         //  aggregate the new value received.
         getAggregatedModel(collectionName4Aggregated).update(
           getAggregateUpdateCondition(
-            entityId, entityType, attributeId, attributeType, resolution, timestamp),
-          getAggregateUpdate4Update(attributeValue, resolution, timestamp),
+            entityId, entityType, attributeId, resolution, timestamp),
+          getAggregateUpdate4Update(attributeType, attributeValue),
           function (err) {
             if (callback) {
               callback(err);
@@ -663,7 +665,7 @@
   function storeAggregatedData(
     timestamp, servicePath, entityId, entityType, attributeId, attributeType, attributeValue, callback) {
     var collectionName4Aggregated = getCollectionName4Aggregated(
-      servicePath, entityId, entityType, attributeId, attributeType);
+      servicePath, entityId, entityType, attributeId);
 
     storeAggregatedData4Resolution(
       collectionName4Aggregated, entityId, entityType, attributeId, attributeType, attributeValue,
@@ -700,7 +702,7 @@
     timestamp, servicePath, entityId, entityType, attributeId,
     attributeType, attributeValue, callback) {
     var collectionName4Events = getCollectionName4Events(
-      servicePath, entityId, entityType, attributeId, attributeType);
+      servicePath, entityId, entityType, attributeId);
     var theEvent;
     switch (sthConfig.DATA_MODEL) {
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
@@ -724,6 +726,7 @@
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
         theEvent = new getEventModel(collectionName4Events)({
           timestamp: timestamp,
+          attributeType: attributeType,
           attributeValue: attributeValue
         });
         break;

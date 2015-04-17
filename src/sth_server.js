@@ -58,7 +58,7 @@
     server.route([
       {
         method: 'GET',
-        path: '/STH/v1/contextEntities/type/{type}/id/{entityId}/attributes/{attributeId}',
+        path: '/STH/v1/contextEntities/type/{entityType}/id/{entityId}/attributes/{attributeId}',
         handler: function (request, reply) {
           var response,
               unicaCorrelatorPassed = request.headers[sthConfig.UNICA_CORRELATOR_HEADER];
@@ -81,9 +81,8 @@
           var collectionName = sthDatabase.getCollectionName4Aggregated(
             request.headers['fiware-servicepath'],
             request.params.entityId,
-            'entityType',
-            request.params.attributeId,
-            'attributeType'
+            request.params.entityType,
+            request.params.attributeId
           );
 
           // Check if the collection exists
@@ -110,9 +109,8 @@
                 sthDatabase.getAggregatedData(
                   request.headers['fiware-servicepath'],
                   request.params.entityId,
-                  'entityType',
+                  request.params.entityType,
                   request.params.attributeId,
-                  'attributeType',
                   request.query.aggrMethod,
                   request.query.aggrPeriod,
                   request.query.dateFrom,
@@ -233,8 +231,7 @@
                     servicePath,
                     contextElement.id,
                     contextElement.type,
-                    attribute.name,
-                    attribute.type
+                    attribute.name
                   );
 
                   // Check if the collection exists

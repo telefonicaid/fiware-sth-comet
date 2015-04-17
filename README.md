@@ -258,6 +258,9 @@ for each one of the databases, storing in these collection all the raw and aggre
 and entity duple for each one of the databases, storing in these collection the corresponding raw and aggregated data separately.
 - "collection-per-attribute": The STH component creates 2 collections per <a href="https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Entity_service_paths" target="_blank">service path</a>,
 entity and attribute triple for each one of the databases, storing in these collection the corresponding raw and aggregated data separately.
+As as side note, just mention that the attribute type is not included in the name of the created collections since it is not provided
+when querying the STH using the convenience operation provided. This aspect is 100% aligned with the Orion Context Broker where
+the attribute type does not have any special semantic or effect currently.
 
 [Top](#section0)
 

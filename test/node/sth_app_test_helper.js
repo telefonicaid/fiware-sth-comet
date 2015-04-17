@@ -85,7 +85,7 @@
 
     var collectionName4Events = sthDatabase.getCollectionName4Events(
       sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-      sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
+      sthTestConfig.ATTRIBUTE_ID);
 
     // Check if the collection exists
     sthDatabase.getCollection(
@@ -116,7 +116,7 @@
 
     var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
       sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-      sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
+      sthTestConfig.ATTRIBUTE_ID);
 
     // Check if the collection exists
     sthDatabase.getCollection(
@@ -196,7 +196,7 @@
   function dropRawEventCollectionTest(done) {
     var collectionName4Events = sthDatabase.getCollectionName4Events(
       sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-      sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
+      sthTestConfig.ATTRIBUTE_ID);
     sthDatabase.connection.db.dropCollection(collectionName4Events, function (err) {
       if (err && err.message === 'ns not found') {
         err = null;
@@ -212,7 +212,7 @@
   function dropAggregatedDataCollectionTest(done) {
     var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
       sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-      sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
+      sthTestConfig.ATTRIBUTE_ID);
     sthDatabase.connection.db.dropCollection(collectionName4Aggregated, function (err) {
       if (err && err.message === 'ns not found') {
         err = null;
@@ -239,7 +239,7 @@
     var url = 'http://' + sthConfig.HOST + ':' + sthConfig.PORT;
     switch(type) {
       case sthTestConfig.API_OPERATION.READ:
-        return url + '/STH/v1/contextEntities/type/quantity/' +
+        return url + '/STH/v1/contextEntities/type/' + sthTestConfig.ENTITY_TYPE + '/' +
           'id/' + sthTestConfig.ENTITY_ID +
           '/attributes/' + sthTestConfig.ATTRIBUTE_ID +
           '?aggrMethod=' + (aggrMethod || 'min') +
@@ -276,7 +276,7 @@
     switch(type) {
       case 'read':
         if (!options.invalidPath) {
-          url += '/STH/v1/contextEntities/type/quantity/' +
+          url += '/STH/v1/contextEntities/type/' + sthTestConfig.ENTITY_TYPE + '/' +
           'id/' + sthTestConfig.ENTITY_ID +
           '/attributes/' + sthTestConfig.ATTRIBUTE_ID;
         } else {
@@ -527,7 +527,7 @@
       it('should drop the collection created for the events', function (done) {
         var collectionName4Events = sthDatabase.getCollectionName4Events(
           sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-          sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
+          sthTestConfig.ATTRIBUTE_ID);
         sthDatabase.getCollection(sthDatabase.getDatabase(sthConfig.SERVICE), collectionName4Events, false,
           function (err, collection) {
             if (err) {
@@ -543,7 +543,7 @@
       it('should drop the collection created for the aggregated data', function (done) {
         var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
           sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-          sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
+          sthTestConfig.ATTRIBUTE_ID);
         sthDatabase.getCollection(sthDatabase.getDatabase(sthConfig.SERVICE),
           collectionName4Aggregated,
           false,
@@ -597,7 +597,7 @@
   function complexNotificationTest(service, servicePath, done) {
     var anEvent = {
       timestamp: new Date(),
-      attributeType: 'attributeType',
+      attributeType: sthTestConfig.ATTRIBUTE_TYPE,
       attributeValue: 66.6
     };
     request({
@@ -618,7 +618,7 @@
             "contextElement" : {
               "attributes" : [
                 {
-                  "name" : "attributeId",
+                  "name" : sthTestConfig.ATTRIBUTE_ID,
                   "type" : anEvent.attributeType,
                   "value" : anEvent.attributeValue
                 }
@@ -654,7 +654,7 @@
             "contextElement" : {
               "attributes" : [
                 {
-                  "name" : "attributeId",
+                  "name" : sthTestConfig.ATTRIBUTE_ID,
                   "type" : anEvent.attributeType,
                   "value" : anEvent.attributeValue
                 }

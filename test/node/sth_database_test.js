@@ -20,10 +20,10 @@
 
   var collectionName4Events = sthDatabase.getCollectionName4Events(
     sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-    sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
+    sthTestConfig.ATTRIBUTE_ID);
   var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
     sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-    sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE);
+    sthTestConfig.ATTRIBUTE_ID);
 
   describe('Database operation', function () {
     it('should establish a connection to the database', function (done) {
