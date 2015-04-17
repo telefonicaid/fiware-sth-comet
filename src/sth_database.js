@@ -33,7 +33,6 @@
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
         eventSchema = mongoose.Schema({
           timestamp: Date,
-          attributeType: String,
           attributeValue: Number
         });
         break;
@@ -725,7 +724,6 @@
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
         theEvent = new getEventModel(collectionName4Events)({
           timestamp: timestamp,
-          attributeType: attributeType,
           attributeValue: attributeValue
         });
         break;
