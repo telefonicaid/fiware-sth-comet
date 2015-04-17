@@ -301,11 +301,13 @@
   /**
    * A mocha test forcing the server to retrieve no data from the database for
    *  the passed aggregation method and resolution
+   * @param {string} service The service
+   * @param {string} servicePath The service path
    * @param {string} aggrMethod The aggregation method
    * @param {string} resolution The resolution
    * @param {string} done The mocha done() callback function
    */
-  function noDataSinceDateTest(aggrMethod, resolution, done) {
+  function noDataSinceDateTest(service, servicePath, aggrMethod, resolution, done) {
     var offset;
     switch(resolution) {
       case 'second':
@@ -340,8 +342,8 @@
         null),
       method: 'GET',
       headers: {
-        'Fiware-Service': 'orion',
-        'Fiware-ServicePath': '/'
+        'Fiware-Service': service || sthConfig.SERVICE,
+        'Fiware-ServicePath': servicePath || sthConfig.SERVICE_PATH
       }
     }, function (err, response, body) {
       var bodyJSON = JSON.parse(body);
@@ -367,11 +369,13 @@
   /**
    * A mocha test forcing the server to retrieve aggregated data from the database
    *  for the passed aggregation method and resolution
+   * @param {string} service The service
+   * @param {string} servicePath The service path
    * @param {string} aggrMethod The aggregation method
    * @param {string} resolution The resolution
    * @param {Function} done The mocha done() callback function
    */
-  function dataAvailableSinceDateTest(aggrMethod, resolution, done) {
+  function dataAvailableSinceDateTest(service, servicePath, aggrMethod, resolution, done) {
     request({
       uri: getValidURL(sthTestConfig.API_OPERATION.READ, aggrMethod, resolution,
         sthHelper.getISODateString(
@@ -381,8 +385,8 @@
         null),
       method: 'GET',
       headers: {
-        'Fiware-Service': 'orion',
-        'Fiware-ServicePath': '/'
+        'Fiware-Service': service || sthConfig.SERVICE,
+        'Fiware-ServicePath': servicePath || sthConfig.SERVICE_PATH
       }
     }, function (err, response, body) {
       var theEvent = events[0];
@@ -465,51 +469,51 @@
       describe('and aggrPeriod as ' + sthConfig.RESOLUTION.SECOND, function() {
         it('should respond with empty aggregated data if no data since dateFrom',
           noDataSinceDateTest.bind(
-            null, aggrMethod, sthConfig.RESOLUTION.SECOND));
+            null, sthConfig.SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.SECOND));
 
         it('should respond with aggregated data if data since dateFrom',
           dataAvailableSinceDateTest.bind(
-            null, aggrMethod, sthConfig.RESOLUTION.SECOND));
+            null, sthConfig.SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.SECOND));
       });
 
       describe('and aggrPeriod as minute', function() {
         it('should respond with empty aggregated data if no data since dateFrom',
           noDataSinceDateTest.bind(
-            null, aggrMethod, sthConfig.RESOLUTION.MINUTE));
+            null, sthConfig.SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.MINUTE));
 
         it('should respond with aggregated data if data since dateFrom',
           dataAvailableSinceDateTest.bind(
-            null, aggrMethod, sthConfig.RESOLUTION.MINUTE));
+            null, sthConfig.SERVICE, sthConfig.SERVICE_PATH,aggrMethod, sthConfig.RESOLUTION.MINUTE));
       });
 
       describe('and aggrPeriod as hour', function() {
         it('should respond with empty aggregated data if no data since dateFrom',
           noDataSinceDateTest.bind(
-            null, aggrMethod, sthConfig.RESOLUTION.HOUR));
+            null, sthConfig.SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.HOUR));
 
         it('should respond with aggregated data if data since dateFrom',
           dataAvailableSinceDateTest.bind(
-            null, aggrMethod, sthConfig.RESOLUTION.HOUR));
+            null, sthConfig.SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.HOUR));
       });
 
       describe('and aggrPeriod as day', function() {
         it('should respond with empty aggregated data if no data since dateFrom',
           noDataSinceDateTest.bind(
-            null, aggrMethod, sthConfig.RESOLUTION.DAY));
+            null, sthConfig.SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.DAY));
 
         it('should respond with aggregated data if data since dateFrom',
           dataAvailableSinceDateTest.bind(
-            null, aggrMethod, sthConfig.RESOLUTION.DAY));
+            null, sthConfig.SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.DAY));
       });
 
       describe('and aggrPeriod as month', function() {
         it('should respond with empty aggregated data if no data since dateFrom',
           noDataSinceDateTest.bind(
-            null, aggrMethod, sthConfig.RESOLUTION.MONTH));
+            null, sthConfig.SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.MONTH));
 
         it('should respond with aggregated data if data since dateFrom',
           dataAvailableSinceDateTest.bind(
-            null, aggrMethod, sthConfig.RESOLUTION.MONTH));
+            null, sthConfig.SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.MONTH));
       });
     });
   }
@@ -566,7 +570,8 @@
       });
 
       describe('reception', function () {
-        it('should attend the notification', complexNotificationTest);
+        it('should attend the notification', complexNotificationTest.bind(
+          null, sthConfig.SERVICE, sthConfig.SERVICE_PATH));
       });
 
       describe('for each new notification', function () {
@@ -589,7 +594,7 @@
    * A mocha test to check the reception of a new notification by the Orion Context Broker
    * @param {Function} done The mocha done() callback function
    */
-  function complexNotificationTest(done) {
+  function complexNotificationTest(service, servicePath, done) {
     var anEvent = {
       timestamp: new Date(),
       attributeType: 'attributeType',
@@ -600,7 +605,9 @@
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Fiware-Service': service || sthConfig.SERVICE,
+        'Fiware-ServicePath': servicePath || sthConfig.SERVICE_PATH
       },
       json: true,
       body: {
