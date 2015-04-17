@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-
  Copyright 2015 Telefonica Investigación y Desarrollo, S.A.U
 
  This file is part of Short Term Historic (FI-WARE project).
@@ -8,16 +7,15 @@
  iot-sth is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
  Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
  later version.
-
  iot-sth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  details.
 
- You should have received a copy of the GNU Affero General Public License along with iot-sth. If not, see:
-   http://www.gnu.org/licenses/.
+ You should have received a copy of the GNU Affero General Public License along with iot-sth. If not, see
+    http://www.gnu.org/licenses/.
 
  For those usages not covered by the GNU Affero General Public License please contact:
-   iot_support at tid.es
+    iot_support at tid.es
 
  author: 'Iván Arias León (ivan.ariasleon at telefonica dot com)'
  
@@ -57,7 +55,7 @@
           </elementProp>
           <elementProp name="ENTITIES" elementType="Argument">
             <stringProp name="Argument.name">ENTITIES</stringProp>
-            <stringProp name="Argument.value">${__P(ENTITIES,5)}</stringProp>
+            <stringProp name="Argument.value">${__P(ENTITIES,2)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="CONTENT" elementType="Argument">
@@ -188,7 +186,7 @@
         <intProp name="Assertion.test_type">16</intProp>
       </ResponseAssertion>
       <hashTree/>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="NOTIFICATIONS per SERVICE No1" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="NOTIFICATIONS per SERVICE No 1" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Controlador Bucle" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -203,17 +201,6 @@
         <stringProp name="ThreadGroup.delay"></stringProp>
       </ThreadGroup>
       <hashTree>
-        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="Variables definidas por el Usuario" enabled="true">
-          <collectionProp name="Arguments.arguments">
-            <elementProp name="SERVICE_NUMBER" elementType="Argument">
-              <stringProp name="Argument.name">SERVICE_NUMBER</stringProp>
-              <stringProp name="Argument.value">1</stringProp>
-              <stringProp name="Argument.desc">service postfix</stringProp>
-              <stringProp name="Argument.metadata">=</stringProp>
-            </elementProp>
-          </collectionProp>
-        </Arguments>
-        <hashTree/>
         <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Entities counter" enabled="true">
           <stringProp name="CounterConfig.start">0</stringProp>
           <stringProp name="CounterConfig.end">${ENTITIES}</stringProp>
@@ -307,7 +294,7 @@ vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
                 </elementProp>
                 <elementProp name="" elementType="Header">
                   <stringProp name="Header.name">Fiware-Service</stringProp>
-                  <stringProp name="Header.value">${SERVICE_PREFIX}_${SERVICE_NUMBER}</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PREFIX}_1</stringProp>
                 </elementProp>
                 <elementProp name="" elementType="Header">
                   <stringProp name="Header.name">Fiware-ServicePath</stringProp>
@@ -404,7 +391,1960 @@ vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
                 </elementProp>
                 <elementProp name="" elementType="Header">
                   <stringProp name="Header.name">Fiware-Service</stringProp>
-                  <stringProp name="Header.value">${SERVICE_PREFIX}_${SERVICE_NUMBER}</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PREFIX}_1</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-ServicePath</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PATH_PREFIX}_${SERVICE_PATH_COUNTER}</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="NOTIFICATIONS per SERVICE No 2" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Controlador Bucle" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">${ITERATIONS}</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${THREADS}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${RAMPUP}</stringProp>
+        <longProp name="ThreadGroup.start_time">1410941112000</longProp>
+        <longProp name="ThreadGroup.end_time">1410941112000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Entities counter" enabled="true">
+          <stringProp name="CounterConfig.start">0</stringProp>
+          <stringProp name="CounterConfig.end">${ENTITIES}</stringProp>
+          <stringProp name="CounterConfig.incr">1</stringProp>
+          <stringProp name="CounterConfig.name">ENTITIES_COUNTER</stringProp>
+          <stringProp name="CounterConfig.format">0000</stringProp>
+          <boolProp name="CounterConfig.per_user">false</boolProp>
+        </CounterConfig>
+        <hashTree/>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Content JSON" enabled="true">
+          <stringProp name="IfController.condition">&quot;${CONTENT}&quot; == &quot;JSON&quot;</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+        </IfController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="simple- JSON" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
+  &quot;subscriptionId&quot; : &quot;51c0ac9ed714fb3b37d7d5a8&quot;,&#xd;
+  &quot;originator&quot; : &quot;localhost&quot;,&#xd;
+  &quot;contextResponses&quot; : [&#xd;
+    {&#xd;
+      &quot;contextElement&quot; : {&#xd;
+        &quot;attributes&quot; : [&#xd;
+          {&#xd;
+            &quot;name&quot; : &quot;${ATTRIBUTE_NAME_PREFIX}_${ENTITIES_COUNTER}&quot;,&#xd;
+            &quot;type&quot; : &quot;${ATTRIBUTE_TYPE}&quot;,&#xd;
+            &quot;value&quot; : &quot;${ATTRIBUTE_VALUE}&quot;&#xd;
+          }&#xd;
+        ],&#xd;
+        &quot;type&quot; : &quot;${ENTITY_TYPE_VALUE}&quot;,&#xd;
+        &quot;isPattern&quot; : &quot;false&quot;,&#xd;
+        &quot;id&quot; : &quot;${ENTITY_ID_PREFIX}_${ENTITIES_COUNTER}&quot;&#xd;
+      },&#xd;
+      &quot;statusCode&quot; : {&#xd;
+        &quot;code&quot; : &quot;200&quot;,&#xd;
+        &quot;reasonPhrase&quot; : &quot;OK&quot;&#xd;
+      }&#xd;
+    }&#xd;
+  ]&#xd;
+}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path"></stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="service pat postfix" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int entities  = Integer.parseInt(vars.get(&quot;ENTITIES&quot;));
+int thread_number = ctx.getThreadNum();
+
+int service_path_number = thread_number / entities;
+
+vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
+</stringProp>
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/json</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">application/json</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">User-Agent</stringProp>
+                  <stringProp name="Header.value">${USER_AGENT}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-Service</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PREFIX}_2</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-ServicePath</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PATH_PREFIX}_${SERVICE_PATH_COUNTER}</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Content XML" enabled="true">
+          <stringProp name="IfController.condition">&quot;${CONTENT}&quot; == &quot;XML&quot;</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+        </IfController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="simple- XML" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">&lt;notifyContextRequest&gt;&#xd;
+  &lt;subscriptionId&gt;51c0ac9ed714fb3b37d7d5a8&lt;/subscriptionId&gt;&#xd;
+  &lt;originator&gt;localhost&lt;/originator&gt;&#xd;
+  &lt;contextResponseList&gt;&#xd;
+    &lt;contextElementResponse&gt;&#xd;
+      &lt;contextElement&gt;&#xd;
+        &lt;entityId type=&quot;${ENTITY_TYPE_VALUE}&quot; isPattern=&quot;false&quot;&gt;&#xd;
+          &lt;id&gt;${ENTITY_ID_PREFIX}_${ENTITIES_COUNTER}&lt;/id&gt;&#xd;
+        &lt;/entityId&gt;&#xd;
+        &lt;contextAttributeList&gt;         &#xd;
+          &lt;contextAttribute&gt;&#xd;
+            &lt;name&gt;&quot;${ATTRIBUTE_NAME_PREFIX}_${ENTITIES_COUNTER}&quot;&lt;/name&gt;&#xd;
+            &lt;type&gt;${ATTRIBUTE_TYPE}&lt;/type&gt;&#xd;
+            &lt;contextValue&gt;${ATTRIBUTE_VALUE}&lt;/contextValue&gt;&#xd;
+    &#xd;
+          &lt;/contextAttribute&gt;          &#xd;
+        &lt;/contextAttributeList&gt;&#xd;
+      &lt;/contextElement&gt;&#xd;
+      &lt;statusCode&gt;&#xd;
+        &lt;code&gt;200&lt;/code&gt;&#xd;
+        &lt;reasonPhrase&gt;OK&lt;/reasonPhrase&gt;&#xd;
+      &lt;/statusCode&gt;&#xd;
+    &lt;/contextElementResponse&gt;&#xd;
+  &lt;/contextResponseList&gt;&#xd;
+&lt;/notifyContextRequest&gt;&#xd;
+</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path"></stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="service pat postfix" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int entities  = Integer.parseInt(vars.get(&quot;ENTITIES&quot;));
+int thread_number = ctx.getThreadNum();
+
+int service_path_number = thread_number / entities;
+
+vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
+</stringProp>
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">User-Agent</stringProp>
+                  <stringProp name="Header.value">${USER_AGENT}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-Service</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PREFIX}_2</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-ServicePath</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PATH_PREFIX}_${SERVICE_PATH_COUNTER}</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="NOTIFICATIONS per SERVICE No 3" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Controlador Bucle" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">${ITERATIONS}</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${THREADS}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${RAMPUP}</stringProp>
+        <longProp name="ThreadGroup.start_time">1410941112000</longProp>
+        <longProp name="ThreadGroup.end_time">1410941112000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Entities counter" enabled="true">
+          <stringProp name="CounterConfig.start">0</stringProp>
+          <stringProp name="CounterConfig.end">${ENTITIES}</stringProp>
+          <stringProp name="CounterConfig.incr">1</stringProp>
+          <stringProp name="CounterConfig.name">ENTITIES_COUNTER</stringProp>
+          <stringProp name="CounterConfig.format">0000</stringProp>
+          <boolProp name="CounterConfig.per_user">false</boolProp>
+        </CounterConfig>
+        <hashTree/>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Content JSON" enabled="true">
+          <stringProp name="IfController.condition">&quot;${CONTENT}&quot; == &quot;JSON&quot;</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+        </IfController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="simple- JSON" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
+  &quot;subscriptionId&quot; : &quot;51c0ac9ed714fb3b37d7d5a8&quot;,&#xd;
+  &quot;originator&quot; : &quot;localhost&quot;,&#xd;
+  &quot;contextResponses&quot; : [&#xd;
+    {&#xd;
+      &quot;contextElement&quot; : {&#xd;
+        &quot;attributes&quot; : [&#xd;
+          {&#xd;
+            &quot;name&quot; : &quot;${ATTRIBUTE_NAME_PREFIX}_${ENTITIES_COUNTER}&quot;,&#xd;
+            &quot;type&quot; : &quot;${ATTRIBUTE_TYPE}&quot;,&#xd;
+            &quot;value&quot; : &quot;${ATTRIBUTE_VALUE}&quot;&#xd;
+          }&#xd;
+        ],&#xd;
+        &quot;type&quot; : &quot;${ENTITY_TYPE_VALUE}&quot;,&#xd;
+        &quot;isPattern&quot; : &quot;false&quot;,&#xd;
+        &quot;id&quot; : &quot;${ENTITY_ID_PREFIX}_${ENTITIES_COUNTER}&quot;&#xd;
+      },&#xd;
+      &quot;statusCode&quot; : {&#xd;
+        &quot;code&quot; : &quot;200&quot;,&#xd;
+        &quot;reasonPhrase&quot; : &quot;OK&quot;&#xd;
+      }&#xd;
+    }&#xd;
+  ]&#xd;
+}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path"></stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="service pat postfix" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int entities  = Integer.parseInt(vars.get(&quot;ENTITIES&quot;));
+int thread_number = ctx.getThreadNum();
+
+int service_path_number = thread_number / entities;
+
+vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
+</stringProp>
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/json</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">application/json</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">User-Agent</stringProp>
+                  <stringProp name="Header.value">${USER_AGENT}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-Service</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PREFIX}_3</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-ServicePath</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PATH_PREFIX}_${SERVICE_PATH_COUNTER}</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Content XML" enabled="true">
+          <stringProp name="IfController.condition">&quot;${CONTENT}&quot; == &quot;XML&quot;</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+        </IfController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="simple- XML" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">&lt;notifyContextRequest&gt;&#xd;
+  &lt;subscriptionId&gt;51c0ac9ed714fb3b37d7d5a8&lt;/subscriptionId&gt;&#xd;
+  &lt;originator&gt;localhost&lt;/originator&gt;&#xd;
+  &lt;contextResponseList&gt;&#xd;
+    &lt;contextElementResponse&gt;&#xd;
+      &lt;contextElement&gt;&#xd;
+        &lt;entityId type=&quot;${ENTITY_TYPE_VALUE}&quot; isPattern=&quot;false&quot;&gt;&#xd;
+          &lt;id&gt;${ENTITY_ID_PREFIX}_${ENTITIES_COUNTER}&lt;/id&gt;&#xd;
+        &lt;/entityId&gt;&#xd;
+        &lt;contextAttributeList&gt;         &#xd;
+          &lt;contextAttribute&gt;&#xd;
+            &lt;name&gt;&quot;${ATTRIBUTE_NAME_PREFIX}_${ENTITIES_COUNTER}&quot;&lt;/name&gt;&#xd;
+            &lt;type&gt;${ATTRIBUTE_TYPE}&lt;/type&gt;&#xd;
+            &lt;contextValue&gt;${ATTRIBUTE_VALUE}&lt;/contextValue&gt;&#xd;
+    &#xd;
+          &lt;/contextAttribute&gt;          &#xd;
+        &lt;/contextAttributeList&gt;&#xd;
+      &lt;/contextElement&gt;&#xd;
+      &lt;statusCode&gt;&#xd;
+        &lt;code&gt;200&lt;/code&gt;&#xd;
+        &lt;reasonPhrase&gt;OK&lt;/reasonPhrase&gt;&#xd;
+      &lt;/statusCode&gt;&#xd;
+    &lt;/contextElementResponse&gt;&#xd;
+  &lt;/contextResponseList&gt;&#xd;
+&lt;/notifyContextRequest&gt;&#xd;
+</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path"></stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="service pat postfix" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int entities  = Integer.parseInt(vars.get(&quot;ENTITIES&quot;));
+int thread_number = ctx.getThreadNum();
+
+int service_path_number = thread_number / entities;
+
+vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
+</stringProp>
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">User-Agent</stringProp>
+                  <stringProp name="Header.value">${USER_AGENT}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-Service</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PREFIX}_3</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-ServicePath</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PATH_PREFIX}_${SERVICE_PATH_COUNTER}</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="NOTIFICATIONS per SERVICE No 4" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Controlador Bucle" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">${ITERATIONS}</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${THREADS}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${RAMPUP}</stringProp>
+        <longProp name="ThreadGroup.start_time">1410941112000</longProp>
+        <longProp name="ThreadGroup.end_time">1410941112000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Entities counter" enabled="true">
+          <stringProp name="CounterConfig.start">0</stringProp>
+          <stringProp name="CounterConfig.end">${ENTITIES}</stringProp>
+          <stringProp name="CounterConfig.incr">1</stringProp>
+          <stringProp name="CounterConfig.name">ENTITIES_COUNTER</stringProp>
+          <stringProp name="CounterConfig.format">0000</stringProp>
+          <boolProp name="CounterConfig.per_user">false</boolProp>
+        </CounterConfig>
+        <hashTree/>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Content JSON" enabled="true">
+          <stringProp name="IfController.condition">&quot;${CONTENT}&quot; == &quot;JSON&quot;</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+        </IfController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="simple- JSON" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
+  &quot;subscriptionId&quot; : &quot;51c0ac9ed714fb3b37d7d5a8&quot;,&#xd;
+  &quot;originator&quot; : &quot;localhost&quot;,&#xd;
+  &quot;contextResponses&quot; : [&#xd;
+    {&#xd;
+      &quot;contextElement&quot; : {&#xd;
+        &quot;attributes&quot; : [&#xd;
+          {&#xd;
+            &quot;name&quot; : &quot;${ATTRIBUTE_NAME_PREFIX}_${ENTITIES_COUNTER}&quot;,&#xd;
+            &quot;type&quot; : &quot;${ATTRIBUTE_TYPE}&quot;,&#xd;
+            &quot;value&quot; : &quot;${ATTRIBUTE_VALUE}&quot;&#xd;
+          }&#xd;
+        ],&#xd;
+        &quot;type&quot; : &quot;${ENTITY_TYPE_VALUE}&quot;,&#xd;
+        &quot;isPattern&quot; : &quot;false&quot;,&#xd;
+        &quot;id&quot; : &quot;${ENTITY_ID_PREFIX}_${ENTITIES_COUNTER}&quot;&#xd;
+      },&#xd;
+      &quot;statusCode&quot; : {&#xd;
+        &quot;code&quot; : &quot;200&quot;,&#xd;
+        &quot;reasonPhrase&quot; : &quot;OK&quot;&#xd;
+      }&#xd;
+    }&#xd;
+  ]&#xd;
+}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path"></stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="service pat postfix" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int entities  = Integer.parseInt(vars.get(&quot;ENTITIES&quot;));
+int thread_number = ctx.getThreadNum();
+
+int service_path_number = thread_number / entities;
+
+vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
+</stringProp>
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/json</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">application/json</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">User-Agent</stringProp>
+                  <stringProp name="Header.value">${USER_AGENT}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-Service</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PREFIX}_4</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-ServicePath</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PATH_PREFIX}_${SERVICE_PATH_COUNTER}</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Content XML" enabled="true">
+          <stringProp name="IfController.condition">&quot;${CONTENT}&quot; == &quot;XML&quot;</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+        </IfController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="simple- XML" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">&lt;notifyContextRequest&gt;&#xd;
+  &lt;subscriptionId&gt;51c0ac9ed714fb3b37d7d5a8&lt;/subscriptionId&gt;&#xd;
+  &lt;originator&gt;localhost&lt;/originator&gt;&#xd;
+  &lt;contextResponseList&gt;&#xd;
+    &lt;contextElementResponse&gt;&#xd;
+      &lt;contextElement&gt;&#xd;
+        &lt;entityId type=&quot;${ENTITY_TYPE_VALUE}&quot; isPattern=&quot;false&quot;&gt;&#xd;
+          &lt;id&gt;${ENTITY_ID_PREFIX}_${ENTITIES_COUNTER}&lt;/id&gt;&#xd;
+        &lt;/entityId&gt;&#xd;
+        &lt;contextAttributeList&gt;         &#xd;
+          &lt;contextAttribute&gt;&#xd;
+            &lt;name&gt;&quot;${ATTRIBUTE_NAME_PREFIX}_${ENTITIES_COUNTER}&quot;&lt;/name&gt;&#xd;
+            &lt;type&gt;${ATTRIBUTE_TYPE}&lt;/type&gt;&#xd;
+            &lt;contextValue&gt;${ATTRIBUTE_VALUE}&lt;/contextValue&gt;&#xd;
+    &#xd;
+          &lt;/contextAttribute&gt;          &#xd;
+        &lt;/contextAttributeList&gt;&#xd;
+      &lt;/contextElement&gt;&#xd;
+      &lt;statusCode&gt;&#xd;
+        &lt;code&gt;200&lt;/code&gt;&#xd;
+        &lt;reasonPhrase&gt;OK&lt;/reasonPhrase&gt;&#xd;
+      &lt;/statusCode&gt;&#xd;
+    &lt;/contextElementResponse&gt;&#xd;
+  &lt;/contextResponseList&gt;&#xd;
+&lt;/notifyContextRequest&gt;&#xd;
+</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path"></stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="service pat postfix" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int entities  = Integer.parseInt(vars.get(&quot;ENTITIES&quot;));
+int thread_number = ctx.getThreadNum();
+
+int service_path_number = thread_number / entities;
+
+vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
+</stringProp>
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">User-Agent</stringProp>
+                  <stringProp name="Header.value">${USER_AGENT}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-Service</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PREFIX}_4</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-ServicePath</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PATH_PREFIX}_${SERVICE_PATH_COUNTER}</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="NOTIFICATIONS per SERVICE No 5" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Controlador Bucle" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">${ITERATIONS}</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${THREADS}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${RAMPUP}</stringProp>
+        <longProp name="ThreadGroup.start_time">1410941112000</longProp>
+        <longProp name="ThreadGroup.end_time">1410941112000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Entities counter" enabled="true">
+          <stringProp name="CounterConfig.start">0</stringProp>
+          <stringProp name="CounterConfig.end">${ENTITIES}</stringProp>
+          <stringProp name="CounterConfig.incr">1</stringProp>
+          <stringProp name="CounterConfig.name">ENTITIES_COUNTER</stringProp>
+          <stringProp name="CounterConfig.format">0000</stringProp>
+          <boolProp name="CounterConfig.per_user">false</boolProp>
+        </CounterConfig>
+        <hashTree/>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Content JSON" enabled="true">
+          <stringProp name="IfController.condition">&quot;${CONTENT}&quot; == &quot;JSON&quot;</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+        </IfController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="simple- JSON" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
+  &quot;subscriptionId&quot; : &quot;51c0ac9ed714fb3b37d7d5a8&quot;,&#xd;
+  &quot;originator&quot; : &quot;localhost&quot;,&#xd;
+  &quot;contextResponses&quot; : [&#xd;
+    {&#xd;
+      &quot;contextElement&quot; : {&#xd;
+        &quot;attributes&quot; : [&#xd;
+          {&#xd;
+            &quot;name&quot; : &quot;${ATTRIBUTE_NAME_PREFIX}_${ENTITIES_COUNTER}&quot;,&#xd;
+            &quot;type&quot; : &quot;${ATTRIBUTE_TYPE}&quot;,&#xd;
+            &quot;value&quot; : &quot;${ATTRIBUTE_VALUE}&quot;&#xd;
+          }&#xd;
+        ],&#xd;
+        &quot;type&quot; : &quot;${ENTITY_TYPE_VALUE}&quot;,&#xd;
+        &quot;isPattern&quot; : &quot;false&quot;,&#xd;
+        &quot;id&quot; : &quot;${ENTITY_ID_PREFIX}_${ENTITIES_COUNTER}&quot;&#xd;
+      },&#xd;
+      &quot;statusCode&quot; : {&#xd;
+        &quot;code&quot; : &quot;200&quot;,&#xd;
+        &quot;reasonPhrase&quot; : &quot;OK&quot;&#xd;
+      }&#xd;
+    }&#xd;
+  ]&#xd;
+}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path"></stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="service pat postfix" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int entities  = Integer.parseInt(vars.get(&quot;ENTITIES&quot;));
+int thread_number = ctx.getThreadNum();
+
+int service_path_number = thread_number / entities;
+
+vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
+</stringProp>
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/json</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">application/json</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">User-Agent</stringProp>
+                  <stringProp name="Header.value">${USER_AGENT}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-Service</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PREFIX}_5</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-ServicePath</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PATH_PREFIX}_${SERVICE_PATH_COUNTER}</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Content XML" enabled="true">
+          <stringProp name="IfController.condition">&quot;${CONTENT}&quot; == &quot;XML&quot;</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+        </IfController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="simple- XML" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">&lt;notifyContextRequest&gt;&#xd;
+  &lt;subscriptionId&gt;51c0ac9ed714fb3b37d7d5a8&lt;/subscriptionId&gt;&#xd;
+  &lt;originator&gt;localhost&lt;/originator&gt;&#xd;
+  &lt;contextResponseList&gt;&#xd;
+    &lt;contextElementResponse&gt;&#xd;
+      &lt;contextElement&gt;&#xd;
+        &lt;entityId type=&quot;${ENTITY_TYPE_VALUE}&quot; isPattern=&quot;false&quot;&gt;&#xd;
+          &lt;id&gt;${ENTITY_ID_PREFIX}_${ENTITIES_COUNTER}&lt;/id&gt;&#xd;
+        &lt;/entityId&gt;&#xd;
+        &lt;contextAttributeList&gt;         &#xd;
+          &lt;contextAttribute&gt;&#xd;
+            &lt;name&gt;&quot;${ATTRIBUTE_NAME_PREFIX}_${ENTITIES_COUNTER}&quot;&lt;/name&gt;&#xd;
+            &lt;type&gt;${ATTRIBUTE_TYPE}&lt;/type&gt;&#xd;
+            &lt;contextValue&gt;${ATTRIBUTE_VALUE}&lt;/contextValue&gt;&#xd;
+    &#xd;
+          &lt;/contextAttribute&gt;          &#xd;
+        &lt;/contextAttributeList&gt;&#xd;
+      &lt;/contextElement&gt;&#xd;
+      &lt;statusCode&gt;&#xd;
+        &lt;code&gt;200&lt;/code&gt;&#xd;
+        &lt;reasonPhrase&gt;OK&lt;/reasonPhrase&gt;&#xd;
+      &lt;/statusCode&gt;&#xd;
+    &lt;/contextElementResponse&gt;&#xd;
+  &lt;/contextResponseList&gt;&#xd;
+&lt;/notifyContextRequest&gt;&#xd;
+</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path"></stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="service pat postfix" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int entities  = Integer.parseInt(vars.get(&quot;ENTITIES&quot;));
+int thread_number = ctx.getThreadNum();
+
+int service_path_number = thread_number / entities;
+
+vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
+</stringProp>
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">User-Agent</stringProp>
+                  <stringProp name="Header.value">${USER_AGENT}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-Service</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PREFIX}_5</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-ServicePath</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PATH_PREFIX}_${SERVICE_PATH_COUNTER}</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="NOTIFICATIONS per SERVICE No 6" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Controlador Bucle" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">${ITERATIONS}</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${THREADS}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${RAMPUP}</stringProp>
+        <longProp name="ThreadGroup.start_time">1410941112000</longProp>
+        <longProp name="ThreadGroup.end_time">1410941112000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Entities counter" enabled="true">
+          <stringProp name="CounterConfig.start">0</stringProp>
+          <stringProp name="CounterConfig.end">${ENTITIES}</stringProp>
+          <stringProp name="CounterConfig.incr">1</stringProp>
+          <stringProp name="CounterConfig.name">ENTITIES_COUNTER</stringProp>
+          <stringProp name="CounterConfig.format">0000</stringProp>
+          <boolProp name="CounterConfig.per_user">false</boolProp>
+        </CounterConfig>
+        <hashTree/>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Content JSON" enabled="true">
+          <stringProp name="IfController.condition">&quot;${CONTENT}&quot; == &quot;JSON&quot;</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+        </IfController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="simple- JSON" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
+  &quot;subscriptionId&quot; : &quot;51c0ac9ed714fb3b37d7d5a8&quot;,&#xd;
+  &quot;originator&quot; : &quot;localhost&quot;,&#xd;
+  &quot;contextResponses&quot; : [&#xd;
+    {&#xd;
+      &quot;contextElement&quot; : {&#xd;
+        &quot;attributes&quot; : [&#xd;
+          {&#xd;
+            &quot;name&quot; : &quot;${ATTRIBUTE_NAME_PREFIX}_${ENTITIES_COUNTER}&quot;,&#xd;
+            &quot;type&quot; : &quot;${ATTRIBUTE_TYPE}&quot;,&#xd;
+            &quot;value&quot; : &quot;${ATTRIBUTE_VALUE}&quot;&#xd;
+          }&#xd;
+        ],&#xd;
+        &quot;type&quot; : &quot;${ENTITY_TYPE_VALUE}&quot;,&#xd;
+        &quot;isPattern&quot; : &quot;false&quot;,&#xd;
+        &quot;id&quot; : &quot;${ENTITY_ID_PREFIX}_${ENTITIES_COUNTER}&quot;&#xd;
+      },&#xd;
+      &quot;statusCode&quot; : {&#xd;
+        &quot;code&quot; : &quot;200&quot;,&#xd;
+        &quot;reasonPhrase&quot; : &quot;OK&quot;&#xd;
+      }&#xd;
+    }&#xd;
+  ]&#xd;
+}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path"></stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="service pat postfix" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int entities  = Integer.parseInt(vars.get(&quot;ENTITIES&quot;));
+int thread_number = ctx.getThreadNum();
+
+int service_path_number = thread_number / entities;
+
+vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
+</stringProp>
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/json</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">application/json</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">User-Agent</stringProp>
+                  <stringProp name="Header.value">${USER_AGENT}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-Service</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PREFIX}_6</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-ServicePath</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PATH_PREFIX}_${SERVICE_PATH_COUNTER}</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Content XML" enabled="true">
+          <stringProp name="IfController.condition">&quot;${CONTENT}&quot; == &quot;XML&quot;</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+        </IfController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="simple- XML" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">&lt;notifyContextRequest&gt;&#xd;
+  &lt;subscriptionId&gt;51c0ac9ed714fb3b37d7d5a8&lt;/subscriptionId&gt;&#xd;
+  &lt;originator&gt;localhost&lt;/originator&gt;&#xd;
+  &lt;contextResponseList&gt;&#xd;
+    &lt;contextElementResponse&gt;&#xd;
+      &lt;contextElement&gt;&#xd;
+        &lt;entityId type=&quot;${ENTITY_TYPE_VALUE}&quot; isPattern=&quot;false&quot;&gt;&#xd;
+          &lt;id&gt;${ENTITY_ID_PREFIX}_${ENTITIES_COUNTER}&lt;/id&gt;&#xd;
+        &lt;/entityId&gt;&#xd;
+        &lt;contextAttributeList&gt;         &#xd;
+          &lt;contextAttribute&gt;&#xd;
+            &lt;name&gt;&quot;${ATTRIBUTE_NAME_PREFIX}_${ENTITIES_COUNTER}&quot;&lt;/name&gt;&#xd;
+            &lt;type&gt;${ATTRIBUTE_TYPE}&lt;/type&gt;&#xd;
+            &lt;contextValue&gt;${ATTRIBUTE_VALUE}&lt;/contextValue&gt;&#xd;
+    &#xd;
+          &lt;/contextAttribute&gt;          &#xd;
+        &lt;/contextAttributeList&gt;&#xd;
+      &lt;/contextElement&gt;&#xd;
+      &lt;statusCode&gt;&#xd;
+        &lt;code&gt;200&lt;/code&gt;&#xd;
+        &lt;reasonPhrase&gt;OK&lt;/reasonPhrase&gt;&#xd;
+      &lt;/statusCode&gt;&#xd;
+    &lt;/contextElementResponse&gt;&#xd;
+  &lt;/contextResponseList&gt;&#xd;
+&lt;/notifyContextRequest&gt;&#xd;
+</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path"></stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="service pat postfix" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int entities  = Integer.parseInt(vars.get(&quot;ENTITIES&quot;));
+int thread_number = ctx.getThreadNum();
+
+int service_path_number = thread_number / entities;
+
+vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
+</stringProp>
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">User-Agent</stringProp>
+                  <stringProp name="Header.value">${USER_AGENT}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-Service</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PREFIX}_6</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-ServicePath</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PATH_PREFIX}_${SERVICE_PATH_COUNTER}</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="NOTIFICATIONS per SERVICE No 7" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Controlador Bucle" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">${ITERATIONS}</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${THREADS}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${RAMPUP}</stringProp>
+        <longProp name="ThreadGroup.start_time">1410941112000</longProp>
+        <longProp name="ThreadGroup.end_time">1410941112000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Entities counter" enabled="true">
+          <stringProp name="CounterConfig.start">0</stringProp>
+          <stringProp name="CounterConfig.end">${ENTITIES}</stringProp>
+          <stringProp name="CounterConfig.incr">1</stringProp>
+          <stringProp name="CounterConfig.name">ENTITIES_COUNTER</stringProp>
+          <stringProp name="CounterConfig.format">0000</stringProp>
+          <boolProp name="CounterConfig.per_user">false</boolProp>
+        </CounterConfig>
+        <hashTree/>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Content JSON" enabled="true">
+          <stringProp name="IfController.condition">&quot;${CONTENT}&quot; == &quot;JSON&quot;</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+        </IfController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="simple- JSON" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
+  &quot;subscriptionId&quot; : &quot;51c0ac9ed714fb3b37d7d5a8&quot;,&#xd;
+  &quot;originator&quot; : &quot;localhost&quot;,&#xd;
+  &quot;contextResponses&quot; : [&#xd;
+    {&#xd;
+      &quot;contextElement&quot; : {&#xd;
+        &quot;attributes&quot; : [&#xd;
+          {&#xd;
+            &quot;name&quot; : &quot;${ATTRIBUTE_NAME_PREFIX}_${ENTITIES_COUNTER}&quot;,&#xd;
+            &quot;type&quot; : &quot;${ATTRIBUTE_TYPE}&quot;,&#xd;
+            &quot;value&quot; : &quot;${ATTRIBUTE_VALUE}&quot;&#xd;
+          }&#xd;
+        ],&#xd;
+        &quot;type&quot; : &quot;${ENTITY_TYPE_VALUE}&quot;,&#xd;
+        &quot;isPattern&quot; : &quot;false&quot;,&#xd;
+        &quot;id&quot; : &quot;${ENTITY_ID_PREFIX}_${ENTITIES_COUNTER}&quot;&#xd;
+      },&#xd;
+      &quot;statusCode&quot; : {&#xd;
+        &quot;code&quot; : &quot;200&quot;,&#xd;
+        &quot;reasonPhrase&quot; : &quot;OK&quot;&#xd;
+      }&#xd;
+    }&#xd;
+  ]&#xd;
+}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path"></stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="service pat postfix" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int entities  = Integer.parseInt(vars.get(&quot;ENTITIES&quot;));
+int thread_number = ctx.getThreadNum();
+
+int service_path_number = thread_number / entities;
+
+vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
+</stringProp>
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/json</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">application/json</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">User-Agent</stringProp>
+                  <stringProp name="Header.value">${USER_AGENT}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-Service</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PREFIX}_7</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-ServicePath</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PATH_PREFIX}_${SERVICE_PATH_COUNTER}</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Content XML" enabled="true">
+          <stringProp name="IfController.condition">&quot;${CONTENT}&quot; == &quot;XML&quot;</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+        </IfController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="simple- XML" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">&lt;notifyContextRequest&gt;&#xd;
+  &lt;subscriptionId&gt;51c0ac9ed714fb3b37d7d5a8&lt;/subscriptionId&gt;&#xd;
+  &lt;originator&gt;localhost&lt;/originator&gt;&#xd;
+  &lt;contextResponseList&gt;&#xd;
+    &lt;contextElementResponse&gt;&#xd;
+      &lt;contextElement&gt;&#xd;
+        &lt;entityId type=&quot;${ENTITY_TYPE_VALUE}&quot; isPattern=&quot;false&quot;&gt;&#xd;
+          &lt;id&gt;${ENTITY_ID_PREFIX}_${ENTITIES_COUNTER}&lt;/id&gt;&#xd;
+        &lt;/entityId&gt;&#xd;
+        &lt;contextAttributeList&gt;         &#xd;
+          &lt;contextAttribute&gt;&#xd;
+            &lt;name&gt;&quot;${ATTRIBUTE_NAME_PREFIX}_${ENTITIES_COUNTER}&quot;&lt;/name&gt;&#xd;
+            &lt;type&gt;${ATTRIBUTE_TYPE}&lt;/type&gt;&#xd;
+            &lt;contextValue&gt;${ATTRIBUTE_VALUE}&lt;/contextValue&gt;&#xd;
+    &#xd;
+          &lt;/contextAttribute&gt;          &#xd;
+        &lt;/contextAttributeList&gt;&#xd;
+      &lt;/contextElement&gt;&#xd;
+      &lt;statusCode&gt;&#xd;
+        &lt;code&gt;200&lt;/code&gt;&#xd;
+        &lt;reasonPhrase&gt;OK&lt;/reasonPhrase&gt;&#xd;
+      &lt;/statusCode&gt;&#xd;
+    &lt;/contextElementResponse&gt;&#xd;
+  &lt;/contextResponseList&gt;&#xd;
+&lt;/notifyContextRequest&gt;&#xd;
+</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path"></stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="service pat postfix" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int entities  = Integer.parseInt(vars.get(&quot;ENTITIES&quot;));
+int thread_number = ctx.getThreadNum();
+
+int service_path_number = thread_number / entities;
+
+vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
+</stringProp>
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">User-Agent</stringProp>
+                  <stringProp name="Header.value">${USER_AGENT}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-Service</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PREFIX}_7</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-ServicePath</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PATH_PREFIX}_${SERVICE_PATH_COUNTER}</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="NOTIFICATIONS per SERVICE No 8" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Controlador Bucle" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">${ITERATIONS}</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${THREADS}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${RAMPUP}</stringProp>
+        <longProp name="ThreadGroup.start_time">1410941112000</longProp>
+        <longProp name="ThreadGroup.end_time">1410941112000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Entities counter" enabled="true">
+          <stringProp name="CounterConfig.start">0</stringProp>
+          <stringProp name="CounterConfig.end">${ENTITIES}</stringProp>
+          <stringProp name="CounterConfig.incr">1</stringProp>
+          <stringProp name="CounterConfig.name">ENTITIES_COUNTER</stringProp>
+          <stringProp name="CounterConfig.format">0000</stringProp>
+          <boolProp name="CounterConfig.per_user">false</boolProp>
+        </CounterConfig>
+        <hashTree/>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Content JSON" enabled="true">
+          <stringProp name="IfController.condition">&quot;${CONTENT}&quot; == &quot;JSON&quot;</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+        </IfController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="simple- JSON" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
+  &quot;subscriptionId&quot; : &quot;51c0ac9ed714fb3b37d7d5a8&quot;,&#xd;
+  &quot;originator&quot; : &quot;localhost&quot;,&#xd;
+  &quot;contextResponses&quot; : [&#xd;
+    {&#xd;
+      &quot;contextElement&quot; : {&#xd;
+        &quot;attributes&quot; : [&#xd;
+          {&#xd;
+            &quot;name&quot; : &quot;${ATTRIBUTE_NAME_PREFIX}_${ENTITIES_COUNTER}&quot;,&#xd;
+            &quot;type&quot; : &quot;${ATTRIBUTE_TYPE}&quot;,&#xd;
+            &quot;value&quot; : &quot;${ATTRIBUTE_VALUE}&quot;&#xd;
+          }&#xd;
+        ],&#xd;
+        &quot;type&quot; : &quot;${ENTITY_TYPE_VALUE}&quot;,&#xd;
+        &quot;isPattern&quot; : &quot;false&quot;,&#xd;
+        &quot;id&quot; : &quot;${ENTITY_ID_PREFIX}_${ENTITIES_COUNTER}&quot;&#xd;
+      },&#xd;
+      &quot;statusCode&quot; : {&#xd;
+        &quot;code&quot; : &quot;200&quot;,&#xd;
+        &quot;reasonPhrase&quot; : &quot;OK&quot;&#xd;
+      }&#xd;
+    }&#xd;
+  ]&#xd;
+}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path"></stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="service pat postfix" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int entities  = Integer.parseInt(vars.get(&quot;ENTITIES&quot;));
+int thread_number = ctx.getThreadNum();
+
+int service_path_number = thread_number / entities;
+
+vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
+</stringProp>
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/json</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">application/json</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">User-Agent</stringProp>
+                  <stringProp name="Header.value">${USER_AGENT}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-Service</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PREFIX}_8</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-ServicePath</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PATH_PREFIX}_${SERVICE_PATH_COUNTER}</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Content XML" enabled="true">
+          <stringProp name="IfController.condition">&quot;${CONTENT}&quot; == &quot;XML&quot;</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+        </IfController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="simple- XML" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">&lt;notifyContextRequest&gt;&#xd;
+  &lt;subscriptionId&gt;51c0ac9ed714fb3b37d7d5a8&lt;/subscriptionId&gt;&#xd;
+  &lt;originator&gt;localhost&lt;/originator&gt;&#xd;
+  &lt;contextResponseList&gt;&#xd;
+    &lt;contextElementResponse&gt;&#xd;
+      &lt;contextElement&gt;&#xd;
+        &lt;entityId type=&quot;${ENTITY_TYPE_VALUE}&quot; isPattern=&quot;false&quot;&gt;&#xd;
+          &lt;id&gt;${ENTITY_ID_PREFIX}_${ENTITIES_COUNTER}&lt;/id&gt;&#xd;
+        &lt;/entityId&gt;&#xd;
+        &lt;contextAttributeList&gt;         &#xd;
+          &lt;contextAttribute&gt;&#xd;
+            &lt;name&gt;&quot;${ATTRIBUTE_NAME_PREFIX}_${ENTITIES_COUNTER}&quot;&lt;/name&gt;&#xd;
+            &lt;type&gt;${ATTRIBUTE_TYPE}&lt;/type&gt;&#xd;
+            &lt;contextValue&gt;${ATTRIBUTE_VALUE}&lt;/contextValue&gt;&#xd;
+    &#xd;
+          &lt;/contextAttribute&gt;          &#xd;
+        &lt;/contextAttributeList&gt;&#xd;
+      &lt;/contextElement&gt;&#xd;
+      &lt;statusCode&gt;&#xd;
+        &lt;code&gt;200&lt;/code&gt;&#xd;
+        &lt;reasonPhrase&gt;OK&lt;/reasonPhrase&gt;&#xd;
+      &lt;/statusCode&gt;&#xd;
+    &lt;/contextElementResponse&gt;&#xd;
+  &lt;/contextResponseList&gt;&#xd;
+&lt;/notifyContextRequest&gt;&#xd;
+</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path"></stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="service pat postfix" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int entities  = Integer.parseInt(vars.get(&quot;ENTITIES&quot;));
+int thread_number = ctx.getThreadNum();
+
+int service_path_number = thread_number / entities;
+
+vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
+</stringProp>
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">User-Agent</stringProp>
+                  <stringProp name="Header.value">${USER_AGENT}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-Service</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PREFIX}_8</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-ServicePath</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PATH_PREFIX}_${SERVICE_PATH_COUNTER}</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="NOTIFICATIONS per SERVICE No 9" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Controlador Bucle" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">${ITERATIONS}</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${THREADS}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${RAMPUP}</stringProp>
+        <longProp name="ThreadGroup.start_time">1410941112000</longProp>
+        <longProp name="ThreadGroup.end_time">1410941112000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Entities counter" enabled="true">
+          <stringProp name="CounterConfig.start">0</stringProp>
+          <stringProp name="CounterConfig.end">${ENTITIES}</stringProp>
+          <stringProp name="CounterConfig.incr">1</stringProp>
+          <stringProp name="CounterConfig.name">ENTITIES_COUNTER</stringProp>
+          <stringProp name="CounterConfig.format">0000</stringProp>
+          <boolProp name="CounterConfig.per_user">false</boolProp>
+        </CounterConfig>
+        <hashTree/>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Content JSON" enabled="true">
+          <stringProp name="IfController.condition">&quot;${CONTENT}&quot; == &quot;JSON&quot;</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+        </IfController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="simple- JSON" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
+  &quot;subscriptionId&quot; : &quot;51c0ac9ed714fb3b37d7d5a8&quot;,&#xd;
+  &quot;originator&quot; : &quot;localhost&quot;,&#xd;
+  &quot;contextResponses&quot; : [&#xd;
+    {&#xd;
+      &quot;contextElement&quot; : {&#xd;
+        &quot;attributes&quot; : [&#xd;
+          {&#xd;
+            &quot;name&quot; : &quot;${ATTRIBUTE_NAME_PREFIX}_${ENTITIES_COUNTER}&quot;,&#xd;
+            &quot;type&quot; : &quot;${ATTRIBUTE_TYPE}&quot;,&#xd;
+            &quot;value&quot; : &quot;${ATTRIBUTE_VALUE}&quot;&#xd;
+          }&#xd;
+        ],&#xd;
+        &quot;type&quot; : &quot;${ENTITY_TYPE_VALUE}&quot;,&#xd;
+        &quot;isPattern&quot; : &quot;false&quot;,&#xd;
+        &quot;id&quot; : &quot;${ENTITY_ID_PREFIX}_${ENTITIES_COUNTER}&quot;&#xd;
+      },&#xd;
+      &quot;statusCode&quot; : {&#xd;
+        &quot;code&quot; : &quot;200&quot;,&#xd;
+        &quot;reasonPhrase&quot; : &quot;OK&quot;&#xd;
+      }&#xd;
+    }&#xd;
+  ]&#xd;
+}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path"></stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="service pat postfix" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int entities  = Integer.parseInt(vars.get(&quot;ENTITIES&quot;));
+int thread_number = ctx.getThreadNum();
+
+int service_path_number = thread_number / entities;
+
+vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
+</stringProp>
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/json</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">application/json</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">User-Agent</stringProp>
+                  <stringProp name="Header.value">${USER_AGENT}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-Service</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PREFIX}_9</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-ServicePath</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PATH_PREFIX}_${SERVICE_PATH_COUNTER}</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Content XML" enabled="true">
+          <stringProp name="IfController.condition">&quot;${CONTENT}&quot; == &quot;XML&quot;</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+        </IfController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="simple- XML" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">&lt;notifyContextRequest&gt;&#xd;
+  &lt;subscriptionId&gt;51c0ac9ed714fb3b37d7d5a8&lt;/subscriptionId&gt;&#xd;
+  &lt;originator&gt;localhost&lt;/originator&gt;&#xd;
+  &lt;contextResponseList&gt;&#xd;
+    &lt;contextElementResponse&gt;&#xd;
+      &lt;contextElement&gt;&#xd;
+        &lt;entityId type=&quot;${ENTITY_TYPE_VALUE}&quot; isPattern=&quot;false&quot;&gt;&#xd;
+          &lt;id&gt;${ENTITY_ID_PREFIX}_${ENTITIES_COUNTER}&lt;/id&gt;&#xd;
+        &lt;/entityId&gt;&#xd;
+        &lt;contextAttributeList&gt;         &#xd;
+          &lt;contextAttribute&gt;&#xd;
+            &lt;name&gt;&quot;${ATTRIBUTE_NAME_PREFIX}_${ENTITIES_COUNTER}&quot;&lt;/name&gt;&#xd;
+            &lt;type&gt;${ATTRIBUTE_TYPE}&lt;/type&gt;&#xd;
+            &lt;contextValue&gt;${ATTRIBUTE_VALUE}&lt;/contextValue&gt;&#xd;
+    &#xd;
+          &lt;/contextAttribute&gt;          &#xd;
+        &lt;/contextAttributeList&gt;&#xd;
+      &lt;/contextElement&gt;&#xd;
+      &lt;statusCode&gt;&#xd;
+        &lt;code&gt;200&lt;/code&gt;&#xd;
+        &lt;reasonPhrase&gt;OK&lt;/reasonPhrase&gt;&#xd;
+      &lt;/statusCode&gt;&#xd;
+    &lt;/contextElementResponse&gt;&#xd;
+  &lt;/contextResponseList&gt;&#xd;
+&lt;/notifyContextRequest&gt;&#xd;
+</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path"></stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="service pat postfix" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int entities  = Integer.parseInt(vars.get(&quot;ENTITIES&quot;));
+int thread_number = ctx.getThreadNum();
+
+int service_path_number = thread_number / entities;
+
+vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
+</stringProp>
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">User-Agent</stringProp>
+                  <stringProp name="Header.value">${USER_AGENT}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-Service</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PREFIX}_9</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-ServicePath</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PATH_PREFIX}_${SERVICE_PATH_COUNTER}</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="NOTIFICATIONS per SERVICE No 10" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Controlador Bucle" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">${ITERATIONS}</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${THREADS}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${RAMPUP}</stringProp>
+        <longProp name="ThreadGroup.start_time">1410941112000</longProp>
+        <longProp name="ThreadGroup.end_time">1410941112000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Entities counter" enabled="true">
+          <stringProp name="CounterConfig.start">0</stringProp>
+          <stringProp name="CounterConfig.end">${ENTITIES}</stringProp>
+          <stringProp name="CounterConfig.incr">1</stringProp>
+          <stringProp name="CounterConfig.name">ENTITIES_COUNTER</stringProp>
+          <stringProp name="CounterConfig.format">0000</stringProp>
+          <boolProp name="CounterConfig.per_user">false</boolProp>
+        </CounterConfig>
+        <hashTree/>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Content JSON" enabled="true">
+          <stringProp name="IfController.condition">&quot;${CONTENT}&quot; == &quot;JSON&quot;</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+        </IfController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="simple- JSON" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
+  &quot;subscriptionId&quot; : &quot;51c0ac9ed714fb3b37d7d5a8&quot;,&#xd;
+  &quot;originator&quot; : &quot;localhost&quot;,&#xd;
+  &quot;contextResponses&quot; : [&#xd;
+    {&#xd;
+      &quot;contextElement&quot; : {&#xd;
+        &quot;attributes&quot; : [&#xd;
+          {&#xd;
+            &quot;name&quot; : &quot;${ATTRIBUTE_NAME_PREFIX}_${ENTITIES_COUNTER}&quot;,&#xd;
+            &quot;type&quot; : &quot;${ATTRIBUTE_TYPE}&quot;,&#xd;
+            &quot;value&quot; : &quot;${ATTRIBUTE_VALUE}&quot;&#xd;
+          }&#xd;
+        ],&#xd;
+        &quot;type&quot; : &quot;${ENTITY_TYPE_VALUE}&quot;,&#xd;
+        &quot;isPattern&quot; : &quot;false&quot;,&#xd;
+        &quot;id&quot; : &quot;${ENTITY_ID_PREFIX}_${ENTITIES_COUNTER}&quot;&#xd;
+      },&#xd;
+      &quot;statusCode&quot; : {&#xd;
+        &quot;code&quot; : &quot;200&quot;,&#xd;
+        &quot;reasonPhrase&quot; : &quot;OK&quot;&#xd;
+      }&#xd;
+    }&#xd;
+  ]&#xd;
+}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path"></stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="service pat postfix" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int entities  = Integer.parseInt(vars.get(&quot;ENTITIES&quot;));
+int thread_number = ctx.getThreadNum();
+
+int service_path_number = thread_number / entities;
+
+vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
+</stringProp>
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/json</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">application/json</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">User-Agent</stringProp>
+                  <stringProp name="Header.value">${USER_AGENT}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-Service</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PREFIX}_10</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-ServicePath</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PATH_PREFIX}_${SERVICE_PATH_COUNTER}</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Content XML" enabled="true">
+          <stringProp name="IfController.condition">&quot;${CONTENT}&quot; == &quot;XML&quot;</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+        </IfController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="simple- XML" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">&lt;notifyContextRequest&gt;&#xd;
+  &lt;subscriptionId&gt;51c0ac9ed714fb3b37d7d5a8&lt;/subscriptionId&gt;&#xd;
+  &lt;originator&gt;localhost&lt;/originator&gt;&#xd;
+  &lt;contextResponseList&gt;&#xd;
+    &lt;contextElementResponse&gt;&#xd;
+      &lt;contextElement&gt;&#xd;
+        &lt;entityId type=&quot;${ENTITY_TYPE_VALUE}&quot; isPattern=&quot;false&quot;&gt;&#xd;
+          &lt;id&gt;${ENTITY_ID_PREFIX}_${ENTITIES_COUNTER}&lt;/id&gt;&#xd;
+        &lt;/entityId&gt;&#xd;
+        &lt;contextAttributeList&gt;         &#xd;
+          &lt;contextAttribute&gt;&#xd;
+            &lt;name&gt;&quot;${ATTRIBUTE_NAME_PREFIX}_${ENTITIES_COUNTER}&quot;&lt;/name&gt;&#xd;
+            &lt;type&gt;${ATTRIBUTE_TYPE}&lt;/type&gt;&#xd;
+            &lt;contextValue&gt;${ATTRIBUTE_VALUE}&lt;/contextValue&gt;&#xd;
+    &#xd;
+          &lt;/contextAttribute&gt;          &#xd;
+        &lt;/contextAttributeList&gt;&#xd;
+      &lt;/contextElement&gt;&#xd;
+      &lt;statusCode&gt;&#xd;
+        &lt;code&gt;200&lt;/code&gt;&#xd;
+        &lt;reasonPhrase&gt;OK&lt;/reasonPhrase&gt;&#xd;
+      &lt;/statusCode&gt;&#xd;
+    &lt;/contextElementResponse&gt;&#xd;
+  &lt;/contextResponseList&gt;&#xd;
+&lt;/notifyContextRequest&gt;&#xd;
+</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path"></stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="service pat postfix" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int entities  = Integer.parseInt(vars.get(&quot;ENTITIES&quot;));
+int thread_number = ctx.getThreadNum();
+
+int service_path_number = thread_number / entities;
+
+vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
+</stringProp>
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">User-Agent</stringProp>
+                  <stringProp name="Header.value">${USER_AGENT}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Fiware-Service</stringProp>
+                  <stringProp name="Header.value">${SERVICE_PREFIX}_10</stringProp>
                 </elementProp>
                 <elementProp name="" elementType="Header">
                   <stringProp name="Header.name">Fiware-ServicePath</stringProp>
@@ -473,7 +2413,7 @@ vars.put(&quot;SERVICE_PATH_COUNTER&quot;, service_path_number.toString());
       </ResultCollector>
       <hashTree/>
       <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="Requests/Responses Errors " enabled="true">
-        <boolProp name="ResultCollector.error_logging">true</boolProp>
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
         <objProp>
           <value class="SampleSaveConfiguration">
             <time>true</time>
