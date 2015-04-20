@@ -96,7 +96,7 @@
         if (err) {
           done(err);
         } else {
-          sthDatabase.storeRawData(anEvent.timestamp, sthConfig.SERVICE_PATH,
+          sthDatabase.storeRawData(collection, anEvent.timestamp, sthConfig.SERVICE_PATH,
             sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE, sthTestConfig.ATTRIBUTE_ID,
             sthTestConfig.ATTRIBUTE_TYPE, anEvent.attributeValue, done);
         }
@@ -128,7 +128,7 @@
           done(err);
         } else {
           sthDatabase.storeAggregatedData4Resolution(
-            collectionName4Aggregated, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+            collection, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
             sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE, anEvent.attributeValue,
             resolution, anEvent.timestamp, done);
         }

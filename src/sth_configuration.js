@@ -13,11 +13,6 @@
   if (['<servicePath>', '<servicePath-entity>', '<servicePath-entity-attribute>'].indexOf(ENV.DATA_MODEL))
 
   module.exports = {
-    DATA_MODELS: {
-      COLLECTIONS_PER_SERVICE_PATH: 'collection-per-service-path',
-      COLLECTIONS_PER_ENTITY: 'collection-per-entity',
-      COLLECTIONS_PER_ATTRIBUTE: 'collection-per-attribute'
-    },
     RANGE: {
       YEAR: 'year',
       MONTH: 'month',
@@ -52,7 +47,17 @@
       SERVER_STOP: 'OPER_STH_SERVER_STOP'
     },
     SERVICE_PREFIX: ENV.SERVICE_PREFIX || 'sth',
-    COLLECTION_PREFIX: ENV.COLLECTION_PREFIX || 'sth'
+    COLLECTION_PREFIX: ENV.COLLECTION_PREFIX || 'sth',
+    DATA_MODELS: {
+      COLLECTIONS_PER_SERVICE_PATH: 'collection-per-service-path',
+      COLLECTIONS_PER_ENTITY: 'collection-per-entity',
+      COLLECTIONS_PER_ATTRIBUTE: 'collection-per-attribute'
+    },
+    DATA_TO_STORE: {
+      ONLY_RAW: 'only-raw',
+      ONLY_AGGREGATED: 'only-aggregated',
+      BOTH: 'both'
+    }
   };
 
   module.exports.LOG_LEVEL = ENV.LOG_LEVEL || 'info';
@@ -64,12 +69,19 @@
   module.exports.SERVICE_PATH = ENV.SERVICE_PATH || '/';
   module.exports.POOL_SIZE = (ENV.POOL_SIZE && !isNaN(ENV.POOL_SIZE) && parseInt(ENV.POOL_SIZE) > 0) ?
     parseInt(ENV.POOL_SIZE) : 5;
+  module.exports.SHOULD_STORE = [
+    module.exports.DATA_TO_STORE.ONLY_RAW,
+    module.exports.DATA_TO_STORE.ONLY_AGGREGATED,
+    module.exports.DATA_TO_STORE.BOTH
+  ].indexOf(ENV.SHOULD_STORE) !== -1 ? ENV.SHOULD_STORE :
+    module.exports.DATA_TO_STORE.BOTH;
   module.exports.DATA_MODEL = [
       module.exports.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH,
       module.exports.DATA_MODELS.COLLECTIONS_PER_ENTITY,
       module.exports.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE
     ].indexOf(ENV.DATA_MODEL) !== -1 ? ENV.DATA_MODEL :
       module.exports.DATA_MODELS.COLLECTIONS_PER_ENTITY;
+  module.exports
   module.exports.DB_USERNAME = dbUsername;
   module.exports.DB_PASSWORD = dbPassword;
   module.exports.DB_AUTHENTICATION = (dbUsername && dbPassword) ?

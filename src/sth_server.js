@@ -107,6 +107,7 @@
                   'The collection %s exists', collectionName, request.info.sth);
 
                 sthDatabase.getAggregatedData(
+                  collection,
                   request.headers['fiware-servicepath'],
                   request.params.entityId,
                   request.params.entityType,
@@ -194,6 +195,26 @@
               attributes,
               attribute;
 
+          function getTotalAttributes(contextResponses) {
+            var totalAttributes = 0;
+            for(var l1 = 0; l1 < contextResponses.length; l1++) {
+              if (contextResponses[l1].contextElement &&
+                contextResponses[l1].contextElement.attributes &&
+                Array.isArray(contextResponses[l1].contextElement.attributes)) {
+                contextElement = contextResponses[l1].contextElement;
+                attributes = contextElement.attributes;
+                for (var l2 = 0; l2 < attributes.length; l2++) {
+                  if (isNaN(attributes[l2].value)) {
+                    // The attribute value is not a number and consequently not able to be aggregated.
+                    continue;
+                  }
+                  totalAttributes++;
+                }
+              }
+            }
+            return totalAttributes;
+          }
+
           request.info.sth = {
             unicaCorrelator: unicaCorrelatorPassed || sthHelper.getUnicaCorrelator(request),
             transactionId: sthHelper.getTransactionId(),
@@ -203,6 +224,13 @@
           if (request.payload && request.payload.contextResponses &&
             Array.isArray(request.payload.contextResponses)) {
             contextResponses = request.payload.contextResponses;
+            // Calculate the number of attribute values notified.
+            var counter = 0,
+                totalAttributes = getTotalAttributes(contextResponses);
+
+            var totalTasks = sthConfig.SHOULD_STORE === sthConfig.DATA_TO_STORE.BOTH ?
+                  (2 * totalAttributes) : (1 * totalAttributes);
+
             for (var i = 0; i < contextResponses.length; i++) {
               if (contextResponses[i].contextElement &&
                 contextResponses[i].contextElement.attributes &&
@@ -234,7 +262,7 @@
                     attribute.name
                   );
 
-                  // Check if the collection exists
+                  // Get the collection
                   sthDatabase.getCollection(
                     databaseName,
                     collectionName4Events,
@@ -245,57 +273,101 @@
                         sthLogger.warn(
                           'Error when getting the collection %s', collectionName4Events,
                           request.info.sth);
+                        return reply(err);
                       } else {
                         // The collection exists
                         sthLogger.trace(
                           'The collection %s exists', collectionName4Events,
                           request.info.sth);
 
-                        sthDatabase.storeRawData(
-                          timestamp,
-                          servicePath,
-                          contextElement.id,
-                          contextElement.type,
-                          attribute.name,
-                          attribute.type,
-                          attribute.value,
-                          function(err) {
-                            if (err) {
-                              sthLogger.fatal(
-                                'Error when storing the raw data associated to a notification event',
-                                request.info.sth
-                              );
-                            } else {
-                              sthLogger.trace(
-                                'Raw data associated to a notification event successfully stored',
-                                request.info.sth
-                              );
+                        if (sthConfig.SHOULD_STORE === sthConfig.DATA_TO_STORE.ONLY_RAW ||
+                          sthConfig.SHOULD_STORE === sthConfig.DATA_TO_STORE.BOTH) {
+                          sthDatabase.storeRawData(
+                            collection,
+                            timestamp,
+                            servicePath,
+                            contextElement.id,
+                            contextElement.type,
+                            attribute.name,
+                            attribute.type,
+                            attribute.value,
+                            function (err) {
+                              if (err) {
+                                sthLogger.fatal(
+                                  'Error when storing the raw data associated to a notification event',
+                                  request.info.sth
+                                );
+                              } else {
+                                sthLogger.trace(
+                                  'Raw data associated to a notification event successfully stored',
+                                  request.info.sth
+                                );
+                              }
+                              if (++counter === totalTasks) {
+                                reply(err);
+                              }
                             }
-                          }
-                        );
+                          );
+                        }
+                      }
+                    }
+                  );
 
-                        sthDatabase.storeAggregatedData(
-                          timestamp,
-                          servicePath,
-                          contextElement.id,
-                          contextElement.type,
-                          attribute.name,
-                          attribute.type,
-                          attribute.value,
-                          function(err) {
-                            if (err) {
-                              sthLogger.fatal(
-                                'Error when storing the aggregated data associated to a notification event',
-                                request.info.sth
-                              );
-                            } else {
-                              sthLogger.trace(
-                                'Aggregated data associated to a notification event successfully stored',
-                                request.info.sth
-                              );
+                  // Compose the collection name for the aggregated data
+                  var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
+                    servicePath,
+                    contextElement.id,
+                    contextElement.type,
+                    attribute.name
+                  );
+
+                  // Get the collection
+                  sthDatabase.getCollection(
+                    databaseName,
+                    collectionName4Aggregated,
+                    true,
+                    function (err, collection) {
+                      if (err) {
+                        // There was an error when getting the collection
+                        sthLogger.warn(
+                          'Error when getting the collection %s', collectionName4Events,
+                          request.info.sth);
+                        return reply(err);
+                      } else {
+                        // The collection exists
+                        sthLogger.trace(
+                          'The collection %s exists', collectionName4Events,
+                          request.info.sth);
+
+                        if (sthConfig.SHOULD_STORE === sthConfig.DATA_TO_STORE.ONLY_AGGREGATED ||
+                          sthConfig.SHOULD_STORE === sthConfig.DATA_TO_STORE.BOTH) {
+                          sthDatabase.storeAggregatedData(
+                            collection,
+                            timestamp,
+                            servicePath,
+                            contextElement.id,
+                            contextElement.type,
+                            attribute.name,
+                            attribute.type,
+                            attribute.value,
+                            function (err) {
+                              if (err) {
+                                sthLogger.fatal(
+                                  'Error when storing the aggregated data associated to a notification event',
+                                  request.info.sth
+                                );
+                              } else {
+                                sthLogger.trace(
+                                  'Aggregated data associated to a notification event successfully stored',
+                                  request.info.sth
+                                );
+                              }
+                              if (++counter === totalTasks) {
+                                reply(err);
+                              }
                             }
-                          }
-                        );
+                          );
+                        }
                       }
                     }
                   );
@@ -303,7 +375,6 @@
               }
             }
           }
-          reply();
         },
         config: {
           validate: {

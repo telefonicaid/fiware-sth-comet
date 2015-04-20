@@ -169,36 +169,6 @@
   }
 
   /**
-   * Compiles and returns the Mongoose model for the raw events stored
-   *  in the database using the raw events schema
-   * @param {string} name The name of the model (it corresponds to a MongoDB
-   * collection of the database)
-   * @returns {mongoose.Model} The compiled Mongoose model for the raw
-   *  events
-   */
-  function getEventModel(name) {
-    return connection.model(
-      name,
-      eventSchema,
-      name);
-  }
-
-  /**
-   * Compiles and returns the Mongoose model for the aggregated data
-   *  stored in the database using the aggregated data schema
-   * @param {string} name The name of the model (it corresponds to a MongoDB
-   * collection of the database)
-   * @returns {mongoose.Model} The compiled Mongoose model for the
-   * aggregated data
-   */
-  function getAggregatedModel(name) {
-    return connection.model(
-      name,
-      aggregatedSchema,
-      name);
-  }
-
-  /**
    * Returns the database name based on the service
    * @param {string} service The service
    * @return {string} The database name
@@ -258,16 +228,25 @@
         if (err &&
           (err.message === 'Collection ' + collectionName + ' does not exist. Currently in strict mode.') &&
           shouldCreate) {
-          connection.db.createCollection(collectionName, {strict: true},
+          connection.db.createCollection(collectionName,
             function (err, collection) {
-              callback(err, collection);
+              if (err && err.message === 'collection already exists') {
+                // We have observed that although leaving the strict option to the default value, sometimes
+                //  we get a 'collection already exists' error when executing connection.db#createCollection()
+                connection.db.collection(collectionName, {strict: true},
+                  function (err, collection) {
+                    return callback(err, collection);
+                  }
+                );
+              }
+              return callback(err, collection);
             }
           );
         } else {
           if (err) {
-            callback(err);
+            return callback(err);
           } else {
-            callback(null, collection);
+            return callback(null, collection);
           }
         }
       }
@@ -276,6 +255,7 @@
 
   /**
    * Returns the required aggregated data from the database asynchronously
+   * @param {object} collection The collection from where the data should be extracted
    * @param {string} servicePath The service path of the entity the event is related to
    * @param {string} entityId The entity id related to the event
    * @param {string} entityType The type of entity related to the event
@@ -287,11 +267,8 @@
    * @param {boolean} shouldFilter If true, the null results are filter out
    * @param {Function} callback Callback to inform about any possible error or results
    */
-  function getAggregatedData(servicePath, entityId, entityType, attributeId,
+  function getAggregatedData(collection, servicePath, entityId, entityType, attributeId,
                              aggregatedFunction, resolution, from, to, shouldFilter, callback) {
-    var collectionName = getCollectionName4Aggregated(
-      servicePath, entityId, entityType, attributeId);
-
     var fieldFilter = {
       'points.offset': 1,
       'points.samples': 1
@@ -384,7 +361,7 @@
           break;
       }
 
-      getAggregatedModel(collectionName).aggregate([
+      collection.aggregate([
         {
           $match: matchCondition
         },
@@ -409,7 +386,7 @@
             }
           }
         }
-      ]).exec(callback);
+      ], callback);
     } else {
       // Get the aggregated data from the database
       // Return the data in ascending order based on the origin
@@ -442,10 +419,10 @@
           break;
       }
 
-      getAggregatedModel(collectionName).find(
+      collection.find(
         findCondition,
         fieldFilter
-      ).sort({'_id.origin': 'asc'}).exec(callback);
+      ).sort({'_id.origin': 1}).toArray(callback);
     }
   }
 
@@ -562,7 +539,6 @@
    * @returns {Object} The update operation
    */
   function getAggregateUpdate4Insert(attributeType, resolution) {
-    console.log('getAggregateUpdate4Insert.attributeType: ' + attributeType);
     return {
       '$setOnInsert': {
         attributeType: attributeType,
@@ -578,7 +554,6 @@
    * @returns {Object} The update operation
    */
   function getAggregateUpdate4Update(attributeType, attributeValue) {
-    console.log('getAggregateUpdate4Update.attributeType: ' + attributeType);
     return {
       '$set': {
         'attributeType': attributeType
@@ -599,7 +574,7 @@
 
   /**
    * Stores the aggregated data for a new event (attribute value)
-   * @param {string} collectionName4Aggregated The collection name for the aggregated data
+   * @param {string} collection The collection where the data should be stored
    * @param {string} entityId The entity id
    * @param {string} entityType The entity type
    * @param {string} attributeId The attribute id
@@ -609,7 +584,7 @@
    * @param {Function} callback Function to call once the operation completes
    */
   function storeAggregatedData4Resolution(
-    collectionName4Aggregated, entityId, entityType, attributeId, attributeType, attributeValue,
+    collection, entityId, entityType, attributeId, attributeType, attributeValue,
     resolution, timestamp, callback) {
     /*
      Currently the MongoDB $ positional update operator cannot be combined with upserts
@@ -617,7 +592,7 @@
       This issue is known and currently under study: https://jira.mongodb.org/browse/SERVER-3326
       Once the issue is solved, it will be possible to prepopulate collections or update their docs
       using just one update operation like this:
-      getAggregatedModel(collectionName4Aggregated).update(
+      collection.update(
         // Returning all the update operators currently returned by getAggregateUpdate4Insert
         //  and getAggregateUpdate4Update in the same object
         getAggregateUpdateCondition(entityId, entityType, attributeId, resolution, timestamp),
@@ -630,18 +605,21 @@
      */
     // Prepopulate the aggregated data collection if there is no entry for the concrete
     //  origin, resolution and range.
-    getAggregatedModel(collectionName4Aggregated).update(
+    collection.update(
       getAggregateUpdateCondition(
         entityId, entityType, attributeId, resolution, timestamp),
       getAggregateUpdate4Insert(attributeType, resolution),
       {upsert: true},
       function (err) {
+        if (err && callback) {
+          return callback(err);
+        }
         // Once the aggregated data collection has been prepopulated (if needed),
         //  aggregate the new value received.
-        getAggregatedModel(collectionName4Aggregated).update(
+        collection.update(
           getAggregateUpdateCondition(
             entityId, entityType, attributeId, resolution, timestamp),
-          getAggregateUpdate4Update(attributeType, attributeValue),
+          getAggregateUpdate4Update(attributeType, parseFloat(attributeValue)),
           function (err) {
             if (callback) {
               callback(err);
@@ -654,6 +632,7 @@
 
   /**
    * Stores the aggregated data for a new event (attribute value)
+   * @param {object} The collection where the data should be stored in
    * @param {Date} timestamp The date the event arrived
    * @param {string} entityId The entity id associated to updated attribute
    * @param {string} entityType The entity type associated to the updated attribute
@@ -663,33 +642,40 @@
    * @param {Function} callback Function to call once the operation completes
    */
   function storeAggregatedData(
-    timestamp, servicePath, entityId, entityType, attributeId, attributeType, attributeValue, callback) {
-    var collectionName4Aggregated = getCollectionName4Aggregated(
-      servicePath, entityId, entityType, attributeId);
+    collection, timestamp, servicePath, entityId, entityType, attributeId, attributeType, attributeValue, callback) {
+    var counter = 0,
+        error;
+    function onCompletion(err) {
+      error = err;
+      if (++counter === 5) {
+        callback(err);
+      }
+    }
 
     storeAggregatedData4Resolution(
-      collectionName4Aggregated, entityId, entityType, attributeId, attributeType, attributeValue,
-      sthConfig.RESOLUTION.SECOND, timestamp, callback);
+      collection, entityId, entityType, attributeId, attributeType, attributeValue,
+      sthConfig.RESOLUTION.SECOND, timestamp, onCompletion);
 
     storeAggregatedData4Resolution(
-      collectionName4Aggregated, entityId, entityType, attributeId, attributeType, attributeValue,
-      sthConfig.RESOLUTION.MINUTE, timestamp, callback);
+      collection, entityId, entityType, attributeId, attributeType, attributeValue,
+      sthConfig.RESOLUTION.MINUTE, timestamp, onCompletion);
 
     storeAggregatedData4Resolution(
-      collectionName4Aggregated, entityId, entityType, attributeId, attributeType, attributeValue,
-      sthConfig.RESOLUTION.HOUR, timestamp, callback);
+      collection, entityId, entityType, attributeId, attributeType, attributeValue,
+      sthConfig.RESOLUTION.HOUR, timestamp, onCompletion);
 
     storeAggregatedData4Resolution(
-      collectionName4Aggregated, entityId, entityType, attributeId, attributeType, attributeValue,
-      sthConfig.RESOLUTION.DAY, timestamp, callback);
+      collection, entityId, entityType, attributeId, attributeType, attributeValue,
+      sthConfig.RESOLUTION.DAY, timestamp, onCompletion);
 
     storeAggregatedData4Resolution(
-      collectionName4Aggregated, entityId, entityType, attributeId, attributeType, attributeValue,
-      sthConfig.RESOLUTION.MONTH, timestamp, callback);
+      collection, entityId, entityType, attributeId, attributeType, attributeValue,
+      sthConfig.RESOLUTION.MONTH, timestamp, onCompletion);
   }
 
   /**
    * Stores the raw data for a new event (attribute value)
+   * @param {object} The collection where the data should be stored in
    * @param {Date} timestamp The date the event arrived
    * @param {string} entityId The entity id associated to updated attribute
    * @param {string} entityType The entity type associated to the updated attribute
@@ -699,45 +685,41 @@
    * @param {Function} callback Function to call once the operation completes
    */
   function storeRawData(
-    timestamp, servicePath, entityId, entityType, attributeId,
+    collection, timestamp, servicePath, entityId, entityType, attributeId,
     attributeType, attributeValue, callback) {
-    var collectionName4Events = getCollectionName4Events(
-      servicePath, entityId, entityType, attributeId);
     var theEvent;
     switch (sthConfig.DATA_MODEL) {
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
-        theEvent = new getEventModel(collectionName4Events)({
+        theEvent = {
           timestamp: timestamp,
           entityId: entityId,
           entityType: entityType,
           attributeName: attributeId,
           attributeType: attributeType,
           attributeValue: attributeValue
-        });
+        };
         break;
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
-        theEvent = new getEventModel(collectionName4Events)({
+        theEvent = {
           timestamp: timestamp,
           attributeName: attributeId,
           attributeType: attributeType,
           attributeValue: attributeValue
-        });
+        };
         break;
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
-        theEvent = new getEventModel(collectionName4Events)({
+        theEvent = {
           timestamp: timestamp,
           attributeType: attributeType,
           attributeValue: attributeValue
-        });
+        };
         break;
     }
-    theEvent.save(
-      function (err) {
-        if (callback) {
-          callback(err)
-        }
+    collection.insert(theEvent, function(err) {
+      if (callback) {
+        callback(err);
       }
-    );
+    });
   }
 
   module.exports = function (theSthConfig, theSthLogger, theSthHelper) {
@@ -756,8 +738,6 @@
       },
       connect: connect,
       closeConnection: closeConnection,
-      getEventModel: getEventModel,
-      getAggregatedModel: getAggregatedModel,
       getDatabase: getDatabase,
       getCollectionName4Events: getCollectionName4Events,
       getCollectionName4Aggregated: getCollectionName4Aggregated,
