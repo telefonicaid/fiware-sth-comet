@@ -96,11 +96,17 @@
                 sthLogger.warn(
                   'The collection %s does not exist', collectionName, request.info.sth);
 
-                var range = sthHelper.getRange(request.query.aggrPeriod);
                 sthLogger.trace(
                   'Responding with no points',
                   request.info.sth);
-                response = reply(sthHelper.getEmptyResponse(request.query.aggrPeriod, range));
+                var range = sthHelper.getRange(request.query.aggrPeriod);
+                var emptyResponse =sthHelper.getEmptyResponse(request.query.aggrPeriod, range);
+                var ngsiPayload = sthHelper.getNGSIPayload(
+                  request.params.entityId,
+                  request.params.entityType,
+                  request.params.attributeId,
+                  emptyResponse);
+                response = reply(ngsiPayload);
               } else {
                 // The collection exists
                 sthLogger.trace(
@@ -137,6 +143,7 @@
                       response = reply(
                         sthHelper.getNGSIPayload(
                           request.params.entityId,
+                          request.params.entityType,
                           request.params.attributeId,
                           sthHelper.getEmptyResponse(request.query.aggrPeriod, range)
                         )
@@ -147,6 +154,7 @@
                       response = reply(
                         sthHelper.getNGSIPayload(
                           request.params.entityId,
+                          request.params.entityType,
                           request.params.attributeId,
                           result));
                       }

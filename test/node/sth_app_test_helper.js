@@ -348,6 +348,8 @@
     }, function (err, response, body) {
       var bodyJSON = JSON.parse(body);
       expect(err).to.equal(null);
+      expect(response.statusCode).to.equal(200);
+      expect(response.statusMessage).to.equal('OK');
       expect(bodyJSON.contextResponses[0].contextElement.id).
         to.equal(sthTestConfig.ENTITY_ID);
       expect(bodyJSON.contextResponses[0].contextElement.isPattern).
@@ -415,6 +417,8 @@
       }
       var bodyJSON = JSON.parse(body);
       expect(err).to.equal(null);
+      expect(response.statusCode).to.equal(200);
+      expect(response.statusMessage).to.equal('OK');
       expect(bodyJSON.contextResponses[0].contextElement.id).
         to.equal(sthTestConfig.ENTITY_ID);
       expect(bodyJSON.contextResponses[0].contextElement.isPattern).

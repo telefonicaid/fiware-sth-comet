@@ -120,7 +120,7 @@
         uri: sthTestHelper.getValidURL(sthTestConfig.API_OPERATION.READ),
         method: 'GET',
         headers: {
-          'Fiware-Service': 'orion'
+          'Fiware-Service': sthConfig.SERVICE
         }
       }, function(err, response, body) {
         var bodyJSON = JSON.parse(body);
@@ -140,8 +140,8 @@
         }),
         method: 'GET',
         headers: {
-          'Fiware-Service': 'orion',
-          'Fiware-ServicePath': '/'
+          'Fiware-Service': sthConfig.SERVICE,
+          'Fiware-ServicePath': sthConfig.SERVICE_PATH
         }
       }, function(err, response, body) {
         var bodyJSON = JSON.parse(body);
@@ -163,8 +163,8 @@
         }),
         method: 'GET',
         headers: {
-          'Fiware-Service': 'orion',
-          'Fiware-ServicePath': '/'
+          'Fiware-Service': sthConfig.SERVICE,
+          'Fiware-ServicePath': sthConfig.SERVICE_PATH
         }
       }, function(err, response, body) {
         var bodyJSON = JSON.parse(body);
@@ -186,15 +186,18 @@
         }),
         method: 'GET',
         headers: {
-          'Fiware-Service': 'orion',
-          'Fiware-ServicePath': '/'
+          'Fiware-Service': sthConfig.SERVICE,
+          'Fiware-ServicePath': sthConfig.SERVICE_PATH
         }
       }, function(err, response, body) {
         var bodyJSON = JSON.parse(body);
         expect(err).to.equal(null);
         expect(response.statusCode).to.equal(200);
-        expect(bodyJSON).to.be.an(Array);
-        expect(bodyJSON.length).to.equal(0);
+        expect(response.statusMessage).to.equal('OK');
+        expect(bodyJSON.contextResponses[0].contextElement.id).to.equal(sthTestConfig.ENTITY_ID);
+        expect(bodyJSON.contextResponses[0].contextElement.type).to.equal(sthTestConfig.ENTITY_TYPE);
+        expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).to.be.an(Array);
+        expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(0);
         done();
       });
     });
@@ -206,15 +209,18 @@
         }),
         method: 'GET',
         headers: {
-          'Fiware-Service': 'orion',
-          'Fiware-ServicePath': '/'
+          'Fiware-Service': sthConfig.SERVICE,
+          'Fiware-ServicePath': sthConfig.SERVICE_PATH
         }
       }, function(err, response, body) {
         var bodyJSON = JSON.parse(body);
         expect(err).to.equal(null);
         expect(response.statusCode).to.equal(200);
-        expect(bodyJSON).to.be.an(Array);
-        expect(bodyJSON.length).to.equal(0);
+        expect(response.statusMessage).to.equal('OK');
+        expect(bodyJSON.contextResponses[0].contextElement.id).to.equal(sthTestConfig.ENTITY_ID);
+        expect(bodyJSON.contextResponses[0].contextElement.type).to.equal(sthTestConfig.ENTITY_TYPE);
+        expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).to.be.an(Array);
+        expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(0);
         done();
       });
     });
@@ -227,15 +233,18 @@
         }),
         method: 'GET',
         headers: {
-          'Fiware-Service': 'orion',
-          'Fiware-ServicePath': '/'
+          'Fiware-Service': sthConfig.SERVICE,
+          'Fiware-ServicePath': sthConfig.SERVICE_PATH
         }
       }, function(err, response, body) {
         var bodyJSON = JSON.parse(body);
         expect(err).to.equal(null);
         expect(response.statusCode).to.equal(200);
-        expect(bodyJSON).to.be.an(Array);
-        expect(bodyJSON.length).to.equal(0);
+        expect(response.statusMessage).to.equal('OK');
+        expect(bodyJSON.contextResponses[0].contextElement.id).to.equal(sthTestConfig.ENTITY_ID);
+        expect(bodyJSON.contextResponses[0].contextElement.type).to.equal(sthTestConfig.ENTITY_TYPE);
+        expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).to.be.an(Array);
+        expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(0);
         done();
       });
     });
