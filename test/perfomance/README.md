@@ -26,7 +26,7 @@ nohup sh startAgent.sh --udp-port 0 --tcp-port 4444 &
 
   >**Scenario**:
 ```
-* Multiples Notifications in the same time against a STH instance specific.
+* Multiples Notifications at the same time against a STH instance specific.
 * Ten services always will be used in parallel, therefore:
       Notifications Total = 10 services (threads groups) * THREADS
       service path number = THREADS / ENTITIES (in each service path) (see properties)
