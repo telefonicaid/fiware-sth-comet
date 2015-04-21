@@ -59,7 +59,7 @@ offsets from 0 to 59 corresponding to each one of the 60 minutes within the conc
 The STH component exposes an HTTP REST API to let external clients query this aggregated time series information. A
 typical URL querying for this information using a GET request is the following:
 
-<pre>http://localhost:8666/STH/v1/contextEntities/type/&lt;quantity&gt;/id/&lt;entityId&gt;/attributes/&lt;attributeId&gt;?aggrMethod=sum&aggrPeriod=second&dateFrom=2015-02-22T00:00:00&dateTo=2015-02-22T23:00:00</pre>
+<pre>http://localhost:8666/STH/v1/contextEntities/type/&lt;entityType&gt;/id/&lt;entityId&gt;/attributes/&lt;attrName&gt;?aggrMethod=sum&aggrPeriod=second&dateFrom=2015-02-22T00:00:00&dateTo=2015-02-22T23:00:00</pre>
 
 The entries between "<" and ">" in the URL path depend on the concrete case (type of data, entity and attribute) being queried.
 
@@ -83,7 +83,7 @@ An example response provided by the STH component to a request such as the previ
             "contextElement": {
                 "attributes": [
                     {
-                        "name": "attributeId",
+                        "name": "attrName",
                         "values": [
                             {
                                 "_id": {
@@ -222,7 +222,7 @@ The script accepts the following parameters as environment variables:
 - LOG_TO_FILE: A flag indicating if the logs should be sent to a file. Optional. Default value: true.
 - LOG_DIR: The path to a directory where the log file will be searched for or created if it does not exist. Optional. Default value: "./log".
 - LOG_FILE_NAME: The name of the file where the logs will be stored. Optional. Default value: "sth_app.log".
-- SERVICE_PREFIX: The prefix to be added to the service for the creation of the databases. More information below. Optional. Default value: "sth".
+- DB_PREFIX: The prefix to be added to the service for the creation of the databases. More information below. Optional. Default value: "sth".
 - SERVICE: The service to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "orion".
 - COLLECTION_PREFIX: The prefix to be added to the collections in the databases. More information below. Optional. Default value: "sth".
 - SERVICE_PATH: The service path to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "/".
@@ -248,7 +248,7 @@ models as a way to let us evaluate which of them provides the best performance. 
 under implementation, we will opt for one of the options.
 
 The STH component creates a new database for each <a href="https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Multi_service_tenancy" target="_blank">service</a>.
-The name of these databases will be the concatenation of the SERVICE_PREFIX environment variable and the service, using an underscore ("_") as the separator.
+The name of these databases will be the concatenation of the DB_PREFIX environment variable and the service, using an underscore ("_") as the separator.
 
 Using these databases, the behavior of the STH component according to each one of the values the DATA_MODEL environment variable may have is the following:
 
@@ -280,8 +280,8 @@ The script accepts the following parameters as environment variables:
 - SAMPLES: The number of random events which will be generated and inserted into the database. Optional. Default value: "5".
 - ENTITY_ID: The id of the entity for which the random event will be generated. Optional. Default value: "entityId".
 - ENTITY_TYPE: The type of the entity for which the random event will be generated. Optional. Default value: "entityType".
-- ATTRIBUTE_ID: The id of the attribute for which the random event will be generated. Optional. Default value: "attributeId".
-- ATTRIBUTE_TYPE: The type of the attribute for which the random event will be generated. Optional. Default value: "attributeType".
+- ATTRIBUTE_NAME: The id of the attribute for which the random event will be generated. Optional. Default value: "attrName".
+- ATTRIBUTE_TYPE: The type of the attribute for which the random event will be generated. Optional. Default value: "attrType".
 - START_DATE: The date from which the random events will be generated. Optional. Default value: the beginning of the previous
 year to avoid collisions with the testing of the Orion Context Broker notifications which use the current time.
 For example if in 2015, the start date is set to "2015-01-01T00:00:00", UTC time. Be very careful if setting the start date,
@@ -331,8 +331,9 @@ The script accepts the following parameters as environment variables:
 
 - SAMPLES: The number of random events which will be generated and inserted into the database. Optional. Default value: "5".
 - ENTITY_ID: The id of the entity for which the random event will be generated. Optional. Default value: "entityId".
-- ATTRIBUTE_ID: The id of the attribute for which the random event will be generated. Optional. Default value: "attributeId"
-- TYPE: The type of data of the value associated to generated random event. Optional. Default value: "quantity".
+- ENTITY_TYPE: The type of the entity for which the random event will be generated. Optional. Default value: "entityType".
+- ATTRIBUTE_NAME: The id of the attribute for which the random event will be generated. Optional. Default value: "attrName"
+- ATTRIBUTE_TYPE: The type of the attribute for which the random event will be generated. Optional. Default value: "attrType".
 - START_DATE: The date from which the random events will be generated. Optional. Default value: the beginning of the previous
 year to avoid collisions with the testing of the Orion Context Broker notifications which use the current time.
 For example if in 2015, the start date is set to "2015-01-01T00:00:00", UTC time. Be very careful if setting the start date,

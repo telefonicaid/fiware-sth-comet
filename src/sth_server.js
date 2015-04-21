@@ -58,7 +58,7 @@
     server.route([
       {
         method: 'GET',
-        path: '/STH/v1/contextEntities/type/{entityType}/id/{entityId}/attributes/{attributeId}',
+        path: '/STH/v1/contextEntities/type/{entityType}/id/{entityId}/attributes/{attrName}',
         handler: function (request, reply) {
           var response,
               unicaCorrelatorPassed = request.headers[sthConfig.UNICA_CORRELATOR_HEADER];
@@ -82,7 +82,7 @@
             request.headers['fiware-servicepath'],
             request.params.entityId,
             request.params.entityType,
-            request.params.attributeId
+            request.params.attrName
           );
 
           // Check if the collection exists
@@ -104,7 +104,7 @@
                 var ngsiPayload = sthHelper.getNGSIPayload(
                   request.params.entityId,
                   request.params.entityType,
-                  request.params.attributeId,
+                  request.params.attrName,
                   emptyResponse);
                 response = reply(ngsiPayload);
               } else {
@@ -117,7 +117,7 @@
                   request.headers['fiware-servicepath'],
                   request.params.entityId,
                   request.params.entityType,
-                  request.params.attributeId,
+                  request.params.attrName,
                   request.query.aggrMethod,
                   request.query.aggrPeriod,
                   request.query.dateFrom,
@@ -144,7 +144,7 @@
                         sthHelper.getNGSIPayload(
                           request.params.entityId,
                           request.params.entityType,
-                          request.params.attributeId,
+                          request.params.attrName,
                           sthHelper.getEmptyResponse(request.query.aggrPeriod, range)
                         )
                       );
@@ -155,7 +155,7 @@
                         sthHelper.getNGSIPayload(
                           request.params.entityId,
                           request.params.entityType,
-                          request.params.attributeId,
+                          request.params.attrName,
                           result));
                       }
                     if (unicaCorrelatorPassed) {

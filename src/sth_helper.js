@@ -161,18 +161,18 @@
    *  payload
    * @param entityId The id of the requested entity's data
    * @param entityType The type of the requested entity's data
-   * @param attributeId The id of the requestedattribute's data
+   * @param attrName The id of the requestedattribute's data
    * @param payload The payload to transform
    * @return {Object} The payload using NGSI format
    */
-  function getNGSIPayload(entityId, entityType, attributeId, payload) {
+  function getNGSIPayload(entityId, entityType, attrName, payload) {
     var ngsiResponse = {
       contextResponses: [
         {
           contextElement: {
             attributes: [
               {
-                name: attributeId,
+                name: attrName,
                 values: payload
               }
             ],

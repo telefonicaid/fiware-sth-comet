@@ -20,10 +20,10 @@
 
   var collectionName4Events = sthDatabase.getCollectionName4Events(
     sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-    sthTestConfig.ATTRIBUTE_ID);
+    sthTestConfig.ATTRIBUTE_NAME);
   var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
     sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-    sthTestConfig.ATTRIBUTE_ID);
+    sthTestConfig.ATTRIBUTE_NAME);
 
   describe('Database operation', function () {
     it('should establish a connection to the database', function (done) {
@@ -48,7 +48,7 @@
           collectionName = sthConfig.COLLECTION_PREFIX + '_' + sthConfig.SERVICE_PATH +
             '_' + sthTestConfig.ENTITY_ID +
             '_' + sthTestConfig.ENTITY_TYPE +
-            '_' + sthTestConfig.ATTRIBUTE_ID +
+            '_' + sthTestConfig.ATTRIBUTE_NAME +
             '_' + sthTestConfig.ATTRIBUTE_TYPE;
           break;
       }
@@ -73,7 +73,7 @@
           collectionName = sthConfig.COLLECTION_PREFIX + '_' + sthConfig.SERVICE_PATH +
           '_' + sthTestConfig.ENTITY_ID +
           '_' + sthTestConfig.ENTITY_TYPE +
-          '_' + sthTestConfig.ATTRIBUTE_ID +
+          '_' + sthTestConfig.ATTRIBUTE_NAME +
           '_' + sthTestConfig.ATTRIBUTE_TYPE;
           break;
       }

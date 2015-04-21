@@ -30,7 +30,7 @@
    */
   function createEvent(timestamp) {
     var theEvent;
-    var attributeValue = (Math.random() *
+    var attrValue = (Math.random() *
       (parseFloat(sthTestConfig.MAX_VALUE) - parseFloat(sthTestConfig.MIN_VALUE)) -
         Math.abs(parseFloat(sthTestConfig.MIN_VALUE))).toFixed(2);
     switch (sthConfig.DATA_MODEL) {
@@ -39,24 +39,24 @@
           timestamp: timestamp,
           entityId: sthTestConfig.ENTITY_ID,
           entityType: sthTestConfig.ENTITY_TYPE,
-          attributeName: sthTestConfig.ATTRIBUTE_ID,
-          attributeType: sthTestConfig.ATTRIBUTE_TYPE,
-          attributeValue: attributeValue
+          attrName: sthTestConfig.ATTRIBUTE_NAME,
+          attrType: sthTestConfig.ATTRIBUTE_TYPE,
+          attrValue: attrValue
         };
         break;
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
         theEvent = {
           timestamp: timestamp,
-          attributeName: sthTestConfig.ATTRIBUTE_ID,
-          attributeType: sthTestConfig.ATTRIBUTE_TYPE,
-          attributeValue: attributeValue
+          attrName: sthTestConfig.ATTRIBUTE_NAME,
+          attrType: sthTestConfig.ATTRIBUTE_TYPE,
+          attrValue: attrValue
         };
         break;
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
         theEvent = {
           timestamp: timestamp,
-          attributeType: sthTestConfig.ATTRIBUTE_TYPE,
-          attributeValue: attributeValue
+          attrType: sthTestConfig.ATTRIBUTE_TYPE,
+          attrValue: attrValue
         };
         break;
     }
@@ -85,7 +85,7 @@
 
     var collectionName4Events = sthDatabase.getCollectionName4Events(
       sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-      sthTestConfig.ATTRIBUTE_ID);
+      sthTestConfig.ATTRIBUTE_NAME);
 
     // Check if the collection exists
     sthDatabase.getCollection(
@@ -97,8 +97,8 @@
           done(err);
         } else {
           sthDatabase.storeRawData(collection, anEvent.timestamp, sthConfig.SERVICE_PATH,
-            sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE, sthTestConfig.ATTRIBUTE_ID,
-            sthTestConfig.ATTRIBUTE_TYPE, anEvent.attributeValue, done);
+            sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE, sthTestConfig.ATTRIBUTE_NAME,
+            sthTestConfig.ATTRIBUTE_TYPE, anEvent.attrValue, done);
         }
       }
     );
@@ -116,7 +116,7 @@
 
     var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
       sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-      sthTestConfig.ATTRIBUTE_ID);
+      sthTestConfig.ATTRIBUTE_NAME);
 
     // Check if the collection exists
     sthDatabase.getCollection(
@@ -129,7 +129,7 @@
         } else {
           sthDatabase.storeAggregatedData4Resolution(
             collection, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-            sthTestConfig.ATTRIBUTE_ID, sthTestConfig.ATTRIBUTE_TYPE, anEvent.attributeValue,
+            sthTestConfig.ATTRIBUTE_NAME, sthTestConfig.ATTRIBUTE_TYPE, anEvent.attrValue,
             resolution, anEvent.timestamp, done);
         }
       }
@@ -196,7 +196,7 @@
   function dropRawEventCollectionTest(done) {
     var collectionName4Events = sthDatabase.getCollectionName4Events(
       sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-      sthTestConfig.ATTRIBUTE_ID);
+      sthTestConfig.ATTRIBUTE_NAME);
     sthDatabase.connection.db.dropCollection(collectionName4Events, function (err) {
       if (err && err.message === 'ns not found') {
         err = null;
@@ -212,7 +212,7 @@
   function dropAggregatedDataCollectionTest(done) {
     var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
       sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-      sthTestConfig.ATTRIBUTE_ID);
+      sthTestConfig.ATTRIBUTE_NAME);
     sthDatabase.connection.db.dropCollection(collectionName4Aggregated, function (err) {
       if (err && err.message === 'ns not found') {
         err = null;
@@ -241,7 +241,7 @@
       case sthTestConfig.API_OPERATION.READ:
         return url + '/STH/v1/contextEntities/type/' + sthTestConfig.ENTITY_TYPE + '/' +
           'id/' + sthTestConfig.ENTITY_ID +
-          '/attributes/' + sthTestConfig.ATTRIBUTE_ID +
+          '/attributes/' + sthTestConfig.ATTRIBUTE_NAME +
           '?aggrMethod=' + (aggrMethod || 'min') +
           '&aggrPeriod=' + (aggrPeriod || 'second') +
           (dateFrom ? '&dateFrom=' + dateFrom : '') +
@@ -278,7 +278,7 @@
         if (!options.invalidPath) {
           url += '/STH/v1/contextEntities/type/' + sthTestConfig.ENTITY_TYPE + '/' +
           'id/' + sthTestConfig.ENTITY_ID +
-          '/attributes/' + sthTestConfig.ATTRIBUTE_ID;
+          '/attributes/' + sthTestConfig.ATTRIBUTE_NAME;
         } else {
           url += '/this/is/an/invalid/path';
         }
@@ -355,7 +355,7 @@
       expect(bodyJSON.contextResponses[0].contextElement.isPattern).
         to.equal(false);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).
-        to.equal(sthTestConfig.ATTRIBUTE_ID);
+        to.equal(sthTestConfig.ATTRIBUTE_NAME);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).
         to.be.an(Array);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).
@@ -424,7 +424,7 @@
       expect(bodyJSON.contextResponses[0].contextElement.isPattern).
         to.equal(false);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).
-        to.equal(sthTestConfig.ATTRIBUTE_ID);
+        to.equal(sthTestConfig.ATTRIBUTE_NAME);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0]._id.resolution).
         to.equal(resolution);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0]._id.range).
@@ -445,13 +445,13 @@
       switch(aggrMethod) {
         case 'min':
         case 'max':
-          value = parseFloat(theEvent.attributeValue).toFixed(2);
+          value = parseFloat(theEvent.attrValue).toFixed(2);
           break;
         case 'sum':
-          value = (events.length * parseFloat(theEvent.attributeValue)).toFixed(2);
+          value = (events.length * parseFloat(theEvent.attrValue)).toFixed(2);
           break;
         case 'sum2':
-          value = (events.length * (Math.pow(parseFloat(theEvent.attributeValue), 2))).toFixed(2);
+          value = (events.length * (Math.pow(parseFloat(theEvent.attrValue), 2))).toFixed(2);
       }
       expect(parseFloat(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].
         points[sthConfig.FILTER_OUT_EMPTY ? 0 : index][aggrMethod]).toFixed(2)).to.equal(value);
@@ -531,7 +531,7 @@
       it('should drop the collection created for the events', function (done) {
         var collectionName4Events = sthDatabase.getCollectionName4Events(
           sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-          sthTestConfig.ATTRIBUTE_ID);
+          sthTestConfig.ATTRIBUTE_NAME);
         sthDatabase.getCollection(sthDatabase.getDatabase(sthConfig.SERVICE), collectionName4Events, false,
           function (err, collection) {
             if (err) {
@@ -547,7 +547,7 @@
       it('should drop the collection created for the aggregated data', function (done) {
         var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
           sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-          sthTestConfig.ATTRIBUTE_ID);
+          sthTestConfig.ATTRIBUTE_NAME);
         sthDatabase.getCollection(sthDatabase.getDatabase(sthConfig.SERVICE),
           collectionName4Aggregated,
           false,
@@ -601,8 +601,8 @@
   function complexNotificationTest(service, servicePath, done) {
     var anEvent = {
       timestamp: new Date(),
-      attributeType: sthTestConfig.ATTRIBUTE_TYPE,
-      attributeValue: 66.6
+      attrType: sthTestConfig.ATTRIBUTE_TYPE,
+      attrValue: 66.6
     };
     request({
       uri: getValidURL(sthTestConfig.API_OPERATION.NOTIFY),
@@ -622,9 +622,9 @@
             "contextElement" : {
               "attributes" : [
                 {
-                  "name" : sthTestConfig.ATTRIBUTE_ID,
-                  "type" : anEvent.attributeType,
-                  "value" : anEvent.attributeValue
+                  "name" : sthTestConfig.ATTRIBUTE_NAME,
+                  "type" : anEvent.attrType,
+                  "value" : anEvent.attrValue
                 }
               ],
               "type" : "entityType",
@@ -640,9 +640,9 @@
             "contextElement" : {
               "attributes" : [
                 {
-                  "name" : "attributeId",
-                  "type" : anEvent.attributeType,
-                  "value" : anEvent.attributeValue
+                  "name" : sthTestConfig.ATTRIBUTE_NAME,
+                  "type" : anEvent.attrType,
+                  "value" : anEvent.attrValue
                 }
               ],
               "type" : "entityType",
@@ -658,9 +658,9 @@
             "contextElement" : {
               "attributes" : [
                 {
-                  "name" : sthTestConfig.ATTRIBUTE_ID,
-                  "type" : anEvent.attributeType,
-                  "value" : anEvent.attributeValue
+                  "name" : sthTestConfig.ATTRIBUTE_NAME,
+                  "type" : anEvent.attrType,
+                  "value" : anEvent.attrValue
                 }
               ],
               "type" : "entityType",
