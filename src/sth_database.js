@@ -5,7 +5,7 @@
 
   var mongoose = require('mongoose');
 
-  var sthConfig, sthLogger, sthHelper, connectionURL, connection, eventSchema, aggregatedSchema;
+  var sthConfig, sthLogger, sthHelper, connectionURL, eventSchema, aggregatedSchema;
 
   /**
    * Declares the Mongoose schemas.
@@ -136,7 +136,6 @@
           // Error when connecting to the MongoDB database
           return callback(err);
         }
-        connection = mongoose.connection;
         return callback();
       }
     );
@@ -221,7 +220,8 @@
    */
   function getCollection(databaseName, collectionName, shouldCreate, callback) {
     // Switch to the right database
-    connection = connection.useDb(databaseName);
+    var connection = mongoose.connection.useDb(databaseName);
+
     // Get the connection and notify it via the callback.
     connection.db.collection(collectionName, {strict: true},
       function (err, collection) {
@@ -734,7 +734,7 @@
         return connectionURL;
       },
       get connection() {
-        return connection;
+        return mongoose.connection;
       },
       connect: connect,
       closeConnection: closeConnection,

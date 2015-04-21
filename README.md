@@ -279,8 +279,9 @@ The script accepts the following parameters as environment variables:
 
 - SAMPLES: The number of random events which will be generated and inserted into the database. Optional. Default value: "5".
 - ENTITY_ID: The id of the entity for which the random event will be generated. Optional. Default value: "entityId".
-- ATTRIBUTE_ID: The id of the attribute for which the random event will be generated. Optional. Default value: "attributeId"
-- TYPE: The type of data of the value associated to generated random event. Optional. Default value: "quantity".
+- ENTITY_TYPE: The type of the entity for which the random event will be generated. Optional. Default value: "entityType".
+- ATTRIBUTE_ID: The id of the attribute for which the random event will be generated. Optional. Default value: "attributeId".
+- ATTRIBUTE_TYPE: The type of the attribute for which the random event will be generated. Optional. Default value: "attributeType".
 - START_DATE: The date from which the random events will be generated. Optional. Default value: the beginning of the previous
 year to avoid collisions with the testing of the Orion Context Broker notifications which use the current time.
 For example if in 2015, the start date is set to "2015-01-01T00:00:00", UTC time. Be very careful if setting the start date,
