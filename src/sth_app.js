@@ -37,7 +37,11 @@
     }
 
     if (err) {
-      sthLogger.fatal(err.toString(), {
+      var message = err.toString();
+      if (message.indexOf('listen EADDRINUSE') !== -1) {
+        message += ' (another STH instance maybe already listening on the same port)';
+      }
+      sthLogger.fatal(message, {
         operationType: sthConfig.OPERATION_TYPE.SHUTDOWN
       });
     }

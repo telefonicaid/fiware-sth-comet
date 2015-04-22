@@ -62,7 +62,7 @@
         sthConfig.PORT,
         sthApp.sthDatabase,
         function(err, server) {
-          expect(err).to.equal(null);
+          expect(err).to.equal(undefined);
           expect(server).to.be.a(hapi.Server);
           done();
         });

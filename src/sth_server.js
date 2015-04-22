@@ -402,8 +402,8 @@
     ]);
 
     // Start the server
-    server.start(function () {
-      return callback(null, server);
+    server.start(function (err) {
+      return callback(err, server);
     });
   }
 
@@ -416,13 +416,13 @@
     sthLogger.info('Stopping the STH server...', {
       operationType: sthConfig.OPERATION_TYPE.SERVER_STOP
     });
-    if (server) {
-      server.stop(function () {
+    if (server && server.info.started && server.info.listener) {
+      server.stop(function (err) {
         // Server successfully stopped
         sthLogger.info('hapi server successfully stopped', {
           operationType: sthConfig.OPERATION_TYPE.SERVER_STOP
         });
-        return callback();
+        return callback(err);
       });
     } else {
       sthLogger.info('No hapi server running', {
