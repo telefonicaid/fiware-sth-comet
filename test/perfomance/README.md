@@ -15,26 +15,25 @@ Load testing is performed to determine a system's behavior under anticipated pea
 	
 #### Pre-steps:
 
-* Launch "ServerAgent" in Balancer and each Cygnus Node VMs (java is a dependency)
+* Launch "ServerAgent" in Balancer or/and each STH Node VMs (java is a dependency)
 ```
 nohup sh startAgent.sh --udp-port 0 --tcp-port 4444 &
 ```
 
 #### Scripts:
 
-**sth_notifications_v1.0.jmx**:
+**sth_notifications.jmx**:
 
   >**Scenario**:
 ```
-* Multiples Notifications at the same time against a STH instance specific.
+* Multiples Notifications at the same time against a STH instance specific during a given time.
 * Ten services always will be used in parallel, therefore:
-      Notifications Total = 10 services (threads groups) * THREADS
-      service path number = THREADS / ENTITIES (in each service path) (see properties)
+      notifications TOTAL = 10 Services (threads groups) *  THREADS (retries during a given time)
+      service path / entities postfix = THREADS / ENTITIES (in each service path) (see properties)
       Example (a given data set:):
         THREADS = 1000
         ENTITIES = 100
-      Notifications Total = 10000
-      service path number = 10
+        service path / entity id postfix are incremental until equal to 10
 ```
   >**Steps**:
 ```
@@ -46,25 +45,25 @@ nohup sh startAgent.sh --udp-port 0 --tcp-port 4444 &
 ```
   >**Properties**:
 ```
-* TESTNAME     - test name (notifications by default)
-* HOST         - IP or hostname main node(in case of clusters is Nginx)  (127.0.0.1 by default)
-* PORT         - port used by cygnus (7777 by default)
-* RAMPUP       -  ramp up of threads (0 by default)
-* THREADS      - threads number (notifications total) (1 by default)
-* ENTITIES     - number of entities in each service path  (1 by default, service path is the div between notifications (THREADS) and ENTITIES)
-* CONTENT      - type of content in http (values allowed: JSON | XML )  (JSON by default)
-* SERVICE      - service or tenant name prefix (my_service by default)
-* SERVICE_PATH - service path name prefix (/my_serv_path by default)
-* ENTITY_TYPE  - entity type value (static value) (house by default)
-* ENTITY_ID    - entity id prefix (room by default)
-* ATTR_NAME    - attribute name (temperature by default)
-* ATTR_VALUE   - attribute value (30.5 by default)
-* ATTR_TYPE    - attribute value (float by default)
+* TESTNAME       - test name (notifications by default)
+* HOST           - IP or hostname main node(in case of clusters is Nginx)  (127.0.0.1 by default)
+* PORT           - port used by sth (8666 by default)
+* RAMPUP         -  ramp up of threads (0 by default)
+* THREADS        - threads number (notifications total) (1 by default)
+* ENTITIES       - number of entities in each service path  (1 by default, service path and entity id are the div between notifications (THREADS) and ENTITIES)
+* RUNTIME        - duration time of the test (1 sec by default)
+* SERVICE        - service or tenant name prefix (my_service by default)
+* SERVICE_PATH   - service path name prefix (/my_serv_path by default)
+* ENTITY_TYPE    - entity type value (static value) (house by default)
+* ENTITY_ID      - entity id prefix (room by default)
+* ATTR_NAME      - attribute name (temperature by default)
+* MAX_ATTR_VALUE - maximum attribute value, is used to generate random value (100 by default)
+* ATTR_TYPE      - attribute value (float by default)
 ```
 
   >**example**:
 ```
-<jmeter_path>/jmeter.sh -n -t <path>/sth_notifications_v1.0.jmx -JHOST=X.X.X.X -JPORT=7777 -JRAMPUP=10 -JTHREADS=20 -JENTITIES=5 > <log_path>/sth_notifications_`date +%FT%T`.log &
+<jmeter_path>/jmeter.sh -n -t <path>/sth_notifications_v1.0.jmx -JHOST=X.X.X.X -JPORT=7777 -JRAMPUP=10 -JTHREADS=20 -JENTITIES=5 -JRUNTIME=10 > <log_path>/sth_notifications_`date +%FT%T`.log &
 ```
 
 #### Post-steps:
