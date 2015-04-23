@@ -11,8 +11,8 @@
 
   /**
    * Starts the server asynchronously
-   * @param {string} host The host where the server will be running
-   * @param {string} port The port where the server will be listening
+   * @param {string} host The STH server host
+   * @param {string} port The STH server port
    * @param {string} aSTHDatabase The database to be used by the server
    * @param {Function} callback Callback function to notify the result
    *  of the operation

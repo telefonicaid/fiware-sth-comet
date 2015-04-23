@@ -27,8 +27,8 @@
 
   describe('Database operation', function () {
     it('should establish a connection to the database', function (done) {
-      sthDatabase.connect(sthConfig.DB_AUTHENTICATION, sthConfig.DB_HOST,
-        sthConfig.DB_PORT, sthDatabase.getDatabase(sthConfig.SERVICE), sthConfig.POOL_SIZE, function (err) {
+      sthDatabase.connect(sthConfig.DB_AUTHENTICATION, sthConfig.DB_URI,
+        sthConfig.REPLICA_SET, sthDatabase.getDatabase(sthConfig.SERVICE), sthConfig.POOL_SIZE, function (err) {
           done(err);
         });
     });

@@ -215,8 +215,8 @@ The STH component server is ready to be started.
 
 The script accepts the following parameters as environment variables:
 
-- HOST: The host where the STH server will be started. Optional. Default value: "localhost".
-- PORT: The port where the STH server will be listening. Optional. Default value: 8666.
+- STH_HOST: The host where the STH server will be started. Optional. Default value: "localhost".
+- STH_PORT: The port where the STH server will be listening. Optional. Default value: 8666.
 - LOG_LEVEL: The logging level of the messages. Messages with a level equal or superior to this will be logged. Optional. Default value: "info".
 - LOG_TO_CONSOLE: A flag indicating if the logs should be sent to the console. Optional. Default value: true.
 - LOG_TO_FILE: A flag indicating if the logs should be sent to a file. Optional. Default value: true.
@@ -233,15 +233,20 @@ The script accepts the following parameters as environment variables:
  values below. Optional. Default value: "collection-per-attribute".
 - DB_USERNAME: The username to use for the database connection. Optional. Default value: "".
 - DB_PASSWORD: The password to use for the database connection. Optional. Default value: "".
-- DB_HOST: The host to use for the database connection. Optional. Default value: "localhost".
-- DB_PORT: The port to use for the database connection. Optional. Default value: "27017".
+- DB_URI: The URI to use for the database connection. This does not include the 'mongo://' protocol part (see a couple of examples below).
+Optional. Default value: "localhost:27017".
 - DB_NAME: The name of the database to use. Optional. Default value: "test".
 - FILTER_OUT_EMPTY: A flag indicating if the empty results should be removed from the response. Optional. Default value: "true".
 
 For example, to start the STH server listening on port 7777, connecting to a MongoDB instance listening on mymongo.com:27777 and
 without filtering out the empty results, use:
 
-<pre> PORT=7777 DB_HOST=mymongo.com DB_PORT=27777 FILTER_OUT_EMPTY=false npm start</pre>
+<pre> STH_PORT=7777 DB_URI=mymongo.com:27777 FILTER_OUT_EMPTY=false npm start</pre>
+
+On the other hand, in case of connecting to a MongoDB replica set composed of 3 machines with IPs addresses 1.1.1.1, 1.1.1.2, 1.1.1.3
+listening on ports 27771, 27772 and 27773, respectively, use:
+
+<pre> DB_URI=1.1.1.1:27771,1.1.1.2:27772,1.1.1.3:27773 npm start</pre>
 
 Of special interest is the DATA_MODEL environment variable. Currently, the STH component supports 3 possible data distribution
 models as a way to let us evaluate which of them provides the best performance. After running a set of performance tests currently
@@ -294,8 +299,7 @@ since these collisions may arise.
 - MAX_VALUE: The maximum value associated to the random events. Optional. Default value: "100".
 - DB_USERNAME: The username to use for the database connection. Optional. Default value: "".
 - DB_PASSWORD: The password to use for the database connection. Optional. Default value: "".
-- DB_HOST: The host to use for the database connection. Optional. Default value: "localhost".
-- DB_PORT: The port to use for the database connection. Optional. Default value: "27017".
+- DB_URI: The URI to use for the database connection. This does not include the 'mongo://' protocol part. Optional. Default value: "localhost:27017".
 - DB_NAME: The name of the database to use. Optional. Default value: "test".
 - CLEAN: A flag indicating if the generated collections should be removed after the tests. Optional. Default value: "true".
 
@@ -346,8 +350,7 @@ since these collisions may arise.
 - MAX_VALUE: The maximum value associated to the random events. Optional. Default value: "100".
 - DB_USERNAME: The username to use for the database connection. Optional. Default value: "".
 - DB_PASSWORD: The password to use for the database connection. Optional. Default value: "".
-- DB_HOST: The host to use for the database connection. Optional. Default value: "localhost".
-- DB_PORT: The port to use for the database connection. Optional. Default value: "27017".
+- DB_URI: The URI to use for the database connection. This does not include the 'mongo://' protocol part. Optional. Default value: "localhost:27017".
 - DB_NAME: The name of the database to use. Optional. Default value: "test".
 - CLEAN: A flag indicating if the generated collections should be removed after the tests. Optional. Default value: "true".
 

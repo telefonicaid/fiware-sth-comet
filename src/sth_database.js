@@ -113,15 +113,15 @@
   /**
    * Connects to a (MongoDB) database endpoint asynchronously
    * @param {string} authentication The authentication schema to use for the connection
-   * @param {string} host The host hosting the database
-   * @param {string} port The port where the database server is listening to
+   * @param {string} dbURI The database URI
+   * @param {string} replicaSet The replica set name, if any
    * @param {string} database The name of the database to connect to
    * @param {Number} poolSize The size of the pool of connections to the database
    * @param {Function} callback A callback to inform about the result of the operation
    */
-  function connect(authentication, host, port, database, poolSize, callback) {
-    connectionURL = 'mongodb://' + authentication + '@' + host + ':' + port +
-    '/' + database;
+  function connect(authentication, dbURI, replicaSet, database, poolSize, callback) {
+    connectionURL = 'mongodb://' + authentication + '@' + dbURI + '/' + database +
+      (replicaSet ? '/?replicaSet=' + replicaSet : '');
 
     defineSchemas();
 
@@ -132,11 +132,7 @@
         }
       },
       function (err) {
-        if (err) {
-          // Error when connecting to the MongoDB database
-          return callback(err);
-        }
-        return callback();
+        return callback(err);
       }
     );
   }
@@ -238,16 +234,13 @@
                     return callback(err, collection);
                   }
                 );
+              } else {
+                return callback(err, collection);
               }
-              return callback(err, collection);
             }
           );
         } else {
-          if (err) {
-            return callback(err);
-          } else {
-            return callback(null, collection);
-          }
+          return callback(err, collection);
         }
       }
     );
