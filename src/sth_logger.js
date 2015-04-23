@@ -101,6 +101,7 @@
       transports.push(new winston.transports.File({
         level: sthConfig.LOG_LEVEL,
         filename: sthConfig.LOG_DIR + path.sep + sthConfig.LOG_FILE_NAME,
+        maxsize: sthConfig.LOG_FILE_MAX_SIZE_IN_BYTES,
         json: false,
         formatter: formatter
       }));

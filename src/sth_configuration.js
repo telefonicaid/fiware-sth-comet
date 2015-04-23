@@ -63,6 +63,7 @@
   module.exports.LOG_LEVEL = ENV.LOG_LEVEL || 'info';
   module.exports.LOG_TO_CONSOLE = ENV.LOG_TO_CONSOLE !== 'false';
   module.exports.LOG_TO_FILE = ENV.LOG_TO_FILE !== 'false';
+  module.exports.LOG_FILE_MAX_SIZE_IN_BYTES = ENV.LOG_FILE_MAX_SIZE_IN_BYTES;
   module.exports.LOG_DIR = ENV.LOG_DIR || '.' + path.sep + 'log';
   module.exports.LOG_FILE_NAME = ENV.LOG_FILE_NAME || 'sth_app.log';
   module.exports.SERVICE = ENV.SERVICE || 'orion';
