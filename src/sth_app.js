@@ -62,6 +62,14 @@
       return process.nextTick(callback);
     }
 
+    sthLogger.info(
+      'Data model set to %s',
+      sthConfig.DATA_MODEL,
+      {
+        operationType: sthConfig.OPERATION_TYPE.SERVER_START
+      }
+    );
+
     // Connect to the MongoDB database
     sthDatabase.connect(sthConfig.DB_AUTHENTICATION, sthConfig.DB_URI, sthConfig.REPLICA_SET,
       sthConfig.SERVICE, sthConfig.POOL_SIZE,
