@@ -86,9 +86,9 @@
   module.exports.DB_PASSWORD = dbPassword;
   module.exports.DB_AUTHENTICATION = (dbUsername && dbPassword) ?
       (dbUsername + ':' + dbPassword) : '';
-  module.exports.DB_HOST = ENV.DB_HOST || 'localhost';
-  module.exports.DB_PORT = ENV.DB_PORT || '27017';
-  module.exports.HOST = ENV.HOST || 'localhost';
-  module.exports.PORT = ENV.PORT || 8666;
+  module.exports.DB_URI = ENV.DB_URI || 'localhost:27017';
+  module.exports.REPLICA_SET = ENV.REPLICA_SET;
+  module.exports.STH_HOST = ENV.STH_HOST || 'localhost';
+  module.exports.STH_PORT = ENV.STH_PORT || 8666;
   module.exports.FILTER_OUT_EMPTY = ENV.FILTER_OUT_EMPTY !== 'false';
 })();

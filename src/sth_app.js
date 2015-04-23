@@ -22,13 +22,14 @@
       var exitCode = 0;
       if (err) {
         exitCode = 1;
+
       } else {
         sthLogger.info('Application exited successfully', {
           operationType: sthConfig.OPERATION_TYPE.SHUTDOWN
         });
       }
       if (callback) {
-        callback();
+        callback(err);
       }
       // TODO:
       // Due to https://github.com/winstonjs/winston/issues/228 we use the
@@ -62,11 +63,12 @@
     }
 
     // Connect to the MongoDB database
-    sthDatabase.connect(sthConfig.DB_AUTHENTICATION, sthConfig.DB_HOST,
-      sthConfig.DB_PORT, sthConfig.SERVICE, sthConfig.POOL_SIZE, function (err) {
+    sthDatabase.connect(sthConfig.DB_AUTHENTICATION, sthConfig.DB_URI, sthConfig.REPLICA_SET,
+      sthConfig.SERVICE, sthConfig.POOL_SIZE,
+      function (err) {
         if (err) {
           // Error when connecting to the MongoDB database
-          return exitGracefully(err, callback.bind(null, err));
+          return exitGracefully(err, callback);
         }
 
         // Connection to the MongoDB database successfully established
@@ -80,13 +82,13 @@
 
         // Start the hapi server
         sthServer.startServer(
-          sthConfig.HOST, sthConfig.PORT, sthDatabase, function (err) {
+          sthConfig.STH_HOST, sthConfig.STH_PORT, sthDatabase, function (err) {
             if (err) {
               sthLogger.fatal(err.toString(), {
                 operationType: sthConfig.OPERATION_TYPE.SERVER_START
               });
               // Error when starting the server
-              return exitGracefully(err, callback.bind(null, err));
+              return exitGracefully(err, callback);
             } else {
               isStarted = true;
               sthLogger.info('Server started at', sthServer.server.info.uri, {

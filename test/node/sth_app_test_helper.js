@@ -236,7 +236,7 @@
    * @returns {string} The generated valid URL
    */
   function getValidURL(type, aggrMethod, aggrPeriod, dateFrom, dateTo) {
-    var url = 'http://' + sthConfig.HOST + ':' + sthConfig.PORT;
+    var url = 'http://' + sthConfig.STH_HOST + ':' + sthConfig.STH_PORT;
     switch(type) {
       case sthTestConfig.API_OPERATION.READ:
         return url + '/STH/v1/contextEntities/type/' + sthTestConfig.ENTITY_TYPE + '/' +
@@ -259,7 +259,7 @@
    * @returns {string}
    */
   function getInvalidURL(type, options) {
-    var url = 'http://' + sthConfig.HOST + ':' + sthConfig.PORT,
+    var url = 'http://' + sthConfig.STH_HOST + ':' + sthConfig.STH_PORT,
       isParams = false;
 
     function getQuerySeparator(noAmpersand) {

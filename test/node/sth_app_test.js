@@ -39,8 +39,8 @@
 
   describe('database connection', function() {
     it('should be a database available', function(done) {
-      sthApp.sthDatabase.connect(sthConfig.DB_AUTHENTICATION, sthConfig.DB_HOST,
-        sthConfig.DB_PORT, sthApp.sthDatabase.getDatabase(sthConfig.SERVICE), sthConfig.POOL_SIZE, function(err) {
+      sthApp.sthDatabase.connect(sthConfig.DB_AUTHENTICATION, sthConfig.DB_URI,
+        sthConfig.REPLICA_SET, sthApp.sthDatabase.getDatabase(sthConfig.SERVICE), sthConfig.POOL_SIZE, function(err) {
           done(err);
         });
 
@@ -58,8 +58,8 @@
   describe('server start', function() {
     it('should start gracefully', function(done) {
       sthApp.sthServer.startServer(
-        sthConfig.HOST,
-        sthConfig.PORT,
+        sthConfig.STH_HOST,
+        sthConfig.STH_PORT,
         sthApp.sthDatabase,
         function(err, server) {
           expect(err).to.equal(undefined);
