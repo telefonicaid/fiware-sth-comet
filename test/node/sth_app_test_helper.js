@@ -29,137 +29,38 @@
    * @returns {{timestamp: Date, type: string, value: string}} The created raw event
    */
   function createEvent(timestamp) {
-    var value = (Math.random() *
+    var theEvent;
+    var attrValue = (Math.random() *
       (parseFloat(sthTestConfig.MAX_VALUE) - parseFloat(sthTestConfig.MIN_VALUE)) -
         Math.abs(parseFloat(sthTestConfig.MIN_VALUE))).toFixed(2);
-    return {
-      timestamp: timestamp,
-      type: sthTestConfig.TYPE,
-      value: value
-    };
-  }
-
-  /**
-   * Prepopulates the aggregated data collection based on an event and
-   *  a resolution
-   * @param {Object} event The event
-   * @param {string} resolution The resolution
-   * @param {Function} callback Callback function to invoke with the results
-   *  of the operation
-   */
-  function prePopulateAggregated(event, resolution, callback) {
-    var points = [],
-      totalValues,
-      range,
-      offsetOrigin = 0;
-
-    switch (resolution) {
-      case sthConfig.RESOLUTION.SECOND:
-        totalValues = 60;
-        range = sthConfig.RANGE.MINUTE;
+    switch (sthConfig.DATA_MODEL) {
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+        theEvent = {
+          timestamp: timestamp,
+          entityId: sthTestConfig.ENTITY_ID,
+          entityType: sthTestConfig.ENTITY_TYPE,
+          attrName: sthTestConfig.ATTRIBUTE_NAME,
+          attrType: sthTestConfig.ATTRIBUTE_TYPE,
+          attrValue: attrValue
+        };
         break;
-      case sthConfig.RESOLUTION.MINUTE:
-        totalValues = 60;
-        range = sthConfig.RANGE.HOUR;
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+        theEvent = {
+          timestamp: timestamp,
+          attrName: sthTestConfig.ATTRIBUTE_NAME,
+          attrType: sthTestConfig.ATTRIBUTE_TYPE,
+          attrValue: attrValue
+        };
         break;
-      case sthConfig.RESOLUTION.HOUR:
-        totalValues = 24;
-        range = sthConfig.RANGE.DAY;
-        break;
-      case sthConfig.RESOLUTION.DAY:
-        offsetOrigin = 1;
-        totalValues = 32;
-        range = sthConfig.RANGE.MONTH;
-        break;
-      case sthConfig.RESOLUTION.MONTH:
-        totalValues = 12;
-        range = sthConfig.RANGE.YEAR;
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+        theEvent = {
+          timestamp: timestamp,
+          attrType: sthTestConfig.ATTRIBUTE_TYPE,
+          attrValue: attrValue
+        };
         break;
     }
-
-    for (var i = offsetOrigin; i < totalValues; i++) {
-      points.push({
-        offset: i,
-        samples: 0,
-        sum: 0,
-        sum2: 0,
-        min: Number.POSITIVE_INFINITY,
-        max: Number.NEGATIVE_INFINITY
-      });
-    }
-
-    var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
-      sthTestConfig.ENTITY_ID, sthTestConfig.ATTRIBUTE_ID);
-
-    var aggregatedData = new sthDatabase.getAggregatedModel(collectionName4Aggregated)({
-      _id: {
-        range: range,
-        resolution: resolution,
-        attrType: sthTestConfig.TYPE,
-        origin: sthHelper.getOrigin(event.timestamp, resolution)
-      },
-      points: points
-    });
-
-    aggregatedData.save(function (err) {
-      return callback(err);
-    });
-  }
-
-  /**
-   * Returns the condition to be used in the MongoDB update operation for aggregated data
-   * @param {Object} event The event
-   * @param {string} resolution The resolution
-   * @returns {Object} The update condition
-   */
-  function getAggregateUpdateCondition(event, resolution) {
-    var offset;
-    switch (resolution) {
-      case sthConfig.RESOLUTION.SECOND:
-        offset = event.timestamp.getUTCSeconds();
-        break;
-      case sthConfig.RESOLUTION.MINUTE:
-        offset = event.timestamp.getUTCMinutes();
-        break;
-      case sthConfig.RESOLUTION.HOUR:
-        offset = event.timestamp.getUTCHours();
-        break;
-      case sthConfig.RESOLUTION.DAY:
-        offset = event.timestamp.getUTCDate();
-        break;
-      case sthConfig.RESOLUTION.MONTH:
-        offset = event.timestamp.getUTCMonth();
-        break;
-    }
-
-    return {
-      '_id.origin': sthHelper.getOrigin(event.timestamp, resolution),
-      '_id.resolution': resolution,
-      '_id.range': sthHelper.getRange(resolution),
-      'points.offset': offset
-    };
-  }
-
-  /**
-   * Returns the update to be used in the MongoDB update operation for aggregated data
-   * @param {Object} event The event
-   * @returns {Object} The update operation
-   */
-  function getAggregateUpdate(event) {
-    var value = event.value;
-    return {
-      '$inc': {
-        'points.$.samples': 1,
-        'points.$.sum': value,
-        'points.$.sum2': Math.pow(value, 2)
-      },
-      '$min': {
-        'points.$.min': value
-      },
-      '$max': {
-        'points.$.max': value
-      }
-    };
+    return theEvent;
   }
 
   /**
@@ -180,63 +81,27 @@
    * @param {Function} done The mocha done() callback function
    */
   function addEventTest(anEvent, done) {
+    var databaseName = sthDatabase.getDatabase(sthConfig.SERVICE);
+
     var collectionName4Events = sthDatabase.getCollectionName4Events(
-      sthTestConfig.ENTITY_ID, sthTestConfig.ATTRIBUTE_ID);
-    var theEvent = new sthDatabase.getEventModel(collectionName4Events)(anEvent);
-    theEvent.save(
-      function (err) {
-        return done(err);
+      sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+      sthTestConfig.ATTRIBUTE_NAME);
+
+    // Check if the collection exists
+    sthDatabase.getCollection(
+      databaseName,
+      collectionName4Events,
+      true,
+      function (err, collection) {
+        if (err) {
+          done(err);
+        } else {
+          sthDatabase.storeRawData(collection, anEvent.timestamp, sthConfig.SERVICE_PATH,
+            sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE, sthTestConfig.ATTRIBUTE_NAME,
+            sthTestConfig.ATTRIBUTE_TYPE, anEvent.attrValue, done);
+        }
       }
     );
-  }
-
-  /**
-   * A mocha test which pre-populates the aggregated data collection based on
-   *  an event and a resolution
-   * @param {Object} anEvent The event
-   * @param {string} resolution The resolution
-   * @param {Function} done The mocha done() callback function
-   */
-  function prePopulateAggregatedTest(anEvent, resolution, done) {
-    var origin;
-    var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
-      sthTestConfig.ENTITY_ID, sthTestConfig.ATTRIBUTE_ID);
-    switch(resolution) {
-      case sthConfig.RESOLUTION.SECOND:
-        origin = sthHelper.getOrigin(anEvent.timestamp, sthConfig.RESOLUTION.SECOND);
-        break;
-      case sthConfig.RESOLUTION.MINUTE:
-        origin = sthHelper.getOrigin(anEvent.timestamp, sthConfig.RESOLUTION.MINUTE);
-        break;
-      case sthConfig.RESOLUTION.HOUR:
-        origin = sthHelper.getOrigin(anEvent.timestamp, sthConfig.RESOLUTION.HOUR);
-        break;
-      case sthConfig.RESOLUTION.DAY:
-        origin = sthHelper.getOrigin(anEvent.timestamp, sthConfig.RESOLUTION.DAY);
-        break;
-      case sthConfig.RESOLUTION.MONTH:
-        origin = sthHelper.getOrigin(anEvent.timestamp, sthConfig.RESOLUTION.MONTH);
-        break;
-    }
-
-    // Check if the document for the aggregated data associated to the event already exists
-    sthDatabase.getAggregatedModel(collectionName4Aggregated).findOne({
-      '_id.resolution': resolution,
-      '_id.range': sthHelper.getRange(resolution),
-      '_id.origin': origin
-    }, function (err, result) {
-      if (err) {
-        done(err);
-      }
-      if (!result) {
-        // The document for this aggregated data has not been created
-        // Create and pre-populate it
-        prePopulateAggregated(
-          anEvent, resolution, done);
-      } else {
-        return done();
-      }
-    });
   }
 
   /**
@@ -247,13 +112,26 @@
    * @param {Function} done The mocha done() callback function
    */
   function addAggregatedDataTest(anEvent, resolution, done) {
+    var databaseName = sthDatabase.getDatabase(sthConfig.SERVICE);
+
     var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
-      sthTestConfig.ENTITY_ID, sthTestConfig.ATTRIBUTE_ID);
-    sthDatabase.getAggregatedModel(collectionName4Aggregated).update(
-      getAggregateUpdateCondition(anEvent, resolution),
-      getAggregateUpdate(anEvent),
-      function (err) {
-        return done(err);
+      sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+      sthTestConfig.ATTRIBUTE_NAME);
+
+    // Check if the collection exists
+    sthDatabase.getCollection(
+      databaseName,
+      collectionName4Aggregated,
+      true,
+      function (err, collection) {
+        if (err) {
+          done(err);
+        } else {
+          sthDatabase.storeAggregatedData4Resolution(
+            collection, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+            sthTestConfig.ATTRIBUTE_NAME, sthTestConfig.ATTRIBUTE_TYPE, anEvent.attrValue,
+            resolution, anEvent.timestamp, done);
+        }
       }
     );
   }
@@ -275,24 +153,10 @@
       addEventTest(anEvent, done);
     });
 
-    it('should pre-populate the aggregated collection (resolution: second, range: minute)',
-      function(done) {
-        prePopulateAggregatedTest(
-          anEvent, sthConfig.RESOLUTION.SECOND, done);
-      }
-    );
-
     it('should store aggregated data (resolution: second, range: minute)',
       function(done) {
         addAggregatedDataTest(
           anEvent, sthConfig.RESOLUTION.SECOND, done);
-      }
-    );
-
-    it('should pre-populate the aggregated collection (resolution: minute, range: hour)',
-      function(done) {
-        prePopulateAggregatedTest(
-          anEvent, sthConfig.RESOLUTION.MINUTE, done);
       }
     );
 
@@ -303,13 +167,6 @@
       }
     );
 
-    it('should pre-populate the aggregated collection (resolution: hour, range: day)',
-      function(done) {
-        prePopulateAggregatedTest(
-          anEvent, sthConfig.RESOLUTION.HOUR, done);
-      }
-    );
-
     it('should store aggregated data (resolution: hour, range: day)',
       function(done) {
         addAggregatedDataTest(
@@ -317,24 +174,10 @@
       }
     );
 
-    it('should pre-populate the aggregated collection (resolution: day, range: month)',
-      function(done) {
-        prePopulateAggregatedTest(
-          anEvent, sthConfig.RESOLUTION.DAY, done);
-      }
-    );
-
     it('should store aggregated data (resolution: day, range: month)',
       function(done) {
         addAggregatedDataTest(
           anEvent, sthConfig.RESOLUTION.DAY, done);
-      }
-    );
-
-    it('should pre-populate the aggregated collection (resolution: month, range: year)',
-      function(done) {
-        prePopulateAggregatedTest(
-          anEvent, sthConfig.RESOLUTION.MONTH, done);
       }
     );
 
@@ -352,8 +195,9 @@
    */
   function dropRawEventCollectionTest(done) {
     var collectionName4Events = sthDatabase.getCollectionName4Events(
-      sthTestConfig.ENTITY_ID, sthTestConfig.ATTRIBUTE_ID);
-    sthDatabase.driver.connection.db.dropCollection(collectionName4Events, function (err) {
+      sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+      sthTestConfig.ATTRIBUTE_NAME);
+    sthDatabase.connection.db.dropCollection(collectionName4Events, function (err) {
       if (err && err.message === 'ns not found') {
         err = null;
       }
@@ -367,8 +211,9 @@
    */
   function dropAggregatedDataCollectionTest(done) {
     var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
-      sthTestConfig.ENTITY_ID, sthTestConfig.ATTRIBUTE_ID);
-    sthDatabase.driver.connection.db.dropCollection(collectionName4Aggregated, function (err) {
+      sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+      sthTestConfig.ATTRIBUTE_NAME);
+    sthDatabase.connection.db.dropCollection(collectionName4Aggregated, function (err) {
       if (err && err.message === 'ns not found') {
         err = null;
       }
@@ -379,6 +224,7 @@
   /**
    * Returns a valid URL based on the aggregation method, the aggregation period and
    *  a range of dates
+   * @param {string} type The type of the operation (i.e.: read, notify)
    * @param {string} aggrMethod The aggregation method (typically: 'max', 'min',
    *  'sum', 'sum2')
    * @param {string} aggrPeriod The aggregation period (typically: 'month', 'day',
@@ -389,15 +235,20 @@
    *  format
    * @returns {string} The generated valid URL
    */
-  function getValidURL(aggrMethod, aggrPeriod, dateFrom, dateTo) {
-    return 'http://' + sthConfig.HOST + ':' + sthConfig.PORT +
-      '/STH/v1/contextEntities/type/quantity/' +
-      'id/' + sthTestConfig.ENTITY_ID +
-      '/attributes/' + sthTestConfig.ATTRIBUTE_ID +
-      '?aggrMethod=' + (aggrMethod || 'min') +
-      '&aggrPeriod=' + (aggrPeriod || 'second') +
-      (dateFrom ? '&dateFrom=' + dateFrom : '') +
-      (dateTo ? '&dateTo=' + dateTo : '');
+  function getValidURL(type, aggrMethod, aggrPeriod, dateFrom, dateTo) {
+    var url = 'http://' + sthConfig.STH_HOST + ':' + sthConfig.STH_PORT;
+    switch(type) {
+      case sthTestConfig.API_OPERATION.READ:
+        return url + '/STH/v1/contextEntities/type/' + sthTestConfig.ENTITY_TYPE + '/' +
+          'id/' + sthTestConfig.ENTITY_ID +
+          '/attributes/' + sthTestConfig.ATTRIBUTE_NAME +
+          '?aggrMethod=' + (aggrMethod || 'min') +
+          '&aggrPeriod=' + (aggrPeriod || 'second') +
+          (dateFrom ? '&dateFrom=' + dateFrom : '') +
+          (dateTo ? '&dateTo=' + dateTo : '');
+      case sthTestConfig.API_OPERATION.NOTIFY:
+        return url + '/notify';
+    }
   }
 
   /**
@@ -407,8 +258,8 @@
    *  'noDateFrom' and 'noDateTo'
    * @returns {string}
    */
-  function getInvalidURL(options) {
-    var url = 'http://' + sthConfig.HOST + ':' + sthConfig.PORT,
+  function getInvalidURL(type, options) {
+    var url = 'http://' + sthConfig.STH_HOST + ':' + sthConfig.STH_PORT,
       isParams = false;
 
     function getQuerySeparator(noAmpersand) {
@@ -422,36 +273,41 @@
       return separator;
     }
 
-    if (!options.invalidPath) {
-      url += '/STH/v1/contextEntities/type/quantity/' +
-      'id/' + sthTestConfig.ENTITY_ID +
-      '/attributes/' + sthTestConfig.ATTRIBUTE_ID;
-    } else {
-      url += '/this/is/an/invalid/path';
+    switch(type) {
+      case 'read':
+        if (!options.invalidPath) {
+          url += '/STH/v1/contextEntities/type/' + sthTestConfig.ENTITY_TYPE + '/' +
+          'id/' + sthTestConfig.ENTITY_ID +
+          '/attributes/' + sthTestConfig.ATTRIBUTE_NAME;
+        } else {
+          url += '/this/is/an/invalid/path';
+        }
+        if (!options.noAggrMethod) {
+          url += (getQuerySeparator(true) + 'aggrMethod=min');
+        }
+        if (!options.noAggrPeriod) {
+          url += (getQuerySeparator() + 'aggrPeriod=second');
+        }
+        if (!options.noDateFrom) {
+          url += (getQuerySeparator() + 'dateFrom=2015-01-01T00:00:00');
+        }
+        if (!options.noDateTo) {
+          url += (getQuerySeparator() + 'dateTo=2015-02-20T23:00:00');
+        }
+        return url;
     }
-    if (!options.noAggrMethod) {
-      url += (getQuerySeparator(true) + 'aggrMethod=min');
-    }
-    if (!options.noAggrPeriod) {
-      url += (getQuerySeparator() + 'aggrPeriod=second');
-    }
-    if (!options.noDateFrom) {
-      url += (getQuerySeparator() + 'dateFrom=2015-01-01T00:00:00');
-    }
-    if (!options.noDateTo) {
-      url += (getQuerySeparator() + 'dateTo=2015-02-20T23:00:00');
-    }
-    return url;
   }
 
   /**
    * A mocha test forcing the server to retrieve no data from the database for
    *  the passed aggregation method and resolution
+   * @param {string} service The service
+   * @param {string} servicePath The service path
    * @param {string} aggrMethod The aggregation method
    * @param {string} resolution The resolution
    * @param {string} done The mocha done() callback function
    */
-  function noDataSinceDateTest(aggrMethod, resolution, done) {
+  function noDataSinceDateTest(service, servicePath, aggrMethod, resolution, done) {
     var offset;
     switch(resolution) {
       case 'second':
@@ -477,27 +333,29 @@
     }
 
     request({
-      uri: getValidURL(aggrMethod, resolution,
+      uri: getValidURL(sthTestConfig.API_OPERATION.READ, aggrMethod, resolution,
         sthHelper.getISODateString(
           sthHelper.getOrigin(
             new Date(
               events[0].timestamp.getTime() + offset),
             resolution)),
         null),
-      method: 'GET'
+      method: 'GET',
+      headers: {
+        'Fiware-Service': service || sthConfig.SERVICE,
+        'Fiware-ServicePath': servicePath || sthConfig.SERVICE_PATH
+      }
     }, function (err, response, body) {
       var bodyJSON = JSON.parse(body);
       expect(err).to.equal(null);
+      expect(response.statusCode).to.equal(200);
+      expect(response.statusMessage).to.equal('OK');
       expect(bodyJSON.contextResponses[0].contextElement.id).
         to.equal(sthTestConfig.ENTITY_ID);
       expect(bodyJSON.contextResponses[0].contextElement.isPattern).
         to.equal(false);
-      /* TODO: The type property is not passed nor available
-      expect(bodyJSON.contextResponses[0].contextElement.type).
-        to.equal(sthTestConfig.TYPE);
-      */
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).
-        to.equal(sthTestConfig.ATTRIBUTE_ID);
+        to.equal(sthTestConfig.ATTRIBUTE_NAME);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).
         to.be.an(Array);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).
@@ -513,19 +371,25 @@
   /**
    * A mocha test forcing the server to retrieve aggregated data from the database
    *  for the passed aggregation method and resolution
+   * @param {string} service The service
+   * @param {string} servicePath The service path
    * @param {string} aggrMethod The aggregation method
    * @param {string} resolution The resolution
    * @param {Function} done The mocha done() callback function
    */
-  function dataAvailableSinceDateTest(aggrMethod, resolution, done) {
+  function dataAvailableSinceDateTest(service, servicePath, aggrMethod, resolution, done) {
     request({
-      uri: getValidURL(aggrMethod, resolution,
+      uri: getValidURL(sthTestConfig.API_OPERATION.READ, aggrMethod, resolution,
         sthHelper.getISODateString(
           sthHelper.getOrigin(
             events[0].timestamp,
             resolution)),
         null),
-      method: 'GET'
+      method: 'GET',
+      headers: {
+        'Fiware-Service': service || sthConfig.SERVICE,
+        'Fiware-ServicePath': servicePath || sthConfig.SERVICE_PATH
+      }
     }, function (err, response, body) {
       var theEvent = events[0];
       var index, entries;
@@ -553,16 +417,14 @@
       }
       var bodyJSON = JSON.parse(body);
       expect(err).to.equal(null);
+      expect(response.statusCode).to.equal(200);
+      expect(response.statusMessage).to.equal('OK');
       expect(bodyJSON.contextResponses[0].contextElement.id).
         to.equal(sthTestConfig.ENTITY_ID);
       expect(bodyJSON.contextResponses[0].contextElement.isPattern).
         to.equal(false);
-      /* TODO: The type property is not passed nor available
-      expect(bodyJSON.contextResponses[0].contextElement.type).
-        to.equal(sthTestConfig.TYPE);
-      */
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).
-        to.equal(sthTestConfig.ATTRIBUTE_ID);
+        to.equal(sthTestConfig.ATTRIBUTE_NAME);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0]._id.resolution).
         to.equal(resolution);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0]._id.range).
@@ -583,13 +445,13 @@
       switch(aggrMethod) {
         case 'min':
         case 'max':
-          value = parseFloat(theEvent.value).toFixed(2);
+          value = parseFloat(theEvent.attrValue).toFixed(2);
           break;
         case 'sum':
-          value = (events.length * parseFloat(theEvent.value)).toFixed(2);
+          value = (events.length * parseFloat(theEvent.attrValue)).toFixed(2);
           break;
         case 'sum2':
-          value = (events.length * (Math.pow(parseFloat(theEvent.value), 2))).toFixed(2);
+          value = (events.length * (Math.pow(parseFloat(theEvent.attrValue), 2))).toFixed(2);
       }
       expect(parseFloat(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].
         points[sthConfig.FILTER_OUT_EMPTY ? 0 : index][aggrMethod]).toFixed(2)).to.equal(value);
@@ -611,51 +473,51 @@
       describe('and aggrPeriod as ' + sthConfig.RESOLUTION.SECOND, function() {
         it('should respond with empty aggregated data if no data since dateFrom',
           noDataSinceDateTest.bind(
-            null, aggrMethod, sthConfig.RESOLUTION.SECOND));
+            null, sthConfig.SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.SECOND));
 
         it('should respond with aggregated data if data since dateFrom',
           dataAvailableSinceDateTest.bind(
-            null, aggrMethod, sthConfig.RESOLUTION.SECOND));
+            null, sthConfig.SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.SECOND));
       });
 
       describe('and aggrPeriod as minute', function() {
         it('should respond with empty aggregated data if no data since dateFrom',
           noDataSinceDateTest.bind(
-            null, aggrMethod, sthConfig.RESOLUTION.MINUTE));
+            null, sthConfig.SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.MINUTE));
 
         it('should respond with aggregated data if data since dateFrom',
           dataAvailableSinceDateTest.bind(
-            null, aggrMethod, sthConfig.RESOLUTION.MINUTE));
+            null, sthConfig.SERVICE, sthConfig.SERVICE_PATH,aggrMethod, sthConfig.RESOLUTION.MINUTE));
       });
 
       describe('and aggrPeriod as hour', function() {
         it('should respond with empty aggregated data if no data since dateFrom',
           noDataSinceDateTest.bind(
-            null, aggrMethod, sthConfig.RESOLUTION.HOUR));
+            null, sthConfig.SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.HOUR));
 
         it('should respond with aggregated data if data since dateFrom',
           dataAvailableSinceDateTest.bind(
-            null, aggrMethod, sthConfig.RESOLUTION.HOUR));
+            null, sthConfig.SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.HOUR));
       });
 
       describe('and aggrPeriod as day', function() {
         it('should respond with empty aggregated data if no data since dateFrom',
           noDataSinceDateTest.bind(
-            null, aggrMethod, sthConfig.RESOLUTION.DAY));
+            null, sthConfig.SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.DAY));
 
         it('should respond with aggregated data if data since dateFrom',
           dataAvailableSinceDateTest.bind(
-            null, aggrMethod, sthConfig.RESOLUTION.DAY));
+            null, sthConfig.SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.DAY));
       });
 
       describe('and aggrPeriod as month', function() {
         it('should respond with empty aggregated data if no data since dateFrom',
           noDataSinceDateTest.bind(
-            null, aggrMethod, sthConfig.RESOLUTION.MONTH));
+            null, sthConfig.SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.MONTH));
 
         it('should respond with aggregated data if data since dateFrom',
           dataAvailableSinceDateTest.bind(
-            null, aggrMethod, sthConfig.RESOLUTION.MONTH));
+            null, sthConfig.SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.MONTH));
       });
     });
   }
@@ -668,24 +530,157 @@
     if (sthTestConfig.CLEAN) {
       it('should drop the collection created for the events', function (done) {
         var collectionName4Events = sthDatabase.getCollectionName4Events(
-          sthTestConfig.ENTITY_ID, sthTestConfig.ATTRIBUTE_ID);
-        sthDatabase.getCollection(collectionName4Events, function (err, collection) {
-          collection.drop(function (err) {
-            done(err);
-          });
-        });
+          sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+          sthTestConfig.ATTRIBUTE_NAME);
+        sthDatabase.getCollection(sthDatabase.getDatabase(sthConfig.SERVICE), collectionName4Events, false,
+          function (err, collection) {
+            if (err) {
+              return done(err);
+            }
+            collection.drop(function (err) {
+              done(err);
+            });
+          }
+        );
       });
 
       it('should drop the collection created for the aggregated data', function (done) {
         var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
-          sthTestConfig.ENTITY_ID, sthTestConfig.ATTRIBUTE_ID);
-        sthDatabase.getCollection(collectionName4Aggregated, function (err, collection) {
-          collection.drop(function (err) {
-            done(err);
-          });
-        });
+          sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+          sthTestConfig.ATTRIBUTE_NAME);
+        sthDatabase.getCollection(sthDatabase.getDatabase(sthConfig.SERVICE),
+          collectionName4Aggregated,
+          false,
+          function (err, collection) {
+            if (err) {
+              return done(err);
+            }
+            collection.drop(function (err) {
+              done(err);
+            });
+          }
+        );
       });
     }
+  }
+
+  /**
+   * A mocha test suite to check the reception of notifications by the Orion Context Broker
+   */
+  function eventNotificationSuite() {
+    describe('complex notification', function() {
+      before(function () {
+        events = [];
+      });
+
+      describe('reception', function () {
+        it('should attend the notification', complexNotificationTest.bind(
+          null, sthConfig.SERVICE, sthConfig.SERVICE_PATH));
+      });
+
+      describe('for each new notification', function () {
+        describe('data retrieval',
+          dataRetrievalSuite.bind(null, 'min'));
+
+        describe('data retrieval',
+          dataRetrievalSuite.bind(null, 'max'));
+
+        describe('data retrieval',
+          dataRetrievalSuite.bind(null, 'sum'));
+
+        describe('data retrieval',
+          dataRetrievalSuite.bind(null, 'sum2'));
+      });
+    });
+  }
+
+  /**
+   * A mocha test to check the reception of a new notification by the Orion Context Broker
+   * @param {Function} done The mocha done() callback function
+   */
+  function complexNotificationTest(service, servicePath, done) {
+    var anEvent = {
+      timestamp: new Date(),
+      attrType: sthTestConfig.ATTRIBUTE_TYPE,
+      attrValue: 66.6
+    };
+    request({
+      uri: getValidURL(sthTestConfig.API_OPERATION.NOTIFY),
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': service || sthConfig.SERVICE,
+        'Fiware-ServicePath': servicePath || sthConfig.SERVICE_PATH
+      },
+      json: true,
+      body: {
+        "subscriptionId" : "1234567890ABCDF123456789",
+        "originator" : "orion.contextBroker.instance",
+        "contextResponses" : [
+          {
+            "contextElement" : {
+              "attributes" : [
+                {
+                  "name" : sthTestConfig.ATTRIBUTE_NAME,
+                  "type" : anEvent.attrType,
+                  "value" : anEvent.attrValue
+                }
+              ],
+              "type" : "entityType",
+              "isPattern" : "false",
+              "id" : "entityId"
+            },
+            "statusCode" : {
+              "code" : "200",
+              "reasonPhrase" : "OK"
+            }
+          },
+          {
+            "contextElement" : {
+              "attributes" : [
+                {
+                  "name" : sthTestConfig.ATTRIBUTE_NAME,
+                  "type" : anEvent.attrType,
+                  "value" : anEvent.attrValue
+                }
+              ],
+              "type" : "entityType",
+              "isPattern" : "false",
+              "id" : "entityId"
+            },
+            "statusCode" : {
+              "code" : "200",
+              "reasonPhrase" : "OK"
+            }
+          },
+          {
+            "contextElement" : {
+              "attributes" : [
+                {
+                  "name" : sthTestConfig.ATTRIBUTE_NAME,
+                  "type" : anEvent.attrType,
+                  "value" : anEvent.attrValue
+                }
+              ],
+              "type" : "entityType",
+              "isPattern" : "false",
+              "id" : "entityId"
+            },
+            "statusCode" : {
+              "code" : "200",
+              "reasonPhrase" : "OK"
+            }
+          }
+        ]
+      }
+    }, function (err, response, body) {
+      for (var i = 0; i < 3; i++) {
+        events.push(anEvent);
+      }
+      expect(body).to.be(undefined);
+      done(err);
+    });
   }
 
   module.exports = function (theSthTestConfiguration, theSthConfiguration, theSthDatabase, theSthHelper) {
@@ -694,24 +689,16 @@
     sthDatabase = theSthDatabase;
     sthHelper = theSthHelper;
     return {
-      getRandomDate: getRandomDate,
-      createEvent: createEvent,
-      prePopulateAggregated: prePopulateAggregated,
-      getAggregateUpdateCondition: getAggregateUpdateCondition,
-      getAggregateUpdate: getAggregateUpdate,
       getDayOfYear: getDayOfYear,
       addEventTest: addEventTest,
-      prePopulateAggregatedTest: prePopulateAggregatedTest,
-      addAggregatedDataTest: addAggregatedDataTest,
       eachEventTestSuite: eachEventTestSuite,
       dropRawEventCollectionTest: dropRawEventCollectionTest,
       dropAggregatedDataCollectionTest: dropAggregatedDataCollectionTest,
       getValidURL: getValidURL,
       getInvalidURL: getInvalidURL,
-      noDataSinceDateTest: noDataSinceDateTest,
-      dataAvailableSinceDateTest: dataAvailableSinceDateTest,
       dataRetrievalSuite: dataRetrievalSuite,
-      cleanDatabaseSuite: cleanDatabaseSuite
+      cleanDatabaseSuite: cleanDatabaseSuite,
+      eventNotificationSuite: eventNotificationSuite
     };
   };
 })();

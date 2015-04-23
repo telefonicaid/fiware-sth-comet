@@ -19,53 +19,90 @@
   console.log(sthTestConfig);
 
   var collectionName4Events = sthDatabase.getCollectionName4Events(
-    sthTestConfig.ENTITY_ID, sthTestConfig.ATTRIBUTE_ID);
+    sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+    sthTestConfig.ATTRIBUTE_NAME);
   var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
-    sthTestConfig.ENTITY_ID, sthTestConfig.ATTRIBUTE_ID);
+    sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+    sthTestConfig.ATTRIBUTE_NAME);
 
   describe('Database operation', function () {
     it('should establish a connection to the database', function (done) {
-      sthDatabase.connect(sthConfig.DB_AUTHENTICATION, sthConfig.DB_HOST,
-        sthConfig.DB_PORT, sthConfig.DB_NAME, function (err) {
+      sthDatabase.connect(sthConfig.DB_AUTHENTICATION, sthConfig.DB_URI,
+        sthConfig.REPLICA_SET, sthDatabase.getDatabase(sthConfig.SERVICE), sthConfig.POOL_SIZE, function (err) {
           done(err);
         });
     });
 
     it('should generate the collection name for the event raw data', function () {
-      expect(collectionName4Events).to.equal(
-        'sth.' + sthTestConfig.ENTITY_ID + '.' +
-        sthTestConfig.ATTRIBUTE_ID);
+      var collectionName;
+      switch(sthConfig.DATA_MODEL) {
+        case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+          collectionName = sthConfig.COLLECTION_PREFIX + '_' + sthConfig.SERVICE_PATH;
+          break;
+        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+          collectionName = sthConfig.COLLECTION_PREFIX + '_' + sthConfig.SERVICE_PATH +
+            '_' + sthTestConfig.ENTITY_ID +
+            '_' + sthTestConfig.ENTITY_TYPE;
+          break;
+        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+          collectionName = sthConfig.COLLECTION_PREFIX + '_' + sthConfig.SERVICE_PATH +
+            '_' + sthTestConfig.ENTITY_ID +
+            '_' + sthTestConfig.ENTITY_TYPE +
+            '_' + sthTestConfig.ATTRIBUTE_NAME +
+            '_' + sthTestConfig.ATTRIBUTE_TYPE;
+          break;
+      }
+      expect(collectionName4Events).to.equal(collectionName);
     });
 
     it('should drop the event raw data collection if it exists',
       sthTestHelper.dropRawEventCollectionTest);
 
     it('should generate the collection name for the aggregated data', function () {
-      expect(collectionName4Aggregated).to.equal(
-        'sth.' + sthTestConfig.ENTITY_ID + '.' +
-        sthTestConfig.ATTRIBUTE_ID + '.aggregated');
+      var collectionName;
+      switch(sthConfig.DATA_MODEL) {
+        case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+          collectionName = sthConfig.COLLECTION_PREFIX + '_' + sthConfig.SERVICE_PATH;
+          break;
+        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+          collectionName = sthConfig.COLLECTION_PREFIX + '_' + sthConfig.SERVICE_PATH +
+          '_' + sthTestConfig.ENTITY_ID +
+          '_' + sthTestConfig.ENTITY_TYPE;
+          break;
+        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+          collectionName = sthConfig.COLLECTION_PREFIX + '_' + sthConfig.SERVICE_PATH +
+          '_' + sthTestConfig.ENTITY_ID +
+          '_' + sthTestConfig.ENTITY_TYPE +
+          '_' + sthTestConfig.ATTRIBUTE_NAME +
+          '_' + sthTestConfig.ATTRIBUTE_TYPE;
+          break;
+      }
+      collectionName += '.aggr';
+      expect(collectionName4Aggregated).to.equal(collectionName);
     });
 
     it('should drop the aggregated data collection if it exists',
       sthTestHelper.dropAggregatedDataCollectionTest);
 
     it('should check if the collection for the aggregated data exists', function (done) {
-      sthDatabase.getCollection(collectionName4Aggregated, function (err, collection) {
-        if (err && !collection) {
-          // The collection does not exist
-          done();
+      sthDatabase.getCollection(sthDatabase.getDatabase(sthConfig.SERVICE), collectionName4Aggregated, false,
+        function (err, collection) {
+          if (err && !collection) {
+            // The collection does not exist
+            done();
+          }
         }
-      });
+      );
     });
 
     it('should create the collection for the single events', function (done) {
-      sthDatabase.driver.connection.db.createCollection(collectionName4Events, function (err) {
+      sthDatabase.connection.db.createCollection(collectionName4Events, function (err) {
         done(err);
       });
     });
 
     it('should create the collection for the aggregated data', function (done) {
-      sthDatabase.driver.connection.db.createCollection(collectionName4Aggregated, function (err) {
+      sthDatabase.connection.db.createCollection(collectionName4Aggregated, function (err) {
         done(err);
       });
     });
