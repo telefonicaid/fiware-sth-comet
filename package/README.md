@@ -6,7 +6,7 @@ Fedora Linux distributions.
 With the RPM is included:
 - STH SW
 - node modules that are needed by STH
-- [sth](rpm/SOURCES/etc/init.d/sht "sth") init.d script with standard operations
+- [sth](rpm/SOURCES/etc/init.d/sth "sth") init.d script with standard operations
 - Daily log rotation [logrotate-sth-daily](rpm/SOURCES/etc/logrotate.d/logrotate-sth-daily "logrotate")
 - Creation of directories: `/var/log/sth` and `/var/run/sth`
 - User `sth` is created and is the propietary of the installed files and running STH process
