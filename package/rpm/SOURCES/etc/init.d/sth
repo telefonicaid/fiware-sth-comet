@@ -25,7 +25,13 @@ component_start()
         exit 1
     fi
 
-    if [[ $(ls -l ${COMPONENT_DIR}/conf/sth_${sth_instance}*.conf 2> /dev/null | wc -l) -eq 0 ]]; then
+    if [[ -z ${sth_instance} ]]; then
+        list_instances="${COMPONENT_DIR}/conf/sth_*.conf"
+    else
+        list_instances="${COMPONENT_DIR}/conf/sth_${sth_instance}.conf"
+    fi
+
+    if [[ $(ls -l ${list_instances} 2> /dev/null | wc -l) -eq 0 ]]; then
         if [[ ${sth_instance} == "" ]]; then
             printf "%s\n" "There aren't any instance of STH configured. Refer to file /usr/sth/conf/README.md for further information."
         else
@@ -34,7 +40,7 @@ component_start()
         return 1
     fi
 
-    for instance in $(ls ${COMPONENT_DIR}/conf/sth_${sth_instance}*.conf)
+    for instance in ${list_instances}
     do
     
         local NAME
@@ -62,7 +68,7 @@ component_start()
             result=$((${result}+1))
             rm -f ${STH_PID_FILE} &> /dev/null 
         else
-            chown ${COMPONENT_USER}:${COMPONENT_USER} ${COMPONENT_PID_FILE}
+            chown ${COMPONENT_USER}:${COMPONENT_USER} ${STH_PID_FILE}
             printf "%s\n" "$(success)"
         fi
 
@@ -77,12 +83,18 @@ component_stop()
     local sth_instance=${1}
 
 
-    if [[ $(ls -l /var/run/sth/sth_${sth_instance}*.pid 2> /dev/null | wc -l) -eq 0 ]]; then
+    if [[ -z ${sth_instance} ]]; then
+        list_run_instances="/var/run/sth/sth_*.pid"
+    else
+        list_run_instances="/var/run/sth/sth_${sth_instance}.pid"
+    fi
+
+    if [[ $(ls -l ${list_run_instances} 2> /dev/null | wc -l) -eq 0 ]]; then
         printf "%s\n" "There aren't any instance of STH ${sth_instance} running $(success)"
         return 0
     fi
 
-    for run_instance in $(ls /var/run/sth/sth_${cygnus_instance}*.pid)
+    for run_instance in ${list_run_instances}
     do
 
         local NAME
@@ -113,12 +125,18 @@ component_status()
     local result=0
     local sth_instance=${1}
 
-    if [[ $(ls -l /var/run/sth/sth_${sth_instance}*.pid 2> /dev/null | wc -l) -eq 0 ]]; then
-        printf "%s\n" "There aren't any instance of STH ${sth_instance} running $(success)"
+    if [[ -z ${sth_instance} ]]; then
+        list_run_instances="/var/run/sth/sth_*.pid"
+    else
+        list_run_instances="/var/run/sth/sth_${sth_instance}.pid"
+    fi
+
+    if [[ $(ls -l ${list_run_instances} 2> /dev/null | wc -l) -eq 0 ]]; then
+        printf "%s\n" "There aren't any instance of STH ${sth_instance} running."
         return 1
     fi
 
-    for run_instance in $(ls /var/run/sth/sth_${cygnus_instance}*.pid)
+    for run_instance in ${list_run_instances}
     do
 
         local NAME

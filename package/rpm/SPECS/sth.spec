@@ -109,18 +109,26 @@ echo "Done"
 # -------------------------------------------------------------------------------------------- #
 %preun
 
-echo "[INFO] stoping service %{_service_name}"
-service %{_service_name} stop &> /dev/null
-
-echo "[INFO] Removing application user"
-userdel -f %{_project_user}
-
+if [ "$1" = "0" ]; then
+  echo "[INFO] stoping service %{_service_name}"
+  service %{_service_name} stop &> /dev/null
+fi
 
 # -------------------------------------------------------------------------------------------- #
 # post-uninstall section:
 # clean section:
 # -------------------------------------------------------------------------------------------- #
 %postun
+
+if [ "$1" = "0" ]; then
+  echo "[INFO] Removing application user"
+  userdel -f %{_project_user}
+
+  echo "[INFO] remove uneeded directories"
+  rm -rf %{_log_dir} %{_localstatedir}/run/%{_project_name}
+
+fi
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
