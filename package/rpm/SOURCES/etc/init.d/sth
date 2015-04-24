@@ -5,51 +5,68 @@
 
 PARAM=$1
 
+STH_INSTANCE=${2}
+
 COMPONENT_NAME=sth
 PREFIX=/usr
 COMPONENT_DIR=${PREFIX}/${COMPONENT_NAME}
 CONFIG_FILE=${PREFIX}/${COMPONENT_NAME}/conf/sth.conf
 COMPONENT_USER=sth
-COMPONENT_PID_FILE=/var/run/sth/sth.pid
 
 NODE_EXEC="/usr/bin/node"
 
 component_start()
 {
     local result=0
-
-    if [[ ! -f ${CONFIG_FILE} ]]; then
-        printf "%s\n" "Fail - ${CONFIG_FILE} not exists."
-        exit 1
-    fi
-
-    source ${CONFIG_FILE}
+    local sth_instance=${1}
 
     if [[ ! -f ${COMPONENT_DIR}/src/sth_app.js ]]; then
         printf "%s\n" "Fail - ${COMPONENT_DIR}/src/sth_app.js application file not exists."
         exit 1
     fi
 
-	printf "%s" "Starting STH...  "
-
-    status -p ${COMPONENT_PID_FILE} ${NODE_EXEC} &> /dev/null 
-    if [[ ${?} -eq 0 ]]; then
-        printf "%s\n" " Already running, skipping $(success)"
-        exit 0
+    if [[ $(ls -l ${COMPONENT_DIR}/conf/sth_${sth_instance}*.conf 2> /dev/null | wc -l) -eq 0 ]]; then
+        if [[ ${sth_instance} == "" ]]; then
+            printf "%s\n" "There aren't any instance of STH configured. Refer to file /usr/sth/conf/README.md for further information."
+        else
+            printf "%s\n" "There aren't any instance of STH configured with the name ${sth_instance}. Refer to file /usr/sth/conf/README.md for further information."
+        fi
+        return 1
     fi
 
-    sudo -E -u ${COMPONENT_USER} /bin/bash -c "${NODE_EXEC} ${COMPONENT_DIR}/src/sth_app.js &"
-    sleep 2 # some cortesy time to process startup and die
-    local PID=$(ps -ef | grep "sth_app" | grep -v grep | awk '{print $2}')
-    if [[ -z ${PID} ]]; then
-        printf "%s\n" "$(failure)"
-        result=$((${result}+1))
-        rm -f ${COMPONENT_PID_FILE} &> /dev/null 
-    else
-    	echo ${PID} > ${COMPONENT_PID_FILE}
-        chown ${COMPONENT_USER}:${COMPONENT_USER} ${COMPONENT_PID_FILE}
-        printf "%s\n" "$(success)"
-    fi
+    for instance in $(ls ${COMPONENT_DIR}/conf/sth_${sth_instance}*.conf)
+    do
+    
+        local NAME
+        NAME=${instance%.conf}
+        NAME=${NAME#*sth_}
+
+        source ${instance}
+
+        local STH_PID_FILE="/var/run/sth/sth_${NAME}.pid"
+
+        printf "%s" "Starting STH ${NAME}...  "
+
+        status -p ${STH_PID_FILE} ${NODE_EXEC} &> /dev/null 
+        if [[ ${?} -eq 0 ]]; then
+            printf "%s\n" " Already running, skipping $(success)"
+            continue
+        fi
+
+        sudo -E -u ${COMPONENT_USER} /bin/bash -c "${NODE_EXEC} ${COMPONENT_DIR}/src/sth_app.js & echo \$! > ${STH_PID_FILE}"
+        sleep 2 # some cortesy time to process startup or die
+        local PID=$(cat ${STH_PID_FILE})        
+        local STH_PID=$(ps -ef | grep -v "grep" | grep "${PID:-not_found}")
+        if [[ -z ${STH_PID} ]]; then
+            printf "%s\n" "$(failure)"
+            result=$((${result}+1))
+            rm -f ${STH_PID_FILE} &> /dev/null 
+        else
+            chown ${COMPONENT_USER}:${COMPONENT_USER} ${COMPONENT_PID_FILE}
+            printf "%s\n" "$(success)"
+        fi
+
+    done
 
     return ${result}
 }
@@ -57,44 +74,62 @@ component_start()
 component_stop()
 {
     local result=0
+    local sth_instance=${1}
 
-    printf "%s" "Stopping STH..."
 
-    # status of process 
-    status -p ${COMPONENT_PID_FILE} ${NODE_EXEC} &> /dev/null 
-    if [[ ${?} -ne 0 ]]; then
-        printf "%s\n" " No process STH running. Skipping $(success)"
-        rm -f ${COMPONENT_PID_FILE}
-        exit 0
+    if [[ $(ls -l /var/run/sth/sth_${sth_instance}*.pid 2> /dev/null | wc -l) -eq 0 ]]; then
+        printf "%s\n" "There aren't any instance of STH ${sth_instance} running $(success)"
+        return 0
     fi
 
-    if [[ ! -f ${COMPONENT_PID_FILE} ]]; then
-    	printf "%s\n" "$(success)"
-    fi
+    for run_instance in $(ls /var/run/sth/sth_${cygnus_instance}*.pid)
+    do
 
-    local RUN_PID=$(cat ${COMPONENT_PID_FILE})
-    kill ${RUN_PID}  &> /dev/null
-    sleep 2 # time to die properly
-    local KILLED_PID=$(ps -ef | grep ${RUN_PID} | grep -v grep | awk '{print $2}')
-    if [[ -z ${KILLED_PID} ]]; then
-        printf "%s\n" "$(success)"
-    else
-        printf "%s\n" "$(failure)"
-        result=$((${result}+1))
-    fi
+        local NAME
+        NAME=${run_instance%.pid}
+        NAME=${NAME#*sth_}
 
-    rm -f ${COMPONENT_PID_FILE} &> /dev/null 
+        printf "%s" "Stopping STH ${NAME}..."
 
+        local RUN_PID=$(cat ${run_instance})
+        kill ${RUN_PID}  &> /dev/null
+        sleep 2 # time to die properly
+        local KILLED_PID=$(ps -ef | grep ${RUN_PID} | grep -v grep | awk '{print $2}')
+        if [[ -z ${KILLED_PID} ]]; then
+            printf "%s\n" "$(success)"
+        else
+            printf "%s\n" "$(failure)"
+            result=$((${result}+1))
+        fi
+
+        rm -f ${run_instance} &> /dev/null 
+
+    done
     return ${result}
 }
 
 component_status()
 {
     local result=0
+    local sth_instance=${1}
 
-    printf "%s\n" "STH status..."
-    status -p ${COMPONENT_PID_FILE} ${NODE_EXEC}
-    result=$((${result}+${?}))
+    if [[ $(ls -l /var/run/sth/sth_${sth_instance}*.pid 2> /dev/null | wc -l) -eq 0 ]]; then
+        printf "%s\n" "There aren't any instance of STH ${sth_instance} running $(success)"
+        return 1
+    fi
+
+    for run_instance in $(ls /var/run/sth/sth_${cygnus_instance}*.pid)
+    do
+
+        local NAME
+        NAME=${run_instance%.pid}
+        NAME=${NAME#*sth_}
+
+        printf "%s\n" "STH ${NAME} status..."
+        status -p ${run_instance} ${NODE_EXEC}
+        result=$((${result}+${?}))
+
+    done
 
     return ${result}
 }
@@ -102,19 +137,19 @@ component_status()
 
 case ${PARAM} in
     'start')
-        component_start
+        component_start ${STH_INSTANCE}
         ;;
 
     'stop')
-        component_stop
+        component_stop ${STH_INSTANCE}
         ;;
 
     'restart')
-        component_stop
-        component_start
+        component_stop ${STH_INSTANCE}
+        component_start ${STH_INSTANCE}
         ;;
 
     'status')
-        component_status
+        component_status ${STH_INSTANCE}
         ;;
 esac
