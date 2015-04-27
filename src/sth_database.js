@@ -247,6 +247,75 @@
   }
 
   /**
+   * Returns the required raw data from the database asynchronously
+   * @param {object} collection The collection from where the data should be extracted
+   * @param {string} entityId The entity id related to the event
+   * @param {string} entityType The type of entity related to the event
+   * @param {string} attrName The attribute id related to the event
+   * @param {number} lastN Only return the last n matching entries
+   * @param {number} hLimit Maximum number of results to retrieve when paginating
+   * @param {number} hOffset Offset to apply when paginating
+   * @param {Date} from The date from which retrieve the aggregated data
+   * @param {Date} to The date to which retrieve the aggregated data
+   * @param {Function} callback Callback to inform about any possible error or results
+   */
+  function getRawData(collection, entityId, entityType, attrName, lastN, hLimit, hOffset,
+                      from, to, callback) {
+    var findCondition;
+    switch (sthConfig.DATA_MODEL) {
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+        findCondition = {
+          'entityId': entityId,
+          'entityType': entityType,
+          'attrName': attrName
+        };
+        break;
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+        findCondition = {
+          'attrName': attrName
+        };
+        break;
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+        findCondition = {};
+        break;
+    }
+
+    var timestampFilter;
+    if (from && to) {
+      timestampFilter = {
+        $lte: to,
+        $gte: from
+      };
+    } else if (!from) {
+      timestampFilter = {
+        $lte: to
+      };
+    } else if (!to) {
+      timestampFilter = {
+        $gte: from
+      };
+    }
+    findCondition.timestamp = timestampFilter;
+
+    var cursor = collection.find(
+      findCondition,
+      {
+        _id: 0,
+        attrValue: 1,
+        timestamp: 1
+      }
+    ).sort({'timestamp': 1});
+
+    if (lastN) {
+      cursor.limit(lastN);
+    } else {
+      cursor.skip(hOffset).limit(hLimit);
+    }
+
+    cursor.toArray(callback);
+  }
+
+  /**
    * Returns the required aggregated data from the database asynchronously
    * @param {object} collection The collection from where the data should be extracted
    * @param {string} servicePath The service path of the entity the event is related to
@@ -735,6 +804,7 @@
       getCollectionName4Events: getCollectionName4Events,
       getCollectionName4Aggregated: getCollectionName4Aggregated,
       getCollection: getCollection,
+      getRawData: getRawData,
       getAggregatedData: getAggregatedData,
       getAggregateUpdateCondition: getAggregateUpdateCondition,
       getAggregatePrepopulatedData: getAggregatePrepopulatedData,

@@ -77,95 +77,194 @@
           var databaseName = sthDatabase.getDatabase(
             request.headers['fiware-service']);
 
-          // Compose the collection name for the required data
-          var collectionName = sthDatabase.getCollectionName4Aggregated(
-            request.headers['fiware-servicepath'],
-            request.params.entityId,
-            request.params.entityType,
-            request.params.attrName
-          );
+          if ((request.query.lastN || request.query.lastN === 0)  ||
+            ((request.query.hLimit || request.query.hLimit === 0) &&
+            (request.query.hOffset || request.query.hOffset === 0))) {
+            // Raw data is requested
 
-          // Check if the collection exists
-          sthDatabase.getCollection(
-            databaseName,
-            collectionName,
-            false,
-            function (err, collection) {
-              if (err) {
-                // The collection does not exist, reply with en empty response
-                sthLogger.warn(
-                  'The collection %s does not exist', collectionName, request.info.sth);
+            // Compose the collection name for the required data
+            var collectionName = sthDatabase.getCollectionName4Events(
+              request.headers['fiware-servicepath'],
+              request.params.entityId,
+              request.params.entityType,
+              request.params.attrName
+            );
 
-                sthLogger.trace(
-                  'Responding with no points',
-                  request.info.sth);
-                var range = sthHelper.getRange(request.query.aggrPeriod);
-                var emptyResponse =sthHelper.getEmptyResponse(request.query.aggrPeriod, range);
-                var ngsiPayload = sthHelper.getNGSIPayload(
-                  request.params.entityId,
-                  request.params.entityType,
-                  request.params.attrName,
-                  emptyResponse);
-                response = reply(ngsiPayload);
-              } else {
-                // The collection exists
-                sthLogger.trace(
-                  'The collection %s exists', collectionName, request.info.sth);
+            // Check if the collection exists
+            sthDatabase.getCollection(
+              databaseName,
+              collectionName,
+              false,
+              function (err, collection) {
+                if (err) {
+                  // The collection does not exist, reply with en empty response
+                  sthLogger.warn(
+                    'The collection %s does not exist', collectionName, request.info.sth);
 
-                sthDatabase.getAggregatedData(
-                  collection,
-                  request.headers['fiware-servicepath'],
-                  request.params.entityId,
-                  request.params.entityType,
-                  request.params.attrName,
-                  request.query.aggrMethod,
-                  request.query.aggrPeriod,
-                  request.query.dateFrom,
-                  request.query.dateTo,
-                  sthConfig.FILTER_OUT_EMPTY,
-                  function (err, result) {
-                    if (err) {
-                      // Error when getting the aggregated data
-                      sthLogger.error(
-                        'Error when getting data from %s', collectionName, request.info.sth);
-                      sthLogger.trace(
-                        'Responding with 500 - Internal Error', request.info.sth);
-                      response = reply(err);
-                    } else if (!result || !result.length) {
-                      // No aggregated data available for the request
-                      sthLogger.trace(
-                        'No aggregated data available for the request: ' + request.url.path,
-                        request.info.sth);
+                  sthLogger.trace(
+                    'Responding with no points',
+                    request.info.sth);
+                  var emptyResponse =sthHelper.getEmptyResponse();
+                  var ngsiPayload = sthHelper.getNGSIPayload(
+                    request.params.entityId,
+                    request.params.entityType,
+                    request.params.attrName,
+                    emptyResponse);
+                  response = reply(ngsiPayload);
+                } else {
+                  // The collection exists
+                  sthLogger.trace(
+                    'The collection %s exists', collectionName, request.info.sth);
 
-                      var range = sthHelper.getRange(request.query.aggrPeriod);
-                      sthLogger.trace(
-                        'Responding with no points', request.info.sth);
-                      response = reply(
-                        sthHelper.getNGSIPayload(
-                          request.params.entityId,
-                          request.params.entityType,
-                          request.params.attrName,
-                          sthHelper.getEmptyResponse(request.query.aggrPeriod, range)
-                        )
-                      );
-                    } else {
-                      sthLogger.trace(
-                        'Responding with %s docs', result.length, request.info.sth);
-                      response = reply(
-                        sthHelper.getNGSIPayload(
-                          request.params.entityId,
-                          request.params.entityType,
-                          request.params.attrName,
-                          result));
+                  sthDatabase.getRawData(
+                    collection,
+                    request.params.entityId,
+                    request.params.entityType,
+                    request.params.attrName,
+                    request.query.lastN,
+                    request.query.hLimit,
+                    request.query.hOffset,
+                    request.query.dateFrom,
+                    request.query.dateTo,
+                    function (err, result) {
+                      if (err) {
+                        // Error when getting the aggregated data
+                        sthLogger.error(
+                          'Error when getting data from %s', collectionName, request.info.sth);
+                        sthLogger.trace(
+                          'Responding with 500 - Internal Error', request.info.sth);
+                        response = reply(err);
+                      } else if (!result || !result.length) {
+                        // No aggregated data available for the request
+                        sthLogger.trace(
+                          'No aggregated data available for the request: ' + request.url.path,
+                          request.info.sth);
+
+                        sthLogger.trace(
+                          'Responding with no points', request.info.sth);
+                        response = reply(
+                          sthHelper.getNGSIPayload(
+                            request.params.entityId,
+                            request.params.entityType,
+                            request.params.attrName,
+                            sthHelper.getEmptyResponse()
+                          )
+                        );
+                      } else {
+                        sthLogger.trace(
+                          'Responding with %s docs', result.length, request.info.sth);
+                        response = reply(
+                          sthHelper.getNGSIPayload(
+                            request.params.entityId,
+                            request.params.entityType,
+                            request.params.attrName,
+                            result));
                       }
-                    if (unicaCorrelatorPassed) {
-                      response.header('Unica-Correlator', unicaCorrelatorPassed);
+                      if (unicaCorrelatorPassed) {
+                        response.header('Unica-Correlator', unicaCorrelatorPassed);
+                      }
                     }
-                  }
-                );
+                  );
+                }
               }
-            }
-          );
+            );
+
+          } else if (request.query.aggrMethod && request.query.aggrPeriod) {
+            // Aggregated data is requested
+
+            // Compose the collection name for the required data
+            var collectionName = sthDatabase.getCollectionName4Aggregated(
+              request.headers['fiware-servicepath'],
+              request.params.entityId,
+              request.params.entityType,
+              request.params.attrName
+            );
+
+            // Check if the collection exists
+            sthDatabase.getCollection(
+              databaseName,
+              collectionName,
+              false,
+              function (err, collection) {
+                if (err) {
+                  // The collection does not exist, reply with en empty response
+                  sthLogger.warn(
+                    'The collection %s does not exist', collectionName, request.info.sth);
+
+                  sthLogger.trace(
+                    'Responding with no points',
+                    request.info.sth);
+                  var emptyResponse =sthHelper.getEmptyResponse();
+                  var ngsiPayload = sthHelper.getNGSIPayload(
+                    request.params.entityId,
+                    request.params.entityType,
+                    request.params.attrName,
+                    emptyResponse);
+                  response = reply(ngsiPayload);
+                } else {
+                  // The collection exists
+                  sthLogger.trace(
+                    'The collection %s exists', collectionName, request.info.sth);
+
+                  sthDatabase.getAggregatedData(
+                    collection,
+                    request.headers['fiware-servicepath'],
+                    request.params.entityId,
+                    request.params.entityType,
+                    request.params.attrName,
+                    request.query.aggrMethod,
+                    request.query.aggrPeriod,
+                    request.query.dateFrom,
+                    request.query.dateTo,
+                    sthConfig.FILTER_OUT_EMPTY,
+                    function (err, result) {
+                      if (err) {
+                        // Error when getting the aggregated data
+                        sthLogger.error(
+                          'Error when getting data from %s', collectionName, request.info.sth);
+                        sthLogger.trace(
+                          'Responding with 500 - Internal Error', request.info.sth);
+                        response = reply(err);
+                      } else if (!result || !result.length) {
+                        // No aggregated data available for the request
+                        sthLogger.trace(
+                          'No aggregated data available for the request: ' + request.url.path,
+                          request.info.sth);
+
+                        sthLogger.trace(
+                          'Responding with no points', request.info.sth);
+                        response = reply(
+                          sthHelper.getNGSIPayload(
+                            request.params.entityId,
+                            request.params.entityType,
+                            request.params.attrName,
+                            sthHelper.getEmptyResponse()
+                          )
+                        );
+                      } else {
+                        sthLogger.trace(
+                          'Responding with %s docs', result.length, request.info.sth);
+                        response = reply(
+                          sthHelper.getNGSIPayload(
+                            request.params.entityId,
+                            request.params.entityType,
+                            request.params.attrName,
+                            result));
+                      }
+                      if (unicaCorrelatorPassed) {
+                        response.header('Unica-Correlator', unicaCorrelatorPassed);
+                      }
+                    }
+                  );
+                }
+              }
+            );
+          } else {
+            var error = boom.badRequest('A combination of the following query params is required: lastN, hLimit and hOffset ' +
+              ', or aggrMethod and aggrPeriod');
+            error.output.payload.validation = { source: 'query', keys: ['lastN', 'hLimit', 'hOffset', 'aggrMethod', 'aggrPeriod'] };
+            return reply(error);
+          }
         },
         config: {
           validate: {
@@ -184,8 +283,11 @@
               next();
             },
             query: {
-              aggrMethod: joi.string().required().valid('max', 'min', 'sum', 'sum2'),
-              aggrPeriod: joi.string().required().valid('month', 'day', 'hour', 'minute', 'second'),
+              lastN: joi.number().integer().greater(-1).optional(),
+              hLimit: joi.number().integer().greater(-1).optional(),
+              hOffset: joi.number().integer().greater(-1).optional(),
+              aggrMethod: joi.string().valid('max', 'min', 'sum', 'sum2').optional(),
+              aggrPeriod: joi.string().required().valid('month', 'day', 'hour', 'minute', 'second').optional(),
               dateFrom: joi.date().optional(),
               dateTo: joi.date().optional()
             }
