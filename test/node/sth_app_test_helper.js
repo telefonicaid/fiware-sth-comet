@@ -25,10 +25,10 @@
 
   /**
    * Returns a new raw event
-   * @param timestamp The event timestamp
-   * @returns {{timestamp: Date, type: string, value: string}} The created raw event
+   * @param recvTime The event timestamp
+   * @returns {{recvTime: Date, type: string, value: string}} The created raw event
    */
-  function createEvent(timestamp) {
+  function createEvent(recvTime) {
     var theEvent;
     var attrValue = (Math.random() *
       (parseFloat(sthTestConfig.MAX_VALUE) - parseFloat(sthTestConfig.MIN_VALUE)) -
@@ -36,7 +36,7 @@
     switch (sthConfig.DATA_MODEL) {
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
         theEvent = {
-          timestamp: timestamp,
+          recvTime: recvTime,
           entityId: sthTestConfig.ENTITY_ID,
           entityType: sthTestConfig.ENTITY_TYPE,
           attrName: sthTestConfig.ATTRIBUTE_NAME,
@@ -46,7 +46,7 @@
         break;
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
         theEvent = {
-          timestamp: timestamp,
+          recvTime: recvTime,
           attrName: sthTestConfig.ATTRIBUTE_NAME,
           attrType: sthTestConfig.ATTRIBUTE_TYPE,
           attrValue: attrValue
@@ -54,7 +54,7 @@
         break;
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
         theEvent = {
-          timestamp: timestamp,
+          recvTime: recvTime,
           attrType: sthTestConfig.ATTRIBUTE_TYPE,
           attrValue: attrValue
         };
@@ -96,7 +96,7 @@
         if (err) {
           done(err);
         } else {
-          sthDatabase.storeRawData(collection, anEvent.timestamp, sthConfig.SERVICE_PATH,
+          sthDatabase.storeRawData(collection, anEvent.recvTime, sthConfig.SERVICE_PATH,
             sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE, sthTestConfig.ATTRIBUTE_NAME,
             sthTestConfig.ATTRIBUTE_TYPE, anEvent.attrValue, done);
         }
@@ -130,7 +130,7 @@
           sthDatabase.storeAggregatedData4Resolution(
             collection, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
             sthTestConfig.ATTRIBUTE_NAME, sthTestConfig.ATTRIBUTE_TYPE, anEvent.attrValue,
-            resolution, anEvent.timestamp, done);
+            resolution, anEvent.recvTime, done);
         }
       }
     );
@@ -333,11 +333,11 @@
    * @param {string} service The service
    * @param {string} servicePath The service path
    * @param {Object} options To generate the URL
-   * @param {boolean} checkTimestamp Flag indicating of the timestamp should be checked
+   * @param {boolean} checkRecvTime Flag indicating of the recvTime should be checked
    * @param {Function} done The mocha done() callback function
    */
-  function rawDataAvailableSinceDateTest(service, servicePath, options, checkTimestamp, done) {
-    options.dateFrom = sthHelper.getISODateString(events[0].timestamp);
+  function rawDataAvailableSinceDateTest(service, servicePath, options, checkRecvTime, done) {
+    options.dateFrom = sthHelper.getISODateString(events[0].recvTime);
     request({
       uri: getURL(sthTestConfig.API_OPERATION.READ, options),
       method: 'GET',
@@ -361,9 +361,9 @@
         to.equal(1);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).
         to.equal(theEvent.attrValue);
-      if (checkTimestamp) {
-        expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].timestamp).
-          to.equal(sthHelper.getISODateString(theEvent.timestamp));
+      if (checkRecvTime) {
+        expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].recvTime).
+          to.equal(sthHelper.getISODateString(theEvent.recvTime));
       }
       expect(bodyJSON.contextResponses[0].statusCode.code).
         to.equal('200');
@@ -415,7 +415,7 @@
           dateFrom: sthHelper.getISODateString(
             sthHelper.getOrigin(
               new Date(
-                events[0].timestamp.getTime() + offset),
+                events[0].recvTime.getTime() + offset),
               resolution))
         }
       ),
@@ -464,7 +464,7 @@
           aggrPeriod: resolution,
           dateFrom: sthHelper.getISODateString(
             sthHelper.getOrigin(
-              events[0].timestamp,
+              events[0].recvTime,
               resolution))
         }
       ),
@@ -478,23 +478,23 @@
       var index, entries;
       switch(resolution) {
         case 'second':
-          index = theEvent.timestamp.getUTCSeconds();
+          index = theEvent.recvTime.getUTCSeconds();
           entries = 60;
           break;
         case 'minute':
-          index = theEvent.timestamp.getUTCMinutes();
+          index = theEvent.recvTime.getUTCMinutes();
           entries = 60;
           break;
         case 'hour':
-          index = theEvent.timestamp.getUTCHours();
+          index = theEvent.recvTime.getUTCHours();
           entries = 24;
           break;
         case 'day':
-          index = theEvent.timestamp.getUTCDate() - 1;
+          index = theEvent.recvTime.getUTCDate() - 1;
           entries = 31;
           break;
         case 'month':
-          index = theEvent.timestamp.getUTCMonth();
+          index = theEvent.recvTime.getUTCMonth();
           entries = 12;
           break;
       }
@@ -515,7 +515,7 @@
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0]._id.origin).
         to.be(sthHelper.getISODateString(
           sthHelper.getOrigin(
-            theEvent.timestamp,
+            theEvent.recvTime,
             resolution
           )
         ));
@@ -550,9 +550,9 @@
    * A mocha test suite including tests to check the retrieval of raw data
    *  from the database
    * @param {object} options Options to generate the URL
-   * @param {boolean} checkTimestamp Flag indicating of the timestamp should be checked
+   * @param {boolean} checkRecvTime Flag indicating if the recvTime should be checked
    */
-  function rawDataRetrievalSuite(options, checkTimestamp) {
+  function rawDataRetrievalSuite(options, checkRecvTime) {
     describe('should respond', function() {
       it('with empty aggregated data if no data since dateFrom',
         noRawDataSinceDateTest.bind(
@@ -560,7 +560,7 @@
 
       it('with raw data if data since dateFrom',
         rawDataAvailableSinceDateTest.bind(
-          null, sthConfig.SERVICE, sthConfig.SERVICE_PATH, options, checkTimestamp));
+          null, sthConfig.SERVICE, sthConfig.SERVICE_PATH, options, checkRecvTime));
     });
   }
 
@@ -707,7 +707,7 @@
    */
   function complexNotificationTest(service, servicePath, done) {
     var anEvent = {
-      timestamp: new Date(),
+      recvTime: new Date(),
       attrType: sthTestConfig.ATTRIBUTE_TYPE,
       attrValue: 66.6
     };

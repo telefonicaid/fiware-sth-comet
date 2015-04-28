@@ -256,14 +256,14 @@
      * @param servicePath The service path of the attribute
      * @param contextElement The context element
      * @param attribute The attribute
-     * @param timestamp The timestamp of the notification when it reached the server
+     * @param recvTime The timestamp of the notification when it reached the server
      * @param counterObj A helper counter object. This is needed since Javascript implements calls-by-sharing
      *  (see http://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_sharing) and the counter is shared between
      *  rawAggregatedData() and storeAggregatedData() functions to let them synchronize
      * @param totalTasks The total number of writings to make
      * @param reply The Hapi server's reply function
      */
-    function storeRawData(databaseName, servicePath, contextElement, attribute, timestamp, counterObj, totalTasks, request, reply) {
+    function storeRawData(databaseName, servicePath, contextElement, attribute, recvTime, counterObj, totalTasks, request, reply) {
       // Compose the collection name for the raw events
       var collectionName4Events = sthDatabase.getCollectionName4Events(
         servicePath,
@@ -294,7 +294,7 @@
               sthConfig.SHOULD_STORE === sthConfig.DATA_TO_STORE.BOTH) {
               sthDatabase.storeRawData(
                 collection,
-                timestamp,
+                recvTime,
                 servicePath,
                 contextElement.id,
                 contextElement.type,
@@ -330,14 +330,14 @@
      * @param servicePath The service path of the attribute
      * @param contextElement The context element
      * @param attribute The attribute
-     * @param timestamp The timestamp of the notification when it reached the server
+     * @param recvTime The timestamp of the notification when it reached the server
      * @param counterObj A helper counter object. This is needed since Javascript implements calls-by-sharing
      *  (see http://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_sharing) and the counter is shared between
      *  rawAggregatedData() and storeAggregatedData() functions to let them synchronize
      * @param totalTasks The total number of writings to make
      * @param reply The Hapi server's reply function
      */
-    function storeAggregatedData(databaseName, servicePath, contextElement, attribute, timestamp, counterObj, totalTasks, request, reply) {
+    function storeAggregatedData(databaseName, servicePath, contextElement, attribute, recvTime, counterObj, totalTasks, request, reply) {
       // Compose the collection name for the aggregated data
       var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
         servicePath,
@@ -368,7 +368,7 @@
               sthConfig.SHOULD_STORE === sthConfig.DATA_TO_STORE.BOTH) {
               sthDatabase.storeAggregatedData(
                 collection,
-                timestamp,
+                recvTime,
                 servicePath,
                 contextElement.id,
                 contextElement.type,
@@ -467,7 +467,7 @@
         method: 'POST',
         path: '/notify',
         handler: function(request, reply) {
-          var timestamp = new Date(),
+          var recvTime = new Date(),
               unicaCorrelatorPassed = request.headers[sthConfig.UNICA_CORRELATOR_HEADER],
               contextResponses,
               contextElement,
@@ -540,10 +540,10 @@
                   var servicePath = request.headers['fiware-servicepath'];
 
                   // Store the raw data into the database
-                  storeRawData(databaseName, servicePath, contextElement, attribute, timestamp, counterObj, totalTasks, request, reply);
+                  storeRawData(databaseName, servicePath, contextElement, attribute, recvTime, counterObj, totalTasks, request, reply);
 
                   // Store the aggregated data into the database
-                  storeAggregatedData(databaseName, servicePath, contextElement, attribute, timestamp, counterObj, totalTasks, request, reply);
+                  storeAggregatedData(databaseName, servicePath, contextElement, attribute, recvTime, counterObj, totalTasks, request, reply);
                 }
               }
             }

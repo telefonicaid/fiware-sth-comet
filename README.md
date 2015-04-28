@@ -83,15 +83,15 @@ An example response provided by the STH component to a request such as the previ
                         "values": [
                             {
                                 {
-                                    "timestamp": "2014-02-14T13:43:33.306Z",
+                                    "recvTime": "2014-02-14T13:43:33.306Z",
                                     "attrValue": "21.28"
                                 },
                                 {
-                                   "timestamp": "2014-02-14T13:43:34.636Z",
+                                   "recvTime": "2014-02-14T13:43:34.636Z",
                                    "attrValue": "23.42"
                                 },
                                 {
-                                    "timestamp": "2014-02-14T13:43:35.424Z",
+                                    "recvTime": "2014-02-14T13:43:35.424Z",
                                     "attrValue": "22.12"
                                 }
                             }
