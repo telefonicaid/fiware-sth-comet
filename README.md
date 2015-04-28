@@ -1,8 +1,9 @@
 #<a id="section0"></a> IoT-STH
 
 * [Introduction] (#section1)
-    * [Consuming aggregated time series information] (#section1.1)
-    * [Updating aggregated time series information] (#section1.2)
+    * [Consuming raw data] (#section1.1)
+    * [Consuming aggregated time series information] (#section1.2)
+    * [Updating aggregated time series information] (#section1.3)
 * [Dependencies](#section2)
 * [Installation](#section3)
 * [Running the STH server](#section4)
@@ -56,12 +57,71 @@ refers to the 10th minute of the concrete hour pointed by the origin. In this ex
 offsets from 0 to 59 corresponding to each one of the 60 minutes within the concrete hour.
 * <b>Samples</b>: For a quadruple range-resolution-origin-offset, it is the number of samples, values, events or notifications available.
 
-###<a id="section1.1"></a> Consuming aggregated time series information
+###<a id="section1.1"></a> Consuming raw data
+
+The STH component exposes an HTTP REST API to let external clients query the raw events (aka. raw data) from which the
+aggregated time series information is generated. A typical URL querying for this information using a GET request is the following:
+
+<pre>http://localhost:8666/STH/v1/contextEntities/type/&lt;entityType&gt;/id/&lt;entityId&gt;/attributes/&lt;attrName&gt;?hLimit=3&hOffset=0&dateFrom=2014-02-14T00:00:00.000Z&dateTo=2014-02-14T23:59:59.999Z</pre>
+
+The entries between "<" and ">" in the URL path depend on the concrete case (type of data, entity and attribute) being queried.
+
+The requests can make use the following query parameters:
+
+* <b>lastN</b>: Only the requested last entries should be returned. It is a mandatory parameter if no hLimit and hOffset are provided.
+* <b>hLimit</b>: In case of pagination, the number of entries per page. It is a mandatory parameter if no lastN is provided.
+* <b>hOffset</b>: In case of pagination, the offset to apply to the requested search of raw data. It is a mandatory parameter if no lastN is provided.
+
+An example response provided by the STH component to a request such as the previous one could be the following:
+
+<pre>
+{
+    "contextResponses": [
+        {
+            "contextElement": {
+                "attributes": [
+                    {
+                        "name": "attrName",
+                        "values": [
+                            {
+                                {
+                                    "recvTime": "2014-02-14T13:43:33.306Z",
+                                    "attrValue": "21.28"
+                                },
+                                {
+                                   "recvTime": "2014-02-14T13:43:34.636Z",
+                                   "attrValue": "23.42"
+                                },
+                                {
+                                    "recvTime": "2014-02-14T13:43:35.424Z",
+                                    "attrValue": "22.12"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "id": "entityId",
+                "isPattern": false
+            },
+            "statusCode": {
+                "code": "200",
+                "reasonPhrase": "OK"
+            }
+        }
+    ]
+}
+</pre>
+
+Notice that a paginated response has been requested with a limit of 3 entries and an offset of 0 entries (first page).
+
+[Top](#section0)
+
+###<a id="section1.2"></a> Consuming aggregated time series information
 
 The STH component exposes an HTTP REST API to let external clients query this aggregated time series information. A
 typical URL querying for this information using a GET request is the following:
 
-<pre>http://localhost:8666/STH/v1/contextEntities/type/&lt;entityType&gt;/id/&lt;entityId&gt;/attributes/&lt;attrName&gt;?aggrMethod=sum&aggrPeriod=second&dateFrom=2015-02-22T00:00:00&dateTo=2015-02-22T23:00:00</pre>
+<pre>http://localhost:8666/STH/v1/contextEntities/type/&lt;entityType&gt;/id/&lt;entityId&gt;/attributes/&lt;attrName&gt;?aggrMethod=sum&aggrPeriod=second&dateFrom=2015-02-22T00:00:00.000Z&dateTo=2015-02-22T23:00:00.000Z</pre>
 
 The entries between "<" and ">" in the URL path depend on the concrete case (type of data, entity and attribute) being queried.
 
@@ -122,7 +182,7 @@ This information has as its origin the 46nd minute, of the 2nd hour of February,
 
 [Top](#section0)
 
-###<a id="section1.2"></a> Updating aggregated time series information
+###<a id="section1.3"></a> Updating aggregated time series information
 
 As already mentioned, there are 2 main ways to update the aggregated time series information associated to attributes.
 The so-called minimalist option and the formal one.

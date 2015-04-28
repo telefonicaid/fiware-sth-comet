@@ -75,7 +75,7 @@
    *  certain criteria
    * @returns {Array} An empty array
    */
-  function getEmptyResponse(resolution, range) {
+  function getEmptyResponse() {
     return [];
   }
 
