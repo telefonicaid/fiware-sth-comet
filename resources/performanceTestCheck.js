@@ -21,7 +21,7 @@ function assertEntriesPerCollection(entriesPerCollection) {
             var count = database[collections[j]].count();
             var percentage = (count / entriesPerCollection) * 100;
             print('*** Expected ' + entriesPerCollection + ' and found ' + count + '... ' + percentage + '% ' +
-              ((percentage === 100) ? 'PERFECT!!!' : 'ERROOOOOR :O'));
+              ((percentage === 100) ? 'PERFECT' : 'ERROR'));
             if (percentage !== 100) {
               errorCounter++;
             }
