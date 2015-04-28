@@ -14,7 +14,7 @@
     switch (sthConfig.DATA_MODEL) {
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
         eventSchema = mongoose.Schema({
-          timestamp: Date,
+          recvTime: Date,
           entityId: String,
           entityType: String,
           attrName: String,
@@ -24,7 +24,7 @@
         break;
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
         eventSchema = mongoose.Schema({
-          timestamp: Date,
+          recvTime: Date,
           attrName: String,
           attrType: String,
           attrValue: Number
@@ -32,7 +32,7 @@
         break;
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
         eventSchema = mongoose.Schema({
-          timestamp: Date,
+          recvTime: Date,
           attrType: String,
           attrValue: Number
         });
@@ -247,6 +247,75 @@
   }
 
   /**
+   * Returns the required raw data from the database asynchronously
+   * @param {object} collection The collection from where the data should be extracted
+   * @param {string} entityId The entity id related to the event
+   * @param {string} entityType The type of entity related to the event
+   * @param {string} attrName The attribute id related to the event
+   * @param {number} lastN Only return the last n matching entries
+   * @param {number} hLimit Maximum number of results to retrieve when paginating
+   * @param {number} hOffset Offset to apply when paginating
+   * @param {Date} from The date from which retrieve the aggregated data
+   * @param {Date} to The date to which retrieve the aggregated data
+   * @param {Function} callback Callback to inform about any possible error or results
+   */
+  function getRawData(collection, entityId, entityType, attrName, lastN, hLimit, hOffset,
+                      from, to, callback) {
+    var findCondition;
+    switch (sthConfig.DATA_MODEL) {
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+        findCondition = {
+          'entityId': entityId,
+          'entityType': entityType,
+          'attrName': attrName
+        };
+        break;
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+        findCondition = {
+          'attrName': attrName
+        };
+        break;
+      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+        findCondition = {};
+        break;
+    }
+
+    var recvTimeFilter;
+    if (from && to) {
+      recvTimeFilter = {
+        $lte: to,
+        $gte: from
+      };
+    } else if (!from) {
+      recvTimeFilter = {
+        $lte: to
+      };
+    } else if (!to) {
+      recvTimeFilter = {
+        $gte: from
+      };
+    }
+    findCondition.recvTime = recvTimeFilter;
+
+    var cursor = collection.find(
+      findCondition,
+      {
+        _id: 0,
+        attrValue: 1,
+        recvTime: 1
+      }
+    ).sort({'recvTime': 1});
+
+    if (lastN) {
+      cursor.limit(lastN);
+    } else {
+      cursor.skip(hOffset).limit(hLimit);
+    }
+
+    cursor.toArray(callback);
+  }
+
+  /**
    * Returns the required aggregated data from the database asynchronously
    * @param {object} collection The collection from where the data should be extracted
    * @param {string} servicePath The service path of the entity the event is related to
@@ -425,27 +494,27 @@
    * @param {string} entityType The entity type
    * @param {string} attrName The attribute id
    * @param {string} resolution The resolution
-   * @param {Date} timestamp The date (or timestamp) of the notification (attribute value change)
+   * @param {Date} recvTime The date (or recvTime) of the notification (attribute value change)
    * @returns {Object} The update condition
    */
   function getAggregateUpdateCondition(
-    entityId, entityType, attrName, resolution, timestamp) {
+    entityId, entityType, attrName, resolution, recvTime) {
     var offset;
     switch (resolution) {
       case sthConfig.RESOLUTION.SECOND:
-        offset = timestamp.getUTCSeconds();
+        offset = recvTime.getUTCSeconds();
         break;
       case sthConfig.RESOLUTION.MINUTE:
-        offset = timestamp.getUTCMinutes();
+        offset = recvTime.getUTCMinutes();
         break;
       case sthConfig.RESOLUTION.HOUR:
-        offset = timestamp.getUTCHours();
+        offset = recvTime.getUTCHours();
         break;
       case sthConfig.RESOLUTION.DAY:
-        offset = timestamp.getUTCDate();
+        offset = recvTime.getUTCDate();
         break;
       case sthConfig.RESOLUTION.MONTH:
-        offset = timestamp.getUTCMonth();
+        offset = recvTime.getUTCMonth();
         break;
     }
 
@@ -456,7 +525,7 @@
           '_id.entityId': entityId,
           '_id.entityType': entityType,
           '_id.attrName': attrName,
-          '_id.origin': sthHelper.getOrigin(timestamp, resolution),
+          '_id.origin': sthHelper.getOrigin(recvTime, resolution),
           '_id.resolution': resolution,
           '_id.range': sthHelper.getRange(resolution),
           'points.offset': offset
@@ -465,7 +534,7 @@
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
         aggregateUpdateCondition = {
           '_id.attrName': attrName,
-          '_id.origin': sthHelper.getOrigin(timestamp, resolution),
+          '_id.origin': sthHelper.getOrigin(recvTime, resolution),
           '_id.resolution': resolution,
           '_id.range': sthHelper.getRange(resolution),
           'points.offset': offset
@@ -473,7 +542,7 @@
         break;
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
         aggregateUpdateCondition = {
-          '_id.origin': sthHelper.getOrigin(timestamp, resolution),
+          '_id.origin': sthHelper.getOrigin(recvTime, resolution),
           '_id.resolution': resolution,
           '_id.range': sthHelper.getRange(resolution),
           'points.offset': offset
@@ -573,12 +642,12 @@
    * @param {string} attrName The attribute id
    * @param {string} attrType The attribute type
    * @param {string} resolution The resolution
-   * @param {Date} timestamp The date the event arrived
+   * @param {Date} recvTime The date the event arrived
    * @param {Function} callback Function to call once the operation completes
    */
   function storeAggregatedData4Resolution(
     collection, entityId, entityType, attrName, attrType, attrValue,
-    resolution, timestamp, callback) {
+    resolution, recvTime, callback) {
     /*
      Currently the MongoDB $ positional update operator cannot be combined with upserts
       (see http://docs.mongodb.org/manual/reference/operator/update/positional/#upsert).
@@ -588,7 +657,7 @@
       collection.update(
         // Returning all the update operators currently returned by getAggregateUpdate4Insert
         //  and getAggregateUpdate4Update in the same object
-        getAggregateUpdateCondition(entityId, entityType, attrName, resolution, timestamp),
+        getAggregateUpdateCondition(entityId, entityType, attrName, resolution, recvTime),
         getAggregateUpdate(attrValue),
         {upsert: true},
         function (err) {
@@ -600,7 +669,7 @@
     //  origin, resolution and range.
     collection.update(
       getAggregateUpdateCondition(
-        entityId, entityType, attrName, resolution, timestamp),
+        entityId, entityType, attrName, resolution, recvTime),
       getAggregateUpdate4Insert(attrType, resolution),
       {upsert: true},
       function (err) {
@@ -611,7 +680,7 @@
         //  aggregate the new value received.
         collection.update(
           getAggregateUpdateCondition(
-            entityId, entityType, attrName, resolution, timestamp),
+            entityId, entityType, attrName, resolution, recvTime),
           getAggregateUpdate4Update(attrType, parseFloat(attrValue)),
           function (err) {
             if (callback) {
@@ -626,7 +695,7 @@
   /**
    * Stores the aggregated data for a new event (attribute value)
    * @param {object} The collection where the data should be stored in
-   * @param {Date} timestamp The date the event arrived
+   * @param {Date} recvTime The date the event arrived
    * @param {string} entityId The entity id associated to updated attribute
    * @param {string} entityType The entity type associated to the updated attribute
    * @param {string} attrName The updated attribute id
@@ -635,7 +704,7 @@
    * @param {Function} callback Function to call once the operation completes
    */
   function storeAggregatedData(
-    collection, timestamp, servicePath, entityId, entityType, attrName, attrType, attrValue, callback) {
+    collection, recvTime, servicePath, entityId, entityType, attrName, attrType, attrValue, callback) {
     var counter = 0,
         error;
     function onCompletion(err) {
@@ -647,29 +716,29 @@
 
     storeAggregatedData4Resolution(
       collection, entityId, entityType, attrName, attrType, attrValue,
-      sthConfig.RESOLUTION.SECOND, timestamp, onCompletion);
+      sthConfig.RESOLUTION.SECOND, recvTime, onCompletion);
 
     storeAggregatedData4Resolution(
       collection, entityId, entityType, attrName, attrType, attrValue,
-      sthConfig.RESOLUTION.MINUTE, timestamp, onCompletion);
+      sthConfig.RESOLUTION.MINUTE, recvTime, onCompletion);
 
     storeAggregatedData4Resolution(
       collection, entityId, entityType, attrName, attrType, attrValue,
-      sthConfig.RESOLUTION.HOUR, timestamp, onCompletion);
+      sthConfig.RESOLUTION.HOUR, recvTime, onCompletion);
 
     storeAggregatedData4Resolution(
       collection, entityId, entityType, attrName, attrType, attrValue,
-      sthConfig.RESOLUTION.DAY, timestamp, onCompletion);
+      sthConfig.RESOLUTION.DAY, recvTime, onCompletion);
 
     storeAggregatedData4Resolution(
       collection, entityId, entityType, attrName, attrType, attrValue,
-      sthConfig.RESOLUTION.MONTH, timestamp, onCompletion);
+      sthConfig.RESOLUTION.MONTH, recvTime, onCompletion);
   }
 
   /**
    * Stores the raw data for a new event (attribute value)
    * @param {object} The collection where the data should be stored in
-   * @param {Date} timestamp The date the event arrived
+   * @param {Date} recvTime The date the event arrived
    * @param {string} entityId The entity id associated to updated attribute
    * @param {string} entityType The entity type associated to the updated attribute
    * @param {string} attrName The updated attribute id
@@ -678,13 +747,13 @@
    * @param {Function} callback Function to call once the operation completes
    */
   function storeRawData(
-    collection, timestamp, servicePath, entityId, entityType, attrName,
+    collection, recvTime, servicePath, entityId, entityType, attrName,
     attrType, attrValue, callback) {
     var theEvent;
     switch (sthConfig.DATA_MODEL) {
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
         theEvent = {
-          timestamp: timestamp,
+          recvTime: recvTime,
           entityId: entityId,
           entityType: entityType,
           attrName: attrName,
@@ -694,7 +763,7 @@
         break;
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
         theEvent = {
-          timestamp: timestamp,
+          recvTime: recvTime,
           attrName: attrName,
           attrType: attrType,
           attrValue: attrValue
@@ -702,7 +771,7 @@
         break;
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
         theEvent = {
-          timestamp: timestamp,
+          recvTime: recvTime,
           attrType: attrType,
           attrValue: attrValue
         };
@@ -735,6 +804,7 @@
       getCollectionName4Events: getCollectionName4Events,
       getCollectionName4Aggregated: getCollectionName4Aggregated,
       getCollection: getCollection,
+      getRawData: getRawData,
       getAggregatedData: getAggregatedData,
       getAggregateUpdateCondition: getAggregateUpdateCondition,
       getAggregatePrepopulatedData: getAggregatePrepopulatedData,

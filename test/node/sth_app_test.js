@@ -72,7 +72,7 @@
   describe('invalid routes', function() {
     it('should respond with 404 - Not Found if invalid HTTP method', function(done) {
       request({
-        uri: sthTestHelper.getValidURL(sthTestConfig.API_OPERATION.READ),
+        uri: sthTestHelper.getURL(sthTestConfig.API_OPERATION.READ),
         method: 'PUT'
       }, function(err, response, body) {
         var bodyJSON = JSON.parse(body);
@@ -86,7 +86,7 @@
 
     it('should respond with 404 - Not Found if invalid path', function(done) {
       request({
-        uri: sthTestHelper.getInvalidURL(sthTestConfig.API_OPERATION.READ, {
+        uri: sthTestHelper.getURL(sthTestConfig.API_OPERATION.READ, {
           invalidPath: true
         }),
         method: 'GET'
@@ -102,7 +102,7 @@
 
     it('should respond with 400 - Bad Request if missing Fiware-Service header', function(done) {
       request({
-        uri: sthTestHelper.getValidURL(sthTestConfig.API_OPERATION.READ),
+        uri: sthTestHelper.getURL(sthTestConfig.API_OPERATION.READ),
         method: 'GET'
       }, function(err, response, body) {
         var bodyJSON = JSON.parse(body);
@@ -117,7 +117,7 @@
 
     it('should respond with 400 - Bad Request if missing Fiware-ServicePath header', function(done) {
       request({
-        uri: sthTestHelper.getValidURL(sthTestConfig.API_OPERATION.READ),
+        uri: sthTestHelper.getURL(sthTestConfig.API_OPERATION.READ),
         method: 'GET',
         headers: {
           'Fiware-Service': sthConfig.SERVICE
@@ -133,11 +133,10 @@
       });
     });
 
-    it('should respond with 400 - Bad Request if missing aggrMethod param', function(done) {
+    it('should respond with 400 - Bad Request if missing lastN, hLimit and hOffset or aggrMethod and aggrPeriod query params',
+      function(done) {
       request({
-        uri: sthTestHelper.getInvalidURL(sthTestConfig.API_OPERATION.READ, {
-          noAggrMethod: true
-        }),
+        uri: sthTestHelper.getURL(sthTestConfig.API_OPERATION.READ),
         method: 'GET',
         headers: {
           'Fiware-Service': sthConfig.SERVICE,
@@ -151,103 +150,36 @@
         expect(bodyJSON.error).to.equal('Bad Request');
         expect(bodyJSON.validation.source).to.equal('query');
         expect(bodyJSON.validation.keys).to.be.an(Array);
-        expect(bodyJSON.validation.keys[0]).to.equal('aggrMethod');
+        expect(bodyJSON.validation.keys.indexOf('lastN')).to.not.equal(-1);
+        expect(bodyJSON.validation.keys.indexOf('hLimit')).to.not.equal(-1);
+        expect(bodyJSON.validation.keys.indexOf('hOffset')).to.not.equal(-1);
+        expect(bodyJSON.validation.keys.indexOf('aggrMethod')).to.not.equal(-1);
+        expect(bodyJSON.validation.keys.indexOf('aggrPeriod')).to.not.equal(-1);
         done();
       });
     });
 
-    it('should respond with 400 - Bad Request if missing aggrPeriod param', function(done) {
-      request({
-        uri: sthTestHelper.getInvalidURL(sthTestConfig.API_OPERATION.READ, {
-          noAggrPeriod: true
-        }),
-        method: 'GET',
-        headers: {
-          'Fiware-Service': sthConfig.SERVICE,
-          'Fiware-ServicePath': sthConfig.SERVICE_PATH
-        }
-      }, function(err, response, body) {
-        var bodyJSON = JSON.parse(body);
-        expect(err).to.equal(null);
-        expect(response.statusCode).to.equal(400);
-        expect(bodyJSON.statusCode).to.equal(400);
-        expect(bodyJSON.error).to.equal('Bad Request');
-        expect(bodyJSON.validation.source).to.equal('query');
-        expect(bodyJSON.validation.keys).to.be.an(Array);
-        expect(bodyJSON.validation.keys[0]).to.equal('aggrPeriod');
-        done();
-      });
-    });
+    it('should respond with 200 - OK if lastN query param', sthTestHelper.status200Test.bind(null, {lastN: 1}));
 
-    it('should respond with 200 - OK if missing fromDate param', function(done) {
-      request({
-        uri: sthTestHelper.getInvalidURL(sthTestConfig.API_OPERATION.READ, {
-          noDateFrom: true
-        }),
-        method: 'GET',
-        headers: {
-          'Fiware-Service': sthConfig.SERVICE,
-          'Fiware-ServicePath': sthConfig.SERVICE_PATH
+    it('should respond with 200 - OK if hLimit and hOffset query params',
+      sthTestHelper.status200Test.bind(
+        null,
+        {
+          hLimit: 1,
+          hOffset: 1
         }
-      }, function(err, response, body) {
-        var bodyJSON = JSON.parse(body);
-        expect(err).to.equal(null);
-        expect(response.statusCode).to.equal(200);
-        expect(response.statusMessage).to.equal('OK');
-        expect(bodyJSON.contextResponses[0].contextElement.id).to.equal(sthTestConfig.ENTITY_ID);
-        expect(bodyJSON.contextResponses[0].contextElement.type).to.equal(sthTestConfig.ENTITY_TYPE);
-        expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).to.be.an(Array);
-        expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(0);
-        done();
-      });
-    });
+      )
+    );
 
-    it('should respond with 200 - OK if missing toDate param', function(done) {
-      request({
-        uri: sthTestHelper.getInvalidURL(sthTestConfig.API_OPERATION.READ, {
-          noDateTo: true
-        }),
-        method: 'GET',
-        headers: {
-          'Fiware-Service': sthConfig.SERVICE,
-          'Fiware-ServicePath': sthConfig.SERVICE_PATH
+    it('should respond with 200 - OK if aggrMethod and aggrPeriod query params',
+      sthTestHelper.status200Test.bind(
+        null,
+        {
+          aggrMethod: 'min',
+          aggrPeriod: 'second'
         }
-      }, function(err, response, body) {
-        var bodyJSON = JSON.parse(body);
-        expect(err).to.equal(null);
-        expect(response.statusCode).to.equal(200);
-        expect(response.statusMessage).to.equal('OK');
-        expect(bodyJSON.contextResponses[0].contextElement.id).to.equal(sthTestConfig.ENTITY_ID);
-        expect(bodyJSON.contextResponses[0].contextElement.type).to.equal(sthTestConfig.ENTITY_TYPE);
-        expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).to.be.an(Array);
-        expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(0);
-        done();
-      });
-    });
-
-    it('should respond with 200 - OK if missing fromDate and toDate params', function(done) {
-      request({
-        uri: sthTestHelper.getInvalidURL(sthTestConfig.API_OPERATION.READ, {
-          noDateFrom: true,
-          noDateTo: true
-        }),
-        method: 'GET',
-        headers: {
-          'Fiware-Service': sthConfig.SERVICE,
-          'Fiware-ServicePath': sthConfig.SERVICE_PATH
-        }
-      }, function(err, response, body) {
-        var bodyJSON = JSON.parse(body);
-        expect(err).to.equal(null);
-        expect(response.statusCode).to.equal(200);
-        expect(response.statusMessage).to.equal('OK');
-        expect(bodyJSON.contextResponses[0].contextElement.id).to.equal(sthTestConfig.ENTITY_ID);
-        expect(bodyJSON.contextResponses[0].contextElement.type).to.equal(sthTestConfig.ENTITY_TYPE);
-        expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).to.be.an(Array);
-        expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(0);
-        done();
-      });
-    });
+      )
+    );
   });
 
   function eachEventTestSuiteContainer() {
@@ -257,17 +189,23 @@
   for(var i = 0; i < sthTestConfig.SAMPLES; i ++) {
     describe('data storage', eachEventTestSuiteContainer);
 
-    describe('data retrieval',
-      sthTestHelper.dataRetrievalSuite.bind(null, 'min'));
+    describe('raw data retrieval',
+      sthTestHelper.rawDataRetrievalSuite.bind(null, {lastN: 1}, true));
 
-    describe('data retrieval',
-      sthTestHelper.dataRetrievalSuite.bind(null, 'max'));
+    describe('raw data retrieval',
+      sthTestHelper.rawDataRetrievalSuite.bind(null, {hLimit: 1, hOffset: '0'}, true));
 
-    describe('data retrieval',
-      sthTestHelper.dataRetrievalSuite.bind(null, 'sum'));
+    describe('aggregated data retrieval',
+      sthTestHelper.aggregatedDataRetrievalSuite.bind(null, 'min'));
 
-    describe('data retrieval',
-      sthTestHelper.dataRetrievalSuite.bind(null, 'sum2'));
+    describe('aggregated data retrieval',
+      sthTestHelper.aggregatedDataRetrievalSuite.bind(null, 'max'));
+
+    describe('aggregated data retrieval',
+      sthTestHelper.aggregatedDataRetrievalSuite.bind(null, 'sum'));
+
+    describe('aggregated data retrieval',
+      sthTestHelper.aggregatedDataRetrievalSuite.bind(null, 'sum2'));
   }
 
   describe('event notification by the Orion Context Broker', sthTestHelper.eventNotificationSuite);
