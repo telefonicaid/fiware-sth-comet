@@ -8,7 +8,9 @@
 * [Running the STH server](#section4)
 * [Inserting data (random single events and its aggregated data) into the database](#section5)
 * [STH component complete test coverage](#section6)
-* [Contact](#section7)
+* [Performance tests](#section7)
+* [Additional resources] (#section8)
+* [Contact](#section9)
 
 ##<a id="section1"></a> Introduction
 The STH component is a FIWARE component in charge of providing aggregated time series information about the evolution in
@@ -365,7 +367,20 @@ In case of executing the tests with the CLEAN option set to false, the contents 
 
 [Top](#section0)
 
-##<a id="section6"></a>Contact
+##<a id="section7"></a>Performance tests
+
+The [Performance tests](performance/README.md) section of the repository includes information to run performance
+tests on the STH component. If you are interested on them, please navigate to that section of the repository for further information.
+
+[Top](#section0)
+
+##<a id="section8"></a>Additional resources
+The [Additional resources](resource/README.md) section of the repository includes some scripts and utilities which may make the developer's life easier.
+If you are interested on them, please navigate to that section of the repository for further information.
+
+[Top](#section0)
+
+##<a id="section9"></a>Contact
 * Germán Toro del Valle (<a href="mailto:german.torodelvalle@telefonica.com">german.torodelvalle@telefonica.com</a>, <a href="http://www.twitter.com/gtorodelvalle" target="_blank">@gtorodelvalle</a>)
 * Francisco Romero Bueno (<a href="mailto:francisco.romerobueno@telefonica.com">francisco.romerobueno@telefonica.com</a>)
 * Iván Arias León (<a href="mailto:ivan.ariasleon@telefonica.com">ivan.ariasleon@telefonica.com</a>)
