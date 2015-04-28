@@ -1,5 +1,5 @@
 {
-  "name": "fiware-sth-rest-api",
+  "name": "fiware-comet",
   "description": "Node.js app exposing the Short Time Historic (STH) FIWARE component REST API for reading",
   "version": "0.1.0",
   "devDependencies": {

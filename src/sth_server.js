@@ -275,7 +275,7 @@
                     databaseName,
                     collectionName4Events,
                     true,
-                    function (err, collection) {
+                    function(collectionName4Events, contextElement, attribute, err, collection) {
                       if (err) {
                         // There was an error when getting the collection
                         sthLogger.warn(
@@ -318,7 +318,7 @@
                           );
                         }
                       }
-                    }
+                    }.bind(null, collectionName4Events, contextElement, attribute)
                   );
 
                   // Compose the collection name for the aggregated data
@@ -334,7 +334,7 @@
                     databaseName,
                     collectionName4Aggregated,
                     true,
-                    function (err, collection) {
+                    function(collectionName4Events, contextElement, attribute, err, collection) {
                       if (err) {
                         // There was an error when getting the collection
                         sthLogger.warn(
@@ -377,7 +377,7 @@
                           );
                         }
                       }
-                    }
+                    }.bind(null, collectionName4Events, contextElement, attribute)
                   );
                 }
               }

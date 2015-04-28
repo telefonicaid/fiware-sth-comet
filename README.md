@@ -220,6 +220,8 @@ The script accepts the following parameters as environment variables:
 - LOG_LEVEL: The logging level of the messages. Messages with a level equal or superior to this will be logged. Optional. Default value: "info".
 - LOG_TO_CONSOLE: A flag indicating if the logs should be sent to the console. Optional. Default value: true.
 - LOG_TO_FILE: A flag indicating if the logs should be sent to a file. Optional. Default value: true.
+- LOG_FILE_MAX_SIZE_IN_BYTES: Maximum size in bytes of the log files. If the maximum size is reached, a new log file is created incrementing
+a counter used as the suffix for the log file name. Optional. Default value: undefined.
 - LOG_DIR: The path to a directory where the log file will be searched for or created if it does not exist. Optional. Default value: "./log".
 - LOG_FILE_NAME: The name of the file where the logs will be stored. Optional. Default value: "sth_app.log".
 - DB_PREFIX: The prefix to be added to the service for the creation of the databases. More information below. Optional. Default value: "sth".
