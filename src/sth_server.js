@@ -24,7 +24,7 @@
 
     server.on('log', function(event, tags) {
       if (tags.load) {
-        sthLogger.fatal('event=' + event, {
+        sthLogger.fatal('event=' + JSON.stringify(event), {
           operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
         });
       }
@@ -552,7 +552,6 @@
         config: {
           validate: {
             headers: function(value, options, next) {
-              var error;
               if (!value['fiware-service']) {
                 value['fiware-service'] = sthConfig.SERVICE;
               }
@@ -581,7 +580,7 @@
     sthLogger.info('Stopping the STH server...', {
       operationType: sthConfig.OPERATION_TYPE.SERVER_STOP
     });
-    if (server && server.info.started && server.info.listener) {
+    if (server && server.info && server.info.started && server.info.listener) {
       server.stop(function (err) {
         // Server successfully stopped
         sthLogger.info('hapi server successfully stopped', {
