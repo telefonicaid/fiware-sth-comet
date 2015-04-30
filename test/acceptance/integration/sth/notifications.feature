@@ -233,9 +233,9 @@ Feature: Store in mongo new notifications from context broker in raw and aggrega
     And delete database in mongo
   Examples:
     | attributes_value                                                                             |
-   # | fsdfsdf                                                                                      |
+    | fsdfsdf                                                                                      |
     | 40.418889, -3.691944                                                                         |
-  #  | {"circle": {"centerLatitude": "40.418889","centerLongitude": "-3.691944","radius": "15000"}} |
+    | {"circle": {"centerLatitude": "40.418889","centerLongitude": "-3.691944","radius": "15000"}} |
 
 
 
