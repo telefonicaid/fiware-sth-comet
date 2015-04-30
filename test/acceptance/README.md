@@ -32,8 +32,9 @@ Note: We recommend the use of virtualenv, because is an isolated working copy of
      yum install gcc python-devel
     ```
 ##### Requeriments for mongoDB
-
--  pip install pymongo
+    ```
+     pip install pymongo
+    ```
 
 ### Tests execution:
 
