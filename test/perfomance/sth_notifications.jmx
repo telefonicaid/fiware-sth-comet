@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- Copyright 2015 Telefonica InvestigaciÃ³n y Desarrollo, S.A.U
+ Copyright 2015 Telefonica Investigación y Desarrollo, S.A.U
 
  This file is part of Short Term Historic (FI-WARE project).
 
@@ -15,10 +15,10 @@
  http://www.gnu.org/licenses/.
 
  For those usages not covered by the GNU Affero General Public License please contact:
-  iot_support at tid.es
+ iot_support at tid.es
 
-author: 'IvÃ¡n Arias LeÃ³n (ivan.ariasleon at telefonica dot com)'
--->
+author: 'Iván Arias León (ivan.ariasleon at telefonica dot com)'
+--->
 <jmeterTestPlan version="1.2" properties="2.6" jmeter="2.11 r1554548">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="STH Load Test (Notifications)" enabled="true">
@@ -1556,7 +1556,7 @@ vars.put(&quot;SERVICE_PATH_ENTITY_COUNTER&quot;, service_path_entities_counter.
       </ResultCollector>
       <hashTree/>
       <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="Requests/Responses Errors " enabled="true">
-        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <boolProp name="ResultCollector.error_logging">true</boolProp>
         <objProp>
           <value class="SampleSaveConfiguration">
             <time>true</time>
