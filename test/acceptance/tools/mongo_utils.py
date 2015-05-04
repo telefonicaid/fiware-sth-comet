@@ -91,14 +91,18 @@ class Mongo:
         except Exception, e:
           assert False, " ERROR - Executing command \"%s\" in MongoDB...\n %s " % (command, str(e))
 
-    def eval_version(self):
+    def eval_version(self, version=EMPTY):
         """
-        Evaluate if  the version in mongo is correct
+        Evaluate if  the version in mongo is the expected
         and if verify version variable is true
+        :return string
         """
         if self.verify_version.lower() == "true":
+            if version == EMPTY: version = self.version
             mongo_version = self.execute_command(BUILD_INFO)[VERSION]
-            assert mongo_version == self.version, " ERROR - in mongo version: \"%s\" expected and \"%s\" installed..." % (self.version, mongo_version)
+            if mongo_version != version:
+                return u' ERROR - in mongo version: \"%s\" expected and \"%s\" installed...' % (version, mongo_version)
+            return u'OK'
 
     def get_current_connection(self):
         """

@@ -104,18 +104,21 @@ class STH:
         self.fabric_target_path=kwargs.get(FABRIC_TARGET_PATH, EMPTY)
         self.fabric_sudo=kwargs.get(FABRIC_SUDO, False)
 
+
     def verify_mongo_version(self):
         """
-
-
+        verify mongo version
+        if the version is incorrect show an error with both versions, the used and the expected
         """
         world.mongo.connect()
-        world.mongo.eval_version()
+        resp = world.mongo.eval_version()
         world.mongo.disconnect()
+        assert resp == u'OK', resp
 
     def verify_sth_version(self):
         """
         verify sth version
+        Still has not been developed this feature and remember that the assert is better in the step
         """
         pass
 

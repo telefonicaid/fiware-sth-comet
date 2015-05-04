@@ -31,14 +31,14 @@ Feature: Store in mongo new notifications from context broker in raw and aggrega
 
   @happy_path
   Scenario: stored new notifications in mongo from context broker with metadata
-    And service "test_happy_path", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
+    Given service "test_happy_path", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     When receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     Then validate that the attribute value and type are stored in mongo
     And validate that the aggregated value is generate by resolution "month" in mongo
 
   @resolutions
   Scenario Outline: stored new notifications in mongo from context broker with metadata with several resolutions
-    And service "test_resolutions", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
+    Given service "test_resolutions", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     When receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     Then validate that the attribute value and type are stored in mongo
     And validate that the aggregated value is generate by resolution "<resolution>" in mongo
@@ -52,7 +52,7 @@ Feature: Store in mongo new notifications from context broker in raw and aggrega
 
   @service
   Scenario Outline:  stored new notifications in mongo from context broker with metadata with several services
-    And service "<service>", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
+    Given service "<service>", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     When receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     Then validate that the attribute value and type are stored in mongo
     And validate that the aggregated value is generate by resolution "month" in mongo
@@ -66,7 +66,7 @@ Feature: Store in mongo new notifications from context broker in raw and aggrega
 
   @service_path
   Scenario Outline:  stored new notifications in mongo from context broker with metadata with several service_paths
-    And service "test_service_path", service path "<service_path>", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
+    Given service "test_service_path", service path "<service_path>", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     When receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     Then validate that the attribute value and type are stored in mongo
     And validate that the aggregated value is generate by resolution "month" in mongo
@@ -82,7 +82,7 @@ Feature: Store in mongo new notifications from context broker in raw and aggrega
 
   @entity_type
   Scenario Outline:  stored new notifications in mongo from context broker with metadata with several entities types
-    And service "test_entity_type", service path "/my_service_path", entity type "<entity_type>", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
+    Given service "test_entity_type", service path "/my_service_path", entity type "<entity_type>", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     When receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     Then validate that the attribute value and type are stored in mongo
     And validate that the aggregated value is generate by resolution "month" in mongo
@@ -103,7 +103,7 @@ Feature: Store in mongo new notifications from context broker in raw and aggrega
 
   @entity_id
   Scenario Outline:  stored new notifications in mongo from context broker with metadata with several entities id
-    And service "test_entity_id", service path "/my_service_path", entity type "house", entity_id "<entity_id>", with attribute number "1", attribute name "random" and attribute type "celcius"
+    Given service "test_entity_id", service path "/my_service_path", entity type "house", entity_id "<entity_id>", with attribute number "1", attribute name "random" and attribute type "celcius"
     When receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     Then validate that the attribute value and type are stored in mongo
     And validate that the aggregated value is generate by resolution "month" in mongo
@@ -123,7 +123,7 @@ Feature: Store in mongo new notifications from context broker in raw and aggrega
 
   @attributes_number
   Scenario Outline:  stored new notifications in mongo from context broker with metadata with several attributes
-    And service "test_attributes_number", service path "/my_service_path", entity type "house", entity_id "room2", with attribute number "<attributes_number>", attribute name "random" and attribute type "celcius"
+    Given service "test_attributes_number", service path "/my_service_path", entity type "house", entity_id "room2", with attribute number "<attributes_number>", attribute name "random" and attribute type "celcius"
     When receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     Then validate that the attribute value and type are stored in mongo
     And validate that the aggregated value is generate by resolution "month" in mongo
@@ -137,7 +137,7 @@ Feature: Store in mongo new notifications from context broker in raw and aggrega
 
   @attributes_name
   Scenario Outline:  stored new notifications in mongo from context broker with metadata with several attributes name
-    And service "test_attributes_name", service path "/my_service_path", entity type "house", entity_id "room2", with attribute number "1", attribute name "<attributes_name>" and attribute type "celcius"
+    Given service "test_attributes_name", service path "/my_service_path", entity type "house", entity_id "room2", with attribute number "1", attribute name "<attributes_name>" and attribute type "celcius"
     When receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     Then validate that the attribute value and type are stored in mongo
     And validate that the aggregated value is generate by resolution "month" in mongo
@@ -151,7 +151,7 @@ Feature: Store in mongo new notifications from context broker in raw and aggrega
 
   @attributes_values
   Scenario Outline:  stored new notifications in mongo from context broker with metadata with several attributes values and metadatas
-    And service "test_attributes_values", service path "/my_service_path", entity type "house", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
+    Given service "test_attributes_values", service path "/my_service_path", entity type "house", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     When receives a notification with attributes value "<attributes_value>", metadata value "<metadata>" and content "json"
     Then validate that the attribute value and type are stored in mongo
     And validate that the aggregated value is generate by resolution "month" in mongo
@@ -166,7 +166,7 @@ Feature: Store in mongo new notifications from context broker in raw and aggrega
 
   @error_values @BUG_46 @skip
   Scenario Outline:  stored new notifications in mongo from context broker with metadata with several attributes values and metadatas
-    And service "test_error_values", service path "/my_service_path", entity type "house", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
+    Given service "test_error_values", service path "/my_service_path", entity type "house", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     When receives a notification with attributes value "<attributes_value>", metadata value "False" and content "json"
     Then check in log, label "lvl=FATAL" and text "msg=Attribute value not aggregatable, alarm_status=ALARM"
     And validate that the attribute value and type are stored in mongo

@@ -58,15 +58,16 @@ def verify_if_sth_is_installed_correctly(step):
     """
     world.sth.verify_sth_version()
 
+
 @step (u'mongo is installed correctly')
 def mongo_is_installed_correctly(step):
     """
     mongo is installed correctly, main verify mongo version (see properties.json)
+    if the version is incorrect show an error with both versions, the used and the expected
     :param step:
     """
-    world.mongo.connect()
-    world.mongo.eval_version()
-    world.mongo.disconnect()
+    world.sth.verify_sth_version()
+
 
 @step (u'service "([^"]*)", service path "([^"]*)", entity type "([^"]*)", entity_id "([^"]*)", with attribute number "([^"]*)", attribute name "([^"]*)" and attribute type "([^"]*)"')
 def a_service_service_path_resource_with_attribute_number_attribute_name_and_attribute_type (step, service, service_path, entity_type, entity_id, attributes_number, attribute_name, attribute_type):
