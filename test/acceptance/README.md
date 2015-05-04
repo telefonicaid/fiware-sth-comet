@@ -31,10 +31,6 @@ Note: We recommend the use of virtualenv, because is an isolated working copy of
     ```
      yum install gcc python-devel
     ```
-##### Requeriments for mongoDB
-    ```
-     pip install pymongo
-    ```
 
 ### Tests execution:
 
@@ -67,6 +63,8 @@ This file initially will overwrite properties.json in each feature.
    ```
    * path_to_settings_folder: path where are stored all configurations referenced by properties.json.base
    * log_file: path and file where is log file
+   * jenkins: it is used mainly per not jenkins environment (false) and the properties will be read from config file in `path_to_settings_folder`.
+              If jenkins (true) won't read config file previously and properties must be provisioned in consoles jenkins.
 
 ### checking log file
 

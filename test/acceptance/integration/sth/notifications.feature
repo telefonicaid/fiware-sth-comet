@@ -31,29 +31,17 @@ Feature: Store in mongo new notifications from context broker in raw and aggrega
 
   @happy_path
   Scenario: stored new notifications in mongo from context broker with metadata
-    Given copy properties.json file from "epg_properties.json" and sudo local "false"
-  # The next line is commented because at the moment the rpm package does not exists. STH is executed manually
-  #  And restart sth service. This execution is only once "true"
-    And verify if sth is installed correctly
-    And mongo is installed correctly
-    And service "test_frb", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
+    And service "test_happy_path", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     When receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     Then validate that the attribute value and type are stored in mongo
     And validate that the aggregated value is generate by resolution "month" in mongo
-    #And delete database in mongo
 
   @resolutions
   Scenario Outline: stored new notifications in mongo from context broker with metadata with several resolutions
-    Given copy properties.json file from "epg_properties.json" and sudo local "false"
-  # The next line is commented because at the moment the rpm package does not exists. STH is executed manually
-  #  And restart sth service. This execution is only once "true"
-    And verify if sth is installed correctly
-    And mongo is installed correctly
     And service "test_resolutions", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     When receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     Then validate that the attribute value and type are stored in mongo
     And validate that the aggregated value is generate by resolution "<resolution>" in mongo
-    And delete database in mongo
   Examples:
     | resolution |
     | month      |
@@ -64,11 +52,6 @@ Feature: Store in mongo new notifications from context broker in raw and aggrega
 
   @service
   Scenario Outline:  stored new notifications in mongo from context broker with metadata with several services
-    Given copy properties.json file from "epg_properties.json" and sudo local "false"
-  # The next line is commented because at the moment the rpm package does not exists. STH is executed manually
-  #  And restart sth service. This execution is only once "true"
-    And verify if sth is installed correctly
-    And mongo is installed correctly
     And service "<service>", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     When receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     Then validate that the attribute value and type are stored in mongo
@@ -83,16 +66,10 @@ Feature: Store in mongo new notifications from context broker in raw and aggrega
 
   @service_path
   Scenario Outline:  stored new notifications in mongo from context broker with metadata with several service_paths
-    Given copy properties.json file from "epg_properties.json" and sudo local "false"
-  # The next line is commented because at the moment the rpm package does not exists. STH is executed manually
-  #  And restart sth service. This execution is only once "true"
-    And verify if sth is installed correctly
-    And mongo is installed correctly
-    And service "test_orion", service path "<service_path>", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
+    And service "test_service_path", service path "<service_path>", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     When receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     Then validate that the attribute value and type are stored in mongo
     And validate that the aggregated value is generate by resolution "month" in mongo
-    And delete database in mongo
   Examples:
     | service_path                    |
     | serv6010                        |
@@ -105,16 +82,10 @@ Feature: Store in mongo new notifications from context broker in raw and aggrega
 
   @entity_type
   Scenario Outline:  stored new notifications in mongo from context broker with metadata with several entities types
-    Given copy properties.json file from "epg_properties.json" and sudo local "false"
-  # The next line is commented because at the moment the rpm package does not exists. STH is executed manually
-  #  And restart sth service. This execution is only once "true"
-    And verify if sth is installed correctly
-    And mongo is installed correctly
     And service "test_entity_type", service path "/my_service_path", entity type "<entity_type>", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     When receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     Then validate that the attribute value and type are stored in mongo
     And validate that the aggregated value is generate by resolution "month" in mongo
-    And delete database in mongo
   Examples:
     | entity_type |
     | room        |
@@ -132,16 +103,10 @@ Feature: Store in mongo new notifications from context broker in raw and aggrega
 
   @entity_id
   Scenario Outline:  stored new notifications in mongo from context broker with metadata with several entities id
-    Given copy properties.json file from "epg_properties.json" and sudo local "false"
-  # The next line is commented because at the moment the rpm package does not exists. STH is executed manually
-  #  And restart sth service. This execution is only once "true"
-    And verify if sth is installed correctly
-    And mongo is installed correctly
     And service "test_entity_id", service path "/my_service_path", entity type "house", entity_id "<entity_id>", with attribute number "1", attribute name "random" and attribute type "celcius"
     When receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     Then validate that the attribute value and type are stored in mongo
     And validate that the aggregated value is generate by resolution "month" in mongo
-    And delete database in mongo
   Examples:
     | entity_id   |
     | room1       |
@@ -158,16 +123,10 @@ Feature: Store in mongo new notifications from context broker in raw and aggrega
 
   @attributes_number
   Scenario Outline:  stored new notifications in mongo from context broker with metadata with several attributes
-    Given copy properties.json file from "epg_properties.json" and sudo local "false"
-  # The next line is commented because at the moment the rpm package does not exists. STH is executed manually
-  #  And restart sth service. This execution is only once "true"
-    And verify if sth is installed correctly
-    And mongo is installed correctly
     And service "test_attributes_number", service path "/my_service_path", entity type "house", entity_id "room2", with attribute number "<attributes_number>", attribute name "random" and attribute type "celcius"
     When receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     Then validate that the attribute value and type are stored in mongo
     And validate that the aggregated value is generate by resolution "month" in mongo
-    And delete database in mongo
   Examples:
     | attributes_number |
     | 1                 |
@@ -178,16 +137,10 @@ Feature: Store in mongo new notifications from context broker in raw and aggrega
 
   @attributes_name
   Scenario Outline:  stored new notifications in mongo from context broker with metadata with several attributes name
-    Given copy properties.json file from "epg_properties.json" and sudo local "false"
-  # The next line is commented because at the moment the rpm package does not exists. STH is executed manually
-  #  And restart sth service. This execution is only once "true"
-    And verify if sth is installed correctly
-    And mongo is installed correctly
     And service "test_attributes_name", service path "/my_service_path", entity type "house", entity_id "room2", with attribute number "1", attribute name "<attributes_name>" and attribute type "celcius"
     When receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     Then validate that the attribute value and type are stored in mongo
     And validate that the aggregated value is generate by resolution "month" in mongo
-    And delete database in mongo
   Examples:
     | attributes_name  |
     | random           |
@@ -198,16 +151,10 @@ Feature: Store in mongo new notifications from context broker in raw and aggrega
 
   @attributes_values
   Scenario Outline:  stored new notifications in mongo from context broker with metadata with several attributes values and metadatas
-    Given copy properties.json file from "epg_properties.json" and sudo local "false"
-  # The next line is commented because at the moment the rpm package does not exists. STH is executed manually
-  #  And restart sth service. This execution is only once "true"
-    And verify if sth is installed correctly
-    And mongo is installed correctly
     And service "test_attributes_values", service path "/my_service_path", entity type "house", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     When receives a notification with attributes value "<attributes_value>", metadata value "<metadata>" and content "json"
     Then validate that the attribute value and type are stored in mongo
     And validate that the aggregated value is generate by resolution "month" in mongo
-    And delete database in mongo
   Examples:
     | attributes_value                    | metadata |
     | 34                                  | True     |
@@ -219,18 +166,11 @@ Feature: Store in mongo new notifications from context broker in raw and aggrega
 
   @error_values @BUG_46 @skip
   Scenario Outline:  stored new notifications in mongo from context broker with metadata with several attributes values and metadatas
-    Given copy properties.json file from "epg_properties.json" and sudo local "false"
-  # The next line is commented because at the moment the rpm package does not exists. STH is executed manually
-  #  And restart sth service. This execution is only once "true"
-    And verify if sth is installed correctly
-    And mongo is installed correctly
-   # And reinitialize log file
     And service "test_error_values", service path "/my_service_path", entity type "house", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     When receives a notification with attributes value "<attributes_value>", metadata value "False" and content "json"
     Then check in log, label "lvl=FATAL" and text "msg=Attribute value not aggregatable, alarm_status=ALARM"
     And validate that the attribute value and type are stored in mongo
     And validate that the aggregated value is not generate by resolution "month" in mongo
-    And delete database in mongo
   Examples:
     | attributes_value                                                                             |
     | fsdfsdf                                                                                      |

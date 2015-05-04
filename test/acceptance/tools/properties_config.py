@@ -17,10 +17,13 @@
 # For those usages not covered by the GNU Affero General Public License please contact:
 # iot_support at tid.es
 #
+from tools.fabric_utils import FabricSupport
+
 __author__ = 'Iván Arias León (ivan.ariasleon at telefonica dot com)'
 import json
 import os
 import subprocess
+
 from lettuce import world
 
 from tools.sth import STH
@@ -33,6 +36,7 @@ FILE_NAME             = u'properties.json'
 CONFIGURATION_FILE    = u'configuration.json'
 SETTINGS_PATH         = u'path_to_settings_folder'
 SUDO                  = u'sudo'
+JENKINS               = u'jenkins'
 
 
 
@@ -50,18 +54,20 @@ class Properties:
         """
         self.file_name = kwargs.get(FILE, EMPTY)
         self.sudo      = kwargs.get(SUDO, "false")
-
-        with open(CONFIGURATION_FILE) as config_file:
-            try:
+        try:
+            with open(CONFIGURATION_FILE) as config_file:
                 configuration = json.load(config_file)
-            except Exception, e:
-                assert False, 'Error parsing configuration.json file: \n%s' % (e)
+        except Exception, e:
+            assert False, 'Error parsing configuration.json file: \n%s' % (e)
 
         sudo_run = ""
         if self.sudo.lower() == "true": sudo_run = SUDO
-        p = subprocess.Popen("%s cp -R %s/%s %s"% (sudo_run, configuration[SETTINGS_PATH], self.file_name, FILE_NAME), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        STDOUT = p.stdout.readlines()
-        assert STDOUT == [], "ERROR - coping %s from setting folder. \n %s" % (self.file_name, STDOUT)
+        if configuration[JENKINS].lower() == "false":
+             with open("%s/%s" % (configuration[SETTINGS_PATH], self.file_name)) as config_file:
+                 for line in config_file.readlines():
+                     p = subprocess.Popen("%s %s"% (sudo_run, str(line)), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                     STDOUT = p.stdout.readlines()
+                     assert STDOUT == [], "ERROR - coping %s from setting folder. \n %s" % (self.file_name, STDOUT)
 
     def read_properties(self):
         """
@@ -69,13 +75,13 @@ class Properties:
         store the resulting dictionary in the lettuce world global variable.
         Make sure the logs path exists and create it otherwise.
         """
-        with open(FILE_NAME) as config_file:
-            try:
+        try:
+            with open(FILE_NAME) as config_file:
                 world.config = json.load(config_file)
                 if not os.path.exists(world.config["environment"]["logs_path"]):
                     os.makedirs(world.config["environment"]["logs_path"])
-            except Exception, e:
-                assert False, 'Error parsing properties file (%s): \n%s' % (FILE_NAME, e)
+        except Exception, e:
+            assert False, 'Error parsing properties file (%s): \n%s' % (FILE_NAME, e)
 
     def storing_dictionaries(self):
         """
@@ -105,6 +111,5 @@ class Properties:
                             retries=world.config['mongo']['mongo_retries_search'],
                             retry_delay=world.config['mongo']['mongo_delay_to_retry']
         )
-
 
 

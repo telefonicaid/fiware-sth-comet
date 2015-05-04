@@ -17,12 +17,12 @@
 # For those usages not covered by the GNU Affero General Public License please contact:
 # iot_support at tid.es
 #
+from tools import http_utils
 from tools.remote_log_utils import Remote_Log
 
 __author__ = 'Iván Arias León (ivan.ariasleon at telefonica dot com)'
 
 import string
-from decimal import Decimal
 
 from lettuce import world
 
@@ -55,6 +55,15 @@ RANDOM_SERVICE_PATH_LENGTH = u'random service path length ='
 STH_DATABASE_PREFIX   = u'sth'
 STH_COLLECTION_PREFIX = u'sth'
 AGGR                  = u'aggr'
+URL_PATH              = u'STH/v1/contextEntities'
+
+# headers constants
+HEADER_ACCEPT                             = u'Accept'
+HEADER_CONTENT_TYPE                       = u'Content-Type'
+HEADER_APPLICATION                        = u'application/json'
+HEADER_SERVICE                            = u'Fiware-Service'
+HEADER_SERVICE_PATH                       = u'Fiware-ServicePath'
+HEADER_USER_AGENT                         = u'User-Agent'
 
 
 
@@ -95,6 +104,22 @@ class STH:
         self.fabric_target_path=kwargs.get(FABRIC_TARGET_PATH, EMPTY)
         self.fabric_sudo=kwargs.get(FABRIC_SUDO, False)
 
+    def verify_mongo_version(self):
+        """
+
+
+        """
+        world.mongo.connect()
+        world.mongo.eval_version()
+        world.mongo.disconnect()
+
+    def verify_sth_version(self):
+        """
+        verify sth version
+        """
+        pass
+
+
     def init_log_file(self):
         """
         reinitialize log file
@@ -104,6 +129,7 @@ class STH:
         log = Remote_Log (fabric=myfab)
         log.delete_log_file()
         log.create_log_file(owner="sysadmin", group="sysadmin", mod="777")
+
 
     def sth_service(self, operation):
         """
@@ -173,16 +199,45 @@ class STH:
         self.attributes_number = int(notification.get_attributes_number())
         return resp
 
-    def drop_database_in_mongo(self):
+    def drop_database_in_mongo(self, driver):
          """
          delete database and collections in mongo
+         :param driver: mongo instance
          """
-         world.mongo.connect("%s_%s" % (STH_DATABASE_PREFIX, self.service))
-         world.mongo.drop_database()
-         world.mongo.disconnect()
+         driver.connect("%s_%s" % (STH_DATABASE_PREFIX, self.service))
+         driver.drop_database()
+         driver.disconnect()
+
+    def  __create_headers(self):
+        """
+        create the header for different requests
+        :return: headers dictionary
+        """
+        return {HEADER_ACCEPT: HEADER_APPLICATION, HEADER_CONTENT_TYPE: HEADER_APPLICATION, HEADER_SERVICE: self.service, HEADER_SERVICE_PATH: self.service_path}
+
+    def ask_for_aggregated(self, step, method, resolution):
+        """
+        ask for aggregates with method and resolution
+        :param step: dates parameters: [OPTIONAL]
+                      the format of the table is:
+                          | date_type | value               |
+                          | dateFrom  | 2015-02-14T00:00:00 |
+                          | dateTo    | 2015-12-31T00:00:00 |
+        :param method: aggregated method, allowed values ( sum | sum2 | min | max )
+        :param resolution: Aggregation period or resolution ( month | day |hour | minute |second )
+        :return response
+        """
+
+        params = "aggrMethod=%s&aggrPeriod=%s" % (method, resolution)
+        for line in step.hashes:  # get dates parameters. they are optional
+            params = params + "&%s=%s" % (line["date_type"], line["value"]) # ex: &dateFrom=2015-02-14T00:00:00&dateTo=2015-12-31T00:00:00
+        url = "%s://%s:%s/%s?%s" % (self.protocol, self.sth_host, self.sth_port, URL_PATH, params)
+        http_utils.print_request(http_utils.GET, url, self.__create_headers(), "")
+        #resp =  http_utils.request(http_utils.GET, url=url, headers=self.__create_headers())
 
 
-   # --------------------------- verifications -------------------------------------------
+
+    # --------------------------- verifications -------------------------------------------
 
     def verify_values_in_mongo(self):
         """

@@ -155,10 +155,10 @@ class FabricSupport:
         :param sudo: with superuser privileges (True | False)
         """
         env.cwd   = kwargs.get(PATH, env.cwd)
-        self.hide = kwargs.get(HIDE, self.hide)
+        hide_run = kwargs.get(HIDE, self.hide)
         sudo_run  = kwargs.get(SUDO, self.sudo)
         try:
-            if self.hide:
+            if hide_run:
                 with hide('running', 'stdout', 'stderr'):
                     return self.__sub_read_file(file, sudo_run)
             else:

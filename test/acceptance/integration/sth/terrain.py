@@ -17,14 +17,36 @@
 # For those usages not covered by the GNU Affero General Public License please contact:
 # iot_support at tid.es
 #
+
+
 __author__ = 'Iván Arias León (ivan.ariasleon at telefonica dot com)'
 
 
 import time
 
 from lettuce import world, after, before
+from termcolor import colored
 
 import tools.general_utils
+from tools.properties_config import Properties
+
+def initial_conf(file_name, sudo_run):
+    print colored("    Given starting the configuration from terrain...", 'green', 'on_grey', attrs=['bold'])
+    properties = Properties (file=file_name, sudo=sudo_run)
+    print colored("    And updating properties.json from %s" % file_name, 'green', 'on_grey', attrs=['bold'])
+    properties.read_properties()
+    print colored("    And reading properties", 'green', 'on_grey', attrs=['bold'])
+    properties.storing_dictionaries()
+    print colored("    And creating instances to sth and mongo with properties", 'green', 'on_grey', attrs=['bold'])
+    # The next line is commented because at the moment the rpm package does not exists. STH is executed manually
+    #world.sth.sth_service("restart")
+    #print colored("    And restarting sth service", 'green', 'on_grey', attrs=['bold'])
+    world.sth.verify_sth_version()
+    print colored("    And verifying sth version", 'green', 'on_grey', attrs=['bold'])
+    world.sth.verify_mongo_version()
+    print colored("    And verifying mongo version", 'green', 'on_grey', attrs=['bold'])
+    print colored("    Then completed the configuration from terrain...", 'green', 'on_grey', attrs=['bold'])
+
 
 @before.all
 def before_all_scenarios():
@@ -33,7 +55,20 @@ def before_all_scenarios():
     :param scenario:
     """
     world.test_time_init = time.strftime("%c")
-    world.background_executed = False  # used to that background will be executed only once in each feature
+    #world.background_executed = False  # used to that background will be executed only once in each feature
+
+@before.each_feature
+def setup_some_feature(feature):
+    """
+    actions before each feature
+    :param feature:
+    """
+    config_properties_file = u'epg_config.txt'
+    config_local_sudo_run  = u'false'
+
+    if feature.described_at.file.find("notifications.feature") >= 0:
+        initial_conf(config_properties_file, config_local_sudo_run)
+
 
 @before.each_scenario
 def before_each_scenario(scenario):
@@ -50,7 +85,9 @@ def after_each_scenario(scenario):
     actions after each scenario
     :param scenario:
     """
-    pass
+    world.sth.drop_database_in_mongo(world.mongo)
+    print colored("    And database is dropped. See terrain.py not steps", 'cyan', 'on_grey', attrs=['bold'])
+
 
 @after.all
 def after_all_scenarios(scenario):
@@ -60,5 +97,7 @@ def after_all_scenarios(scenario):
     Delete all cygnus instances files and cygnus services is stopped
     :param scenario:
     """
+    # The next line is commented because at the moment the rpm package does not exists. STH is executed manually
     #world.sth.sth_service("stop")
     tools.general_utils.show_times(world.test_time_init)
+

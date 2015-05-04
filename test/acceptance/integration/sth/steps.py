@@ -23,7 +23,7 @@ from lettuce import step, world
 
 from tools.properties_config import Properties
 
-@step (u'copy properties.json file from "([^"]*)" and sudo local "([^"]*)"')
+@step (u'update properties.json file from "([^"]*)" and sudo local "([^"]*)"')
 def copy_properties_file_from_and_sudo(step, file_name, sudo_run):
     """
     copy properties.json specific to feature from setting folder, read properties and create necessaries class
@@ -56,7 +56,7 @@ def verify_if_sth_is_installed_correctly(step):
     verify if sth is installed correctly
     :param step:
     """
-    pass
+    world.sth.verify_sth_version()
 
 @step (u'mongo is installed correctly')
 def mongo_is_installed_correctly(step):
@@ -100,7 +100,7 @@ def delete_database_in_mongo(step):
     delete database and collections in mongo
     :param step:
     """
-    world.sth.drop_database_in_mongo()
+    world.sth.drop_database_in_mongo(world.mongo)
 
 @step (u'reinitialize log file')
 def reinitialize_log_file(step):
@@ -121,6 +121,15 @@ def check_in_log_label_and_text(step, label, text):
 
     world.sth.verify_log(label, text)
 
+@step (u'ask for aggregates with method "([^"]*)" and resolution "([^"]*)"')
+def ask_for_aggregates_with_method_and_resolution(step, method, resolution):
+    """
+    ask for aggregates with method and resolution
+    :param step:
+    :param method:
+    :param resolution:
+    """
+    world.sth.ask_for_aggregated(step, method, resolution)
 
  # ------------------------------------------------ validations -----------------------------------------------------------
 
