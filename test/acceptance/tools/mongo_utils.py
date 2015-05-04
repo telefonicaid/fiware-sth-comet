@@ -62,6 +62,7 @@ class Mongo:
         self.collection_name = kwarg.get(COLLECTION, EMPTY)
         self.retries         = kwarg.get(RETRIES, 1)
         self.retry_delay     = kwarg.get(RETRY_DELAY, 1)
+        self.current_collection = None
 
     def connect(self, database=EMPTY):
         """
@@ -74,7 +75,7 @@ class Mongo:
         try:
             self.client = pymongo.MongoClient(self.mongo_uri)
             self.current_database = self.client.get_default_database()
-            if self.collection_name != u'':
+            if self.collection_name != EMPTY:
                 self.current_collection = self.current_database[self.collection_name]
         except Exception, e:
              assert False, " ERROR - Connecting to MongoDB...\n %s " % (str(e))
@@ -102,7 +103,7 @@ class Mongo:
     def get_current_connection(self):
         """
         get current connection data (host, port, database. collection)
-        :return: collection dict
+        :return: collection dict or None
         """
         return self.current_collection
 
