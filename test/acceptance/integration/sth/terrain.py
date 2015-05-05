@@ -31,6 +31,7 @@ import tools.general_utils
 from tools.properties_config import Properties
 
 def initial_conf(file_name, sudo_run):
+    print colored("  Background: in terrain...", 'white', 'on_grey', attrs=['bold'])
     print colored("    Given starting the configuration from terrain...", 'green', 'on_grey', attrs=['bold'])
     properties = Properties (file=file_name, sudo=sudo_run)
     print colored("    And updating properties.json from %s" % file_name, 'green', 'on_grey', attrs=['bold'])
@@ -66,7 +67,8 @@ def setup_some_feature(feature):
     config_properties_file = u'epg_config.txt'
     config_local_sudo_run  = u'false'
 
-    if feature.described_at.file.find("notifications.feature") >= 0:
+    if feature.described_at.file.find("notifications.feature") >= 0 or \
+       feature.described_at.file.find("aggregated.feature") >= 0:
         initial_conf(config_properties_file, config_local_sudo_run)
 
 
