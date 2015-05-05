@@ -155,7 +155,7 @@ Feature: get aggregated values with differents requests from sth
 
   @attribute_name
   Scenario Outline: get aggregates values using sth with several attributes names
-    Given service "test_entity_id", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "<attribute_name>" and attribute type "celcius"
+    Given service "test_attribute_name", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "<attribute_name>" and attribute type "celcius"
     And receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     When ask for aggregates with method "sum" and resolution "day"
       | date_type | value               |
@@ -172,7 +172,7 @@ Feature: get aggregated values with differents requests from sth
 
   @attribute_name_error
   Scenario Outline: get aggregates values using sth with several wrong attributes name
-    Given service "test_entity_id", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "<attribute_name>" and attribute type "celcius"
+    Given service "test_attribute_name", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "<attribute_name>" and attribute type "celcius"
     And receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     When ask for aggregates with method "sum" and resolution "day"
       | date_type | value               |
@@ -185,7 +185,7 @@ Feature: get aggregated values with differents requests from sth
 
   @attribute_name_error
   Scenario Outline: get aggregates values using sth with several wrong attributes name
-    Given service "test_entity_id", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "<attribute_name>" and attribute type "celcius"
+    Given service "test_attribute_name", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "<attribute_name>" and attribute type "celcius"
     And receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     When ask for aggregates with method "sum" and resolution "day"
       | date_type | value               |
@@ -198,7 +198,7 @@ Feature: get aggregated values with differents requests from sth
 
   @attribute_value
   Scenario Outline: get aggregates values using sth with several attributes values and metadatas
-    Given service "test_entity_id", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
+    Given service "test_attribute_value", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     And receives a notification with attributes value "<attributes_value>", metadata value "<metadata>" and content "json"
     When ask for aggregates with method "sum" and resolution "day"
       | date_type | value               |
@@ -217,7 +217,7 @@ Feature: get aggregated values with differents requests from sth
 
   @method
   Scenario Outline: get aggregates values using sth with several aggregated methods
-    Given service "test_entity_id", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
+    Given service "test_method", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     And receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     When ask for aggregates with method "<method>" and resolution "day"
       | date_type | value               |
@@ -234,7 +234,7 @@ Feature: get aggregated values with differents requests from sth
 
   @method_error
   Scenario Outline: get aggregates values using sth with several aggregated methods
-    Given service "test_entity_id", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
+    Given service "test_method", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     And receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     When ask for aggregates with method "<method>" and resolution "day"
       | date_type | value               |
@@ -252,7 +252,7 @@ Feature: get aggregated values with differents requests from sth
 
   @resolution @BUG_50 @skip
   Scenario Outline: get aggregates values using sth with several resolutions period
-    Given service "test_entity_id", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
+    Given service "test_resolution", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     And receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     When ask for aggregates with method "sum" and resolution "<resolution>"
       | date_type | value               |
@@ -270,7 +270,7 @@ Feature: get aggregated values with differents requests from sth
 
   @resolution_error
   Scenario Outline: get aggregates values using sth with several wrong resolutions period
-    Given service "test_entity_id", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
+    Given service "test_resolution", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     And receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     When ask for aggregates with method "sum" and resolution "<resolution>"
       | date_type | value               |
@@ -289,7 +289,7 @@ Feature: get aggregated values with differents requests from sth
 
   @dates @date_both
   Scenario: get aggregates values using sth with both dates
-    Given service "test_entity_id", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
+    Given service "test_dates", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     And receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     When ask for aggregates with method "sum" and resolution "day"
       | date_type | value               |
@@ -300,7 +300,7 @@ Feature: get aggregated values with differents requests from sth
 
   @dates @date_only_dateFrom
   Scenario: get aggregates values using sth with only dateFrom
-    Given service "test_entity_id", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
+    Given service "test_dates", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     And receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     When ask for aggregates with method "sum" and resolution "day"
       | date_type | value               |
@@ -310,7 +310,7 @@ Feature: get aggregated values with differents requests from sth
 
   @dates @date_only_dateTo @BUG_XX @skip
   Scenario: get aggregates values using sth with only dateTo
-    Given service "test_entity_id", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
+    Given service "test_dates", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     And receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     When ask for aggregates with method "sum" and resolution "day"
       | date_type | value               |
@@ -320,7 +320,7 @@ Feature: get aggregated values with differents requests from sth
 
   @dates @date_without_dates
   Scenario: get aggregates values using sth without dates
-    Given service "test_entity_id", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
+    Given service "test_dates", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     And receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     When ask for aggregates with method "sum" and resolution "day"
     Then I receive an "OK" http code
@@ -328,7 +328,7 @@ Feature: get aggregated values with differents requests from sth
 
   @date @date_without_values
   Scenario Outline: get aggregates values using sth with both dates
-    Given service "test_entity_id", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
+    Given service "test_dates", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     And receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     When ask for aggregates with method "sum" and resolution "day"
       | date_type | value      |
@@ -343,7 +343,7 @@ Feature: get aggregated values with differents requests from sth
 
   @date @date_error
   Scenario Outline: get aggregates values using sth with both dates
-    Given service "test_entity_id", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
+    Given service "test_dates", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     And receives a notification with attributes value "random number=2", metadata value "True" and content "json"
     When ask for aggregates with method "sum" and resolution "day"
       | date_type | value      |
@@ -377,10 +377,3 @@ Feature: get aggregated values with differents requests from sth
     | 2010-12-31T00:00:00 | 2014-12-31T00:00.00 |
     | 2010-12-31 00:00:00 | 2014-12-31T00:00:00 |
     | 2010-12-31T00:00:00 | 2014-12-31 00:00:00 |
-
-
-
-
-
-
-
