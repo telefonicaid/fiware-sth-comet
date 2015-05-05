@@ -410,8 +410,6 @@ class STH:
             # points
             assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["points"][0]["offset"]) == str(self.offset), \
                  "  ERROR - in aggregated with offset %s" % (self.offset)
-            assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["points"][0]["samples"]) == "1", \
-                 "  ERROR - in aggregated with samples 1"
             if self.method == "sum":
                 assert float(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["points"][0]["sum"]) == float(self.attributes_value), \
                  "  ERROR - in aggregated with sum %s" % (str(self.attributes_value))

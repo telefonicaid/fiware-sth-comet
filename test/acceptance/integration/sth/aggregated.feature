@@ -340,8 +340,10 @@ Feature: get aggregated values with differents requests from sth
     | dateFrom            | dateTo              |
     | 2015-12-31T00:00:00 | 2015-12-31T00:00:00 |
     | 2010-12-31T00:00:00 | 2014-12-31T00:00:00 |
+    | 2010-12-31 00:00:00 | 2014-12-31T00:00:00 |
+    | 2010-12-31T00:00:00 | 2014-12-31 00:00:00 |
 
-  @date @date_error
+  @date
   Scenario Outline: get aggregates values using sth with both dates
     Given service "test_dates", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     And receives a notification with attributes value "random number=2", metadata value "True" and content "json"
@@ -375,5 +377,3 @@ Feature: get aggregated values with differents requests from sth
     | 2010-12-31T00:00:00 | 2014-12-31T00.00:00 |
     | 2010-12-31T00:00.00 | 2014-12-31T00:00:00 |
     | 2010-12-31T00:00:00 | 2014-12-31T00:00.00 |
-    | 2010-12-31 00:00:00 | 2014-12-31T00:00:00 |
-    | 2010-12-31T00:00:00 | 2014-12-31 00:00:00 |
