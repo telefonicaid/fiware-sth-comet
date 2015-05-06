@@ -441,12 +441,12 @@
               var error;
               if (!value['fiware-service']) {
                 error = boom.badRequest('child "fiware-service" fails because [fiware-service is required]');
-                error.output.payload.validation = { source: 'headers', keys: ['fiware-service'] };
+                error.output.payload.validation = {source: 'headers', keys: ['fiware-service']};
                 next(error);
 
               } else if (!value['fiware-servicepath']) {
                 error = boom.badRequest('child "fiware-servicepath" fails because [fiware-servicepath is required]');
-                error.output.payload.validation = { source: 'headers', keys: ['fiware-servicepath'] };
+                error.output.payload.validation = {source: 'headers', keys: ['fiware-servicepath']};
                 next(error);
               }
               next();
@@ -516,36 +516,42 @@
             var totalTasks = sthConfig.SHOULD_STORE === sthConfig.DATA_TO_STORE.BOTH ?
                   (2 * totalAttributes) : (1 * totalAttributes);
 
-            for (var i = 0; i < contextResponses.length; i++) {
-              if (contextResponses[i].contextElement &&
-                contextResponses[i].contextElement.attributes &&
-                Array.isArray(contextResponses[i].contextElement.attributes)) {
-                contextElement = contextResponses[i].contextElement;
-                attributes = contextElement.attributes;
-                for (var j = 0; j < attributes.length; j++) {
-                  if (isNaN(attributes[j].value)) {
-                    // The attribute value is not a number and consequently not able to be aggregated.
-                    sthLogger.fatal('Attribute value not aggregatable', {
-                      operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
-                    });
-                    continue;
+            if (totalAttributes > 0) {
+              for (var i = 0; i < contextResponses.length; i++) {
+                if (contextResponses[i].contextElement &&
+                  contextResponses[i].contextElement.attributes &&
+                  Array.isArray(contextResponses[i].contextElement.attributes)) {
+                  contextElement = contextResponses[i].contextElement;
+                  attributes = contextElement.attributes;
+                  for (var j = 0; j < attributes.length; j++) {
+                    if (isNaN(attributes[j].value)) {
+                      // The attribute value is not a number and consequently not able to be aggregated.
+                      sthLogger.fatal('Attribute value not aggregatable', {
+                        operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
+                      });
+                      continue;
+                    }
+
+                    attribute = attributes[j];
+
+                    // Compose the collection name for the required data
+                    var databaseName = sthDatabase.getDatabase(
+                      request.headers['fiware-service']);
+
+                    var servicePath = request.headers['fiware-servicepath'];
+
+                    // Store the raw data into the database
+                    storeRawData(databaseName, servicePath, contextElement, attribute, recvTime, counterObj, totalTasks, request, reply);
+
+                    // Store the aggregated data into the database
+                    storeAggregatedData(databaseName, servicePath, contextElement, attribute, recvTime, counterObj, totalTasks, request, reply);
                   }
-
-                  attribute = attributes[j];
-
-                  // Compose the collection name for the required data
-                  var databaseName = sthDatabase.getDatabase(
-                    request.headers['fiware-service']);
-
-                  var servicePath = request.headers['fiware-servicepath'];
-
-                  // Store the raw data into the database
-                  storeRawData(databaseName, servicePath, contextElement, attribute, recvTime, counterObj, totalTasks, request, reply);
-
-                  // Store the aggregated data into the database
-                  storeAggregatedData(databaseName, servicePath, contextElement, attribute, recvTime, counterObj, totalTasks, request, reply);
                 }
               }
+            } else {
+              var error = boom.badRequest('At least one attribute with an aggregatable value should be included in the notification');
+              error.output.payload.validation = {source: 'payload', keys: ['attributes']};
+              return reply(error);
             }
           }
         },
