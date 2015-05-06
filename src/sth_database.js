@@ -514,7 +514,7 @@
         offset = recvTime.getUTCDate();
         break;
       case sthConfig.RESOLUTION.MONTH:
-        offset = recvTime.getUTCMonth();
+        offset = recvTime.getUTCMonth() + 1;
         break;
     }
 
@@ -576,7 +576,8 @@
         totalValues = 32;
         break;
       case sthConfig.RESOLUTION.MONTH:
-        totalValues = 12;
+        offsetOrigin = 1;
+        totalValues = 13;
         break;
     }
 
