@@ -49,7 +49,7 @@ Some examples:
 ### Tests Suites Coverage:
 
 - notifications.
-- aggregated (pending).
+- aggregated.
 - raw (pending).
 - alarms (pending)
 

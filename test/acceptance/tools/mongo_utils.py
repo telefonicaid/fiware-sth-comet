@@ -165,7 +165,6 @@ class Mongo:
                 return cursor
             c+=1
             print " WARN - Retry in find documents in Mongo. No: ("+ str(c)+")"
-            import pdb; pdb.set_trace()
             time.sleep(self.retry_delay)
         return cursor
 

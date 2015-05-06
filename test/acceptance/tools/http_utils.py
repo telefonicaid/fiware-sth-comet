@@ -116,8 +116,9 @@ def request (method, **kwargs):
         body = kwargs.get (DATA, EMPTY)
         parameters = kwargs.get (PARAM, EMPTY)
         redirect = kwargs.get(ALLOW_REDIRECTS, True)
+
         verify_SSL = kwargs.get(VERIFY, False)
-        #print_request(method, Url, Headers, Body)
+        #print_request(method, url, headers, body)
         resp = requests.request(method, url, headers=headers, data=body, params=parameters, allow_redirects= redirect, verify=verify_SSL)
         #print_response(resp)
         return resp

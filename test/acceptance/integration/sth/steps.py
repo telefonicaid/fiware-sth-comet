@@ -152,7 +152,6 @@ def validate_that_the_aggregated_values_are_generate_in_mongo(step, resolution):
     """
     world.sth.verify_aggregates_in_mongo(resolution)
 
-
 @step(u'validate that the aggregated value is not generate by resolution "([^"]*)" in mongo')
 def validate_that_the_aggregated_values_are_generate_in_mongo(step, resolution):
     """
@@ -163,4 +162,26 @@ def validate_that_the_aggregated_values_are_generate_in_mongo(step, resolution):
     """
     world.sth.verify_aggregates_is_not_in_mongo(resolution)
 
+@step(u'I receive an "([^"]*)" http code')
+def i_receive_an_http_code (step, http_code):
+    """
+    validate http code in response
+    :param httpCode:  http code for validate
+    """
+    world.sth.validate_HTTP_code(http_code)
 
+@step(u'validate that the aggregated is returned successfully')
+def validate_that_the_aggregated_is_returned_successfully(step):
+    """
+    validate that the aggregated is returned successfully via REST
+    :param step:
+    """
+    world.sth.validate_that_the_aggregated_is_returned_successfully()
+
+@step(u'verify that not return aggregated values')
+def verify_that_not_return_aggregated_values(step):
+    """
+    verify that not return aggregated values
+    :param step:
+    """
+    world.sth.verify_that_not_return_aggregated_values()
