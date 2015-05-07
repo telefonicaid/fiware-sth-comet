@@ -294,47 +294,6 @@
   }
 
   /**
-   * A mocha test forcing the server to retrieve no aggregated data from the database for
-   *  the passed aggregation method and resolution
-   * @param {string} service The service
-   * @param {string} servicePath The service path
-   * @param {Object} options To generate the URL
-   * @param {Function} done The mocha done() callback function
-   */
-  function noRawDataSinceDateTest(service, servicePath, options, done) {
-    request({
-      uri: getURL(sthTestConfig.API_OPERATION.READ,
-        options
-      ),
-      method: 'GET',
-      headers: {
-        'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
-        'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
-      }
-    }, function (err, response, body) {
-      var bodyJSON = JSON.parse(body);
-      expect(err).to.equal(null);
-      expect(response.statusCode).to.equal(200);
-      expect(response.statusMessage).to.equal('OK');
-      expect(bodyJSON.contextResponses[0].contextElement.id).
-        to.equal(sthTestConfig.ENTITY_ID);
-      expect(bodyJSON.contextResponses[0].contextElement.isPattern).
-        to.equal(false);
-      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).
-        to.equal(sthTestConfig.ATTRIBUTE_NAME);
-      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).
-        to.be.an(Array);
-      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).
-        to.equal(0);
-      expect(bodyJSON.contextResponses[0].statusCode.code).
-        to.equal('200');
-      expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).
-        to.equal('OK');
-      done();
-    });
-  }
-
-  /**
    * A mocha test forcing the server to retrieve aggregated data from the database
    *  for the passed aggregation method and resolution
    * @param {string} service The service
@@ -344,7 +303,6 @@
    * @param {Function} done The mocha done() callback function
    */
   function rawDataAvailableSinceDateTest(service, servicePath, options, checkRecvTime, done) {
-    options.dateFrom = sthHelper.getISODateString(events[0].recvTime);
     request({
       uri: getURL(sthTestConfig.API_OPERATION.READ, options),
       method: 'GET',
@@ -561,13 +519,37 @@
    */
   function rawDataRetrievalSuite(options, checkRecvTime) {
     describe('should respond', function() {
-      it('with empty aggregated data if no data since dateFrom',
-        noRawDataSinceDateTest.bind(
-          null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, options));
+      var optionsWithDateFrom = {},
+          optionsWithDateTo = {},
+          optionsWithFromAndToDate = {};
+
+      before(function() {
+        for (var prop in options) {
+          optionsWithDateFrom[prop] = options[prop];
+          optionsWithDateTo[prop] = options[prop];
+          optionsWithFromAndToDate[prop] = options[prop];
+        }
+        optionsWithDateFrom.dateFrom = sthHelper.getISODateString(events[0].recvTime);
+        optionsWithDateTo.dateTo = sthHelper.getISODateString(new Date());
+        optionsWithFromAndToDate.dateFrom = sthHelper.getISODateString(events[0].recvTime);
+        optionsWithFromAndToDate.dateTo = sthHelper.getISODateString(new Date());
+      });
+
+      it('with raw data if data and no dateFrom or dateTo',
+        rawDataAvailableSinceDateTest.bind(
+          null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, options, checkRecvTime));
 
       it('with raw data if data since dateFrom',
         rawDataAvailableSinceDateTest.bind(
-          null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, options, checkRecvTime));
+          null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, optionsWithDateFrom, checkRecvTime));
+
+      it('with raw data if data before dateTo',
+        rawDataAvailableSinceDateTest.bind(
+          null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, optionsWithDateTo, checkRecvTime));
+
+      it('with raw data if data from dateFrom and before dateTo',
+        rawDataAvailableSinceDateTest.bind(
+          null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, optionsWithFromAndToDate, checkRecvTime));
     });
   }
 
