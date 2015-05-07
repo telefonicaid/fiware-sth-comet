@@ -287,7 +287,7 @@ a counter used as the suffix for the log file name. Optional. Default value: und
 - DB_PREFIX: The prefix to be added to the service for the creation of the databases. More information below. Optional. Default value: "sth".
 - DEFAULT_SERVICE: The service to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "orion".
 - COLLECTION_PREFIX: The prefix to be added to the collections in the databases. More information below. Optional. Default value: "sth".
-- SERVICE_PATH: The service path to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "/".
+- DEFAULT_SERVICE_PATH: The service path to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "/".
 - POOL_SIZE: The default MongoDB pool size of database connections. Optional. Default value: "5".
 - DATA_MODEL: The data model to use. Currently 3 possible values are supported: collection-per-service-path (which creates a MongoDB collection
  per service patch to store the data), collection-per-entity (which creates a MongoDB collection per service path and entity to store the data)

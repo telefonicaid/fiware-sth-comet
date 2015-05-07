@@ -84,7 +84,7 @@
     var databaseName = sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE);
 
     var collectionName4Events = sthDatabase.getCollectionName4Events(
-      sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+      sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
       sthTestConfig.ATTRIBUTE_NAME);
 
     // Check if the collection exists
@@ -96,7 +96,7 @@
         if (err) {
           done(err);
         } else {
-          sthDatabase.storeRawData(collection, anEvent.recvTime, sthConfig.SERVICE_PATH,
+          sthDatabase.storeRawData(collection, anEvent.recvTime, sthConfig.DEFAULT_SERVICE_PATH,
             sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE, sthTestConfig.ATTRIBUTE_NAME,
             sthTestConfig.ATTRIBUTE_TYPE, anEvent.attrValue, done);
         }
@@ -115,7 +115,7 @@
     var databaseName = sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE);
 
     var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
-      sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+      sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
       sthTestConfig.ATTRIBUTE_NAME);
 
     // Check if the collection exists
@@ -195,7 +195,7 @@
    */
   function dropRawEventCollectionTest(done) {
     var collectionName4Events = sthDatabase.getCollectionName4Events(
-      sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+      sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
       sthTestConfig.ATTRIBUTE_NAME);
     sthDatabase.connection.db.dropCollection(collectionName4Events, function (err) {
       if (err && err.message === 'ns not found') {
@@ -211,7 +211,7 @@
    */
   function dropAggregatedDataCollectionTest(done) {
     var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
-      sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+      sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
       sthTestConfig.ATTRIBUTE_NAME);
     sthDatabase.connection.db.dropCollection(collectionName4Aggregated, function (err) {
       if (err && err.message === 'ns not found') {
@@ -302,7 +302,7 @@
       method: 'GET',
       headers: {
         'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
-        'Fiware-ServicePath': servicePath || sthConfig.SERVICE_PATH
+        'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
       }
     }, function (err, response, body) {
       var bodyJSON = JSON.parse(body);
@@ -343,7 +343,7 @@
       method: 'GET',
       headers: {
         'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
-        'Fiware-ServicePath': servicePath || sthConfig.SERVICE_PATH
+        'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
       }
     }, function (err, response, body) {
       var theEvent = events[events.length - 1];
@@ -422,7 +422,7 @@
       method: 'GET',
       headers: {
         'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
-        'Fiware-ServicePath': servicePath || sthConfig.SERVICE_PATH
+        'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
       }
     }, function (err, response, body) {
       var bodyJSON = JSON.parse(body);
@@ -471,7 +471,7 @@
       method: 'GET',
       headers: {
         'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
-        'Fiware-ServicePath': servicePath || sthConfig.SERVICE_PATH
+        'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
       }
     }, function (err, response, body) {
       var theEvent = events[0];
@@ -556,11 +556,11 @@
     describe('should respond', function() {
       it('with empty aggregated data if no data since dateFrom',
         noRawDataSinceDateTest.bind(
-          null, sthConfig.DEFAULT_SERVICE, sthConfig.SERVICE_PATH, options));
+          null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, options));
 
       it('with raw data if data since dateFrom',
         rawDataAvailableSinceDateTest.bind(
-          null, sthConfig.DEFAULT_SERVICE, sthConfig.SERVICE_PATH, options, checkRecvTime));
+          null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, options, checkRecvTime));
     });
   }
 
@@ -574,51 +574,51 @@
       describe('and aggrPeriod as ' + sthConfig.RESOLUTION.SECOND, function() {
         it('should respond with empty aggregated data if no data since dateFrom',
           noAggregatedDataSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.SECOND));
+            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.SECOND));
 
         it('should respond with aggregated data if data since dateFrom',
           aggregatedDataAvailableSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.SECOND));
+            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.SECOND));
       });
 
       describe('and aggrPeriod as minute', function() {
         it('should respond with empty aggregated data if no data since dateFrom',
           noAggregatedDataSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.MINUTE));
+            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.MINUTE));
 
         it('should respond with aggregated data if data since dateFrom',
           aggregatedDataAvailableSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.SERVICE_PATH,aggrMethod, sthConfig.RESOLUTION.MINUTE));
+            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH,aggrMethod, sthConfig.RESOLUTION.MINUTE));
       });
 
       describe('and aggrPeriod as hour', function() {
         it('should respond with empty aggregated data if no data since dateFrom',
           noAggregatedDataSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.HOUR));
+            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.HOUR));
 
         it('should respond with aggregated data if data since dateFrom',
           aggregatedDataAvailableSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.HOUR));
+            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.HOUR));
       });
 
       describe('and aggrPeriod as day', function() {
         it('should respond with empty aggregated data if no data since dateFrom',
           noAggregatedDataSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.DAY));
+            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.DAY));
 
         it('should respond with aggregated data if data since dateFrom',
           aggregatedDataAvailableSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.DAY));
+            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.DAY));
       });
 
       describe('and aggrPeriod as month', function() {
         it('should respond with empty aggregated data if no data since dateFrom',
           noAggregatedDataSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.MONTH));
+            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.MONTH));
 
         it('should respond with aggregated data if data since dateFrom',
           aggregatedDataAvailableSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.MONTH));
+            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.MONTH));
       });
     });
   }
@@ -631,7 +631,7 @@
     if (sthTestConfig.CLEAN) {
       it('should drop the collection created for the events', function (done) {
         var collectionName4Events = sthDatabase.getCollectionName4Events(
-          sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+          sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
           sthTestConfig.ATTRIBUTE_NAME);
         sthDatabase.getCollection(sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE), collectionName4Events, false,
           function (err, collection) {
@@ -647,7 +647,7 @@
 
       it('should drop the collection created for the aggregated data', function (done) {
         var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
-          sthConfig.SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+          sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
           sthTestConfig.ATTRIBUTE_NAME);
         sthDatabase.getCollection(sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE),
           collectionName4Aggregated,
@@ -676,7 +676,7 @@
 
       describe('reception', function () {
         it('should attend the notification', complexNotificationTest.bind(
-          null, sthConfig.DEFAULT_SERVICE, sthConfig.SERVICE_PATH));
+          null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH));
       });
 
       describe('for each new notification', function () {
@@ -718,7 +718,7 @@
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
-        'Fiware-ServicePath': servicePath || sthConfig.SERVICE_PATH
+        'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
       },
       json: true,
       body: {
@@ -801,7 +801,7 @@
       method: 'GET',
       headers: {
         'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-        'Fiware-ServicePath': sthConfig.SERVICE_PATH
+        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
       }
     }, function(err, response, body) {
       var bodyJSON = JSON.parse(body);

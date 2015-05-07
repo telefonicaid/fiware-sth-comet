@@ -556,7 +556,7 @@
                 value['fiware-service'] = sthConfig.DEFAULT_SERVICE;
               }
               if (!value['fiware-servicepath']) {
-                value['fiware-servicepath'] = sthConfig.SERVICE_PATH;
+                value['fiware-servicepath'] = sthConfig.DEFAULT_SERVICE_PATH;
               }
               next();
             }
