@@ -59,9 +59,9 @@ Feature: Store in mongo new notifications from context broker in raw and aggrega
     And delete database in mongo
   Examples:
     | service                    |
-    | orga60100                  |
-    | ORGA60111                  |
-    | Org_61401                  |
+    | test_orga60100             |
+    | test_ORGA60111             |
+    | test_Org_61401             |
     | random service length = 50 |
 
   @service_path

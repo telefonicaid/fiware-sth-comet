@@ -58,7 +58,6 @@ def verify_if_sth_is_installed_correctly(step):
     """
     world.sth.verify_sth_version()
 
-
 @step (u'mongo is installed correctly')
 def mongo_is_installed_correctly(step):
     """
@@ -68,6 +67,23 @@ def mongo_is_installed_correctly(step):
     """
     world.sth.verify_sth_version()
 
+@step(u'delete database in mongo')
+def delete_database_in_mongo(step):
+    """
+    delete database and collections in mongo
+    :param step:
+    """
+    world.sth.drop_database_in_mongo(world.mongo)
+
+@step (u'reinitialize log file')
+def reinitialize_log_file(step):
+     """
+     reinitialize log file
+     :param step:
+     """
+     world.sth.init_log_file()
+
+#  -------------------------------  notifications ----------------------------------------------------------------------
 
 @step (u'service "([^"]*)", service path "([^"]*)", entity type "([^"]*)", entity_id "([^"]*)", with attribute number "([^"]*)", attribute name "([^"]*)" and attribute type "([^"]*)"')
 def a_service_service_path_resource_with_attribute_number_attribute_name_and_attribute_type (step, service, service_path, entity_type, entity_id, attributes_number, attribute_name, attribute_type):
@@ -93,46 +109,34 @@ def receives_a_notification_with_attributes_value_metadata_value_and_content (st
     :param metadata_value:
     :param content:
     """
-    world.resp = world.sth.received_notification(attributes_value, metadata_value, content)
+    world.sth.received_notification(attributes_value, metadata_value, content)
 
-@step(u'delete database in mongo')
-def delete_database_in_mongo(step):
+@step (u'receives "([^"]*)" notifications with consecutive values beginning with "([^"]*)" and with step one')
+def receives_notifications_with_consecutive_values(step, notif_number, attribute_value_init):
     """
-    delete database and collections in mongo
+    receives N notifications with consecutive values, without metadatas and json content
     :param step:
+    :param notif_number:
     """
-    world.sth.drop_database_in_mongo(world.mongo)
+    world.sth.receives_n_notifications(notif_number, attribute_value_init)
 
-@step (u'reinitialize log file')
-def reinitialize_log_file(step):
-     """
-     reinitialize log file
-     :param step:
-     """
-     world.sth.init_log_file()
-
-@step (u'check in log, label "([^"]*)" and text "([^"]*)"')
-def check_in_log_label_and_text(step, label, text):
+# ------------------------------------------- aggregated and raw -------------------------------------------------------
+@step (u'ask for aggregates with queries parameters')
+@step (u'ask for raw with queries parameters')
+def ask_for_raw_with_queries_parameters(step):
     """
-    Verify in log file if a label with a text exists
-    :param step:
-    :param label: label to find
-    :param text: text to find (begin since the end)
+    ask for raw with queries parameters
+    :param step: paginated parameters: [OPTIONAL]
+                      the format of the table is:
+                          | parameter | value               |
+                          | hLimit    | 10                  |
+                          | hOffset   | 3                   |
+                          | dateFrom  | 2015-02-14T00:00:00 |
+                          | dateTo    | 2015-12-31T00:00:00 |
     """
+    world.sth.ask_for_raw_or_aggregated(step)
 
-    world.sth.verify_log(label, text)
-
-@step (u'ask for aggregates with method "([^"]*)" and resolution "([^"]*)"')
-def ask_for_aggregates_with_method_and_resolution(step, method, resolution):
-    """
-    ask for aggregates with method and resolution
-    :param step:
-    :param method:
-    :param resolution:
-    """
-    world.sth.ask_for_aggregated(step, method, resolution)
-
- # ------------------------------------------------ validations -----------------------------------------------------------
+ # ------------------------------------------------ validations --------------------------------------------------------
 
 @step (u'validate that the attribute value and type are stored in mongo')
 def validate_that_the_attribute_value_metadata_and_type_are_stored_in_mongo(step):
@@ -185,3 +189,29 @@ def verify_that_not_return_aggregated_values(step):
     :param step:
     """
     world.sth.verify_that_not_return_aggregated_values()
+
+@step(u'validate that the aggregated is calculated successfully')
+def validate_that_the_aggregated_is_calculated_successfully(step):
+    """
+    validate that the aggregated is calculated successfully
+    :param step:
+    """
+    world.sth.validate_that_the_aggregated_is_calculated_successfully()
+
+@step (u'check in log, label "([^"]*)" and text "([^"]*)"')
+def check_in_log_label_and_text(step, label, text):
+    """
+    Verify in log file if a label with a text exists
+    :param step:
+    :param label: label to find
+    :param text: text to find (begin since the end)
+    """
+    world.sth.verify_log(label, text)
+
+@step(u'validate that the raw is returned successfully')
+def validate_that_the_raw_is_returned_successfully(step):
+    """
+    validate that the raw is returned successfully
+    :param step:
+    """
+    world.sth.validate_that_the_raw_is_returned_successfully()
