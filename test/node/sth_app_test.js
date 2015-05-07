@@ -141,7 +141,7 @@
         method: 'GET',
         headers: {
           'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-          'Fiware-ServicePath': sthConfig.SERVICE_PATH
+          'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
         }
       }, function(err, response, body) {
         var bodyJSON = JSON.parse(body);
