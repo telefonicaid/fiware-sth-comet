@@ -40,10 +40,11 @@
   describe('database connection', function() {
     it('should be a database available', function(done) {
       sthApp.sthDatabase.connect(sthConfig.DB_AUTHENTICATION, sthConfig.DB_URI,
-        sthConfig.REPLICA_SET, sthApp.sthDatabase.getDatabase(sthConfig.SERVICE), sthConfig.POOL_SIZE, function(err) {
+        sthConfig.REPLICA_SET, sthApp.sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE), sthConfig.POOL_SIZE,
+        function(err) {
           done(err);
-        });
-
+        }
+      );
     });
   });
 
@@ -120,7 +121,7 @@
         uri: sthTestHelper.getURL(sthTestConfig.API_OPERATION.READ),
         method: 'GET',
         headers: {
-          'Fiware-Service': sthConfig.SERVICE
+          'Fiware-Service': sthConfig.DEFAULT_SERVICE
         }
       }, function(err, response, body) {
         var bodyJSON = JSON.parse(body);
@@ -139,7 +140,7 @@
         uri: sthTestHelper.getURL(sthTestConfig.API_OPERATION.READ),
         method: 'GET',
         headers: {
-          'Fiware-Service': sthConfig.SERVICE,
+          'Fiware-Service': sthConfig.DEFAULT_SERVICE,
           'Fiware-ServicePath': sthConfig.SERVICE_PATH
         }
       }, function(err, response, body) {

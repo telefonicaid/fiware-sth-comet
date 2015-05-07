@@ -72,7 +72,7 @@
 
     // Connect to the MongoDB database
     sthDatabase.connect(sthConfig.DB_AUTHENTICATION, sthConfig.DB_URI, sthConfig.REPLICA_SET,
-      sthConfig.SERVICE, sthConfig.POOL_SIZE,
+      sthConfig.DEFAULT_SERVICE, sthConfig.POOL_SIZE,
       function (err) {
         if (err) {
           // Error when connecting to the MongoDB database

@@ -285,7 +285,7 @@ a counter used as the suffix for the log file name. Optional. Default value: und
 - LOG_DIR: The path to a directory where the log file will be searched for or created if it does not exist. Optional. Default value: "./log".
 - LOG_FILE_NAME: The name of the file where the logs will be stored. Optional. Default value: "sth_app.log".
 - DB_PREFIX: The prefix to be added to the service for the creation of the databases. More information below. Optional. Default value: "sth".
-- SERVICE: The service to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "orion".
+- DEFAULT_SERVICE: The service to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "orion".
 - COLLECTION_PREFIX: The prefix to be added to the collections in the databases. More information below. Optional. Default value: "sth".
 - SERVICE_PATH: The service path to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "/".
 - POOL_SIZE: The default MongoDB pool size of database connections. Optional. Default value: "5".
