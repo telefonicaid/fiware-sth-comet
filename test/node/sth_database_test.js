@@ -28,7 +28,7 @@
   describe('Database operation', function () {
     it('should establish a connection to the database', function (done) {
       sthDatabase.connect(sthConfig.DB_AUTHENTICATION, sthConfig.DB_URI,
-        sthConfig.REPLICA_SET, sthDatabase.getDatabase(sthConfig.SERVICE), sthConfig.POOL_SIZE, function (err) {
+        sthConfig.REPLICA_SET, sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE), sthConfig.POOL_SIZE, function (err) {
           done(err);
         });
     });
@@ -85,7 +85,7 @@
       sthTestHelper.dropAggregatedDataCollectionTest);
 
     it('should check if the collection for the aggregated data exists', function (done) {
-      sthDatabase.getCollection(sthDatabase.getDatabase(sthConfig.SERVICE), collectionName4Aggregated, false,
+      sthDatabase.getCollection(sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE), collectionName4Aggregated, false,
         function (err, collection) {
           if (err && !collection) {
             // The collection does not exist

@@ -553,7 +553,7 @@
           validate: {
             headers: function(value, options, next) {
               if (!value['fiware-service']) {
-                value['fiware-service'] = sthConfig.SERVICE;
+                value['fiware-service'] = sthConfig.DEFAULT_SERVICE;
               }
               if (!value['fiware-servicepath']) {
                 value['fiware-servicepath'] = sthConfig.SERVICE_PATH;
