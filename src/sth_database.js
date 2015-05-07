@@ -514,7 +514,7 @@
         offset = recvTime.getUTCDate();
         break;
       case sthConfig.RESOLUTION.MONTH:
-        offset = recvTime.getUTCMonth();
+        offset = recvTime.getUTCMonth() + 1;
         break;
     }
 
@@ -576,7 +576,8 @@
         totalValues = 32;
         break;
       case sthConfig.RESOLUTION.MONTH:
-        totalValues = 12;
+        offsetOrigin = 1;
+        totalValues = 13;
         break;
     }
 
@@ -659,7 +660,12 @@
         //  and getAggregateUpdate4Update in the same object
         getAggregateUpdateCondition(entityId, entityType, attrName, resolution, recvTime),
         getAggregateUpdate(attrValue),
-        {upsert: true},
+        {
+          upsert: true,
+          writeConcern: {
+            w: !isNaN(sthConfig.WRITE_CONCERN) ? parseInt(sthConfig.WRITE_CONCERN) : sthConfig.WRITE_CONCERN
+          }
+        },
         function (err) {
           callback(err);
         }
@@ -671,7 +677,12 @@
       getAggregateUpdateCondition(
         entityId, entityType, attrName, resolution, recvTime),
       getAggregateUpdate4Insert(attrType, resolution),
-      {upsert: true},
+      {
+        upsert: true,
+        writeConcern: {
+          w: !isNaN(sthConfig.WRITE_CONCERN) ? parseInt(sthConfig.WRITE_CONCERN) : sthConfig.WRITE_CONCERN
+        }
+      },
       function (err) {
         if (err && callback) {
           return callback(err);
@@ -682,6 +693,11 @@
           getAggregateUpdateCondition(
             entityId, entityType, attrName, resolution, recvTime),
           getAggregateUpdate4Update(attrType, parseFloat(attrValue)),
+          {
+            writeConcern: {
+              w: !isNaN(sthConfig.WRITE_CONCERN) ? parseInt(sthConfig.WRITE_CONCERN) : sthConfig.WRITE_CONCERN
+            }
+          },
           function (err) {
             if (callback) {
               callback(err);
@@ -777,7 +793,14 @@
         };
         break;
     }
-    collection.insert(theEvent, function(err) {
+    collection.insert(
+      theEvent,
+      {
+        writeConcern: {
+          w: !isNaN(sthConfig.WRITE_CONCERN) ? parseInt(sthConfig.WRITE_CONCERN) : sthConfig.WRITE_CONCERN
+        }
+      },
+      function(err) {
       if (callback) {
         callback(err);
       }

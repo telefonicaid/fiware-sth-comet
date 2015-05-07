@@ -66,10 +66,20 @@
   module.exports.LOG_FILE_MAX_SIZE_IN_BYTES = ENV.LOG_FILE_MAX_SIZE_IN_BYTES;
   module.exports.LOG_DIR = ENV.LOG_DIR || '.' + path.sep + 'log';
   module.exports.LOG_FILE_NAME = ENV.LOG_FILE_NAME || 'sth_app.log';
-  module.exports.SERVICE = ENV.SERVICE || 'orion';
+  module.exports.DEFAULT_SERVICE = ENV.DEFAULT_SERVICE || 'orion';
   module.exports.SERVICE_PATH = ENV.SERVICE_PATH || '/';
   module.exports.POOL_SIZE = (ENV.POOL_SIZE && !isNaN(ENV.POOL_SIZE) && parseInt(ENV.POOL_SIZE) > 0) ?
     parseInt(ENV.POOL_SIZE) : 5;
+  try {
+    if (ENV.WRITE_CONCERN && (!isNaN(ENV.WRITE_CONCERN) || ENV.WRITE_CONCERN === 'majority' || JSON.parse(ENV.WRITE_CONCERN))) {
+      module.exports.WRITE_CONCERN = ENV.WRITE_CONCERN;
+    } else {
+      module.exports.WRITE_CONCERN = 1;
+    }
+  } catch (exception) {
+    module.exports.WRITE_CONCERN = 1;
+  }
+  module.exports.WRITE_CONCERN = ENV.WRITE_CONCERN || 1;
   module.exports.SHOULD_STORE = [
     module.exports.DATA_TO_STORE.ONLY_RAW,
     module.exports.DATA_TO_STORE.ONLY_AGGREGATED,
