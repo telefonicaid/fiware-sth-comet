@@ -17,18 +17,19 @@
 # For those usages not covered by the GNU Affero General Public License please contact:
 # iot_support at tid.es
 #
-from tools import http_utils
-from tools.remote_log_utils import Remote_Log
 
 __author__ = 'Iván Arias León (ivan.ariasleon at telefonica dot com)'
 
 import string
 
+from decimal import Decimal
 from lettuce import world
 
 import general_utils
 from tools.fabric_utils import FabricSupport
 from tools.notification_utils import Notifications
+from tools import http_utils
+from tools.remote_log_utils import Remote_Log
 
 # constants
 EMPTY              = u''
@@ -104,7 +105,6 @@ class STH:
         self.fabric_target_path=kwargs.get(FABRIC_TARGET_PATH, EMPTY)
         self.fabric_sudo=kwargs.get(FABRIC_SUDO, False)
 
-
     def verify_mongo_version(self):
         """
         verify mongo version
@@ -115,6 +115,14 @@ class STH:
         world.mongo.disconnect()
         assert resp == u'OK', resp
 
+    def drop_all_test_databases(self):
+        """
+        drop all te
+        sts databases with prefix
+        """
+        myfab = FabricSupport(host=self.sth_host, user=self.fabric_user, password=self.fabric_password, cert_file=self.fabric_cert_file, retry=self.fabric_error_retry, hide=True, sudo=self.fabric_sudo)
+        myfab.run("sh drop_database_mongo.sh sth_test", path="%s/%s" % (self.fabric_target_path, u'resources'), sudo=False)
+
     def verify_sth_version(self):
         """
         verify sth version
@@ -122,17 +130,15 @@ class STH:
         """
         pass
 
-
     def init_log_file(self):
         """
         reinitialize log file
         delete and create a new log file (empty)
         """
-        myfab = FabricSupport(host=self.sth_host, user=self.fabric_user, password=self.fabric_password, cert_file=self.fabric_cert_file, retry=self.fabric_error_retry, hide=False, sudo=self.fabric_sudo)
+        myfab = FabricSupport(host=self.sth_host, user=self.fabric_user, password=self.fabric_password, cert_file=self.fabric_cert_file, retry=self.fabric_error_retry, hide=True, sudo=self.fabric_sudo)
         log = Remote_Log (fabric=myfab)
         log.delete_log_file()
         log.create_log_file(owner="sysadmin", group="sysadmin", mod="777")
-
 
     def sth_service(self, operation):
         """
@@ -146,10 +152,11 @@ class STH:
         """
         configuration values
         """
+        db_test_prefix = u'test_'
         # service
         if service.find(RANDOM_SERVICE_LENGTH) >= 0:
             characters = int(service.split(" = ")[1])
-            self.service = general_utils.string_generator(characters, CHARS_ALLOWED)
+            self.service = db_test_prefix+general_utils.string_generator(characters-len(db_test_prefix), CHARS_ALLOWED)
         else:
             self.service = service
 
@@ -165,9 +172,10 @@ class STH:
         self.entity_type = entity_type
         self.entity_id   = entity_id
         #attributes
-        self.attributes_number = int(attributes_number)
-        self.attributes_name   = attributes_name
-        self.attribute_type    = attribute_type
+        self.attributes_number    = int(attributes_number)
+        self.attributes_name      = attributes_name
+        self.attribute_type       = attribute_type
+        self.notifications_number = 0
 
     def get_timestamp_remote(self):
         """
@@ -184,6 +192,8 @@ class STH:
         :param metadata_value: metadata value (true or false)
         :param content: xml or json
         """
+        self.notifications_number = self.notifications_number + 1
+        self.resp = None
         self.date_time = None
         self.content = content
         self.metadata_value = metadata_value
@@ -192,13 +202,25 @@ class STH:
         if self.metadata_value.lower() == "true":
             notification.create_metadatas_attribute(metadata_attribute_number, RANDOM, RANDOM, RANDOM)
         notification.create_attributes (self.attributes_number, self.attributes_name, self.attribute_type, attribute_value)
-        resp = notification.send_notification(self.entity_id, self.entity_type)
+        self.resp = notification.send_notification(self.entity_id, self.entity_type)
 
         self.date_time         = self.get_timestamp_remote()
         self.attributes        = notification.get_attributes()
         self.attributes_name   = notification.get_attributes_name()
         self.attributes_value  = notification.get_attributes_value()
-        return resp
+        return self.resp
+
+    def receives_n_notifications(self, notif_number, attribute_value_init):
+        """
+        receives N notifications with consecutive values, without metadatas and json content
+        :param attribute_value_init: attribute value for all attributes in each notification increment in one
+        :param notif_number: number of notification
+        """
+        for i in range(int(notif_number)):
+            temp_value = Decimal(attribute_value_init) + i
+            world.sth.received_notification(str(temp_value), "False", "json")
+        self.attributes_value = attribute_value_init
+
 
     def drop_database_in_mongo(self, driver):
          """
@@ -209,36 +231,47 @@ class STH:
          driver.drop_database()
          driver.disconnect()
 
-    def  __create_headers(self):
+    def __create_headers(self):
         """
         create the header for different requests
         :return: headers dictionary
         """
         return {HEADER_ACCEPT: HEADER_APPLICATION, HEADER_CONTENT_TYPE: HEADER_APPLICATION, HEADER_SERVICE: self.service, HEADER_SERVICE_PATH: self.service_path}
 
-    def ask_for_aggregated(self, step, method, resolution):
+    def ask_for_raw_or_aggregated(self, step):
         """
-        ask for aggregates with method and resolution
-        :param step: dates parameters: [OPTIONAL]
+        ask for raw or aggregated with queries parameters
+        :param step: paginated parameters: [OPTIONAL]
                       the format of the table is:
-                          | date_type | value               |
+                          | parameter | value               |
+                          | hLimit    | 10                  |
+                          | hOffset   | 3                   |
                           | dateFrom  | 2015-02-14T00:00:00 |
                           | dateTo    | 2015-12-31T00:00:00 |
-        :param method: aggregated method, allowed values ( sum | sum2 | min | max )
-        :param resolution: Aggregation period or resolution ( month | day |hour | minute |second )
-        :return list
         """
-        self.resolution = resolution
-        self.method = method
-        self.resp = []
-        params = "aggrMethod=%s&aggrPeriod=%s" % (self.method, self.resolution)
-        for line in step.hashes:  # get dates parameters. they are optional
-            params = params + "&%s=%s" % (line["date_type"], line["value"]) # ex: &dateFrom=2015-02-14T00:00:00&dateTo=2015-12-31T00:00:00
+        self.resolution = EMPTY
+        self.method = EMPTY
+        self.last_n  = EMPTY
+        self.h_limit  = EMPTY
+        self.h_offset = EMPTY
+        self.resp = None
+        initial = True
+        params = EMPTY
+        for line in step.hashes:  # get step parameters. they are optional
+            if initial:
+                initial = False
+            else:
+                params = params + "&"
+            if line["parameter"] == u'aggrMethod': self.method     = line["value"]
+            if line["parameter"] == u'aggrPeriod': self.resolution = line["value"]
+            if line["parameter"] == u'lastN':      self.last_n     = line["value"]
+            if line["parameter"] == u'hLimit':     self.h_limit    = line["value"]
+            if line["parameter"] == u'hOffset':    self.h_offset   = line["value"]
 
-        for i in range (self.attributes_number):
-            url = "%s://%s:%s/%s/type/%s/id/%s/attributes/%s_%s?%s" % (self.protocol, self.sth_host, self.sth_port, URL_PATH, self.entity_type, self.entity_id, self.attributes_name, str(i), params)
-            self.resp.append(http_utils.request(http_utils.GET, url=url, headers=self.__create_headers()))
-        self.resp
+            params = params + "%s=%s" % (line["parameter"], line["value"]) # ex: ?hLimit=30&hOffset=0&dateFrom=2015-02-14T00:00:00&dateTo=2015-12-31T00:00:00
+
+        url = "%s://%s:%s/%s/type/%s/id/%s/attributes/%s_%s?%s" % (self.protocol, self.sth_host, self.sth_port, URL_PATH, self.entity_type, self.entity_id, self.attributes_name, "0", params)
+        self.resp = http_utils.request(http_utils.GET, url=url, headers=self.__create_headers())
 
     # --------------------------- verifications -------------------------------------------
 
@@ -265,7 +298,7 @@ class STH:
             - origin, max, min, sum sum2
         :param resolution: resolutions type (  month | day | hour | minute | second )
         """
-
+        time_zone = 2
         find_dict = {"_id.attrName" :  {'$regex':'%s.*' % (self.attributes_name)}, #the regular expression is because in  multi attribute the name is with postfix + <_value>. ex: temperature_0
                      "_id.entityId" : self.entity_id,
                      "_id.entityType" : self.entity_type,
@@ -274,7 +307,8 @@ class STH:
         origin_year   = general_utils.get_date_only_one_value(self.date_time, "year")
         origin_month  = general_utils.get_date_only_one_value(self.date_time, "month")
         origin_day    = general_utils.get_date_only_one_value(self.date_time, "day")
-        origin_hour   = general_utils.get_date_only_one_value(self.date_time, "hour")
+        origin_hour   = int(general_utils.get_date_only_one_value(self.date_time, "hour"))-time_zone
+        if origin_hour < 10: origin_hour = u'0' + str(origin_hour)
         origin_minute = general_utils.get_date_only_one_value(self.date_time, "minute")
         origin_second = general_utils.get_date_only_one_value(self.date_time, "second")
 
@@ -285,6 +319,7 @@ class STH:
         doc_list = world.mongo.get_cursor_value(cursor)   # get all dictionaries into a cursor, return a list
 
         for doc in doc_list:
+
             offset = int(general_utils.get_date_only_one_value(self.date_time, resolution))
             if resolution == "month":
                 offset=offset-1
@@ -293,6 +328,7 @@ class STH:
                 offset=offset-1
                 origin_by_resolution = "%s-%s-01 00:00:00" % (origin_year, origin_month)
             elif resolution == "hour":
+                offset=offset-time_zone
                 origin_by_resolution = "%s-%s-%s 00:00:00" % (origin_year, origin_month, origin_day)
             elif resolution == "minute":
                 origin_by_resolution = "%s-%s-%s %s:00:00" % (origin_year, origin_month, origin_day, origin_hour)
@@ -315,7 +351,6 @@ class STH:
             assert float(doc["points"][offset]["max"]) == float(self.attributes_value), " ERROR -- in maximun value into offset %s in %s attribute" % (str(offset), str(doc["_id"]["attrName"]))
             assert float(doc["points"][offset]["sum"]) == float(self.attributes_value), " ERROR -- in sum value into offset %s in %s attribute" % (str(offset), str(doc["_id"]["attrName"]))
             assert float(doc["points"][offset]["sum2"]) == (float(self.attributes_value)*float(self.attributes_value)), " ERROR -- in sum2 value into offset %s in %s attribute" % (str(offset), str(doc["_id"]["attrName"]))
-
         world.mongo.disconnect()
 
     def verify_aggregates_is_not_in_mongo(self, resolution):
@@ -354,95 +389,160 @@ class STH:
         :param resp: response from server
         :param expected_status_code: Http code expected
         """
-        for i in range (self.attributes_number):
-            http_utils.assert_status_code(http_utils.status_codes[http_code], self.resp[i],
-                "Wrong status code received: %s. Expected: %s. \n\nBody content: %s" % (str(self.resp[i].status_code), str(http_utils.status_codes[http_code]), str(self.resp[i].text)))
+        http_utils.assert_status_code(http_utils.status_codes[http_code], self.resp,
+            "Wrong status code received: %s. Expected: %s. \n\nBody content: %s" % (str(self.resp.status_code), str(http_utils.status_codes[http_code]), str(self.resp.text)))
 
     def validate_that_the_aggregated_is_returned_successfully(self):
         """
         validate that the aggregated is returned successfully via REST
         """
+        time_zone = 2
         dupla = {"month": "year", "day": "month", "hour": "day", "minute": "hour", "second": "minute"}
-        self.offset = int(general_utils.get_date_only_one_value(self.date_time, self.resolution))
+        offset = int(general_utils.get_date_only_one_value(self.date_time, self.resolution))
         origin_year   = general_utils.get_date_only_one_value(self.date_time, "year")
         origin_month  = general_utils.get_date_only_one_value(self.date_time, "month")
         origin_day    = general_utils.get_date_only_one_value(self.date_time, "day")
-        origin_hour   = general_utils.get_date_only_one_value(self.date_time, "hour")
+        origin_hour   = int(general_utils.get_date_only_one_value(self.date_time, "hour"))-time_zone
+        if origin_hour < 10: origin_hour = u'0' + str(origin_hour)
         origin_minute = general_utils.get_date_only_one_value(self.date_time, "minute")
         origin_second = general_utils.get_date_only_one_value(self.date_time, "second")
 
-        for i in range (self.attributes_number):
-            context_json = general_utils.convert_str_to_dict(self.resp[i].text, general_utils.JSON)
-            if self.resolution == "month":
-                self.offset=self.offset
-                origin_by_resolution = "%s-01-01T00:00:00.000Z" % (origin_year) # 2015-01-01T00:00:00.000Z
-            elif self.resolution == "day":
-                self.offset=self.offset
-                origin_by_resolution = "%s-%s-01T00:00:00.000Z" % (origin_year, origin_month)
-            elif self.resolution == "hour":
-                origin_by_resolution = "%s-%s-%sT00:00:00.000Z" % (origin_year, origin_month, origin_day)
-            elif self.resolution == "minute":
-                origin_by_resolution = "%s-%s-%sT%s:00:00.000Z" % (origin_year, origin_month, origin_day, origin_hour)
-            elif self.resolution == "second":
-                self.offset = int(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["points"][0]["offset"])
-                c = origin_second - self.offset
-                if ((origin_second-c) < 0 ): origin_minute = origin_minute - 1
-                origin_by_resolution = "%s-%s-%sT%s:%s:00.000Z" % (origin_year, origin_month, origin_day, origin_hour, origin_minute)
-            else:
-                assert False, " ERROR - resolution type \"%s\" is not allowed, review your tests in features..." % (self.resolution)
+        context_json = general_utils.convert_str_to_dict(self.resp.text, general_utils.JSON)
+        if self.resolution == "month":
+            origin_by_resolution = "%s-01-01T00:00:00.000Z" % (origin_year) # 2015-01-01T00:00:00.000Z
+        elif self.resolution == "day":
+            origin_by_resolution = "%s-%s-01T00:00:00.000Z" % (origin_year, origin_month)
+        elif self.resolution == "hour":
+            offset=offset-time_zone
+            origin_by_resolution = "%s-%s-%sT00:00:00.000Z" % (origin_year, origin_month, origin_day)
+        elif self.resolution == "minute":
+            origin_by_resolution = "%s-%s-%sT%s:00:00.000Z" % (origin_year, origin_month, origin_day, origin_hour)
+        elif self.resolution == "second":
+            offset = int(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["points"][0]["offset"])
+            c = int(origin_second) - int(offset)
+            if (int(origin_second)-c) < 0: origin_minute = str(int(origin_minute) - 1)
+            origin_by_resolution = "%s-%s-%sT%s:%s:00.000Z" % (origin_year, origin_month, origin_day, origin_hour, origin_minute)
+        else:
+            assert False, " ERROR - resolution type \"%s\" is not allowed, review your tests in features..." % (self.resolution)
 
-            # attributes
-            assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["name"]) == "%s_%s" % (self.attributes_name, str(i)), \
-                "  ERROR - in aggregated with name %s_%s" % (self.attributes_name, str(i))
-            # values
-            assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["_id"]["entityId"]) == self.entity_id, \
-                "  ERROR - in aggregated with entity id %s" % (self.entity_id)
-            assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["_id"]["entityType"]) == self.entity_type, \
-                "  ERROR - in aggregated with entity type %s" % (self.entity_type)
-            assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["_id"]["attrName"]) == "%s_%s" % (self.attributes_name, str(i)), \
-                 "  ERROR - in aggregated with name %s_%s" % (self.attributes_name, str(i))
-            assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["_id"]["origin"]) == origin_by_resolution, \
-                 "  ERROR - in aggregated with origin %s" % (origin_by_resolution)
-            assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["_id"]["resolution"]) == self.resolution, \
-                 "  ERROR - in aggregated with resolution %s" % (self.resolution)
-            assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["_id"]["range"]) == dupla[self.resolution], \
-                 "  ERROR - in aggregated with range %s" % (dupla[self.resolution])
-            # points
-            assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["points"][0]["offset"]) == str(self.offset), \
-                 "  ERROR - in aggregated with offset %s" % (self.offset)
-            if self.method == "sum":
-                assert float(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["points"][0]["sum"]) == float(self.attributes_value), \
-                 "  ERROR - in aggregated with sum %s" % (str(self.attributes_value))
-            elif self.method == "sum2":
-                assert float(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["points"][0]["sum2"]) == (float(self.attributes_value)*float(self.attributes_value)), \
-                 "  ERROR - in aggregated with sum2 %s" % (str((float(self.attributes_value)*float(self.attributes_value))))
-            elif self.method == "min":
-                assert float(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["points"][0]["min"]) == float(self.attributes_value), \
-                 "  ERROR - in aggregated with min %s" % (str(self.attributes_value))
-            elif self.method == "max":
-                assert float(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["points"][0]["max"]) == float(self.attributes_value), \
-                 "  ERROR - in aggregated with max %s" % (str(self.attributes_value))
+        # attributes
+        assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["name"]) == "%s_%s" % (self.attributes_name, u'0'), \
+            "  ERROR - in aggregated with name %s_%s" % (self.attributes_name, u'0')
+        # values
+        assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["_id"]["entityId"]) == self.entity_id, \
+            "  ERROR - in aggregated with entity id %s" % (self.entity_id)
+        assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["_id"]["entityType"]) == self.entity_type, \
+            "  ERROR - in aggregated with entity type %s" % (self.entity_type)
+        assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["_id"]["attrName"]) == "%s_%s" % (self.attributes_name, u'0'), \
+             "  ERROR - in aggregated with name %s_%s" % (self.attributes_name, u'0')
+        assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["_id"]["origin"]) == origin_by_resolution, \
+             "  ERROR - in aggregated with origin %s" % (origin_by_resolution)
+        assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["_id"]["resolution"]) == self.resolution, \
+             "  ERROR - in aggregated with resolution %s" % (self.resolution)
+        assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["_id"]["range"]) == dupla[self.resolution], \
+             "  ERROR - in aggregated with range %s" % (dupla[self.resolution])
+        # points
+        assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["points"][0]["offset"]) == str(offset), \
+             "  ERROR - in aggregated with offset %s" % (offset)
+        if self.method == "sum":
+            assert float(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["points"][0]["sum"]) == float(self.attributes_value), \
+             "  ERROR - in aggregated with sum %s" % (str(self.attributes_value))
+        elif self.method == "sum2":
+            assert float(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["points"][0]["sum2"]) == (float(self.attributes_value)*float(self.attributes_value)), \
+             "  ERROR - in aggregated with sum2 %s" % (str((float(self.attributes_value)*float(self.attributes_value))))
+        elif self.method == "min":
+            assert float(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["points"][0]["min"]) == float(self.attributes_value), \
+             "  ERROR - in aggregated with min %s" % (str(self.attributes_value))
+        elif self.method == "max":
+            assert float(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["points"][0]["max"]) == float(self.attributes_value), \
+             "  ERROR - in aggregated with max %s" % (str(self.attributes_value))
 
-            # contextElement
-            assert str(context_json["contextResponses"][0]["contextElement"]["id"]) == self.entity_id, \
-                 "  ERROR - in aggregated with entity id %s" % (self.entity_id)
-            assert str(context_json["contextResponses"][0]["contextElement"]["type"]) == self.entity_type, \
-                 "  ERROR - in aggregated with entity type %s" % (self.entity_type)
-            assert str(context_json["contextResponses"][0]["contextElement"]["isPattern"]) == "False", \
-                 "  ERROR - in aggregated with isPattern equal to false"
+        # contextElement
+        assert str(context_json["contextResponses"][0]["contextElement"]["id"]) == self.entity_id, \
+             "  ERROR - in aggregated with entity id %s" % (self.entity_id)
+        assert str(context_json["contextResponses"][0]["contextElement"]["type"]) == self.entity_type, \
+             "  ERROR - in aggregated with entity type %s" % (self.entity_type)
+        assert str(context_json["contextResponses"][0]["contextElement"]["isPattern"]) == "False", \
+             "  ERROR - in aggregated with isPattern equal to false"
 
-            # context Responses
-            assert str(context_json["contextResponses"][0]["statusCode"]["code"]) == "200", \
-                 "  ERROR - in aggregated with status Code equal to 200"
-            assert str(context_json["contextResponses"][0]["statusCode"]["reasonPhrase"]) == "OK", \
-                 "  ERROR - in aggregated with reason Phrase equal to OK"
+        # context Responses
+        assert str(context_json["contextResponses"][0]["statusCode"]["code"]) == "200", \
+             "  ERROR - in aggregated with status Code equal to 200"
+        assert str(context_json["contextResponses"][0]["statusCode"]["reasonPhrase"]) == "OK", \
+             "  ERROR - in aggregated with reason Phrase equal to OK"
 
+    def validate_that_the_aggregated_is_calculated_successfully(self):
+        """
+        validate that the aggregated is calculated successfully
+        """
+        sum  = 0
+        sum2 = 0
+        context_json = general_utils.convert_str_to_dict(self.resp.text, general_utils.JSON)
+        if self.method == "min":
+            assert float(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["points"][0]["min"]) == float(self.attributes_value), \
+             "  ERROR - in aggregated with min %s" % (str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["points"][0]["min"]))
+        elif self.method == "max":
+            assert float(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["points"][0]["max"]) == float(Decimal(self.attributes_value) + self.notifications_number - 1), \
+             "  ERROR - in aggregated with max %s" % (str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["points"][0]["max"]))
+        elif self.method == "sum":
+            for i in range(int(self.notifications_number)):
+                v = int(self.attributes_value) + i
+                sum = sum + v
+            assert float(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["points"][0]["sum"]) == float(sum), \
+             "  ERROR - in aggregated with sum %s" % (str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["points"][0]["sum"]))
+        elif self.method == "sum2":
+            for i in range(int(self.notifications_number)):
+                v = int(self.attributes_value) + i
+                sum2 = sum2 + (v*v)
+            assert float(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["points"][0]["sum2"]) == float(sum2), \
+             "  ERROR - in aggregated with sum2 %s" % (str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["points"][0]["sum2"]))
 
     def verify_that_not_return_aggregated_values(self):
         """
         verify that not return aggregated values
         """
         for i in range (self.attributes_number):
-            context_json = general_utils.convert_str_to_dict(self.resp[i].text, general_utils.JSON)
+            context_json = general_utils.convert_str_to_dict(self.resp.text, general_utils.JSON)
             assert len(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"]) == 0, \
                 "  ERROR - aggregated values are returned:\n %s" % str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"])
+
+    def validate_that_the_raw_is_returned_successfully(self):
+        """
+        validate that the raw is returned successfully
+        """
+        context_json = general_utils.convert_str_to_dict(self.resp.text, general_utils.JSON)
+        # attributes
+        assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["name"]) == "%s_%s" % (self.attributes_name, u'0'), \
+            "  ERROR - in raw with name %s_%s" % (self.attributes_name, u'0')
+
+        assert str(context_json["contextResponses"][0]["contextElement"]["id"]) == self.entity_id, \
+            "  ERROR - in raw with entity id %s" % (self.entity_id)
+        assert str(context_json["contextResponses"][0]["contextElement"]["type"]) == self.entity_type, \
+            "  ERROR - in raw with entity type %s" % (self.entity_type)
+
+        assert str(context_json["contextResponses"][0]["statusCode"]["code"]) == "200", \
+            "  ERROR - in raw with status code - code  %s" % (str(context_json["contextResponses"][0]["statusCode"]["code"]))
+        assert str(context_json["contextResponses"][0]["statusCode"]["reasonPhrase"]) == "OK", \
+            "  ERROR - in raw with status code - code  %s" % (str(context_json["contextResponses"][0]["statusCode"]["reasonPhrase"]))
+        # values
+        values_number = len(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"])
+        if self.last_n != EMPTY:
+            quantity = self.last_n
+        else:
+            quantity = self.h_limit
+        if values_number < quantity:
+            quantity = values_number
+
+        for i in range(quantity):
+            if self.last_n == EMPTY:
+                temp_value = Decimal(self.attributes_value) + i + int(self.h_offset)
+            else:
+                temp_value = Decimal(self.attributes_value) + int(self.notifications_number) - i #reverse
+
+            assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][i]["attrValue"]) == str (temp_value), \
+                "  ERROR - in raw with attribute value in position: %s" % (str(i))
+            assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][i]["recvTime"]) != EMPTY, \
+                "  ERROR - in raw with recvTime in position: %s" % (str(i))
+
+
+

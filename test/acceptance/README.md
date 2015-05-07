@@ -50,7 +50,7 @@ Some examples:
 
 - notifications.
 - aggregated.
-- raw (pending).
+- raw.
 - alarms (pending)
 
 ### configuration.json
@@ -59,7 +59,7 @@ We recommend to create `settings` folder in acceptance folder if it does not exi
 The settings folder path could be changed in the `configuration.json` file in `path_to_settings_folder` field
 This file initially will overwrite properties.json in each feature.
    ```
-   ex: epg_properties.json
+   ex: epg_config.txt
    ```
    * path_to_settings_folder: path where are stored all configurations referenced by properties.json.base
    * log_file: path and file where is log file
