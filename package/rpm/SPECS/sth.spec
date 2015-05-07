@@ -141,3 +141,5 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0744, root, root) /etc/init.d/sth
 %attr(0644, root, root) /etc/logrotate.d/logrotate-sth-daily
 
+%changelog
+

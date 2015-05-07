@@ -3,20 +3,20 @@
 This directory contains tools to make and distribute STH in RPM format used, mainly, in Red Hat, CentOS and
 Fedora Linux distributions.
 
-With the RPM is included:
-- STH SW
-- node modules that are needed by STH
+Within the RPM is included:
+- STH software
+- Node.js modules that are needed by STH
 - [sth](rpm/SOURCES/etc/init.d/sth "sth") init.d script with standard operations
 - Daily log rotation [logrotate-sth-daily](rpm/SOURCES/etc/logrotate.d/logrotate-sth-daily "logrotate")
 - Creation of directories: `/var/log/sth` and `/var/run/sth`
 - User `sth` is created and is the propietary of the installed files and running STH process
 
-## Package STH SW
+## Package STH software
 
-**Prerequisites:** To make RPM is need to have rpm build tools (rpmbuild executable), NodeJS and 
+**Prerequisites:** To make RPM is needed to have rpm build tools (rpmbuild executable), NodeJS and 
 npm utilities and Internet connection to download STH node modules.
 
-To package STH SW just execute from this directory:
+To package STH software just execute from this directory:
 
 `./scripts/package.sh -v <version> -r <release>`
 
