@@ -666,9 +666,183 @@
   }
 
   /**
+   * Notification including no attributes test case
+   * @param service The Fiware-Service header
+   * @param servicePath The Fiware-ServicePath header
+   * @param done The test case callback function
+   */
+  function noAttributesTest(service, servicePath, done) {
+    request({
+      uri: getURL(sthTestConfig.API_OPERATION.NOTIFY),
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': service || sthConfig.SERVICE,
+        'Fiware-ServicePath': servicePath || sthConfig.SERVICE_PATH
+      },
+      json: true,
+      body: {
+        "subscriptionId": "1234567890ABCDF123456789",
+        "originator": "orion.contextBroker.instance",
+        "contextResponses": [
+          {
+            "contextElement": {
+              "attributes": [],
+              "type": "entityType",
+              "isPattern": "false",
+              "id": "entityId"
+            },
+            "statusCode": {
+              "code": "200",
+              "reasonPhrase": "OK"
+            }
+          },
+          {
+            "contextElement": {
+              "attributes": [],
+              "type": "entityType",
+              "isPattern": "false",
+              "id": "entityId"
+            },
+            "statusCode": {
+              "code": "200",
+              "reasonPhrase": "OK"
+            }
+          },
+          {
+            "contextElement": {
+              "attributes": [],
+              "type": "entityType",
+              "isPattern": "false",
+              "id": "entityId"
+            },
+            "statusCode": {
+              "code": "200",
+              "reasonPhrase": "OK"
+            }
+          }
+        ]
+      }
+    }, function (err, response, body) {
+      expect(err).to.equal(null);
+      expect(response.statusCode).to.equal(400);
+      expect(body.statusCode).to.equal(400);
+      expect(response.statusMessage).to.equal('Bad Request');
+      expect(body.error).to.equal('Bad Request');
+      expect(body.validation.source).to.equal('payload');
+      expect(body.validation.keys).to.be.an(Array);
+      expect(body.validation.keys.indexOf('attributes')).to.not.equal(-1);
+      done();
+    });
+  }
+
+  /**
+   * Notification including invalid attribute values test case
+   * @param service The Fiware-Service header
+   * @param servicePath The Fiware-ServicePath header
+   * @param done The test case callback function
+   */
+  function invalidAttributeValuesTest(service, servicePath, done) {
+    request({
+      uri: getURL(sthTestConfig.API_OPERATION.NOTIFY),
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': service || sthConfig.SERVICE,
+        'Fiware-ServicePath': servicePath || sthConfig.SERVICE_PATH
+      },
+      json: true,
+      body: {
+        "subscriptionId": "1234567890ABCDF123456789",
+        "originator": "orion.contextBroker.instance",
+        "contextResponses": [
+          {
+            "contextElement": {
+              "attributes": [
+                {
+                  "name" : sthTestConfig.ATTRIBUTE_NAME,
+                  "type" : sthTestConfig.ATTRIBUTE_TYPE,
+                  "value" : 'just a string'
+                }
+              ],
+              "type": "entityType",
+              "isPattern": "false",
+              "id": "entityId"
+            },
+            "statusCode": {
+              "code": "200",
+              "reasonPhrase": "OK"
+            }
+          },
+          {
+            "contextElement": {
+              "attributes": [
+                {
+                  "name" : sthTestConfig.ATTRIBUTE_NAME,
+                  "type" : sthTestConfig.ATTRIBUTE_TYPE,
+                  "value" : ['just', 'an', 'array']
+                }
+              ],
+              "type": "entityType",
+              "isPattern": "false",
+              "id": "entityId"
+            },
+            "statusCode": {
+              "code": "200",
+              "reasonPhrase": "OK"
+            }
+          },
+          {
+            "contextElement": {
+              "attributes": [
+                {
+                  "name" : sthTestConfig.ATTRIBUTE_NAME,
+                  "type" : sthTestConfig.ATTRIBUTE_TYPE,
+                  "value" : {
+                    just: 'an object'
+                  }
+                }
+              ],
+              "type": "entityType",
+              "isPattern": "false",
+              "id": "entityId"
+            },
+            "statusCode": {
+              "code": "200",
+              "reasonPhrase": "OK"
+            }
+          }
+        ]
+      }
+    }, function (err, response, body) {
+      expect(err).to.equal(null);
+      expect(response.statusCode).to.equal(400);
+      expect(body.statusCode).to.equal(400);
+      expect(response.statusMessage).to.equal('Bad Request');
+      expect(body.error).to.equal('Bad Request');
+      expect(body.validation.source).to.equal('payload');
+      expect(body.validation.keys).to.be.an(Array);
+      expect(body.validation.keys.indexOf('attributes')).to.not.equal(-1);
+      done();
+    });
+  }
+
+  /**
    * A mocha test suite to check the reception of notifications by the Orion Context Broker
    */
   function eventNotificationSuite() {
+    describe('no attribute values notification', function() {
+      it('should respond with 400 - Bad Request', noAttributesTest.bind(
+        null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH));
+    });
+
+    describe('invalid attribute values notification', function() {
+      it('should respond with 400 - Bad Request', invalidAttributeValuesTest.bind(
+        null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH));
+    });
+
     describe('complex notification', function() {
       before(function () {
         events = [];
