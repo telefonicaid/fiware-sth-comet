@@ -289,6 +289,8 @@ a counter used as the suffix for the log file name. Optional. Default value: und
 - COLLECTION_PREFIX: The prefix to be added to the collections in the databases. More information below. Optional. Default value: "sth".
 - DEFAULT_SERVICE_PATH: The service path to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "/".
 - POOL_SIZE: The default MongoDB pool size of database connections. Optional. Default value: "5".
+- WRITE_CONCERN: The <a href="http://docs.mongodb.org/manual/core/write-concern/" target="_blank">write concern policy</a> to apply when writing data to the MongoDB database. Default value: "1".
+- SHOULD_STORE: Flag indicating if the raw and/or aggregated data should be persisted. Valid values are: "only-raw", "only-aggregated" and "both". Default value: "both".
 - DATA_MODEL: The data model to use. Currently 3 possible values are supported: collection-per-service-path (which creates a MongoDB collection
  per service patch to store the data), collection-per-entity (which creates a MongoDB collection per service path and entity to store the data)
  and collection-per-attribute (which creates a collection per service path, entity and attribute to store the data). More information about these
@@ -297,7 +299,7 @@ a counter used as the suffix for the log file name. Optional. Default value: und
 - DB_PASSWORD: The password to use for the database connection. Optional. Default value: "".
 - DB_URI: The URI to use for the database connection. This does not include the 'mongo://' protocol part (see a couple of examples below).
 Optional. Default value: "localhost:27017".
-- DB_NAME: The name of the database to use. Optional. Default value: "test".
+- REPLICA_SET: The name of the replica set to connect to, if any. Default value: "".
 - FILTER_OUT_EMPTY: A flag indicating if the empty results should be removed from the response. Optional. Default value: "true".
 
 For example, to start the STH server listening on port 7777, connecting to a MongoDB instance listening on mymongo.com:27777 and
