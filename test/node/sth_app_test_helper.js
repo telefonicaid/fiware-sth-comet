@@ -835,12 +835,12 @@
   function eventNotificationSuite() {
     describe('no attribute values notification', function() {
       it('should respond with 400 - Bad Request', noAttributesTest.bind(
-        null, sthConfig.SERVICE, sthConfig.SERVICE_PATH));
+        null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH));
     });
 
     describe('invalid attribute values notification', function() {
       it('should respond with 400 - Bad Request', invalidAttributeValuesTest.bind(
-        null, sthConfig.SERVICE, sthConfig.SERVICE_PATH));
+        null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH));
     });
 
     describe('complex notification', function() {

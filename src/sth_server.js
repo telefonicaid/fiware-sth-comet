@@ -429,8 +429,16 @@
             // Aggregated data is requested
             getAggregatedData(request, response, reply, databaseName, unicaCorrelatorPassed);
           } else {
-            var error = boom.badRequest('A combination of the following query params is required: lastN, hLimit and hOffset ' +
-              ', or aggrMethod and aggrPeriod');
+            var message = 'A combination of the following query params is required: lastN, hLimit and hOffset ' +
+              ', or aggrMethod and aggrPeriod';
+            sthLogger.warn(
+              request.method.toUpperCase() + ' ' + request.url.path +
+              ', error=' + message,
+              {
+                operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
+              }
+            );
+            var error = boom.badRequest(message);
             error.output.payload.validation = {source: 'query', keys: ['lastN', 'hLimit', 'hOffset', 'aggrMethod', 'aggrPeriod']};
             return reply(error);
           }
@@ -438,14 +446,28 @@
         config: {
           validate: {
             headers: function(value, options, next) {
-              var error;
+              var error, message;
               if (!value['fiware-service']) {
-                error = boom.badRequest('child "fiware-service" fails because [fiware-service is required]');
+                message = 'error=child "fiware-service" fails because [fiware-service is required]';
+                sthLogger.warn(
+                  message,
+                  {
+                    operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
+                  }
+                );
+                error = boom.badRequest(message);
                 error.output.payload.validation = {source: 'headers', keys: ['fiware-service']};
                 next(error);
 
               } else if (!value['fiware-servicepath']) {
-                error = boom.badRequest('child "fiware-servicepath" fails because [fiware-servicepath is required]');
+                message = 'child "fiware-servicepath" fails because [fiware-servicepath is required]';
+                sthLogger.warn(
+                  message,
+                  {
+                    operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
+                  }
+                );
+                error = boom.badRequest(message);
                 error.output.payload.validation = {source: 'headers', keys: ['fiware-servicepath']};
                 next(error);
               }
@@ -549,7 +571,15 @@
                 }
               }
             } else {
-              var error = boom.badRequest('At least one attribute with an aggregatable value should be included in the notification');
+              var message = 'At least one attribute with an aggregatable value should be included in the notification';
+              sthLogger.warn(
+                request.method.toUpperCase() + ' ' + request.url.path +
+                ', error=' + message,
+                {
+                  operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
+                }
+              );
+              var error = boom.badRequest(message);
               error.output.payload.validation = {source: 'payload', keys: ['attributes']};
               return reply(error);
             }
