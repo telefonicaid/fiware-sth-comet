@@ -11,7 +11,8 @@
 * [STH component complete test coverage](#section6)
 * [Performance tests](#section7)
 * [Additional resources] (#section8)
-* [Contact](#section9)
+* [How to contribute] (#section9)
+* [Contact](#section10)
 
 ##<a id="section1"></a> Introduction
 The STH component is a FIWARE component in charge of providing aggregated time series information about the evolution in
@@ -440,7 +441,40 @@ If you are interested on them, please navigate to that section of the repository
 
 [Top](#section0)
 
-##<a id="section9"></a>Contact
+##<a id="section9"></a>How to contribute
+
+Would you like to contribute to the project? This is how you can do it:
+
+1. Fork this repository clicking on the "Fork" button on the upper-right area of the page.
+2. Clone your just forked repository:
+<pre>git clone https://github.com/your-github-username/IoT-STH.git</pre>
+3. Add the main IoT-STH repository as a remote to your forked repository (use any name for your remote repository, it does not have to be IoT-STH, although we will use it in the next steps):
+<pre>git remote add IoT-STH https://github.com/telefonicaid/IoT-STH.git</pre>
+4. Synchronize the ```develop``` branch in your forked repository with the ```develop``` branch in the main IoT-STH repository:
+<br/><br/>(step 4.1, just in case you were not in the ```develop``` branch yet) <pre>git checkout develop</pre>
+(step 4.2)<pre>git fetch IoT-STH</pre>
+(step 4.3)<pre>git rebase IoT-STH/develop</pre>
+5. Create a new local branch for your new code (currently we use the prefixes: ```feature/``` for new features, ```task/``` for maintenance and documentation issues and ```bug/``` for bugs):
+<pre>git checkout -b feature/some-new-feature</pre>
+6. Include your changes and create the corresponding commits.
+7. To assure that your code will land nicely, repeat steps 4.2 and 4.3 from your ```feature/some-new-feature``` branch to synchronize it with the latest code which may have landed in the ```develop``` branch of the main IoT-STH repository during your implementation.
+8. Push your code to your forked repository hosted in Github:
+<pre>git push origin feature/some-new-feature</pre>
+9. Launch a new pull request from your forked repository to the ```develop``` branch of the main IoT-STH repository. You may find some active pull requests available at <a href="https://github.com/telefonicaid/IoT-STH/pulls" target="_blank">https://github.com/telefonicaid/IoT-STH/pulls</a>.
+10. Assign the pull request to any of the main IoT-STH developers (currently, [@gtorodelvalle](https://github.com/gtorodelvalle) or [@frbattid](https://github.com/frbattid)) for review.
+11. After the review process is successfully completed, your code will land into the ```develop``` branch of the main IoT-STH repository. Congratulations!!!
+
+For additional contributions, just repeat these steps from step 4 on.
+
+To further guide you through your first contributions, we have created the label [```mentored```](https://github.com/telefonicaid/IoT-STH/labels/mentored)
+which are assigned to those bugs and issues simple and interesting enough to be solved by people new to the project.
+Feel free to assign any of them to yourself and do not hesitate to mention any of the main developers
+(this is, [@gtorodelvalle](https://github.com/gtorodelvalle) or [@frbattid](https://github.com/frbattid))
+in the issue's comments to get help from them during its resolution. They will be glad to help you. 
+
+[Top](#section0)
+
+##<a id="section10"></a>Contact
 * Germán Toro del Valle (<a href="mailto:german.torodelvalle@telefonica.com">german.torodelvalle@telefonica.com</a>, <a href="http://www.twitter.com/gtorodelvalle" target="_blank">@gtorodelvalle</a>)
 * Francisco Romero Bueno (<a href="mailto:francisco.romerobueno@telefonica.com">francisco.romerobueno@telefonica.com</a>)
 * Iván Arias León (<a href="mailto:ivan.ariasleon@telefonica.com">ivan.ariasleon@telefonica.com</a>)
