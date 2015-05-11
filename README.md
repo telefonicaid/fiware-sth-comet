@@ -274,15 +274,23 @@ The STH component server is ready to be started.
 1. To run the STH server, just execute:
 <pre> npm start </pre>
 
+The STH component provides the user with 2 mechanisms to configure the component to the concrete needs of the user:
+
+* Environment variables, which can be set assigning values to them or using the `sth_default.conf` file if a packaged
+version of the STH component is used.
+* The [`config.js`](https://github.com/telefonicaid/IoT-STH/blob/develop/config.js) located at the root of the STH component code, a JSON formatted file including the configuration properties.
+
+It is important to note that environment variables, if set, take precedence over the properties defined in the `config.js` file.
+
 The script accepts the following parameters as environment variables:
 
 - STH_HOST: The host where the STH server will be started. Optional. Default value: "localhost".
-- STH_PORT: The port where the STH server will be listening. Optional. Default value: 8666.
+- STH_PORT: The port where the STH server will be listening. Optional. Default value: "8666".
 - LOG_LEVEL: The logging level of the messages. Messages with a level equal or superior to this will be logged. Optional. Default value: "info".
-- LOG_TO_CONSOLE: A flag indicating if the logs should be sent to the console. Optional. Default value: true.
-- LOG_TO_FILE: A flag indicating if the logs should be sent to a file. Optional. Default value: true.
+- LOG_TO_CONSOLE: A flag indicating if the logs should be sent to the console. Optional. Default value: "true".
+- LOG_TO_FILE: A flag indicating if the logs should be sent to a file. Optional. Default value: "true".
 - LOG_FILE_MAX_SIZE_IN_BYTES: Maximum size in bytes of the log files. If the maximum size is reached, a new log file is created incrementing
-a counter used as the suffix for the log file name. Optional. Default value: undefined.
+a counter used as the suffix for the log file name. Optional. Default value: "0" (no size limit).
 - LOG_DIR: The path to a directory where the log file will be searched for or created if it does not exist. Optional. Default value: "./log".
 - LOG_FILE_NAME: The name of the file where the logs will be stored. Optional. Default value: "sth_app.log".
 - PROOF_OF_LIFE_INTERVAL: The time in seconds between proof of life logging messages informing that the server is up and running normally. Default value: "60".
@@ -296,7 +304,7 @@ a counter used as the suffix for the log file name. Optional. Default value: und
 - DATA_MODEL: The data model to use. Currently 3 possible values are supported: collection-per-service-path (which creates a MongoDB collection
  per service patch to store the data), collection-per-entity (which creates a MongoDB collection per service path and entity to store the data)
  and collection-per-attribute (which creates a collection per service path, entity and attribute to store the data). More information about these
- values below. Optional. Default value: "collection-per-attribute".
+ values below. Optional. Default value: "collection-per-entity".
 - DB_USERNAME: The username to use for the database connection. Optional. Default value: "".
 - DB_PASSWORD: The password to use for the database connection. Optional. Default value: "".
 - DB_URI: The URI to use for the database connection. This does not include the 'mongo://' protocol part (see a couple of examples below).
@@ -332,6 +340,9 @@ entity and attribute triple for each one of the databases, storing in these coll
 As as side note, just mention that the attribute type is not included in the name of the created collections since it is not provided
 when querying the STH using the convenience operation provided. This aspect is 100% aligned with the Orion Context Broker where
 the attribute type does not have any special semantic or effect currently.
+
+As already mentioned, all this configuration parameters can also be adjusted using the
+[`config.js`](https://github.com/telefonicaid/IoT-STH/blob/develop/config.js) file whose contents are self-explanatory.
 
 [Top](#section0)
 
