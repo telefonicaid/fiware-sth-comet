@@ -1,15 +1,15 @@
 {
   "name": "fiware-comet",
   "description": "Node.js app exposing the Short Time Historic (STH) FIWARE component REST API for reading",
-  "version": "0.1.0",
-  "repository" : {
-    "type" : "git",
-    "url" : "https://github.com/telefonicaid/IoT-STH.git"
+  "version": "0.1.0-SNAPSHOT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/telefonicaid/IoT-STH.git"
   },
   "devDependencies": {
     "expect.js": "^0.3.1",
     "mocha": "^2.1.0",
-    "request": "^2.53.0"
+    "request": "^2.55.0"
   },
   "dependencies": {
     "boom": "^2.7.1",

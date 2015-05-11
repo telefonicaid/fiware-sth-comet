@@ -65,6 +65,15 @@
       return process.nextTick(callback);
     }
 
+    var version = sthHelper.getVersion();
+    sthLogger.info(
+      'Starting up STH server version %s...',
+      version.version,
+      {
+        operationType: sthConfig.OPERATION_TYPE.SERVER_START
+      }
+    );
+
     sthLogger.info(
       'Data model set to %s',
       sthConfig.DATA_MODEL,

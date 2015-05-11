@@ -3,6 +3,8 @@
 (function() {
   "use strict";
 
+  var sthPackage = require('../package.json');
+
   var sthConfig, sthLogger;
 
   /**
@@ -190,6 +192,23 @@
     return ngsiResponse;
   }
 
+  /**
+   * Returns version information about this concrete instance of the STH component
+   * @return {object} A JSON-formatted object including the version information
+   */
+  function getVersion() {
+    var message = {};
+    if (sthPackage) {
+      if (sthPackage.version) {
+        message.version = sthPackage.version;
+      }
+    }
+    if (Object.getOwnPropertyNames(message).length === 0) {
+      message.version = 'No version information available';
+    }
+    return message;
+  }
+
   module.exports = function(aSthConfig, aSthLogger) {
     sthConfig = aSthConfig;
     sthLogger = aSthLogger;
@@ -201,7 +220,8 @@
       getTransactionId: getTransactionId,
       getOperationType: getOperationType,
       getISODateString: getISODateString,
-      getNGSIPayload: getNGSIPayload
+      getNGSIPayload: getNGSIPayload,
+      getVersion: getVersion
     };
   };
 })();
