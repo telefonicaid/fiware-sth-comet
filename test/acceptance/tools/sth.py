@@ -364,7 +364,7 @@ class STH:
                      "_id.resolution" : resolution }
         world.mongo.connect("%s_%s" % (STH_DATABASE_PREFIX, self.service))
         world.mongo.choice_collection("%s_%s.%s" % (STH_COLLECTION_PREFIX, self.service_path, AGGR))
-        cursor = world.mongo.find_with_retry(find_dict)
+        cursor = world.mongo.find_data(find_dict)
         assert cursor.count() == 0, " ERROR - the aggregated has been stored in mongo."
         world.mongo.disconnect()
 
@@ -379,7 +379,7 @@ class STH:
         line = log.find_line(label, text)
 
         #verify if a line with a level and a text exists in the log
-        assert line != None, "ERROR  - label %s and text %s is not found.    \n       - %s" % (label, text, line)
+        assert line != None, "ERROR  - label: \"%s\" and text: \"%s\" is not found.    \n       - %s" % (label, text, line)
         # verify if the new line in log has been wrote after the notification was sent
         assert self.date_time < log.get_line_time_in_log(line), "ERROR - the lines has not  been logged"
 

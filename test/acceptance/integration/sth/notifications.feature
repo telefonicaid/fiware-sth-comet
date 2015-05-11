@@ -164,18 +164,17 @@ Feature: Store in mongo new notifications from context broker in raw and aggrega
     | 4234234234.324234233129797897978997 | False    |
     | random number=10                    | True     |
 
-  @error_values @BUG_46 @skip
+  @error_values @BUG_46
   Scenario Outline:  stored new notifications in mongo from context broker with metadata with several attributes values and metadatas
     Given service "test_error_values", service path "/my_service_path", entity type "house", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     When receives a notification with attributes value "<attributes_value>", metadata value "False" and content "json"
-    Then check in log, label "lvl=FATAL" and text "msg=Attribute value not aggregatable, alarm_status=ALARM"
-    And validate that the attribute value and type are stored in mongo
+    Then check in log, label "lvl=WARN" and text "error=At least one attribute with an aggregatable value should be included in the notification"
     And validate that the aggregated value is not generate by resolution "month" in mongo
   Examples:
     | attributes_value                                                                             |
     | fsdfsdf                                                                                      |
     | 40.418889, -3.691944                                                                         |
-    | {"circle": {"centerLatitude": "40.418889","centerLongitude": "-3.691944","radius": "15000"}} |
+    | {'circle': {'centerLatitude': '40.418889','centerLongitude': '-3.691944','radius': '15000'}} |
 
 
 

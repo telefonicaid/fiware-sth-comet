@@ -31,6 +31,12 @@ import tools.general_utils
 from tools.properties_config import Properties
 
 def initial_conf(file_name, sudo_run, drop_all_databases):
+    """
+    define initial config simulate background in lettuce
+    :param file_name:
+    :param sudo_run:
+    :param drop_all_databases:
+    """
     print colored("  Background: in terrain...", 'white', 'on_grey', attrs=['bold'])
     print colored("    Given starting the configuration from terrain...", 'green', 'on_grey', attrs=['bold'])
     properties = Properties (file=file_name, sudo=sudo_run)
