@@ -9,6 +9,8 @@
 
   var server, sthDatabase, sthConfig, sthLogger, sthHelper;
 
+  var attendedRequests = 0;
+
   /**
    * Starts the server asynchronously
    * @param {string} host The STH server host
@@ -24,7 +26,7 @@
 
     server.on('log', function(event, tags) {
       if (tags.load) {
-        sthLogger.fatal('event=' + JSON.stringify(event), {
+        sthLogger.warn('event=' + JSON.stringify(event), {
           operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
         });
       }
@@ -40,7 +42,7 @@
             }
           );
         } else {
-          sthLogger.fatal(
+          sthLogger.error(
             request.method.toUpperCase() + ' ' + request.url.path +
             ', event=' + JSON.stringify(event), {
               operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
@@ -83,7 +85,7 @@
             sthLogger.warn(
               'The collection %s does not exist', collectionName, request.info.sth);
 
-            sthLogger.trace(
+            sthLogger.debug(
               'Responding with no points',
               request.info.sth);
             var emptyResponse =sthHelper.getEmptyResponse();
@@ -95,7 +97,7 @@
             response = reply(ngsiPayload);
           } else {
             // The collection exists
-            sthLogger.trace(
+            sthLogger.debug(
               'The collection %s exists', collectionName, request.info.sth);
 
             sthDatabase.getRawData(
@@ -113,16 +115,16 @@
                   // Error when getting the aggregated data
                   sthLogger.error(
                     'Error when getting data from %s', collectionName, request.info.sth);
-                  sthLogger.trace(
+                  sthLogger.debug(
                     'Responding with 500 - Internal Error', request.info.sth);
                   response = reply(err);
                 } else if (!result || !result.length) {
                   // No aggregated data available for the request
-                  sthLogger.trace(
+                  sthLogger.debug(
                     'No aggregated data available for the request: ' + request.url.path,
                     request.info.sth);
 
-                  sthLogger.trace(
+                  sthLogger.debug(
                     'Responding with no points', request.info.sth);
                   response = reply(
                     sthHelper.getNGSIPayload(
@@ -133,7 +135,7 @@
                     )
                   );
                 } else {
-                  sthLogger.trace(
+                  sthLogger.debug(
                     'Responding with %s docs', result.length, request.info.sth);
                   response = reply(
                     sthHelper.getNGSIPayload(
@@ -180,7 +182,7 @@
             sthLogger.warn(
               'The collection %s does not exist', collectionName, request.info.sth);
 
-            sthLogger.trace(
+            sthLogger.debug(
               'Responding with no points',
               request.info.sth);
             var emptyResponse =sthHelper.getEmptyResponse();
@@ -192,7 +194,7 @@
             response = reply(ngsiPayload);
           } else {
             // The collection exists
-            sthLogger.trace(
+            sthLogger.debug(
               'The collection %s exists', collectionName, request.info.sth);
 
             sthDatabase.getAggregatedData(
@@ -211,16 +213,16 @@
                   // Error when getting the aggregated data
                   sthLogger.error(
                     'Error when getting data from %s', collectionName, request.info.sth);
-                  sthLogger.trace(
+                  sthLogger.debug(
                     'Responding with 500 - Internal Error', request.info.sth);
                   response = reply(err);
                 } else if (!result || !result.length) {
                   // No aggregated data available for the request
-                  sthLogger.trace(
+                  sthLogger.debug(
                     'No aggregated data available for the request: ' + request.url.path,
                     request.info.sth);
 
-                  sthLogger.trace(
+                  sthLogger.debug(
                     'Responding with no points', request.info.sth);
                   response = reply(
                     sthHelper.getNGSIPayload(
@@ -231,7 +233,7 @@
                     )
                   );
                 } else {
-                  sthLogger.trace(
+                  sthLogger.debug(
                     'Responding with %s docs', result.length, request.info.sth);
                   response = reply(
                     sthHelper.getNGSIPayload(
@@ -286,7 +288,7 @@
             return reply(err);
           } else {
             // The collection exists
-            sthLogger.trace(
+            sthLogger.debug(
               'The collection %s exists', collectionName4Events,
               request.info.sth);
 
@@ -303,12 +305,12 @@
                 attribute.value,
                 function (err) {
                   if (err) {
-                    sthLogger.fatal(
+                    sthLogger.error(
                       'Error when storing the raw data associated to a notification event',
                       request.info.sth
                     );
                   } else {
-                    sthLogger.trace(
+                    sthLogger.debug(
                       'Raw data associated to a notification event successfully stored',
                       request.info.sth
                     );
@@ -360,7 +362,7 @@
             return reply(err);
           } else {
             // The collection exists
-            sthLogger.trace(
+            sthLogger.debug(
               'The collection %s exists', collectionName4Events,
               request.info.sth);
 
@@ -377,12 +379,12 @@
                 attribute.value,
                 function (err) {
                   if (err) {
-                    sthLogger.fatal(
+                    sthLogger.error(
                       'Error when storing the aggregated data associated to a notification event',
                       request.info.sth
                     );
                   } else {
-                    sthLogger.trace(
+                    sthLogger.debug(
                       'Aggregated data associated to a notification event successfully stored',
                       request.info.sth
                     );
@@ -412,7 +414,7 @@
             operationType: sthHelper.getOperationType(request)
             };
 
-          sthLogger.trace(
+          sthLogger.debug(
             request.method.toUpperCase() + ' ' + request.url.path,
             request.info.sth);
 
@@ -447,6 +449,9 @@
           validate: {
             headers: function(value, options, next) {
               var error, message;
+
+              attendedRequests++;
+
               if (!value['fiware-service']) {
                 message = 'error=child "fiware-service" fails because [fiware-service is required]';
                 sthLogger.warn(
@@ -458,7 +463,6 @@
                 error = boom.badRequest(message);
                 error.output.payload.validation = {source: 'headers', keys: ['fiware-service']};
                 next(error);
-
               } else if (!value['fiware-servicepath']) {
                 message = 'child "fiware-servicepath" fails because [fiware-servicepath is required]';
                 sthLogger.warn(
@@ -548,7 +552,7 @@
                   for (var j = 0; j < attributes.length; j++) {
                     if (isNaN(attributes[j].value)) {
                       // The attribute value is not a number and consequently not able to be aggregated.
-                      sthLogger.fatal('Attribute value not aggregatable', {
+                      sthLogger.warn('Attribute value not aggregatable', {
                         operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
                       });
                       continue;
@@ -588,6 +592,8 @@
         config: {
           validate: {
             headers: function(value, options, next) {
+              attendedRequests++;
+
               if (!value['fiware-service']) {
                 value['fiware-service'] = sthConfig.DEFAULT_SERVICE;
               }
@@ -616,7 +622,7 @@
     sthLogger.info('Stopping the STH server...', {
       operationType: sthConfig.OPERATION_TYPE.SERVER_STOP
     });
-    if (server && server.info && server.info.started && server.info.listener) {
+    if (server && server.info && server.info.started) {
       server.stop(function (err) {
         // Server successfully stopped
         sthLogger.info('hapi server successfully stopped', {
@@ -632,6 +638,23 @@
     }
   }
 
+  /**
+   * Returns the server KPIs
+   * @return {{attendedRequests: number}}
+   */
+  function getKPIs() {
+    return {
+      attendedRequests: attendedRequests
+    }
+  }
+
+  /**
+   * Resets the server KPIs
+   */
+  function resetKPIs() {
+    attendedRequests = 0;
+  }
+
   module.exports = function (aSthConfig, aSthLogger, aSthHelper) {
     sthConfig = aSthConfig;
     sthLogger = aSthLogger;
@@ -641,7 +664,9 @@
         return server;
       },
       startServer: startServer,
-      stopServer: stopServer
+      stopServer: stopServer,
+      getKPIs: getKPIs,
+      resetKPIs: resetKPIs
     };
   };
 })();

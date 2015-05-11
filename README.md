@@ -285,6 +285,7 @@ The script accepts the following parameters as environment variables:
 a counter used as the suffix for the log file name. Optional. Default value: undefined.
 - LOG_DIR: The path to a directory where the log file will be searched for or created if it does not exist. Optional. Default value: "./log".
 - LOG_FILE_NAME: The name of the file where the logs will be stored. Optional. Default value: "sth_app.log".
+- PROOF_OF_LIFE_INTERVAL: The time in seconds between proof of life logging messages informing that the server is up and running normally. Default value: "60".
 - DB_PREFIX: The prefix to be added to the service for the creation of the databases. More information below. Optional. Default value: "sth".
 - DEFAULT_SERVICE: The service to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "orion".
 - COLLECTION_PREFIX: The prefix to be added to the collections in the databases. More information below. Optional. Default value: "sth".
