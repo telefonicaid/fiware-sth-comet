@@ -1,1 +1,2 @@
-* Package to distribute and to maintain the STH software (#64)
+* [Feature] Package to distribute and to maintain the STH software (#64)
+* [Bug] Using lastN in raw request, returns the first entries instead of the last entries (#55)
