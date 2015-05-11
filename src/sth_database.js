@@ -304,15 +304,19 @@
         attrValue: 1,
         recvTime: 1
       }
-    ).sort({'recvTime': 1});
+    ).sort({'recvTime': -1});
 
     if (lastN) {
-      cursor.limit(lastN);
+      cursor.limit(lastN).toArray(function(err, results) {
+        if (!err) {
+          results.reverse();
+        }
+        return process.nextTick(callback.bind(null, err, results));
+      });
     } else {
       cursor.skip(hOffset).limit(hLimit);
+      return cursor.toArray(callback);
     }
-
-    cursor.toArray(callback);
   }
 
   /**
