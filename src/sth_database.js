@@ -301,6 +301,7 @@
       findCondition,
       {
         _id: 0,
+        attrType: 1,
         attrValue: 1,
         recvTime: 1
       }
