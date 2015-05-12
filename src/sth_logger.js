@@ -11,21 +11,17 @@
   var sthConfig;
 
   var LOG_LEVEL = {
-    trace: 'trace',
-    info: 'info',
     debug: 'debug',
+    info: 'info',
     warn: 'warn',
-    error: 'error',
-    fatal: 'fatal'
+    error: 'error'
   };
 
   var LOG_LEVEL_CONFIG = {
-    trace: 0,
+    debug: 0,
     info: 1,
-    debug: 2,
-    warn: 3,
-    error: 4,
-    fatal: 5
+    warn: 2,
+    error: 3
   };
 
   /**
@@ -66,7 +62,7 @@
       ' | trans=' + (log.meta.transactionId || sthConfig.TRANSACTION_ID.NOT_AVAILABLE) +
       ' | op=' + (log.meta.operationType || sthConfig.OPERATION_TYPE.NOT_AVAILABLE) +
       ' | msg=' + log.message +
-      ((log.level === LOG_LEVEL.fatal) ? ', alarm_status=ALARM' : '');
+      ((log.level === LOG_LEVEL.error) ? ', alarm_status=ALARM' : '');
   }
 
   module.exports = function(theSthConfig) {

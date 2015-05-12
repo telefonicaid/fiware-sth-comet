@@ -9,7 +9,7 @@
   var sthDatabase = require('./sth_database')(sthConfig, sthLogger, sthHelper);
   var sthServer = require('./sth_server')(sthConfig, sthLogger, sthHelper);
 
-  var isStarted = false;
+  var isStarted = false, proofOfLifeInterval;
 
   /**
    * Stops the application stopping the server after completing all the
@@ -42,11 +42,14 @@
       if (message.indexOf('listen EADDRINUSE') !== -1) {
         message += ' (another STH instance maybe already listening on the same port)';
       }
-      sthLogger.fatal(message, {
+      sthLogger.error(message, {
         operationType: sthConfig.OPERATION_TYPE.SHUTDOWN
       });
     }
 
+    if (proofOfLifeInterval) {
+      clearInterval(proofOfLifeInterval);
+    }
     sthServer.stopServer(sthDatabase.closeConnection.bind(null, onStopped));
   }
 
@@ -92,7 +95,7 @@
         sthServer.startServer(
           sthConfig.STH_HOST, sthConfig.STH_PORT, sthDatabase, function (err) {
             if (err) {
-              sthLogger.fatal(err.toString(), {
+              sthLogger.error(err.toString(), {
                 operationType: sthConfig.OPERATION_TYPE.SERVER_START
               });
               // Error when starting the server
@@ -115,7 +118,15 @@
   // Starts the STH application up in case this file has not been 'require'd,
   //  such as, for example, for testing
   if (!module.parent) {
-    startup();
+    startup(function() {
+      proofOfLifeInterval = setInterval(function() {
+        sthLogger.info('Everything OK, ' + sthServer.getKPIs().attendedRequests + ' requests attended in the last ' +
+          sthConfig.PROOF_OF_LIFE_INTERVAL + 's interval', {
+          operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
+        });
+        sthServer.resetKPIs();
+      }, parseInt(sthConfig.PROOF_OF_LIFE_INTERVAL) * 1000);
+    });
   }
 
   // In case Control+C is clicked, exit gracefully
