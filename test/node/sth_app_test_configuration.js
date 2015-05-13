@@ -27,7 +27,8 @@
     CLEAN: ENV.CLEAN !== 'false',
     API_OPERATION : {
       READ: 'read',
-      NOTIFY: 'notify'
+      NOTIFY: 'notify',
+      VERSION: 'version'
     }
   };
 })();

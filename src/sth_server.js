@@ -490,6 +490,14 @@
         }
       },
       {
+        method: 'GET',
+        path: '/version',
+        handler: function(request, reply) {
+          var message = sthHelper.getVersion();
+          return reply(message);
+        }
+      },
+      {
         method: 'POST',
         path: '/notify',
         handler: function(request, reply) {

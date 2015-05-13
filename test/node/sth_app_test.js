@@ -211,6 +211,20 @@
 
   describe('event notification by the Orion Context Broker', sthTestHelper.eventNotificationSuite);
 
+  describe('GET /version', function() {
+    it('should provide version information', function(done){
+      request({
+        uri: sthTestHelper.getURL(sthTestConfig.API_OPERATION.VERSION),
+        method: 'GET'
+      }, function(err, response, body) {
+        var bodyJSON = JSON.parse(body);
+        expect(err).to.equal(null);
+        expect(bodyJSON.version).not.to.be(undefined);
+        done();
+      });
+    });
+  });
+
   describe('should clean the data if requested', sthTestHelper.cleanDatabaseSuite);
 
   describe('server stop', function() {

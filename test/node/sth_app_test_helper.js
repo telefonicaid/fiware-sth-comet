@@ -282,6 +282,13 @@
           url += '/notify';
         }
         break;
+      case sthTestConfig.API_OPERATION.VERSION:
+        if (options && options.invalidPath) {
+          url += '/invalidVersionPath';
+        } else {
+          url += '/version';
+        }
+        break;
     }
     return url;
   }
