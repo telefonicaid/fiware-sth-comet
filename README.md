@@ -286,7 +286,8 @@ The script accepts the following parameters as environment variables:
 
 - STH_HOST: The host where the STH server will be started. Optional. Default value: "localhost".
 - STH_PORT: The port where the STH server will be listening. Optional. Default value: "8666".
-- LOG_LEVEL: The logging level of the messages. Messages with a level equal or superior to this will be logged. Optional. Default value: "info".
+- LOG_LEVEL: The logging level of the messages. Messages with a level equal or superior to this will be logged.
+Accepted values are: "debug", "info", "warn" and "error". Optional. Default value: "info".
 - LOG_TO_CONSOLE: A flag indicating if the logs should be sent to the console. Optional. Default value: "true".
 - LOG_TO_FILE: A flag indicating if the logs should be sent to a file. Optional. Default value: "true".
 - LOG_FILE_MAX_SIZE_IN_BYTES: Maximum size in bytes of the log files. If the maximum size is reached, a new log file is created incrementing

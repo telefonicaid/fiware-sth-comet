@@ -57,7 +57,7 @@ config.database = {
 //------------------------
 config.logging = {
   // The logging level of the messages. Messages with a level equal or superior to this will be logged.
-  //  Default value: "info".
+  //  Accepted values are: "debug", "info", "warn" and "error". Default value: "info".
   level: 'info',
   // A flag indicating if the logs should be sent to the console. Default value: "true".
   toConsole: 'true',
@@ -73,6 +73,7 @@ config.logging = {
   // The name of the file where the logs will be stored. Default value: "sth_app.log".
   fileName: 'sth_app.log',
   // The time in seconds between proof of life logging messages informing that the server is up and running normally.
+  //  Default value: "60"
   proofOfLifeInterval: '60'
 };
 
