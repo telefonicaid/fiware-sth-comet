@@ -33,10 +33,10 @@ config.database = {
   // The name of the replica set to connect to, if any. Default value: "".
   replicaSet: '',
   // The prefix to be added to the service for the creation of the databases. Default value: "sth".
-  prefix: 'sth',
+  prefix: 'sth_',
   // The prefix to be added to the collections in the databases. More information below.
   //  Default value: "sth".
-  collectionPrefix: 'sth',
+  collectionPrefix: 'sth_',
   // The default MongoDB pool size of database connections. Optional. Default value: "5".
   poolSize: '5',
   // The write concern (see http://docs.mongodb.org/manual/core/write-concern/) to apply when

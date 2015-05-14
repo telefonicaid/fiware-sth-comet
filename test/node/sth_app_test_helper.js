@@ -81,16 +81,17 @@
    * @param {Function} done The mocha done() callback function
    */
   function addEventTest(anEvent, done) {
-    var databaseName = sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE);
-
-    var collectionName4Events = sthDatabase.getCollectionName4Events(
-      sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-      sthTestConfig.ATTRIBUTE_NAME);
-
     // Check if the collection exists
     sthDatabase.getCollection(
-      databaseName,
-      collectionName4Events,
+      {
+        service: sthConfig.DEFAULT_SERVICE,
+        servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+        entityId: sthTestConfig.ENTITY_ID,
+        entityType: sthTestConfig.ENTITY_TYPE,
+        attrName: sthTestConfig.ATTRIBUTE_NAME
+      },
+      false,
+      true,
       true,
       function (err, collection) {
         if (err) {
@@ -112,16 +113,17 @@
    * @param {Function} done The mocha done() callback function
    */
   function addAggregatedDataTest(anEvent, resolution, done) {
-    var databaseName = sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE);
-
-    var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
-      sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-      sthTestConfig.ATTRIBUTE_NAME);
-
     // Check if the collection exists
     sthDatabase.getCollection(
-      databaseName,
-      collectionName4Aggregated,
+      {
+        service: sthConfig.DEFAULT_SERVICE,
+        servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+        entityId: sthTestConfig.ENTITY_ID,
+        entityType: sthTestConfig.ENTITY_TYPE,
+        attrName: sthTestConfig.ATTRIBUTE_NAME
+      },
+      true,
+      true,
       true,
       function (err, collection) {
         if (err) {
@@ -194,9 +196,10 @@
    * @param {Function} done The mocha done() callback function
    */
   function dropRawEventCollectionTest(done) {
+    var databaseName = sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE);
     var collectionName4Events = sthDatabase.getCollectionName4Events(
-      sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-      sthTestConfig.ATTRIBUTE_NAME);
+      databaseName, sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID,
+      sthTestConfig.ENTITY_TYPE, sthTestConfig.ATTRIBUTE_NAME);
     sthDatabase.connection.db.dropCollection(collectionName4Events, function (err) {
       if (err && err.message === 'ns not found') {
         err = null;
@@ -210,9 +213,10 @@
    * @param {Function} done The mocha done() callback function
    */
   function dropAggregatedDataCollectionTest(done) {
+    var databaseName = sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE);
     var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
-      sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-      sthTestConfig.ATTRIBUTE_NAME);
+      databaseName, sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID,
+      sthTestConfig.ENTITY_TYPE, sthTestConfig.ATTRIBUTE_NAME);
     sthDatabase.connection.db.dropCollection(collectionName4Aggregated, function (err) {
       if (err && err.message === 'ns not found') {
         err = null;
@@ -619,10 +623,17 @@
   function cleanDatabaseSuite() {
     if (sthTestConfig.CLEAN) {
       it('should drop the collection created for the events', function (done) {
-        var collectionName4Events = sthDatabase.getCollectionName4Events(
-          sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-          sthTestConfig.ATTRIBUTE_NAME);
-        sthDatabase.getCollection(sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE), collectionName4Events, false,
+        sthDatabase.getCollection(
+          {
+            service: sthConfig.DEFAULT_SERVICE,
+            servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+            entityId: sthTestConfig.ENTITY_ID,
+            entityType: sthTestConfig.ENTITY_TYPE,
+            attrName: sthTestConfig.ATTRIBUTE_NAME
+          },
+          false,
+          false,
+          false,
           function (err, collection) {
             if (err) {
               return done(err);
@@ -635,11 +646,16 @@
       });
 
       it('should drop the collection created for the aggregated data', function (done) {
-        var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
-          sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-          sthTestConfig.ATTRIBUTE_NAME);
-        sthDatabase.getCollection(sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE),
-          collectionName4Aggregated,
+        sthDatabase.getCollection(
+          {
+            service: sthConfig.DEFAULT_SERVICE,
+            servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+            entityId: sthTestConfig.ENTITY_ID,
+            entityType: sthTestConfig.ENTITY_TYPE,
+            attrName: sthTestConfig.ATTRIBUTE_NAME
+          },
+          true,
+          false,
           false,
           function (err, collection) {
             if (err) {

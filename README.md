@@ -295,9 +295,9 @@ a counter used as the suffix for the log file name. Optional. Default value: "0"
 - LOG_DIR: The path to a directory where the log file will be searched for or created if it does not exist. Optional. Default value: "./log".
 - LOG_FILE_NAME: The name of the file where the logs will be stored. Optional. Default value: "sth_app.log".
 - PROOF_OF_LIFE_INTERVAL: The time in seconds between proof of life logging messages informing that the server is up and running normally. Default value: "60".
-- DB_PREFIX: The prefix to be added to the service for the creation of the databases. More information below. Optional. Default value: "sth".
+- DB_PREFIX: The prefix to be added to the service for the creation of the databases. More information below. Optional. Default value: "sth_".
 - DEFAULT_SERVICE: The service to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "orion".
-- COLLECTION_PREFIX: The prefix to be added to the collections in the databases. More information below. Optional. Default value: "sth".
+- COLLECTION_PREFIX: The prefix to be added to the collections in the databases. More information below. Optional. Default value: "sth_".
 - DEFAULT_SERVICE_PATH: The service path to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "/".
 - POOL_SIZE: The default MongoDB pool size of database connections. Optional. Default value: "5".
 - WRITE_CONCERN: The <a href="http://docs.mongodb.org/manual/core/write-concern/" target="_blank">write concern policy</a> to apply when writing data to the MongoDB database. Default value: "1".
@@ -344,6 +344,16 @@ the attribute type does not have any special semantic or effect currently.
 
 As already mentioned, all this configuration parameters can also be adjusted using the
 [`config.js`](https://github.com/telefonicaid/IoT-STH/blob/develop/config.js) file whose contents are self-explanatory.
+
+It is important to note that there is a limitation on the bytes a MongoDB namespace (concatenation of the database name and
+collection name) may have (see <a href="http://docs.mongodb.org/manual/reference/limits/#namespaces" target="_blank">http://docs.mongodb.org/manual/reference/limits/#namespaces</a>
+for further information). This forces us to generate hashes as part of the names of the created collections based on the combination
+of the concrete service, service path, entity and attribute. The hash function
+used is SHA-512.
+
+To let the user or developer easily recover this information, a collection named ```DB_COLLECTION_PREFIX + _collection_name```
+is created and fed with information regarding the mapping of the collection names and the combination of concrete services,
+service paths, entities and attributes.
 
 [Top](#section0)
 

@@ -18,12 +18,13 @@
   console.log('\n***** Unit tests environment variables:');
   console.log(sthTestConfig);
 
+  var databaseName = sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE);
   var collectionName4Events = sthDatabase.getCollectionName4Events(
-    sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-    sthTestConfig.ATTRIBUTE_NAME);
+    databaseName, sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID,
+    sthTestConfig.ENTITY_TYPE, sthTestConfig.ATTRIBUTE_NAME);
   var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
-    sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-    sthTestConfig.ATTRIBUTE_NAME);
+    databaseName, sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID,
+    sthTestConfig.ENTITY_TYPE, sthTestConfig.ATTRIBUTE_NAME);
 
   describe('Database operation', function () {
     it('should establish a connection to the database', function (done) {
@@ -85,7 +86,17 @@
       sthTestHelper.dropAggregatedDataCollectionTest);
 
     it('should check if the collection for the aggregated data exists', function (done) {
-      sthDatabase.getCollection(sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE), collectionName4Aggregated, false,
+      sthDatabase.getCollection(
+        {
+          service: sthConfig.DEFAULT_SERVICE,
+          servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+          entityId: sthTestConfig.ENTITY_ID,
+          entityType: sthTestConfig.ENTITY_TYPE,
+          attrName: sthTestConfig.ATTRIBUTE_NAME
+        },
+        true,
+        false,
+        false,
         function (err, collection) {
           if (err && !collection) {
             // The collection does not exist

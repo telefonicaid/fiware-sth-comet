@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "boom": "^2.7.1",
+    "bytes-counter": "^1.0.0",
     "good": "^5.1.2",
     "good-console": "^4.1.0",
     "good-file": "^4.0.2",

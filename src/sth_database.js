@@ -4,6 +4,8 @@
   "use strict";
 
   var mongoose = require('mongoose');
+  var crypto = require('crypto');
+  var bytesCounter = require('bytes-counter');
 
   var sthConfig, sthLogger, sthHelper, connectionURL, eventSchema, aggregatedSchema;
 
@@ -169,52 +171,79 @@
    * @return {string} The database name
    */
   function getDatabase(service) {
-    return sthConfig.DB_PREFIX + '_' + service;
+    return sthConfig.DB_PREFIX + service;
   }
 
   /**
    * Return the name of the collection which will store the raw events
+   * @param {string} databaseName The database name
    * @param {string} servicePath The service path of the entity the event is related to
    * @param {string} entityId The entity id related to the event
    * @param {string} entityType The type of entity related to the event
    * @param {string} attrName The attribute id related to the event
    * @returns {string} The collection name
    */
-  function getCollectionName4Events(servicePath, entityId, entityType, attrName) {
+  function getCollectionName4Events(databaseName, servicePath, entityId, entityType, attrName) {
+    var collectionName4Events;
     switch(sthConfig.DATA_MODEL) {
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
-        return sthConfig.COLLECTION_PREFIX + '_' + servicePath;
+        collectionName4Events = servicePath;
+        break;
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
-        return sthConfig.COLLECTION_PREFIX + '_' + servicePath + '_' + entityId + (entityType ? '_' + entityType : '');
+        collectionName4Events =  servicePath + '_' + entityId + (entityType ? '_' + entityType : '');
+        break;
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
-        return sthConfig.COLLECTION_PREFIX + '_' + servicePath + '_' + entityId + (entityType ? '_' + entityType : '') +
+        collectionName4Events =  servicePath + '_' + entityId + (entityType ? '_' + entityType : '') +
           '_' + attrName;
+        break;
     }
+    // The maximum number of bytes accepted by MongoDB for namespaces is 120 bytes.
+    var limit = 119 - bytesCounter.count(databaseName) - bytesCounter.count(sthConfig.COLLECTION_PREFIX) -
+      bytesCounter.count('.aggr');
+    return sthConfig.COLLECTION_PREFIX + generateHash(collectionName4Events, limit);
   }
 
   /**
    * Return the name of the collection which will store the aggregated data
+   * @param {string} databaseName The database name
    * @param {string} servicePath The service path of the entity the event is related to
    * @param {string} entityId The entity id related to the event
    * @param {string} entityType The type of entity related to the event
    * @param {string} attrName The attribute id related to the event
    * @returns {string} The collection name
    */
-  function getCollectionName4Aggregated(servicePath, entityId, entityType,
+  function getCollectionName4Aggregated(databaseName, servicePath, entityId, entityType,
                                         attrName) {
     return getCollectionName4Events(
-        servicePath, entityId, entityType, attrName) + '.aggr';
+        databaseName, servicePath, entityId, entityType, attrName) + '.aggr';
   }
 
   /**
    * Returns a reference to a collection of the database asynchronously
-   * @param {string} databaseName The database's name
-   * @param {string} collectionName The collection's name
+   * @param {object} params Params (service, service path, entity, attribute or collection) for which the collection
+   *  should be returned
+   * @param {boolean} isAggregated Flag indicating if the aggregated collection is desired. If false, the raw data
+   *  collection is the one requiered
    * @param {boolean} shouldCreate Flag indicating if the collection should be created
    *  if it does not exist
+   * @param {boolean} shouldStoreHash Flag indicating if the collection hash should be stored in case the collection
+   *  is created
    * @param {Function} callback Callback function to be called with the results
    */
-  function getCollection(databaseName, collectionName, shouldCreate, callback) {
+  function getCollection(params, isAggregated, shouldCreate, shouldStoreHash, callback) {
+    var databaseName = getDatabase(params.service);
+
+    var collectionName;
+    if (params.collection) {
+      collectionName = params.collection;
+    } else {
+      collectionName = isAggregated ?
+        getCollectionName4Aggregated(databaseName, params.servicePath, params.entityId, params.entityType,
+          params.attrName) :
+        getCollectionName4Events(databaseName, params.servicePath, params.entityId, params.entityType,
+          params.attrName);
+    }
+
     // Switch to the right database
     var connection = mongoose.connection.useDb(databaseName);
 
@@ -226,6 +255,17 @@
           shouldCreate) {
           connection.db.createCollection(collectionName,
             function (err, collection) {
+              if (!err && shouldStoreHash) {
+                storeCollectionHash(params, isAggregated, collectionName, function(err) {
+                  if (err) {
+                    // There was an error when storing the collection hash
+                    // Do nothing
+                    sthLogger.warn('Error when storing the collection name (hash) into the database', {
+                      operationType: sthConfig.OPERATION_TYPE.DB_LOG
+                    });
+                  }
+                });
+              }
               if (err && err.message === 'collection already exists') {
                 // We have observed that although leaving the strict option to the default value, sometimes
                 //  we get a 'collection already exists' error when executing connection.db#createCollection()
@@ -806,6 +846,84 @@
       if (callback) {
         callback(err);
       }
+    });
+  }
+
+  /**
+   * Generates a hash based on an input and a maximum number of bytes
+   * @param input The input to generate the hash from
+   * @param limit The maximum number of bytes of the hash
+   */
+  function generateHash(input, limit) {
+    var shasum = crypto.createHash('sha512');
+    shasum.update(input);
+    var hash = shasum.digest('hex');
+    if (limit) {
+      hash = hash.substr(0, limit);
+    }
+    return hash;
+  }
+
+  /**
+   * Stores the collection name (hash) in the database
+   * @param params The params used to generate the collection name (hash)
+   * @param hash The collection name (hash)
+   * @param callback A callback function
+   */
+  function storeCollectionHash(params, isAggregated, hash, callback) {
+    getCollection({
+      service: params.service,
+      collection: sthConfig.COLLECTION_PREFIX + 'collection_names'
+    }, false, true, false, function(err, collection) {
+      if (err) {
+        return callback(err);
+      }
+      // 2 updates operations are needed since MongoDB currently does not support the possibility
+      //  to address the same field in a $set operation as a $setOnInsert operation
+      collection.update(
+        {
+          _id: hash
+        },
+        {
+          '$setOnInsert': {
+            dataModel: sthConfig.DATA_MODEL,
+            isAggregated: isAggregated,
+            service: params.service,
+            servicePath: params.servicePath,
+            entityId: params.entityId,
+            entityType: params.entityType,
+            attrName: params.attrName
+          }
+        }, {
+          upsert: true
+        },
+        function(err) {
+          if (err && callback) {
+            return callback(err);
+          }
+          collection.update(
+            {
+              _id: hash
+            },
+            {
+              '$set': {
+                dataModel: sthConfig.DATA_MODEL,
+                isAggregated: isAggregated,
+                service: params.service,
+                servicePath: params.servicePath,
+                entityId: params.entityId,
+                entityType: params.entityType,
+                attrName: params.attrName
+              }
+            },
+            function(err) {
+              if (callback) {
+                return callback(err);
+              }
+            }
+          );
+        }
+      );
     });
   }
 

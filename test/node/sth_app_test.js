@@ -42,6 +42,7 @@
       sthApp.sthDatabase.connect(sthConfig.DB_AUTHENTICATION, sthConfig.DB_URI,
         sthConfig.REPLICA_SET, sthApp.sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE), sthConfig.POOL_SIZE,
         function(err) {
+          console.log(err);
           done(err);
         }
       );

@@ -40,13 +40,14 @@
       NOT_AVAILABLE: 'NA',
       SHUTDOWN: 'OPER_STH_SHUTDOWN',
       DB_CONN_OPEN: 'OPER_STH_DB_CONN_OPEN',
+      DB_LOG: 'OPER_STH_DB_LOG',
       DB_CONN_CLOSE: 'OPER_STH_DB_CONN_CLOSE',
       SERVER_START: 'OPER_STH_SERVER_START',
       SERVER_LOG: 'OPER_STH_SERVER_LOG',
       SERVER_STOP: 'OPER_STH_SERVER_STOP'
     },
-    DB_PREFIX: ENV.DB_PREFIX || config.database.prefix || 'sth',
-    COLLECTION_PREFIX: ENV.COLLECTION_PREFIX || config.database.collectionPrefix || 'sth',
+    DB_PREFIX: ENV.DB_PREFIX || config.database.prefix || 'sth_',
+    COLLECTION_PREFIX: ENV.COLLECTION_PREFIX || config.database.collectionPrefix || 'sth_',
     DATA_MODELS: {
       COLLECTIONS_PER_SERVICE_PATH: 'collection-per-service-path',
       COLLECTIONS_PER_ENTITY: 'collection-per-entity',
