@@ -4,10 +4,14 @@
   "use strict";
 
   var mongoose = require('mongoose');
+  var boom = require('boom');
   var crypto = require('crypto');
   var bytesCounter = require('bytes-counter');
 
   var sthConfig, sthLogger, sthHelper, connectionURL, eventSchema, aggregatedSchema;
+
+  var MAX_NAMESPACE_SIZE_IN_BYTES = 120,
+      MIN_HASH_SIZE_IN_BYTES = 20;
 
   /**
    * Declares the Mongoose schemas.
@@ -198,13 +202,35 @@
         break;
     }
     if (sthConfig.SHOULD_HASH) {
-      // The maximum number of bytes accepted by MongoDB for namespaces is 120 bytes.
-      var limit = 119 - bytesCounter.count(databaseName) - bytesCounter.count(sthConfig.COLLECTION_PREFIX) -
-        bytesCounter.count('.aggr');
+      var limit = getHashSizeInBytes(databaseName);
+      if (limit < MIN_HASH_SIZE_IN_BYTES) {
+        sthLogger.warn('The available bytes for the hashes to be used as part of the collection names is not big enough (' +
+          'at least ' + MIN_HASH_SIZE_IN_BYTES + ' bytes are needed), ' +
+          'please reduce the size of the DB_PREFIX ("' + sthConfig.DB_PREFIX + '" = ' + bytesCounter.count(sthConfig.DB_PREFIX) + ' bytes), ' +
+          'the service ("' + databaseName.substring(sthConfig.DB_PREFIX.length, databaseName.length) + '" = ' + bytesCounter.count(databaseName) +
+          ' bytes) and/or the COLLECTION_PREFIX ("' + sthConfig.COLLECTION_PREFIX + '" = ' + bytesCounter.count(sthConfig.COLLECTION_PREFIX) +
+          ' bytes)',
+          {
+            operationType: sthConfig.OPERATION_TYPE.DB_LOG
+          }
+        );
+        return null;
+      }
       return sthConfig.COLLECTION_PREFIX + generateHash(collectionName4Events, limit);
     } else {
       return sthConfig.COLLECTION_PREFIX + collectionName4Events;
     }
+  }
+
+  /**
+   * Returns the available hash size in bytes to be used as part of the collection names
+   *  based on the database name, database name prefix and collection name prefix
+   * @param databaseName The database name
+   * @return {number} The size of the hash in bytes
+   */
+  function getHashSizeInBytes(databaseName) {
+    return MAX_NAMESPACE_SIZE_IN_BYTES - bytesCounter.count(databaseName) -
+      bytesCounter.count(sthConfig.COLLECTION_PREFIX) - bytesCounter.count('.aggr') - 1;
   }
 
   /**
@@ -218,8 +244,13 @@
    */
   function getCollectionName4Aggregated(databaseName, servicePath, entityId, entityType,
                                         attrName) {
-    return getCollectionName4Events(
-        databaseName, servicePath, entityId, entityType, attrName) + '.aggr';
+    var collectionName4Events = getCollectionName4Events(
+      databaseName, servicePath, entityId, entityType, attrName);
+    if (collectionName4Events) {
+      return collectionName4Events + '.aggr';
+    } else {
+      return null;
+    }
   }
 
   /**
@@ -248,6 +279,11 @@
           params.attrName) :
         getCollectionName4Events(databaseName, params.servicePath, params.entityId, params.entityType,
           params.attrName);
+    }
+
+    if (!collectionName) {
+      var error = boom.badRequest('The collection name could not be generated');
+      return process.nextTick(callback.bind(null, error));
     }
 
     // Switch to the right database

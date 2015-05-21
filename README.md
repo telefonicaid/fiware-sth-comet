@@ -349,15 +349,27 @@ the attribute type does not have any special semantic or effect currently.
 As already mentioned, all this configuration parameters can also be adjusted using the
 [`config.js`](https://github.com/telefonicaid/IoT-STH/blob/develop/config.js) file whose contents are self-explanatory.
 
-It is important to note that there is a limitation on the bytes a MongoDB namespace (concatenation of the database name and
-collection name) may have (see <a href="http://docs.mongodb.org/manual/reference/limits/#namespaces" target="_blank">http://docs.mongodb.org/manual/reference/limits/#namespaces</a>
-for further information). This forces us to generate hashes as part of the names of the created collections based on the combination
-of the concrete service, service path, entity and attribute. The hash function
-used is SHA-512.
+It is important to note that there is a limitation of 120 bytes for the namespaces (concatenation of the database name and
+collection names) in MongoDB (see <a href="http://docs.mongodb.org/manual/reference/limits/#namespaces" target="_blank">http://docs.mongodb.org/manual/reference/limits/#namespaces</a>
+for further information). Related to this, the STH generates the collection names using 2 possible mechanisms:
 
-To let the user or developer easily recover this information, a collection named ```DB_COLLECTION_PREFIX + _collection_name```
-is created and fed with information regarding the mapping of the collection names and the combination of concrete services,
-service paths, entities and attributes.
+1. <u>Plain text</u>: In case the `SHOULD_HASH` configuration parameter is set to 'false', the collection names are
+generated as a concatenation of the `COLLECTION_PREFIX` plus the service path (in case of the collection-per-service-path
+data model) plus the entity id plus the entity type (in case of the collection-per-entity data model) plus the attribute name
+(in case of the collection-per-attribute data model) plus '.aggr' for the collections of the aggregated data. The length
+of the collection name plus the `DB_PREFIX` plus the database name (or service) should not be more than 120 bytes using UTF-8
+format or MongoDB will complain and will not create the collection, and consequently no data would be stored by the STH.
+
+2. <u>Hash based</u>: In case the `SHOULD_HASH` option is set to something distinct from 'false' (the default option), the
+collection names are generated as a concatenation of the `COLLECTION_PREFIX` plus a generated hash plus '.aggr' for the
+collections of the aggregated data. To avoid collisions in the generation of these hashes, they are forced to be 20 bytes
+long at least. Once again, the length of the collection name plus the `DB_PREFIX` plus the database name (or service) should not
+be more than 120 bytes using UTF-8 or MongoDB will complain and will not create the collection, and consequently no data
+would be stored by the STH. The hash function used is SHA-512.
+
+In case of using hashes as part of the collection names and to let the user or developer easily recover this information,
+a collection named ```DB_COLLECTION_PREFIX + _collection_name``` is created and fed with information regarding the mapping
+of the collection names and the combination of concrete services, service paths, entities and attributes.
 
 [Top](#section0)
 
