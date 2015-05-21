@@ -867,7 +867,7 @@
   /**
    * Stores the collection name (hash) in the database
    * @param params The params used to generate the collection name (hash)
-   * @param hash The collection name (hash)
+   * @param hash The generated hash used as part of the collection names
    * @param callback A callback function
    */
   function storeCollectionHash(params, isAggregated, hash, callback) {
