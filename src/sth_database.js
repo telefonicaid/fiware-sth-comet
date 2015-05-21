@@ -197,10 +197,14 @@
           '_' + attrName;
         break;
     }
-    // The maximum number of bytes accepted by MongoDB for namespaces is 120 bytes.
-    var limit = 119 - bytesCounter.count(databaseName) - bytesCounter.count(sthConfig.COLLECTION_PREFIX) -
-      bytesCounter.count('.aggr');
-    return sthConfig.COLLECTION_PREFIX + generateHash(collectionName4Events, limit);
+    if (sthConfig.SHOULD_HASH) {
+      // The maximum number of bytes accepted by MongoDB for namespaces is 120 bytes.
+      var limit = 119 - bytesCounter.count(databaseName) - bytesCounter.count(sthConfig.COLLECTION_PREFIX) -
+        bytesCounter.count('.aggr');
+      return sthConfig.COLLECTION_PREFIX + generateHash(collectionName4Events, limit);
+    } else {
+      return sthConfig.COLLECTION_PREFIX + collectionName4Events;
+    }
   }
 
   /**
@@ -233,6 +237,8 @@
   function getCollection(params, isAggregated, shouldCreate, shouldStoreHash, callback) {
     var databaseName = getDatabase(params.service);
 
+    shouldStoreHash = sthConfig.SHOULD_HASH && shouldStoreHash;
+
     var collectionName;
     if (params.collection) {
       collectionName = params.collection;
@@ -260,7 +266,7 @@
                   if (err) {
                     // There was an error when storing the collection hash
                     // Do nothing
-                    sthLogger.warn('Error when storing the collection name (hash) into the database', {
+                    sthLogger.warn('Error when storing the hash generated as part of the collection name into the database', {
                       operationType: sthConfig.OPERATION_TYPE.DB_LOG
                     });
                   }

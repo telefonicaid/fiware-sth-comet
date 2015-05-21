@@ -141,6 +141,13 @@
   } else {
     module.exports.DATA_MODEL = 'collection-per-entity';
   }
+  if (ENV.SHOULD_HASH) {
+    module.exports.SHOULD_HASH = ENV.SHOULD_HASH !== 'false';
+  } else if (config.database.shouldHash) {
+    module.exports.SHOULD_HASH = config.database.shouldHash !== 'false';
+  } else {
+    module.exports.SHOULD_HASH = true;
+  }
   module.exports.DB_USERNAME = dbUsername;
   module.exports.DB_PASSWORD = dbPassword;
   module.exports.DB_AUTHENTICATION = (dbUsername && dbPassword) ?
