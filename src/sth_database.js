@@ -286,16 +286,18 @@
         $lte: to,
         $gte: from
       };
-    } else if (!from) {
-      recvTimeFilter = {
-        $lte: to
-      };
-    } else if (!to) {
+    } else if (from) {
       recvTimeFilter = {
         $gte: from
       };
+    } else if (to) {
+      recvTimeFilter = {
+        $lte: to
+      };
     }
-    findCondition.recvTime = recvTimeFilter;
+    if (recvTimeFilter) {
+      findCondition.recvTime = recvTimeFilter;
+    }
 
     var cursor = collection.find(
       findCondition,
@@ -344,22 +346,17 @@
 
     var originFilter;
     if (from && to) {
-      if (from !== to) {
-        originFilter = {
-          $lte: sthHelper.getOrigin(to, resolution),
-          $gte: sthHelper.getOrigin(from, resolution)
-        };
-      } else {
-        originFilter = sthHelper.getOrigin(from, resolution);
-      }
-    } else if (!from && !to) {
-      originFilter = sthHelper.getOrigin(new Date(), resolution);
-    } else if (!from) {
-      originFilter = sthHelper.getOrigin(to, resolution);
-    } else if (!to) {
       originFilter = {
-        $lte: sthHelper.getOrigin(new Date(), resolution),
+        $lte: sthHelper.getOrigin(to, resolution),
         $gte: sthHelper.getOrigin(from, resolution)
+      };
+    } else if (from) {
+      originFilter = {
+        $gte: sthHelper.getOrigin(from, resolution)
+      };
+    } else if (to) {
+      originFilter = {
+        $lte: sthHelper.getOrigin(to, resolution)
       };
     }
 
@@ -378,25 +375,25 @@
             '_id.entityType': entityType,
             '_id.attrName': attrName,
             '_id.resolution': resolution,
-            '_id.range': sthHelper.getRange(resolution),
-            '_id.origin': originFilter
+            '_id.range': sthHelper.getRange(resolution)
           };
           break;
         case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
           matchCondition = {
             '_id.attrName': attrName,
             '_id.resolution': resolution,
-            '_id.range': sthHelper.getRange(resolution),
-            '_id.origin': originFilter
+            '_id.range': sthHelper.getRange(resolution)
           };
           break;
         case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
           matchCondition = {
             '_id.resolution': resolution,
-            '_id.range': sthHelper.getRange(resolution),
-            '_id.origin': originFilter
+            '_id.range': sthHelper.getRange(resolution)
           };
           break;
+      }
+      if (originFilter) {
+        matchCondition['_id.origin'] = originFilter;
       }
 
       var groupId;
@@ -465,25 +462,25 @@
             '_id.entityType': entityType,
             '_id.attrName': attrName,
             '_id.resolution': resolution,
-            '_id.range': sthHelper.getRange(resolution),
-            '_id.origin': originFilter
+            '_id.range': sthHelper.getRange(resolution)
           };
           break;
         case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
           findCondition = {
             '_id.attrName': attrName,
             '_id.resolution': resolution,
-            '_id.range': sthHelper.getRange(resolution),
-            '_id.origin': originFilter
+            '_id.range': sthHelper.getRange(resolution)
           };
           break;
         case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
           findCondition = {
             '_id.resolution': resolution,
-            '_id.range': sthHelper.getRange(resolution),
-            '_id.origin': originFilter
+            '_id.range': sthHelper.getRange(resolution)
           };
           break;
+      }
+      if (originFilter) {
+        findCondition['_id.origin'] = originFilter;
       }
 
       collection.find(
