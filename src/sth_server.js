@@ -60,30 +60,28 @@
     /**
      * Attends raw data requests
      * @param request The request
-     * @param response The response
      * @param reply Hapi's reply function
-     * @param databaseName The database name
      * @param unicaCorrelatorPassed The Unica-Correlator header value
      */
-    function getRawData(request, response, reply, databaseName, unicaCorrelatorPassed) {
-      // Compose the collection name for the required data
-      var collectionName = sthDatabase.getCollectionName4Events(
-        request.headers['fiware-servicepath'],
-        request.params.entityId,
-        request.params.entityType,
-        request.params.attrName
-      );
+    function getRawData(request, reply, unicaCorrelatorPassed) {
+      var response;
 
-      // Check if the collection exists
       sthDatabase.getCollection(
-        databaseName,
-        collectionName,
+        {
+          service: request.headers['fiware-service'],
+          servicePath: request.headers['fiware-servicepath'],
+          entityId: request.params.entityId,
+          entityType: request.params.entityType,
+          attrName: request.params.attrName
+        },
+        false,
+        false,
         false,
         function (err, collection) {
           if (err) {
             // The collection does not exist, reply with en empty response
             sthLogger.warn(
-              'The collection %s does not exist', collectionName, request.info.sth);
+              'The collection does not exist', request.info.sth);
 
             sthLogger.debug(
               'Responding with no points',
@@ -98,7 +96,7 @@
           } else {
             // The collection exists
             sthLogger.debug(
-              'The collection %s exists', collectionName, request.info.sth);
+              'The collection exists', request.info.sth);
 
             sthDatabase.getRawData(
               collection,
@@ -114,7 +112,7 @@
                 if (err) {
                   // Error when getting the aggregated data
                   sthLogger.error(
-                    'Error when getting data from %s', collectionName, request.info.sth);
+                    'Error when getting data from collection', request.info.sth);
                   sthLogger.debug(
                     'Responding with 500 - Internal Error', request.info.sth);
                   response = reply(err);
@@ -157,30 +155,28 @@
     /**
      * Attends aggregated data requests
      * @param request The request
-     * @param response The response
      * @param reply Hapi's reply function
-     * @param databaseName The database name
      * @param unicaCorrelatorPassed The Unica-Correlator header value
      */
-    function getAggregatedData(request, response, reply, databaseName, unicaCorrelatorPassed) {
-      // Compose the collection name for the required data
-      var collectionName = sthDatabase.getCollectionName4Aggregated(
-        request.headers['fiware-servicepath'],
-        request.params.entityId,
-        request.params.entityType,
-        request.params.attrName
-      );
+    function getAggregatedData(request, reply, unicaCorrelatorPassed) {
+      var response;
 
-      // Check if the collection exists
       sthDatabase.getCollection(
-        databaseName,
-        collectionName,
+        {
+          service: request.headers['fiware-service'],
+          servicePath: request.headers['fiware-servicepath'],
+          entityId: request.params.entityId,
+          entityType: request.params.entityType,
+          attrName: request.params.attrName
+        },
+        true,
+        false,
         false,
         function (err, collection) {
           if (err) {
             // The collection does not exist, reply with en empty response
             sthLogger.warn(
-              'The collection %s does not exist', collectionName, request.info.sth);
+              'The collection does not exist', request.info.sth);
 
             sthLogger.debug(
               'Responding with no points',
@@ -195,7 +191,7 @@
           } else {
             // The collection exists
             sthLogger.debug(
-              'The collection %s exists', collectionName, request.info.sth);
+              'The collection exists', request.info.sth);
 
             sthDatabase.getAggregatedData(
               collection,
@@ -212,7 +208,7 @@
                 if (err) {
                   // Error when getting the aggregated data
                   sthLogger.error(
-                    'Error when getting data from %s', collectionName, request.info.sth);
+                    'Error when getting data from collection', request.info.sth);
                   sthLogger.debug(
                     'Responding with 500 - Internal Error', request.info.sth);
                   response = reply(err);
@@ -254,7 +250,7 @@
 
     /**
      * Stores raw data into the database
-     * @param databaseName The database name
+     * @param service The service of the attribute
      * @param servicePath The service path of the attribute
      * @param contextElement The context element
      * @param attribute The attribute
@@ -265,31 +261,30 @@
      * @param totalTasks The total number of writings to make
      * @param reply The Hapi server's reply function
      */
-    function storeRawData(databaseName, servicePath, contextElement, attribute, recvTime, counterObj, totalTasks, request, reply) {
-      // Compose the collection name for the raw events
-      var collectionName4Events = sthDatabase.getCollectionName4Events(
-        servicePath,
-        contextElement.id,
-        contextElement.type,
-        attribute.name
-      );
-
+    function storeRawData(service, servicePath, contextElement, attribute, recvTime, counterObj, totalTasks, request, reply) {
       // Get the collection
       sthDatabase.getCollection(
-        databaseName,
-        collectionName4Events,
+        {
+          service: service,
+          servicePath: servicePath,
+          entityId: contextElement.id,
+          entityType: contextElement.type,
+          attrName: attribute.name
+        },
+        false,
         true,
-        function(collectionName4Events, contextElement, attribute, err, collection) {
+        true,
+        function(err, collection) {
           if (err) {
             // There was an error when getting the collection
             sthLogger.warn(
-              'Error when getting the collection %s', collectionName4Events,
+              'Error when getting the collection',
               request.info.sth);
             return reply(err);
           } else {
             // The collection exists
             sthLogger.debug(
-              'The collection %s exists', collectionName4Events,
+              'The collection exists',
               request.info.sth);
 
             if (sthConfig.SHOULD_STORE === sthConfig.DATA_TO_STORE.ONLY_RAW ||
@@ -322,13 +317,13 @@
               );
             }
           }
-        }.bind(null, collectionName4Events, contextElement, attribute)
+        }
       );
     }
 
     /**
      * Stores aggregated data into the database
-     * @param databaseName The database name
+     * @param service The service of the attribute
      * @param servicePath The service path of the attribute
      * @param contextElement The context element
      * @param attribute The attribute
@@ -339,31 +334,30 @@
      * @param totalTasks The total number of writings to make
      * @param reply The Hapi server's reply function
      */
-    function storeAggregatedData(databaseName, servicePath, contextElement, attribute, recvTime, counterObj, totalTasks, request, reply) {
-      // Compose the collection name for the aggregated data
-      var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
-        servicePath,
-        contextElement.id,
-        contextElement.type,
-        attribute.name
-      );
-
+    function storeAggregatedData(service, servicePath, contextElement, attribute, recvTime, counterObj, totalTasks, request, reply) {
       // Get the collection
       sthDatabase.getCollection(
-        databaseName,
-        collectionName4Aggregated,
+        {
+          service: service,
+          servicePath: servicePath,
+          entityId: contextElement.id,
+          entityType: contextElement.type,
+          attrName: attribute.name
+        },
         true,
-        function(collectionName4Events, contextElement, attribute, err, collection) {
+        true,
+        true,
+        function(err, collection) {
           if (err) {
             // There was an error when getting the collection
             sthLogger.warn(
-              'Error when getting the collection %s', collectionName4Events,
+              'Error when getting the collection',
               request.info.sth);
             return reply(err);
           } else {
             // The collection exists
             sthLogger.debug(
-              'The collection %s exists', collectionName4Events,
+              'The collection exists',
               request.info.sth);
 
             if (sthConfig.SHOULD_STORE === sthConfig.DATA_TO_STORE.ONLY_AGGREGATED ||
@@ -396,7 +390,7 @@
               );
             }
           }
-        }.bind(null, collectionName4Aggregated, contextElement, attribute)
+        }
       );
     }
 
@@ -426,10 +420,10 @@
             ((request.query.hLimit || request.query.hLimit === 0) &&
             (request.query.hOffset || request.query.hOffset === 0))) {
             // Raw data is requested
-            getRawData(request, response, reply, databaseName, unicaCorrelatorPassed);
+            getRawData(request, reply, unicaCorrelatorPassed);
           } else if (request.query.aggrMethod && request.query.aggrPeriod) {
             // Aggregated data is requested
-            getAggregatedData(request, response, reply, databaseName, unicaCorrelatorPassed);
+            getAggregatedData(request, reply, unicaCorrelatorPassed);
           } else {
             var message = 'A combination of the following query params is required: lastN, hLimit and hOffset ' +
               ', or aggrMethod and aggrPeriod';
@@ -568,17 +562,15 @@
 
                     attribute = attributes[j];
 
-                    // Compose the collection name for the required data
-                    var databaseName = sthDatabase.getDatabase(
-                      request.headers['fiware-service']);
+                    var service = request.headers['fiware-service'];
 
                     var servicePath = request.headers['fiware-servicepath'];
 
                     // Store the raw data into the database
-                    storeRawData(databaseName, servicePath, contextElement, attribute, recvTime, counterObj, totalTasks, request, reply);
+                    storeRawData(service, servicePath, contextElement, attribute, recvTime, counterObj, totalTasks, request, reply);
 
                     // Store the aggregated data into the database
-                    storeAggregatedData(databaseName, servicePath, contextElement, attribute, recvTime, counterObj, totalTasks, request, reply);
+                    storeAggregatedData(service, servicePath, contextElement, attribute, recvTime, counterObj, totalTasks, request, reply);
                   }
                 }
               }

@@ -295,13 +295,17 @@ a counter used as the suffix for the log file name. Optional. Default value: "0"
 - LOG_DIR: The path to a directory where the log file will be searched for or created if it does not exist. Optional. Default value: "./log".
 - LOG_FILE_NAME: The name of the file where the logs will be stored. Optional. Default value: "sth_app.log".
 - PROOF_OF_LIFE_INTERVAL: The time in seconds between proof of life logging messages informing that the server is up and running normally. Default value: "60".
-- DB_PREFIX: The prefix to be added to the service for the creation of the databases. More information below. Optional. Default value: "sth".
+- DB_PREFIX: The prefix to be added to the service for the creation of the databases. More information below. Optional. Default value: "sth_".
 - DEFAULT_SERVICE: The service to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "orion".
-- COLLECTION_PREFIX: The prefix to be added to the collections in the databases. More information below. Optional. Default value: "sth".
+- COLLECTION_PREFIX: The prefix to be added to the collections in the databases. More information below. Optional. Default value: "sth_".
 - DEFAULT_SERVICE_PATH: The service path to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "/".
 - POOL_SIZE: The default MongoDB pool size of database connections. Optional. Default value: "5".
 - WRITE_CONCERN: The <a href="http://docs.mongodb.org/manual/core/write-concern/" target="_blank">write concern policy</a> to apply when writing data to the MongoDB database. Default value: "1".
 - SHOULD_STORE: Flag indicating if the raw and/or aggregated data should be persisted. Valid values are: "only-raw", "only-aggregated" and "both". Default value: "both".
+- SHOULD_HASH: Flag indicating if the raw and/or aggregated data collection names should include a hash portion. This is mostly
+due to MongoDB's limitation regarding the number of bytes a namespace may have (currently limited to 120 bytes). In case of hashing,
+information about the final collection name and its correspondence to each concrete service path, entity and (if applicable) attribute
+is stored in a collection named `COLLECTION_PREFIX + "collection_names"`. Default value: "true".
 - DATA_MODEL: The data model to use. Currently 3 possible values are supported: collection-per-service-path (which creates a MongoDB collection
  per service patch to store the data), collection-per-entity (which creates a MongoDB collection per service path and entity to store the data)
  and collection-per-attribute (which creates a collection per service path, entity and attribute to store the data). More information about these
@@ -344,6 +348,28 @@ the attribute type does not have any special semantic or effect currently.
 
 As already mentioned, all this configuration parameters can also be adjusted using the
 [`config.js`](https://github.com/telefonicaid/IoT-STH/blob/develop/config.js) file whose contents are self-explanatory.
+
+It is important to note that there is a limitation of 120 bytes for the namespaces (concatenation of the database name and
+collection names) in MongoDB (see <a href="http://docs.mongodb.org/manual/reference/limits/#namespaces" target="_blank">http://docs.mongodb.org/manual/reference/limits/#namespaces</a>
+for further information). Related to this, the STH generates the collection names using 2 possible mechanisms:
+
+1. <u>Plain text</u>: In case the `SHOULD_HASH` configuration parameter is set to 'false', the collection names are
+generated as a concatenation of the `COLLECTION_PREFIX` plus the service path (in case of the collection-per-service-path
+data model) plus the entity id plus the entity type (in case of the collection-per-entity data model) plus the attribute name
+(in case of the collection-per-attribute data model) plus '.aggr' for the collections of the aggregated data. The length
+of the collection name plus the `DB_PREFIX` plus the database name (or service) should not be more than 120 bytes using UTF-8
+format or MongoDB will complain and will not create the collection, and consequently no data would be stored by the STH.
+
+2. <u>Hash based</u>: In case the `SHOULD_HASH` option is set to something distinct from 'false' (the default option), the
+collection names are generated as a concatenation of the `COLLECTION_PREFIX` plus a generated hash plus '.aggr' for the
+collections of the aggregated data. To avoid collisions in the generation of these hashes, they are forced to be 20 bytes
+long at least. Once again, the length of the collection name plus the `DB_PREFIX` plus the database name (or service) should not
+be more than 120 bytes using UTF-8 or MongoDB will complain and will not create the collection, and consequently no data
+would be stored by the STH. The hash function used is SHA-512.
+
+In case of using hashes as part of the collection names and to let the user or developer easily recover this information,
+a collection named ```DB_COLLECTION_PREFIX + _collection_name``` is created and fed with information regarding the mapping
+of the collection names and the combination of concrete services, service paths, entities and attributes.
 
 [Top](#section0)
 

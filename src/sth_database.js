@@ -4,8 +4,14 @@
   "use strict";
 
   var mongoose = require('mongoose');
+  var boom = require('boom');
+  var crypto = require('crypto');
+  var bytesCounter = require('bytes-counter');
 
   var sthConfig, sthLogger, sthHelper, connectionURL, eventSchema, aggregatedSchema;
+
+  var MAX_NAMESPACE_SIZE_IN_BYTES = 120,
+      MIN_HASH_SIZE_IN_BYTES = 20;
 
   /**
    * Declares the Mongoose schemas.
@@ -169,52 +175,146 @@
    * @return {string} The database name
    */
   function getDatabase(service) {
-    return sthConfig.DB_PREFIX + '_' + service;
+    return sthConfig.DB_PREFIX + service;
   }
 
   /**
    * Return the name of the collection which will store the raw events
+   * @param {string} databaseName The database name
    * @param {string} servicePath The service path of the entity the event is related to
    * @param {string} entityId The entity id related to the event
    * @param {string} entityType The type of entity related to the event
    * @param {string} attrName The attribute id related to the event
    * @returns {string} The collection name
    */
-  function getCollectionName4Events(servicePath, entityId, entityType, attrName) {
+  function getCollectionName4Events(databaseName, servicePath, entityId, entityType, attrName) {
+    var collectionName4Events;
     switch(sthConfig.DATA_MODEL) {
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
-        return sthConfig.COLLECTION_PREFIX + '_' + servicePath;
+        collectionName4Events = servicePath;
+        break;
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
-        return sthConfig.COLLECTION_PREFIX + '_' + servicePath + '_' + entityId + (entityType ? '_' + entityType : '');
+        collectionName4Events =  servicePath + '_' + entityId + (entityType ? '_' + entityType : '');
+        break;
       case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
-        return sthConfig.COLLECTION_PREFIX + '_' + servicePath + '_' + entityId + (entityType ? '_' + entityType : '') +
+        collectionName4Events =  servicePath + '_' + entityId + (entityType ? '_' + entityType : '') +
           '_' + attrName;
+        break;
+    }
+    if (sthConfig.SHOULD_HASH) {
+      var limit = getHashSizeInBytes(databaseName);
+      if (limit < MIN_HASH_SIZE_IN_BYTES) {
+        sthLogger.warn('The available bytes for the hashes to be used as part of the collection names are not enough (' +
+          'currently ' + limit + ' and at least ' + MIN_HASH_SIZE_IN_BYTES + ' bytes are needed), ' +
+          'please reduce the size of the DB_PREFIX ("' + sthConfig.DB_PREFIX + '" = ' + bytesCounter.count(sthConfig.DB_PREFIX) + ' bytes), ' +
+          'the service ("' + databaseName.substring(sthConfig.DB_PREFIX.length, databaseName.length) + '" = ' +
+          bytesCounter.count(databaseName.substring(sthConfig.DB_PREFIX.length, databaseName.length)) +
+          ' bytes) and/or the COLLECTION_PREFIX ("' + sthConfig.COLLECTION_PREFIX + '" = ' + bytesCounter.count(sthConfig.COLLECTION_PREFIX) +
+          ' bytes) to save more bytes for the hash',
+          {
+            operationType: sthConfig.OPERATION_TYPE.DB_LOG
+          }
+        );
+        return null;
+      }
+      return sthConfig.COLLECTION_PREFIX + generateHash(collectionName4Events, limit);
+    } else if (getNamespaceSizeInBytes(databaseName, collectionName4Events) > MAX_NAMESPACE_SIZE_IN_BYTES) {
+      sthLogger.warn('The size in bytes of the namespace for storing the aggregated data ("' + databaseName + '" plus "' +
+        sthConfig.COLLECTION_PREFIX + collectionName4Events + '.aggr", ' + getNamespaceSizeInBytes(databaseName, collectionName4Events) +
+        ' bytes)' + ' is bigger than ' + MAX_NAMESPACE_SIZE_IN_BYTES + ' bytes, ' +
+        'please reduce the size of the DB_PREFIX ("' + sthConfig.DB_PREFIX + '" = ' + bytesCounter.count(sthConfig.DB_PREFIX) + ' bytes), ' +
+        'the service ("' + databaseName.substring(sthConfig.DB_PREFIX.length, databaseName.length) + '" = ' +
+        bytesCounter.count(databaseName.substring(sthConfig.DB_PREFIX.length, databaseName.length)) +
+        ' bytes), the COLLECTION_PREFIX ("' + sthConfig.COLLECTION_PREFIX + '" = ' + bytesCounter.count(sthConfig.COLLECTION_PREFIX) +
+        ' bytes), the entity id ("' + entityId + '" = ' + bytesCounter.count(entityId) + ' bytes) and/or the entity type ("' +
+        entityType + '" = ' + bytesCounter.count(entityType) + ' bytes) to make the namespace fit in the available bytes',
+        {
+          operationType: sthConfig.OPERATION_TYPE.DB_LOG
+        }
+      );
+      return null;
+    } else {
+      return sthConfig.COLLECTION_PREFIX + collectionName4Events;
     }
   }
 
   /**
+   * Returns the available hash size in bytes to be used as part of the collection names
+   *  based on the database name, database name prefix and collection name prefix
+   * @param databaseName The database name
+   * @return {number} The size of the hash in bytes
+   */
+  function getHashSizeInBytes(databaseName) {
+    return MAX_NAMESPACE_SIZE_IN_BYTES - bytesCounter.count(databaseName) -
+      bytesCounter.count(sthConfig.COLLECTION_PREFIX) - bytesCounter.count('.aggr') - 1;
+  }
+
+  /**
+   * Returns the size of the namespace (for the collection where the aggregated data is stored) in bytes for certain
+   *  database name and the collection name where the raw data is stored
+   * @param datebaseName The database name
+   * @param collectionName4Events The name of the collection where the raw data is stored
+   * @return {Number} The size in bytes of the namespace (for the collection where the aggregated data is stored)
+   *  in bytes
+   */
+  function getNamespaceSizeInBytes(datebaseName, collectionName4Events) {
+    return bytesCounter.count(datebaseName) + bytesCounter.count(sthConfig.COLLECTION_PREFIX) +
+      bytesCounter.count(collectionName4Events) + bytesCounter.count('.aggr');
+  }
+
+  /**
    * Return the name of the collection which will store the aggregated data
+   * @param {string} databaseName The database name
    * @param {string} servicePath The service path of the entity the event is related to
    * @param {string} entityId The entity id related to the event
    * @param {string} entityType The type of entity related to the event
    * @param {string} attrName The attribute id related to the event
    * @returns {string} The collection name
    */
-  function getCollectionName4Aggregated(servicePath, entityId, entityType,
+  function getCollectionName4Aggregated(databaseName, servicePath, entityId, entityType,
                                         attrName) {
-    return getCollectionName4Events(
-        servicePath, entityId, entityType, attrName) + '.aggr';
+    var collectionName4Events = getCollectionName4Events(
+      databaseName, servicePath, entityId, entityType, attrName);
+    if (collectionName4Events) {
+      return collectionName4Events + '.aggr';
+    } else {
+      return null;
+    }
   }
 
   /**
    * Returns a reference to a collection of the database asynchronously
-   * @param {string} databaseName The database's name
-   * @param {string} collectionName The collection's name
+   * @param {object} params Params (service, service path, entity, attribute or collection) for which the collection
+   *  should be returned
+   * @param {boolean} isAggregated Flag indicating if the aggregated collection is desired. If false, the raw data
+   *  collection is the one required
    * @param {boolean} shouldCreate Flag indicating if the collection should be created
    *  if it does not exist
+   * @param {boolean} shouldStoreHash Flag indicating if the collection hash should be stored in case the collection
+   *  is created
    * @param {Function} callback Callback function to be called with the results
    */
-  function getCollection(databaseName, collectionName, shouldCreate, callback) {
+  function getCollection(params, isAggregated, shouldCreate, shouldStoreHash, callback) {
+    var databaseName = getDatabase(params.service);
+
+    shouldStoreHash = sthConfig.SHOULD_HASH && shouldStoreHash;
+
+    var collectionName;
+    if (params.collection) {
+      collectionName = params.collection;
+    } else {
+      collectionName = isAggregated ?
+        getCollectionName4Aggregated(databaseName, params.servicePath, params.entityId, params.entityType,
+          params.attrName) :
+        getCollectionName4Events(databaseName, params.servicePath, params.entityId, params.entityType,
+          params.attrName);
+    }
+
+    if (!collectionName) {
+      var error = boom.badRequest('The collection name could not be generated');
+      return process.nextTick(callback.bind(null, error));
+    }
+
     // Switch to the right database
     var connection = mongoose.connection.useDb(databaseName);
 
@@ -226,6 +326,17 @@
           shouldCreate) {
           connection.db.createCollection(collectionName,
             function (err, collection) {
+              if (!err && shouldStoreHash) {
+                storeCollectionHash(params, isAggregated, collectionName, function(err) {
+                  if (err) {
+                    // There was an error when storing the collection hash
+                    // Do nothing
+                    sthLogger.warn('Error when storing the hash generated as part of the collection name into the database', {
+                      operationType: sthConfig.OPERATION_TYPE.DB_LOG
+                    });
+                  }
+                });
+              }
               if (err && err.message === 'collection already exists') {
                 // We have observed that although leaving the strict option to the default value, sometimes
                 //  we get a 'collection already exists' error when executing connection.db#createCollection()
@@ -806,6 +917,84 @@
       if (callback) {
         callback(err);
       }
+    });
+  }
+
+  /**
+   * Generates a hash based on an input and a maximum number of bytes
+   * @param input The input to generate the hash from
+   * @param limit The maximum number of bytes of the hash
+   */
+  function generateHash(input, limit) {
+    var shasum = crypto.createHash('sha512');
+    shasum.update(input);
+    var hash = shasum.digest('hex');
+    if (limit) {
+      hash = hash.substr(0, limit);
+    }
+    return hash;
+  }
+
+  /**
+   * Stores the collection name (hash) in the database
+   * @param params The params used to generate the collection name (hash)
+   * @param hash The generated hash used as part of the collection names
+   * @param callback A callback function
+   */
+  function storeCollectionHash(params, isAggregated, hash, callback) {
+    getCollection({
+      service: params.service,
+      collection: sthConfig.COLLECTION_PREFIX + 'collection_names'
+    }, false, true, false, function(err, collection) {
+      if (err) {
+        return callback(err);
+      }
+      // 2 updates operations are needed since MongoDB currently does not support the possibility
+      //  to address the same field in a $set operation as a $setOnInsert operation
+      collection.update(
+        {
+          _id: hash
+        },
+        {
+          '$setOnInsert': {
+            dataModel: sthConfig.DATA_MODEL,
+            isAggregated: isAggregated,
+            service: params.service,
+            servicePath: params.servicePath,
+            entityId: params.entityId,
+            entityType: params.entityType,
+            attrName: params.attrName
+          }
+        }, {
+          upsert: true
+        },
+        function(err) {
+          if (err && callback) {
+            return callback(err);
+          }
+          collection.update(
+            {
+              _id: hash
+            },
+            {
+              '$set': {
+                dataModel: sthConfig.DATA_MODEL,
+                isAggregated: isAggregated,
+                service: params.service,
+                servicePath: params.servicePath,
+                entityId: params.entityId,
+                entityType: params.entityType,
+                attrName: params.attrName
+              }
+            },
+            function(err) {
+              if (callback) {
+                return callback(err);
+              }
+            }
+          );
+        }
+      );
     });
   }
 

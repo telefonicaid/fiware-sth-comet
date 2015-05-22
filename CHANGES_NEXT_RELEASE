@@ -4,3 +4,4 @@
 * [FEATURE] Version information provided using the /version URL path (#16)
 * [FEATURE] Including attribute type information when retrieving raw data (#54)
 * [FEATURE] dateFrom and dateTo as optional parameters in queries (#53)
+* [FEATURE] Generate collection names using a hash function (#83)

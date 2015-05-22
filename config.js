@@ -33,10 +33,10 @@ config.database = {
   // The name of the replica set to connect to, if any. Default value: "".
   replicaSet: '',
   // The prefix to be added to the service for the creation of the databases. Default value: "sth".
-  prefix: 'sth',
+  prefix: 'sth_',
   // The prefix to be added to the collections in the databases. More information below.
   //  Default value: "sth".
-  collectionPrefix: 'sth',
+  collectionPrefix: 'sth_',
   // The default MongoDB pool size of database connections. Optional. Default value: "5".
   poolSize: '5',
   // The write concern (see http://docs.mongodb.org/manual/core/write-concern/) to apply when
@@ -45,6 +45,12 @@ config.database = {
   // Flag indicating if the raw and/or aggregated data should be persisted. Valid values are:
   //  "only-raw", "only-aggregated" and "both". Default value: "both".
   shouldStore: 'both',
+  // Flag indicating if the raw and/or aggregated data collection names should include a hash portion.
+  //  This is mostly due to MongoDB's limitation regarding the number of bytes a namespace may have
+  //  (currently limited to 120 bytes). In case of hashing, information about the final collection name
+  //  and its correspondence to each concrete service path, entity and (if applicable) attribute
+  //  is stored in a collection named `COLLECTION_PREFIX + "collection_names"`. Default value: "true".
+  shouldHash: 'true',
   // The data model to use. Currently 3 possible values are supported: collection-per-service-path
   //  (which creates a MongoDB collection per service patch to store the data), collection-per-entity
   //  (which creates a MongoDB collection per service path and entity to store the data) and
