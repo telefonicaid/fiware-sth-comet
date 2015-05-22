@@ -207,7 +207,8 @@
         sthLogger.warn('The available bytes for the hashes to be used as part of the collection names is not big enough (' +
           'at least ' + MIN_HASH_SIZE_IN_BYTES + ' bytes are needed), ' +
           'please reduce the size of the DB_PREFIX ("' + sthConfig.DB_PREFIX + '" = ' + bytesCounter.count(sthConfig.DB_PREFIX) + ' bytes), ' +
-          'the service ("' + databaseName.substring(sthConfig.DB_PREFIX.length, databaseName.length) + '" = ' + bytesCounter.count(databaseName) +
+          'the service ("' + databaseName.substring(sthConfig.DB_PREFIX.length, databaseName.length) + '" = ' +
+          bytesCounter.count(databaseName.substring(sthConfig.DB_PREFIX.length, databaseName.length)) +
           ' bytes) and/or the COLLECTION_PREFIX ("' + sthConfig.COLLECTION_PREFIX + '" = ' + bytesCounter.count(sthConfig.COLLECTION_PREFIX) +
           ' bytes)',
           {
