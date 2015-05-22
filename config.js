@@ -50,13 +50,7 @@ config.database = {
   //  (currently limited to 120 bytes). In case of hashing, information about the final collection name
   //  and its correspondence to each concrete service path, entity and (if applicable) attribute
   //  is stored in a collection named `COLLECTION_PREFIX + "collection_names"`. Default value: "false".
-  shouldHash: 'false',
-  // The data model to use. Currently 3 possible values are supported: collection-per-service-path
-  //  (which creates a MongoDB collection per service patch to store the data), collection-per-entity
-  //  (which creates a MongoDB collection per service path and entity to store the data) and
-  //  collection-per-attribute (which creates a collection per service path, entity and attribute
-  //  to store the data). Default value: "collection-per-entity".
-  dataModel: 'collection-per-entity'
+  shouldHash: 'false'
 };
 
 // Logging configuration

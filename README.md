@@ -306,10 +306,6 @@ a counter used as the suffix for the log file name. Optional. Default value: "0"
 due to MongoDB's limitation regarding the number of bytes a namespace may have (currently limited to 120 bytes). In case of hashing,
 information about the final collection name and its correspondence to each concrete service path, entity and (if applicable) attribute
 is stored in a collection named `COLLECTION_PREFIX + "collection_names"`. Default value: "false".
-- DATA_MODEL: The data model to use. Currently 3 possible values are supported: collection-per-service-path (which creates a MongoDB collection
- per service patch to store the data), collection-per-entity (which creates a MongoDB collection per service path and entity to store the data)
- and collection-per-attribute (which creates a collection per service path, entity and attribute to store the data). More information about these
- values below. Optional. Default value: "collection-per-entity".
 - DB_USERNAME: The username to use for the database connection. Optional. Default value: "".
 - DB_PASSWORD: The password to use for the database connection. Optional. Default value: "".
 - DB_URI: The URI to use for the database connection. This does not include the 'mongo://' protocol part (see a couple of examples below).
@@ -327,24 +323,8 @@ listening on ports 27771, 27772 and 27773, respectively, use:
 
 <pre> DB_URI=1.1.1.1:27771,1.1.1.2:27772,1.1.1.3:27773 npm start</pre>
 
-Of special interest is the DATA_MODEL environment variable. Currently, the STH component supports 3 possible data distribution
-models as a way to let us evaluate which of them provides the best performance. After running a set of performance tests currently
-under implementation, we will opt for one of the options.
-
 The STH component creates a new database for each <a href="https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Multi_service_tenancy" target="_blank">service</a>.
 The name of these databases will be the concatenation of the DB_PREFIX environment variable and the service, using an underscore ("_") as the separator.
-
-Using these databases, the behavior of the STH component according to each one of the values the DATA_MODEL environment variable may have is the following:
-
-- "collection-per-service": The STH component creates 2 collections per <a href="https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Entity_service_paths" target="_blank">service path</a>
-for each one of the databases, storing in these collection all the raw and aggregated data separately.
-- "collection-per-entity": The STH component creates 2 collections per <a href="https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Entity_service_paths" target="_blank">service path</a>
-and entity duple for each one of the databases, storing in these collection the corresponding raw and aggregated data separately.
-- "collection-per-attribute": The STH component creates 2 collections per <a href="https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Entity_service_paths" target="_blank">service path</a>,
-entity and attribute triple for each one of the databases, storing in these collection the corresponding raw and aggregated data separately.
-As as side note, just mention that the attribute type is not included in the name of the created collections since it is not provided
-when querying the STH using the convenience operation provided. This aspect is 100% aligned with the Orion Context Broker where
-the attribute type does not have any special semantic or effect currently.
 
 As already mentioned, all this configuration parameters can also be adjusted using the
 [`config.js`](https://github.com/telefonicaid/IoT-STH/blob/develop/config.js) file whose contents are self-explanatory.
@@ -354,18 +334,17 @@ collection names) in MongoDB (see <a href="http://docs.mongodb.org/manual/refere
 for further information). Related to this, the STH generates the collection names using 2 possible mechanisms:
 
 1. <u>Plain text</u>: In case the `SHOULD_HASH` configuration parameter is set to 'false' (the default option), the collection names are
-generated as a concatenation of the `COLLECTION_PREFIX` plus the service path (in case of the collection-per-service-path
-data model) plus the entity id plus the entity type (in case of the collection-per-entity data model) plus the attribute name
-(in case of the collection-per-attribute data model) plus '.aggr' for the collections of the aggregated data. The length
-of the collection name plus the `DB_PREFIX` plus the database name (or service) should not be more than 120 bytes using UTF-8
-format or MongoDB will complain and will not create the collection, and consequently no data would be stored by the STH.
+generated as a concatenation of the `COLLECTION_PREFIX` plus the service path plus the entity id plus the entity type
+plus '.aggr' for the collections storing the aggregated data. The length of the collection name plus the `DB_PREFIX` plus
+the database name (or service) should not be more than 120 bytes using UTF-8 format or MongoDB will complain and will not
+create the collection, and consequently no data would be stored by the STH. A warning message is logged in case this happens.
 
 2. <u>Hash based</u>: In case the `SHOULD_HASH` option is set to something distinct from 'false', the
 collection names are generated as a concatenation of the `COLLECTION_PREFIX` plus a generated hash plus '.aggr' for the
 collections of the aggregated data. To avoid collisions in the generation of these hashes, they are forced to be 20 bytes
 long at least. Once again, the length of the collection name plus the `DB_PREFIX` plus the database name (or service) should not
 be more than 120 bytes using UTF-8 or MongoDB will complain and will not create the collection, and consequently no data
-would be stored by the STH. The hash function used is SHA-512.
+would be stored by the STH. The hash function used is SHA-512. A warning message is logged in case this happens.
 
 In case of using hashes as part of the collection names and to let the user or developer easily recover this information,
 a collection named ```DB_COLLECTION_PREFIX + _collection_name``` is created and fed with information regarding the mapping

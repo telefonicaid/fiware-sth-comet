@@ -34,53 +34,8 @@
         });
     });
 
-    it('should generate the collection name for the event raw data', function () {
-      var collectionName;
-      switch(sthConfig.DATA_MODEL) {
-        case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
-          collectionName = sthConfig.COLLECTION_PREFIX + '_' + sthConfig.DEFAULT_SERVICE_PATH;
-          break;
-        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
-          collectionName = sthConfig.COLLECTION_PREFIX + '_' + sthConfig.DEFAULT_SERVICE_PATH +
-            '_' + sthTestConfig.ENTITY_ID +
-            '_' + sthTestConfig.ENTITY_TYPE;
-          break;
-        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
-          collectionName = sthConfig.COLLECTION_PREFIX + '_' + sthConfig.DEFAULT_SERVICE_PATH +
-            '_' + sthTestConfig.ENTITY_ID +
-            '_' + sthTestConfig.ENTITY_TYPE +
-            '_' + sthTestConfig.ATTRIBUTE_NAME +
-            '_' + sthTestConfig.ATTRIBUTE_TYPE;
-          break;
-      }
-      expect(collectionName4Events).to.equal(collectionName);
-    });
-
     it('should drop the event raw data collection if it exists',
       sthTestHelper.dropRawEventCollectionTest);
-
-    it('should generate the collection name for the aggregated data', function () {
-      var collectionName;
-      switch(sthConfig.DATA_MODEL) {
-        case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
-          collectionName = sthConfig.COLLECTION_PREFIX + '_' + sthConfig.DEFAULT_SERVICE_PATH;
-          break;
-        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
-          collectionName = sthConfig.COLLECTION_PREFIX + '_' + sthConfig.DEFAULT_SERVICE_PATH +
-          '_' + sthTestConfig.ENTITY_ID +
-          '_' + sthTestConfig.ENTITY_TYPE;
-          break;
-        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
-          collectionName = sthConfig.COLLECTION_PREFIX + '_' + sthConfig.DEFAULT_SERVICE_PATH +
-          '_' + sthTestConfig.ENTITY_ID +
-          '_' + sthTestConfig.ENTITY_TYPE +
-          '_' + sthTestConfig.ATTRIBUTE_NAME +
-          '_' + sthTestConfig.ATTRIBUTE_TYPE;
-          break;
-      }
-      collectionName += '.aggr';
-      expect(collectionName4Aggregated).to.equal(collectionName);
-    });
 
     it('should drop the aggregated data collection if it exists',
       sthTestHelper.dropAggregatedDataCollectionTest);
