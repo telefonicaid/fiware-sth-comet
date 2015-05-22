@@ -204,13 +204,13 @@
     if (sthConfig.SHOULD_HASH) {
       var limit = getHashSizeInBytes(databaseName);
       if (limit < MIN_HASH_SIZE_IN_BYTES) {
-        sthLogger.warn('The available bytes for the hashes to be used as part of the collection names is not big enough (' +
-          'at least ' + MIN_HASH_SIZE_IN_BYTES + ' bytes are needed), ' +
+        sthLogger.warn('The available bytes for the hashes to be used as part of the collection names are not enough (' +
+          'currently ' + limit + ' and at least ' + MIN_HASH_SIZE_IN_BYTES + ' bytes are needed), ' +
           'please reduce the size of the DB_PREFIX ("' + sthConfig.DB_PREFIX + '" = ' + bytesCounter.count(sthConfig.DB_PREFIX) + ' bytes), ' +
           'the service ("' + databaseName.substring(sthConfig.DB_PREFIX.length, databaseName.length) + '" = ' +
           bytesCounter.count(databaseName.substring(sthConfig.DB_PREFIX.length, databaseName.length)) +
           ' bytes) and/or the COLLECTION_PREFIX ("' + sthConfig.COLLECTION_PREFIX + '" = ' + bytesCounter.count(sthConfig.COLLECTION_PREFIX) +
-          ' bytes)',
+          ' bytes) to save more bytes for the hash',
           {
             operationType: sthConfig.OPERATION_TYPE.DB_LOG
           }
@@ -218,6 +218,21 @@
         return null;
       }
       return sthConfig.COLLECTION_PREFIX + generateHash(collectionName4Events, limit);
+    } else if (getNamespaceSizeInBytes(databaseName, collectionName4Events) > MAX_NAMESPACE_SIZE_IN_BYTES) {
+      sthLogger.warn('The size in bytes of the namespace for storing the aggregated data ("' + databaseName + '" plus "' +
+        sthConfig.COLLECTION_PREFIX + collectionName4Events + '.aggr", ' + getNamespaceSizeInBytes(databaseName, collectionName4Events) +
+        ' bytes)' + ' is bigger than ' + MAX_NAMESPACE_SIZE_IN_BYTES + ' bytes, ' +
+        'please reduce the size of the DB_PREFIX ("' + sthConfig.DB_PREFIX + '" = ' + bytesCounter.count(sthConfig.DB_PREFIX) + ' bytes), ' +
+        'the service ("' + databaseName.substring(sthConfig.DB_PREFIX.length, databaseName.length) + '" = ' +
+        bytesCounter.count(databaseName.substring(sthConfig.DB_PREFIX.length, databaseName.length)) +
+        ' bytes), the COLLECTION_PREFIX ("' + sthConfig.COLLECTION_PREFIX + '" = ' + bytesCounter.count(sthConfig.COLLECTION_PREFIX) +
+        ' bytes), the entity id ("' + entityId + '" = ' + bytesCounter.count(entityId) + ' bytes) and/or the entity type ("' +
+        entityType + '" = ' + bytesCounter.count(entityType) + ' bytes) to make the namespace fit in the available bytes',
+        {
+          operationType: sthConfig.OPERATION_TYPE.DB_LOG
+        }
+      );
+      return null;
     } else {
       return sthConfig.COLLECTION_PREFIX + collectionName4Events;
     }
@@ -232,6 +247,19 @@
   function getHashSizeInBytes(databaseName) {
     return MAX_NAMESPACE_SIZE_IN_BYTES - bytesCounter.count(databaseName) -
       bytesCounter.count(sthConfig.COLLECTION_PREFIX) - bytesCounter.count('.aggr') - 1;
+  }
+
+  /**
+   * Returns the size of the namespace (for the collection where the aggregated data is stored) in bytes for certain
+   *  database name and the collection name where the raw data is stored
+   * @param datebaseName The database name
+   * @param collectionName4Events The name of the collection where the raw data is stored
+   * @return {Number} The size in bytes of the namespace (for the collection where the aggregated data is stored)
+   *  in bytes
+   */
+  function getNamespaceSizeInBytes(datebaseName, collectionName4Events) {
+    return bytesCounter.count(datebaseName) + bytesCounter.count(sthConfig.COLLECTION_PREFIX) +
+      bytesCounter.count(collectionName4Events) + bytesCounter.count('.aggr');
   }
 
   /**
@@ -259,7 +287,7 @@
    * @param {object} params Params (service, service path, entity, attribute or collection) for which the collection
    *  should be returned
    * @param {boolean} isAggregated Flag indicating if the aggregated collection is desired. If false, the raw data
-   *  collection is the one requiered
+   *  collection is the one required
    * @param {boolean} shouldCreate Flag indicating if the collection should be created
    *  if it does not exist
    * @param {boolean} shouldStoreHash Flag indicating if the collection hash should be stored in case the collection
