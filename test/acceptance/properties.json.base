@@ -1,0 +1,32 @@
+{
+    "environment": {
+        "name": "sth",
+        "logs_path": "logs"
+    },
+    "sth": {
+        "sth_protocol": "http",
+        "sth_host": "localhost",
+        "sth_port": "8666",
+        "sth_version": "x.y.z",
+        "sth_verify_version": "false",
+        "sth_fabric_user": "user",
+        "sth_fabric_password": "******",
+        "sth_fabric_cert_file": "",
+        "sth_fabric_error_retry": 3,
+        "sth_fabric_source_path": "/home/sysadmin/git/IoT-STH",
+        "sth_fabric_target_path": "/home/sysadmin/git/IoT-STH",
+        "sth_fabric_sudo": "True"
+
+    },
+    "mongo": {
+        "mongo_host": "localhost",
+        "mongo_port": "27017",
+        "mongo_user": "",
+        "mongo_pass": "",
+        "mongo_version": "2.6.9",
+        "mongo_verify_version": "true",
+        "mongo_database": "sth",
+        "mongo_retries_search": 5,
+        "mongo_delay_to_retry": 5
+    }
+}
