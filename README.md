@@ -347,7 +347,7 @@ be more than 120 bytes using UTF-8 or MongoDB will complain and will not create 
 would be stored by the STH. The hash function used is SHA-512. A warning message is logged in case this happens.
 
 In case of using hashes as part of the collection names and to let the user or developer easily recover this information,
-a collection named ```DB_COLLECTION_PREFIX + _collection_name``` is created and fed with information regarding the mapping
+a collection named ```DB_COLLECTION_PREFIX + _collection_names``` is created and fed with information regarding the mapping
 of the collection names and the combination of concrete services, service paths, entities and attributes.
 
 [Top](#section0)
