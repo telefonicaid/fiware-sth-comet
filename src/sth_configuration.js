@@ -48,11 +48,6 @@
     },
     DB_PREFIX: ENV.DB_PREFIX || config.database.prefix || 'sth_',
     COLLECTION_PREFIX: ENV.COLLECTION_PREFIX || config.database.collectionPrefix || 'sth_',
-    DATA_MODELS: {
-      COLLECTIONS_PER_SERVICE_PATH: 'collection-per-service-path',
-      COLLECTIONS_PER_ENTITY: 'collection-per-entity',
-      COLLECTIONS_PER_ATTRIBUTE: 'collection-per-attribute'
-    },
     DATA_TO_STORE: {
       ONLY_RAW: 'only-raw',
       ONLY_AGGREGATED: 'only-aggregated',
@@ -125,21 +120,6 @@
     module.exports.SHOULD_STORE = config.database.shouldStore;
   } else {
     module.exports.SHOULD_STORE = 'both';
-  }
-  if ([
-      module.exports.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH,
-      module.exports.DATA_MODELS.COLLECTIONS_PER_ENTITY,
-      module.exports.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE
-    ].indexOf(ENV.DATA_MODEL) !== -1) {
-    module.exports.DATA_MODEL = ENV.DATA_MODEL;
-  } else if([
-      module.exports.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH,
-      module.exports.DATA_MODELS.COLLECTIONS_PER_ENTITY,
-      module.exports.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE
-    ].indexOf(config.database.dataModel) !== -1) {
-    module.exports.DATA_MODEL = config.database.dataModel;
-  } else {
-    module.exports.DATA_MODEL = 'collection-per-entity';
   }
   if (ENV.SHOULD_HASH) {
     module.exports.SHOULD_HASH = ENV.SHOULD_HASH !== 'false';

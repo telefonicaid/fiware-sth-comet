@@ -13,12 +13,19 @@
   var MAX_NAMESPACE_SIZE_IN_BYTES = 120,
       MIN_HASH_SIZE_IN_BYTES = 20;
 
+  var DATA_MODELS = {
+    COLLECTIONS_PER_SERVICE_PATH: 'collection-per-service-path',
+    COLLECTIONS_PER_ENTITY: 'collection-per-entity',
+    COLLECTIONS_PER_ATTRIBUTE: 'collection-per-attribute'
+  };
+  var DATA_MODEL = DATA_MODELS.COLLECTIONS_PER_ENTITY;
+
   /**
    * Declares the Mongoose schemas.
    */
   function defineSchemas() {
-    switch (sthConfig.DATA_MODEL) {
-      case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+    switch (DATA_MODEL) {
+      case DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
         eventSchema = mongoose.Schema({
           recvTime: Date,
           entityId: String,
@@ -28,7 +35,7 @@
           attrValue: Number
         });
         break;
-      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+      case DATA_MODELS.COLLECTIONS_PER_ENTITY:
         eventSchema = mongoose.Schema({
           recvTime: Date,
           attrName: String,
@@ -36,7 +43,7 @@
           attrValue: Number
         });
         break;
-      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+      case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
         eventSchema = mongoose.Schema({
           recvTime: Date,
           attrType: String,
@@ -45,8 +52,8 @@
         break;
     }
 
-    switch (sthConfig.DATA_MODEL) {
-      case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+    switch (DATA_MODEL) {
+      case DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
         aggregatedSchema = mongoose.Schema({
           _id: {
             type: {
@@ -70,7 +77,7 @@
           }]
         });
         break;
-      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+      case DATA_MODELS.COLLECTIONS_PER_ENTITY:
         aggregatedSchema = mongoose.Schema({
           _id: {
             type: {
@@ -92,7 +99,7 @@
           }]
         });
         break;
-      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+      case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
         aggregatedSchema = mongoose.Schema({
           _id: {
             type: {
@@ -189,14 +196,14 @@
    */
   function getCollectionName4Events(databaseName, servicePath, entityId, entityType, attrName) {
     var collectionName4Events;
-    switch(sthConfig.DATA_MODEL) {
-      case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+    switch(DATA_MODEL) {
+      case DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
         collectionName4Events = servicePath;
         break;
-      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+      case DATA_MODELS.COLLECTIONS_PER_ENTITY:
         collectionName4Events =  servicePath + '_' + entityId + (entityType ? '_' + entityType : '');
         break;
-      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+      case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
         collectionName4Events =  servicePath + '_' + entityId + (entityType ? '_' + entityType : '') +
           '_' + attrName;
         break;
@@ -373,20 +380,20 @@
   function getRawData(collection, entityId, entityType, attrName, lastN, hLimit, hOffset,
                       from, to, callback) {
     var findCondition;
-    switch (sthConfig.DATA_MODEL) {
-      case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+    switch (DATA_MODEL) {
+      case DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
         findCondition = {
           'entityId': entityId,
           'entityType': entityType,
           'attrName': attrName
         };
         break;
-      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+      case DATA_MODELS.COLLECTIONS_PER_ENTITY:
         findCondition = {
           'attrName': attrName
         };
         break;
-      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+      case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
         findCondition = {};
         break;
     }
@@ -479,8 +486,8 @@
       pushAccumulator[aggregatedFunction] = '$points.' + aggregatedFunction;
 
       var matchCondition;
-      switch (sthConfig.DATA_MODEL) {
-        case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+      switch (DATA_MODEL) {
+        case DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
           matchCondition = {
             '_id.entityId': entityId,
             '_id.entityType': entityType,
@@ -489,14 +496,14 @@
             '_id.range': sthHelper.getRange(resolution)
           };
           break;
-        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+        case DATA_MODELS.COLLECTIONS_PER_ENTITY:
           matchCondition = {
             '_id.attrName': attrName,
             '_id.resolution': resolution,
             '_id.range': sthHelper.getRange(resolution)
           };
           break;
-        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+        case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
           matchCondition = {
             '_id.resolution': resolution,
             '_id.range': sthHelper.getRange(resolution)
@@ -508,8 +515,8 @@
       }
 
       var groupId;
-      switch (sthConfig.DATA_MODEL) {
-        case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+      switch (DATA_MODEL) {
+        case DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
           groupId = {
             entityId: '$_id.entityId',
             entityType: '$_id.entityType',
@@ -519,7 +526,7 @@
             resolution: '$_id.resolution'
           };
           break;
-        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+        case DATA_MODELS.COLLECTIONS_PER_ENTITY:
           groupId = {
             attrName: '$_id.attrName',
             origin: '$_id.origin',
@@ -527,7 +534,7 @@
             resolution: '$_id.resolution'
           };
           break;
-        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+        case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
           groupId = {
             origin: '$_id.origin',
             range: '$_id.range',
@@ -566,8 +573,8 @@
       // Get the aggregated data from the database
       // Return the data in ascending order based on the origin
       var findCondition;
-      switch (sthConfig.DATA_MODEL) {
-        case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+      switch (DATA_MODEL) {
+        case DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
           findCondition = {
             '_id.entityId': entityId,
             '_id.entityType': entityType,
@@ -576,14 +583,14 @@
             '_id.range': sthHelper.getRange(resolution)
           };
           break;
-        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+        case DATA_MODELS.COLLECTIONS_PER_ENTITY:
           findCondition = {
             '_id.attrName': attrName,
             '_id.resolution': resolution,
             '_id.range': sthHelper.getRange(resolution)
           };
           break;
-        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+        case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
           findCondition = {
             '_id.resolution': resolution,
             '_id.range': sthHelper.getRange(resolution)
@@ -632,8 +639,8 @@
     }
 
     var aggregateUpdateCondition;
-    switch (sthConfig.DATA_MODEL) {
-      case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+    switch (DATA_MODEL) {
+      case DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
         aggregateUpdateCondition = {
           '_id.entityId': entityId,
           '_id.entityType': entityType,
@@ -644,7 +651,7 @@
           'points.offset': offset
         };
         break;
-      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+      case DATA_MODELS.COLLECTIONS_PER_ENTITY:
         aggregateUpdateCondition = {
           '_id.attrName': attrName,
           '_id.origin': sthHelper.getOrigin(recvTime, resolution),
@@ -653,7 +660,7 @@
           'points.offset': offset
         };
         break;
-      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+      case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
         aggregateUpdateCondition = {
           '_id.origin': sthHelper.getOrigin(recvTime, resolution),
           '_id.resolution': resolution,
@@ -879,8 +886,8 @@
     collection, recvTime, servicePath, entityId, entityType, attrName,
     attrType, attrValue, callback) {
     var theEvent;
-    switch (sthConfig.DATA_MODEL) {
-      case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+    switch (DATA_MODEL) {
+      case DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
         theEvent = {
           recvTime: recvTime,
           entityId: entityId,
@@ -890,7 +897,7 @@
           attrValue: attrValue
         };
         break;
-      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+      case DATA_MODELS.COLLECTIONS_PER_ENTITY:
         theEvent = {
           recvTime: recvTime,
           attrName: attrName,
@@ -898,7 +905,7 @@
           attrValue: attrValue
         };
         break;
-      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+      case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
         theEvent = {
           recvTime: recvTime,
           attrType: attrType,
@@ -1014,6 +1021,8 @@
       get connection() {
         return mongoose.connection;
       },
+      DATA_MODELS: DATA_MODELS,
+      DATA_MODEL: DATA_MODEL,
       connect: connect,
       closeConnection: closeConnection,
       getDatabase: getDatabase,

@@ -33,8 +33,8 @@
     var attrValue = (Math.random() *
       (parseFloat(sthTestConfig.MAX_VALUE) - parseFloat(sthTestConfig.MIN_VALUE)) -
         Math.abs(parseFloat(sthTestConfig.MIN_VALUE))).toFixed(2);
-    switch (sthConfig.DATA_MODEL) {
-      case sthConfig.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+    switch (sthDatabase.DATA_MODEL) {
+      case sthDatabase.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
         theEvent = {
           recvTime: recvTime,
           entityId: sthTestConfig.ENTITY_ID,
@@ -44,7 +44,7 @@
           attrValue: attrValue
         };
         break;
-      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+      case sthDatabase.DATA_MODELS.COLLECTIONS_PER_ENTITY:
         theEvent = {
           recvTime: recvTime,
           attrName: sthTestConfig.ATTRIBUTE_NAME,
@@ -52,7 +52,7 @@
           attrValue: attrValue
         };
         break;
-      case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+      case sthDatabase.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
         theEvent = {
           recvTime: recvTime,
           attrType: sthTestConfig.ATTRIBUTE_TYPE,
