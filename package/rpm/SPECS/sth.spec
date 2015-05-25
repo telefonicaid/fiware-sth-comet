@@ -41,6 +41,7 @@ rm -Rf %{buildroot} && mkdir -p %{buildroot}
 # Copy src files
 cp -R %{_srcdir}/src \
       %{_srcdir}/package.json \
+      %{_srcdir}/config.js \
       %{buildroot}/%{_install_dir}
 
 # Copy service and config files
