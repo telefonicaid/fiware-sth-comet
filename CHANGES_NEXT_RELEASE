@@ -1,7 +1,0 @@
-* [FEATURE] Package to distribute and to maintain the STH software (#64)
-* [BUG] Using lastN in raw request, returns the first entries instead of the last entries (#55)
-* [FEATURE] Logging levels should be DEBUG, INFO, WARN, ERROR and new proof of life logging message (#74)
-* [FEATURE] Version information provided using the /version URL path (#16)
-* [FEATURE] Including attribute type information when retrieving raw data (#54)
-* [FEATURE] dateFrom and dateTo as optional parameters in queries (#53)
-* [FEATURE] Generate collection names using a hash function (#83)
