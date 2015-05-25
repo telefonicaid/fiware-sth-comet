@@ -1,1 +1,1 @@
-* [BUG] Use dots (".") instead of minus ("-") in version codes for proper packaging (#108)
+- [BUG] Use "-next" in version number for ongoing releases (#113)
