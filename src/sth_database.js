@@ -334,17 +334,18 @@
           connection.db.createCollection(collectionName,
             function (err, collection) {
               if (!err && shouldStoreHash) {
-                storeCollectionHash(params, isAggregated, collectionName, function(err) {
-                  if (err) {
+                storeCollectionHash(params, isAggregated, collectionName, function(hashErr) {
+                  if (hashErr) {
                     // There was an error when storing the collection hash
                     // Do nothing
                     sthLogger.warn('Error when storing the hash generated as part of the collection name into the database', {
                       operationType: sthConfig.OPERATION_TYPE.DB_LOG
                     });
+                    return callback(hashErr, collection);
                   }
+                  return callback(err, collection);
                 });
-              }
-              if (err && err.message === 'collection already exists') {
+              } else if (err && err.message === 'collection already exists') {
                 // We have observed that although leaving the strict option to the default value, sometimes
                 //  we get a 'collection already exists' error when executing connection.db#createCollection()
                 connection.db.collection(collectionName, {strict: true},
@@ -958,6 +959,7 @@
       }
 
       var entry = {
+        _id: hash,
         dataModel: DATA_MODEL,
         isAggregated: isAggregated,
         service: params.service,
@@ -974,34 +976,47 @@
           entry.attrName = params.attrName;
           break;
       }
-      // 2 updates operations are needed since MongoDB currently does not support the possibility
-      //  to address the same field in a $set operation as a $setOnInsert update operation
-      collection.update(
+      // Check if there is already an entry for the provided hash (hash collision)
+      collection.findOne(
         {
           _id: hash
         },
-        {
-          '$setOnInsert': entry
-        }, {
-          upsert: true
-        },
-        function(err) {
-          if (err && callback) {
-            return callback(err);
-          }
-          collection.update(
-            {
-              _id: hash
-            },
-            {
-              '$set': entry
-            },
-            function(err) {
-              if (callback) {
-                return callback(err);
+        function(err, doc) {
+          if (!doc) {
+            // If no hash collision or if error when checking for a collision,
+            //  try to insert an entry in the collection name hashes to params mapping collection
+            collection.insert(
+              entry,
+              {
+                writeConcern: {
+                  w: !isNaN(sthConfig.WRITE_CONCERN) ? parseInt(sthConfig.WRITE_CONCERN) : sthConfig.WRITE_CONCERN
+                }
+              },
+              function(err) {
+                if (err) {
+                  sthLogger.warn('Collection name hash collision for new entry (' +
+                    JSON.stringify(entry) + ')',
+                    {
+                      operationType: sthConfig.OPERATION_TYPE.DB_LOG
+                    }
+                  );
+                }
+                if (callback) {
+                  return callback(err);
+                }
               }
+            );
+          } else if (doc) {
+            sthLogger.warn('Collection name hash collision for new entry (' +
+              JSON.stringify(entry) + ')',
+              {
+                operationType: sthConfig.OPERATION_TYPE.DB_LOG
+              }
+            );
+            if (callback) {
+              return callback(new Error('Collection name hash collision'));
             }
-          );
+          }
         }
       );
     });

@@ -55,6 +55,9 @@
 
     it('should drop the aggregated data collection if it exists',
       sthTestHelper.dropAggregatedDataCollectionTest);
+
+    it('should drop the collection names collection if it exists',
+      sthTestHelper.dropCollectionNamesCollectionTest);
   });
 
   describe('server start', function() {
