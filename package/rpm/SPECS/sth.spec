@@ -144,16 +144,16 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Thu May 25 2015 Germán Toro del Valle <german.torodelvalle@telefonica.com> 0.1.0
-* [FEATURE] STH connection to MongoDB replica sets (#34)
-* [FEATURE] Retrieve raw data from the database (#42)
-* [BUG] When the attribute value is not numeric occurs a timeout (#46)
-* [FEATURE] Package to distribute and to maintain the STH software (#64)
-* [HARDENING] Include guidelines in the documentation about how to contribute
-* [BUG] Using lastN in raw request, returns the first entries instead of the last entries (#55)
-* [FEATURE] Logging levels should be DEBUG, INFO, WARN, ERROR and new proof of life logging message (#74)
-* [FEATURE] Version information provided using the /version URL path (#16)
-* [FEATURE] Inclusion of a JSON-formatted configuration file (#78)
-* [FEATURE] Including attribute type information when retrieving raw data (#54)
-* [FEATURE] dateFrom and dateTo as optional parameters in queries (#53)
-* [FEATURE] Generate collection names using a hash function (#83)
-* [FEATURE] Set the SHOULD_HASH default option to false (#95)
+- [FEATURE] STH connection to MongoDB replica sets (#34)
+- [FEATURE] Retrieve raw data from the database (#42)
+- [BUG] When the attribute value is not numeric occurs a timeout (#46)
+- [FEATURE] Package to distribute and to maintain the STH software (#64)
+- [HARDENING] Include guidelines in the documentation about how to contribute
+- [BUG] Using lastN in raw request, returns the first entries instead of the last entries (#55)
+- [FEATURE] Logging levels should be DEBUG, INFO, WARN, ERROR and new proof of life logging message (#74)
+- [FEATURE] Version information provided using the /version URL path (#16)
+- [FEATURE] Inclusion of a JSON-formatted configuration file (#78)
+- [FEATURE] Including attribute type information when retrieving raw data (#54)
+- [FEATURE] dateFrom and dateTo as optional parameters in queries (#53)
+- [FEATURE] Generate collection names using a hash function (#83)
+- [FEATURE] Set the SHOULD_HASH default option to false (#95)
