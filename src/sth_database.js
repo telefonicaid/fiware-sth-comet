@@ -949,22 +949,32 @@
       if (err) {
         return callback(err);
       }
+
+      var entry = {
+        dataModel: sthConfig.DATA_MODEL,
+        isAggregated: isAggregated,
+        service: params.service,
+        servicePath: params.servicePath
+      };
+      switch (sthConfig.DATA_MODEL) {
+        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+          entry.entityId = params.entityId;
+          entry.entityType = params.entityType;
+          break;
+        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+          entry.entityId = params.entityId;
+          entry.entityType = params.entityType;
+          entry.attrName = params.attrName;
+          break;
+      }
       // 2 updates operations are needed since MongoDB currently does not support the possibility
-      //  to address the same field in a $set operation as a $setOnInsert operation
+      //  to address the same field in a $set operation as a $setOnInsert update operation
       collection.update(
         {
           _id: hash
         },
         {
-          '$setOnInsert': {
-            dataModel: sthConfig.DATA_MODEL,
-            isAggregated: isAggregated,
-            service: params.service,
-            servicePath: params.servicePath,
-            entityId: params.entityId,
-            entityType: params.entityType,
-            attrName: params.attrName
-          }
+          '$setOnInsert': entry
         }, {
           upsert: true
         },
@@ -977,15 +987,7 @@
               _id: hash
             },
             {
-              '$set': {
-                dataModel: sthConfig.DATA_MODEL,
-                isAggregated: isAggregated,
-                service: params.service,
-                servicePath: params.servicePath,
-                entityId: params.entityId,
-                entityType: params.entityType,
-                attrName: params.attrName
-              }
+              '$set': entry
             },
             function(err) {
               if (callback) {
