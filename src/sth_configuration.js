@@ -146,7 +146,7 @@
   } else if (config.database.shouldHash) {
     module.exports.SHOULD_HASH = config.database.shouldHash !== 'false';
   } else {
-    module.exports.SHOULD_HASH = true;
+    module.exports.SHOULD_HASH = false;
   }
   module.exports.DB_USERNAME = dbUsername;
   module.exports.DB_PASSWORD = dbPassword;
