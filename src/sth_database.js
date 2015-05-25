@@ -958,17 +958,17 @@
       }
 
       var entry = {
-        dataModel: sthConfig.DATA_MODEL,
+        dataModel: DATA_MODEL,
         isAggregated: isAggregated,
         service: params.service,
         servicePath: params.servicePath
       };
-      switch (sthConfig.DATA_MODEL) {
-        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+      switch (DATA_MODEL) {
+        case DATA_MODELS.COLLECTIONS_PER_ENTITY:
           entry.entityId = params.entityId;
           entry.entityType = params.entityType;
           break;
-        case sthConfig.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+        case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
           entry.entityId = params.entityId;
           entry.entityType = params.entityType;
           entry.attrName = params.attrName;
