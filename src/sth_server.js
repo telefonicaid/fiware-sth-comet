@@ -11,6 +11,13 @@
 
   var attendedRequests = 0;
 
+  // Value below 1,4GB, see http://blog.caustik.com/2012/04/11/escape-the-1-4gb-v8-heap-limit-in-node-js/
+  var MAX_HEAP_USED_BYTES = 1284591624;
+
+  var PERFORMANCE_CHECK_INTERVAL_MS = 3000;
+
+  var MAX_EVENT_LOOP_DELAY_FOR_GC_MS = 7;
+
   /**
    * Starts the server asynchronously
    * @param {string} host The STH server host
@@ -22,7 +29,60 @@
   function startServer(host, port, aSTHDatabase, callback) {
     sthDatabase = aSTHDatabase;
 
-    server = new hapi.Server();
+    server = new hapi.Server({
+      load: {
+        sampleInterval: PERFORMANCE_CHECK_INTERVAL_MS
+      },
+      connections: {
+        load: {
+          maxHeapUsedBytes: MAX_HEAP_USED_BYTES
+        }
+      }
+    });
+
+    setInterval(function() {
+      var collected = false;
+      sthLogger.debug('event=' + 'load.eventLoopDelay: ' + server.load.eventLoopDelay, {
+        operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
+      });
+      if(server.load.eventLoopDelay < MAX_EVENT_LOOP_DELAY_FOR_GC_MS) {
+        // The server is quite idle
+        collected = true;
+        sthLogger.debug('Forcing the garbage collector to run...', {
+          operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
+        });
+        gc();
+        sthLogger.debug('Garbage collector finished', {
+          operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
+        });
+      }
+      sthLogger.debug('event=' + 'load.heapUsed: ' + server.load.heapUsed, {
+        operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
+      });
+      if(server.load.heapUsed >= MAX_HEAP_USED_BYTES * .5) {
+        // The server is consuming more than 50% of the maximum heap space before rejecting requests
+        if (!collected) {
+          sthLogger.debug('Forcing the garbage collector to run...', {
+            operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
+          });
+          gc();
+          sthLogger.debug('Garbage collector finished', {
+            operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
+          });
+        }
+        if(server.load.heapUsed >= MAX_HEAP_USED_BYTES * .75) {
+          sthLogger.error('The heap memory consumption has reached ' +
+            (100 * server.load.heapUsed / MAX_HEAP_USED_BYTES).toFixed(1) +
+            '% (' + server.load.heapUsed + ' bytes) ' +
+            'of the maximum allowed size (' + MAX_HEAP_USED_BYTES + ' bytes) before rejecting requests', {
+            operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
+          });
+        }
+      }
+      sthLogger.debug('event=' + 'load.rss: ' + server.load.rss, {
+        operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
+      });
+    }, PERFORMANCE_CHECK_INTERVAL_MS);
 
     server.on('log', function(event, tags) {
       if (tags.load) {

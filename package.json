@@ -18,6 +18,7 @@
     "joi": "^5.1.0",
     "mkdirp": "^0.5.1",
     "mongoose": "^4.0.3",
+    "nodetime": "^0.8.15",
     "winston": "^0.9.0"
   },
   "scripts": {

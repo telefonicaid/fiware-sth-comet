@@ -3,6 +3,12 @@
 (function() {
   "use strict";
 
+  require('nodetime').profile({
+    accountKey: 'bc3d5aa3c22f7d48f47c5ddef48f4853c04626c3',
+    appName: 'Node v' + process.versions.node + ' - STH Test run'
+  });
+
+
   var sthConfig = require('./sth_configuration');
   var sthLogger = require('./sth_logger')(sthConfig);
   var sthHelper = require('./sth_helper.js')(sthConfig);
@@ -147,8 +153,30 @@
   }
 
   // In case Control+C is clicked, exit gracefully
+  var counter = 0;
   process.on('SIGINT', function () {
-    return exitGracefully(null);
+    ++counter;
+    if (counter == 1) {
+      sthLogger.info('Type CONTROL + C before 1 second to force the STH to stop...', {
+        operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
+      });
+      setTimeout(function () {
+        if (counter > 1) {
+          sthLogger.info('CONTROL + C typed twice', {
+            operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
+          });
+          return exitGracefully(null);
+        }
+        counter = 0;
+        sthLogger.debug('Forcing the garbage collector to run...', {
+          operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
+        });
+        gc();
+        sthLogger.debug('Garbage collector finished', {
+          operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
+        });
+      }, 1000);
+    }
   });
 
   // In case of an uncaught exception exists gracefully
