@@ -82,7 +82,7 @@
           if (err) {
             // The collection does not exist, reply with en empty response
             sthLogger.warn(
-              'The collection does not exist', request.info.sth);
+              'Error when getting the collection (the collection may not exist)', request.info.sth);
 
             sthLogger.debug(
               'Responding with no points',
@@ -178,7 +178,7 @@
           if (err) {
             // The collection does not exist, reply with en empty response
             sthLogger.warn(
-              'The collection does not exist', request.info.sth);
+              'Error when getting the collection (the collection may not exist)', request.info.sth);
 
             sthLogger.debug(
               'Responding with no points',
@@ -280,8 +280,8 @@
         function(err, collection) {
           if (err) {
             // There was an error when getting the collection
-            sthLogger.warn(
-              'Error when getting the collection 2',
+            sthLogger.error(
+              'Error when getting the collection',
               request.info.sth);
             if (++counterObj.counter === totalTasks) {
               return reply(err);
@@ -356,8 +356,8 @@
         function(err, collection) {
           if (err) {
             // There was an error when getting the collection
-            sthLogger.warn(
-              'Error when getting the collection 3',
+            sthLogger.error(
+              'Error when getting the collection',
               request.info.sth);
             if (++counterObj.counter === totalTasks) {
               return reply(err);
