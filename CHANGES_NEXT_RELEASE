@@ -1,1 +1,2 @@
-* [BUG] Use dots (".") instead of minus ("-") in version codes for proper packaging (#108)
+- [BUG] Use dots (".") instead of minus ("-") in version codes for proper packaging (#108)
+- [FEATURE] Do not store raw or aggregated data if hash collision (#101)

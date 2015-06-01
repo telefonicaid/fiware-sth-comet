@@ -278,9 +278,11 @@
           if (err) {
             // There was an error when getting the collection
             sthLogger.warn(
-              'Error when getting the collection',
+              'Error when getting the collection 2',
               request.info.sth);
-            return reply(err);
+            if (++counterObj.counter === totalTasks) {
+              return reply(err);
+            }
           } else {
             // The collection exists
             sthLogger.debug(
@@ -351,9 +353,11 @@
           if (err) {
             // There was an error when getting the collection
             sthLogger.warn(
-              'Error when getting the collection',
+              'Error when getting the collection 3',
               request.info.sth);
-            return reply(err);
+            if (++counterObj.counter === totalTasks) {
+              return reply(err);
+            }
           } else {
             // The collection exists
             sthLogger.debug(

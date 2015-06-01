@@ -109,10 +109,18 @@
    * A mocha test which adds aggregated data to the aggregated data collection
    *  for an event based on a resolution
    * @param {Object} anEvent The event
-   * @param {string} resolution The resolution
    * @param {Function} done The mocha done() callback function
    */
-  function addAggregatedDataTest(anEvent, resolution, done) {
+  function addAggregatedDataTest(anEvent, done) {
+    var counter = 0;
+    var callback = function(err) {
+      if (err) {
+        done(err);
+      }
+      if (++counter == 5) {
+        done();
+      }
+    };
     // Check if the collection exists
     sthDatabase.getCollection(
       {
@@ -132,7 +140,23 @@
           sthDatabase.storeAggregatedData4Resolution(
             collection, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
             sthTestConfig.ATTRIBUTE_NAME, sthTestConfig.ATTRIBUTE_TYPE, anEvent.attrValue,
-            resolution, anEvent.recvTime, done);
+            sthConfig.RESOLUTION.SECOND, anEvent.recvTime, callback);
+          sthDatabase.storeAggregatedData4Resolution(
+            collection, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+            sthTestConfig.ATTRIBUTE_NAME, sthTestConfig.ATTRIBUTE_TYPE, anEvent.attrValue,
+            sthConfig.RESOLUTION.MINUTE, anEvent.recvTime, callback);
+          sthDatabase.storeAggregatedData4Resolution(
+            collection, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+            sthTestConfig.ATTRIBUTE_NAME, sthTestConfig.ATTRIBUTE_TYPE, anEvent.attrValue,
+            sthConfig.RESOLUTION.HOUR, anEvent.recvTime, callback);
+          sthDatabase.storeAggregatedData4Resolution(
+            collection, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+            sthTestConfig.ATTRIBUTE_NAME, sthTestConfig.ATTRIBUTE_TYPE, anEvent.attrValue,
+            sthConfig.RESOLUTION.DAY, anEvent.recvTime, callback);
+          sthDatabase.storeAggregatedData4Resolution(
+            collection, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+            sthTestConfig.ATTRIBUTE_NAME, sthTestConfig.ATTRIBUTE_TYPE, anEvent.attrValue,
+            sthConfig.RESOLUTION.MONTH, anEvent.recvTime, callback);
         }
       }
     );
@@ -155,38 +179,9 @@
       addEventTest(anEvent, done);
     });
 
-    it('should store aggregated data (resolution: second, range: minute)',
+    it('should store aggregated data for each pair resolution - range',
       function(done) {
-        addAggregatedDataTest(
-          anEvent, sthConfig.RESOLUTION.SECOND, done);
-      }
-    );
-
-    it('should store aggregated data (resolution: minute, range: hour)',
-      function(done) {
-        addAggregatedDataTest(
-          anEvent, sthConfig.RESOLUTION.MINUTE, done);
-      }
-    );
-
-    it('should store aggregated data (resolution: hour, range: day)',
-      function(done) {
-        addAggregatedDataTest(
-          anEvent, sthConfig.RESOLUTION.HOUR, done);
-      }
-    );
-
-    it('should store aggregated data (resolution: day, range: month)',
-      function(done) {
-        addAggregatedDataTest(
-          anEvent, sthConfig.RESOLUTION.DAY, done);
-      }
-    );
-
-    it('should store aggregated data (resolution: month, range: year)',
-      function(done) {
-        addAggregatedDataTest(
-          anEvent, sthConfig.RESOLUTION.MONTH, done);
+        addAggregatedDataTest(anEvent, done);
       }
     );
   }
@@ -218,6 +213,21 @@
       databaseName, sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID,
       sthTestConfig.ENTITY_TYPE, sthTestConfig.ATTRIBUTE_NAME);
     sthDatabase.connection.db.dropCollection(collectionName4Aggregated, function (err) {
+      if (err && err.message === 'ns not found') {
+        err = null;
+      }
+      return done(err);
+    });
+  }
+
+  /**
+   * A mocha test to drop the collection names collection from the database
+   * @param {Function} done The mocha done() callback function
+   */
+  function dropCollectionNamesCollectionTest(done) {
+    var databaseName = sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE);
+    var collectionName = sthConfig.COLLECTION_PREFIX + 'collection_names';
+    sthDatabase.connection.db.dropCollection(collectionName, function (err) {
       if (err && err.message === 'ns not found') {
         err = null;
       }
@@ -1006,6 +1016,7 @@
       eachEventTestSuite: eachEventTestSuite,
       dropRawEventCollectionTest: dropRawEventCollectionTest,
       dropAggregatedDataCollectionTest: dropAggregatedDataCollectionTest,
+      dropCollectionNamesCollectionTest: dropCollectionNamesCollectionTest,
       getURL: getURL,
       rawDataRetrievalSuite: rawDataRetrievalSuite,
       aggregatedDataRetrievalSuite: aggregatedDataRetrievalSuite,
