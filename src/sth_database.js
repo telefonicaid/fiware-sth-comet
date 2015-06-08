@@ -421,26 +421,33 @@
       findCondition.recvTime = recvTimeFilter;
     }
 
-    var cursor = collection.find(
-      findCondition,
-      {
-        _id: 0,
-        attrType: 1,
-        attrValue: 1,
-        recvTime: 1
-      }
-    ).sort({'recvTime': -1});
+    var cursor;
 
     if (lastN) {
-      cursor.limit(lastN).toArray(function(err, results) {
+      cursor = collection.find(
+        findCondition,
+        {
+          _id: 0,
+          attrType: 1,
+          attrValue: 1,
+          recvTime: 1
+        }
+      ).sort({'recvTime': -1}).limit(lastN).toArray(function(err, results) {
         if (!err) {
           results.reverse();
         }
         return process.nextTick(callback.bind(null, err, results));
       });
     } else {
-      cursor.skip(hOffset).limit(hLimit);
-      return cursor.toArray(callback);
+      cursor = collection.find(
+        findCondition,
+        {
+          _id: 0,
+          attrType: 1,
+          attrValue: 1,
+          recvTime: 1
+        }
+      ).sort({'recvTime': 1}).skip(hOffset).limit(hLimit).toArray(callback);
     }
   }
 
