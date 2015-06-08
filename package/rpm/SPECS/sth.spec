@@ -157,3 +157,4 @@ rm -rf $RPM_BUILD_ROOT
 - [FEATURE] dateFrom and dateTo as optional parameters in queries (#53)
 - [FEATURE] Generate collection names using a hash function (#83)
 - [FEATURE] Set the SHOULD_HASH default option to false (#95)
+- [BUG] Entity id and entity type are converted to lowercase in Cygnus but not in STH (#119)

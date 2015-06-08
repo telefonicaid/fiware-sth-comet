@@ -208,6 +208,7 @@
           '_' + attrName;
         break;
     }
+    collectionName4Events = collectionName4Events.toLowerCase();
     if (sthConfig.SHOULD_HASH) {
       var limit = getHashSizeInBytes(databaseName);
       if (limit < MIN_HASH_SIZE_IN_BYTES) {
@@ -326,6 +327,9 @@
     var connection = mongoose.connection.useDb(databaseName);
 
     // Get the connection and notify it via the callback.
+    sthLogger.debug('Getting access to the collection \'' + collectionName + '\' in database \'' + databaseName + '\'', {
+      operationType: sthConfig.OPERATION_TYPE.DB_LOG
+    });
     connection.db.collection(collectionName, {strict: true},
       function (err, collection) {
         if (err &&
