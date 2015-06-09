@@ -163,14 +163,14 @@ class STH:
         # service_path
         if service_path.find(RANDOM_SERVICE_PATH_LENGTH) >= 0:
             characters = int(service_path.split(" = ")[1])
-            self.service_path = "/"+general_utils.string_generator(characters, CHARS_ALLOWED)
+            self.service_path = "/"+general_utils.string_generator(characters, CHARS_ALLOWED).lower()
         else:
-            self.service_path = service_path
-        #if self.service_path[:1] == "/": self.service_path = self.service_path[1:]
+            self.service_path = service_path.lower()
 
         # entity_type and entity id
-        self.entity_type = entity_type
-        self.entity_id   = entity_id
+        self.entity_type = entity_type.lower()
+        self.entity_id   = entity_id.lower()
+
         #attributes
         self.attributes_number    = int(attributes_number)
         self.attributes_name      = attributes_name
@@ -220,7 +220,6 @@ class STH:
             temp_value = Decimal(attribute_value_init) + i
             world.sth.received_notification(str(temp_value), "False", "json")
         self.attributes_value = attribute_value_init
-
 
     def drop_database_in_mongo(self, driver):
          """
@@ -280,14 +279,12 @@ class STH:
         verify attribute value and type from mongo
         :return document dict (cursor)
         """
-        find_dict = { "entityId" : self.entity_id,
-                      "entityType": self.entity_type,
-                      "attrName": {'$regex':'%s.*' % (self.attributes_name)}, #the regular expression is because in  multi attribute the name is with postfix <_value>. ex: temperature_0
+        find_dict = { "attrName": {'$regex':'%s.*' % (self.attributes_name)}, #the regular expression is because in  multi attribute the name is with postfix <_value>. ex: temperature_0
                       "attrType" : self.attribute_type,
                       "attrValue" : str(self.attributes_value)
         }
         world.mongo.connect("%s_%s" % (STH_DATABASE_PREFIX, self.service))
-        world.mongo.choice_collection("%s_%s" % (STH_COLLECTION_PREFIX, self.service_path))
+        world.mongo.choice_collection("%s_%s_%s_%s" % (STH_COLLECTION_PREFIX, self.service_path, self.entity_id, self.entity_type))
         cursor = world.mongo.find_with_retry(find_dict)
         assert cursor.count() != 0, " ERROR - the attributes with prefix %s has not been stored in mongo successfully" % (self.attributes_name)
         world.mongo.disconnect()
@@ -300,8 +297,6 @@ class STH:
         """
         time_zone = 2
         find_dict = {"_id.attrName" :  {'$regex':'%s.*' % (self.attributes_name)}, #the regular expression is because in  multi attribute the name is with postfix + <_value>. ex: temperature_0
-                     "_id.entityId" : self.entity_id,
-                     "_id.entityType" : self.entity_type,
                      "_id.resolution" : resolution}
 
         origin_year   = general_utils.get_date_only_one_value(self.date_time, "year")
@@ -313,7 +308,7 @@ class STH:
         origin_second = general_utils.get_date_only_one_value(self.date_time, "second")
 
         world.mongo.connect("%s_%s" % (STH_DATABASE_PREFIX, self.service))
-        world.mongo.choice_collection("%s_%s.%s" % (STH_COLLECTION_PREFIX, self.service_path, AGGR))
+        world.mongo.choice_collection("%s_%s_%s_%s.%s" % (STH_COLLECTION_PREFIX, self.service_path, self.entity_id, self.entity_type, AGGR))
         cursor = world.mongo.find_with_retry(find_dict)
         assert cursor.count() != 0, " ERROR - the aggregated has not been stored in mongo successfully "
         doc_list = world.mongo.get_cursor_value(cursor)   # get all dictionaries into a cursor, return a list
@@ -359,11 +354,9 @@ class STH:
         :param resolution: resolutions type (  month | day | hour | minute | second )
         """
         find_dict = {"_id.attrName" :  {'$regex':'%s.*' % (self.attributes_name)}, #the regular expression is because in  multi attribute the name is with postfix + <_value>. ex: temperature_0
-                     "_id.entityId" : self.entity_id,
-                     "_id.entityType" : self.entity_type,
                      "_id.resolution" : resolution }
         world.mongo.connect("%s_%s" % (STH_DATABASE_PREFIX, self.service))
-        world.mongo.choice_collection("%s_%s.%s" % (STH_COLLECTION_PREFIX, self.service_path, AGGR))
+        world.mongo.choice_collection("%s_%s_%s_%s.%s" % (STH_COLLECTION_PREFIX, self.service_path, self.entity_id, self.entity_type, AGGR))
         cursor = world.mongo.find_data(find_dict)
         assert cursor.count() == 0, " ERROR - the aggregated has been stored in mongo."
         world.mongo.disconnect()
@@ -429,10 +422,6 @@ class STH:
         assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["name"]) == "%s_%s" % (self.attributes_name, u'0'), \
             "  ERROR - in aggregated with name %s_%s" % (self.attributes_name, u'0')
         # values
-        assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["_id"]["entityId"]) == self.entity_id, \
-            "  ERROR - in aggregated with entity id %s" % (self.entity_id)
-        assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["_id"]["entityType"]) == self.entity_type, \
-            "  ERROR - in aggregated with entity type %s" % (self.entity_type)
         assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["_id"]["attrName"]) == "%s_%s" % (self.attributes_name, u'0'), \
              "  ERROR - in aggregated with name %s_%s" % (self.attributes_name, u'0')
         assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["_id"]["origin"]) == origin_by_resolution, \
@@ -537,7 +526,8 @@ class STH:
             if self.last_n == EMPTY:
                 temp_value = Decimal(self.attributes_value) + i + int(self.h_offset)
             else:
-                temp_value = Decimal(self.attributes_value) + int(self.notifications_number) - i #reverse
+                if int(self.notifications_number) < int(self.last_n): self.last_n = int(self.notifications_number)
+                temp_value = Decimal(self.attributes_value) + int(self.notifications_number) - int(self.last_n) + i
 
             assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][i]["attrValue"]) == str (temp_value), \
                 "  ERROR - in raw with attribute value in position: %s" % (str(i))
