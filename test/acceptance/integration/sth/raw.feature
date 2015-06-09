@@ -305,7 +305,7 @@ Feature: get raw values with differents requests from sth
       | dateTo    | 2015-12-31T00:00:00 |
     Then I receive an "Bad Request" http code
 
-  @lastN @BUG_55 @skip
+  @lastN @BUG_55
   Scenario Outline: get raw values using sth with several lastN and notifications
     Given service "test_limit_offset", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     And receives "<notifications>" notifications with consecutive values beginning with "51" and with step one
@@ -375,7 +375,7 @@ Feature: get raw values with differents requests from sth
     Then I receive an "OK" http code
     And validate that the raw is returned successfully
 
-  @date_only_dateTo @ISSUE_53 @skip
+  @date_only_dateTo @ISSUE_53
   Scenario: get raw values using sth with only dateTo
     Given service "test_happy_path", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     And receives "3" notifications with consecutive values beginning with "51" and with step one

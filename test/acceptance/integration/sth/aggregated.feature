@@ -376,7 +376,7 @@ Feature: get aggregated values with differents requests from sth
     Then I receive an "OK" http code
     And validate that the aggregated is returned successfully
 
-  @date_only_dateTo @ISSUE_53 @skip
+  @date_only_dateTo @ISSUE_53
   Scenario: get aggregates values using sth with only dateTo
     Given service "test_dates", service path "/test", entity type "room", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     And receives a notification with attributes value "random number=2", metadata value "True" and content "json"
