@@ -78,7 +78,7 @@ class FabricSupport:
             self.LOCALHOST = False
 
 
-    def __sub_run (self, command, path, sudo_run):
+    def __sub_run(self, command, path, sudo_run):
         """
         run a command independently that the output message by console is displayed or not
         :param command: command o script to execute in remote
@@ -87,7 +87,7 @@ class FabricSupport:
         """
         with cd(path):
             if self.LOCALHOST:
-                return local(command)
+                return local(command, capture=True)
             elif sudo_run:
                 return sudo(command)
             else:
