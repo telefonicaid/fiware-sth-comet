@@ -13,10 +13,13 @@
         "sth_fabric_password": "******",
         "sth_fabric_cert_file": "",
         "sth_fabric_error_retry": 3,
-        "sth_fabric_source_path": "/home/sysadmin/git/IoT-STH",
+        "sth_fabric_source_path": "sth_source_path",
         "sth_fabric_target_path": "/home/sysadmin/git/IoT-STH",
-        "sth_fabric_sudo": "True"
-
+        "sth_fabric_sudo": "True",
+        "sth_log_file": "/var/log/sth/sth_default.log",
+        "sth_log_owner": "sth",
+        "sth_log_group": "sth",
+        "sth_log_mod": "777"
     },
     "mongo": {
         "mongo_host": "localhost",
