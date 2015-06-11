@@ -117,6 +117,7 @@ class STH:
         self.log_group=kwargs.get(LOG_GROUP, ROOT)
         self.log_mod=kwargs.get(LOG_MOD, LOG_MOD_DEFAULT)
 
+
     def verify_mongo_version(self):
         """
         verify mongo version
@@ -139,10 +140,11 @@ class STH:
         """
         verify sth version
         """
-        resp=http_utils.request(http_utils.GET, url=self.sth_url+VERSION)
-        assert resp.status_code == 200, " ERROR - verifying sth version, error in status code. \n code: %s\n body: %s " % (str(resp.status_code), str(resp.text))
-        dict_json = general_utils.convert_str_to_dict(resp.text, general_utils.JSON)
-        assert dict_json[VERSION] == self.sth_version, " ERROR -- the sth version mismatch...\n received: %s \n expected: %s" % (dict_json[VERSION], self.sth_version)
+        if self.sth_verify_version.lower().find("true") >= 0:
+            resp=http_utils.request(http_utils.GET, url=self.sth_url+VERSION)
+            assert resp.status_code == 200, " ERROR - verifying sth version, error in status code. \n code: %s\n body: %s " % (str(resp.status_code), str(resp.text))
+            dict_json = general_utils.convert_str_to_dict(resp.text, general_utils.JSON)
+            assert dict_json[VERSION] == self.sth_version, " ERROR -- the sth version mismatch...\n received: %s \n expected: %s" % (dict_json[VERSION], self.sth_version)
 
     def init_log_file(self):
         """
@@ -160,7 +162,8 @@ class STH:
         :param operation:
         """
         myfab = FabricSupport(host=self.sth_host, user=self.fabric_user, password=self.fabric_password, cert_file=self.fabric_cert_file, retry=self.fabric_error_retry, hide=True, sudo=self.fabric_sudo)
-        myfab.run("sudo service sth %s" % operation, path=self.fabric_target_path, sudo=False)
+        if self.sth_host != "localhost" and self.sth_host != "127.0.0.1":
+            myfab.run("sudo service sth %s" % operation, path=self.fabric_target_path, sudo=False)
 
     def configuration(self, service, service_path, entity_type, entity_id, attributes_number, attributes_name, attribute_type):
         """
