@@ -37,6 +37,7 @@ CONFIGURATION_FILE    = u'configuration.json'
 SETTINGS_PATH         = u'path_to_settings_folder'
 SUDO                  = u'sudo'
 JENKINS               = u'jenkins'
+DROP_ALL_DATABASES    = u'drop_all_databases'
 
 
 
@@ -62,12 +63,20 @@ class Properties:
 
         sudo_run = ""
         if self.sudo.lower() == "true": sudo_run = SUDO
+        self.drop_all_database = configuration[DROP_ALL_DATABASES]
         if configuration[JENKINS].lower() == "false":
              with open("%s/%s" % (configuration[SETTINGS_PATH], self.file_name)) as config_file:
                  for line in config_file.readlines():
                      p = subprocess.Popen("%s %s"% (sudo_run, str(line)), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                      STDOUT = p.stdout.readlines()
                      assert STDOUT == [], "ERROR - coping %s from setting folder. \n %s" % (self.file_name, STDOUT)
+
+    def get_drop_all_databases(self):
+        """
+        get drop all database property value (see configuration.json)
+        :return: boolean
+        """
+        return self.drop_all_database
 
     def read_properties(self):
         """
@@ -98,7 +107,11 @@ class Properties:
                 fabric_error_retry=world.config['sth']['sth_fabric_error_retry'],
                 fabric_source_path=world.config['sth']['sth_fabric_source_path'],
                 fabric_target_path=world.config['sth']['sth_fabric_target_path'],
-                fabric_sudo=world.config['sth']['sth_fabric_sudo']
+                fabric_sudo=world.config['sth']['sth_fabric_sudo'],
+                log_file=world.config['sth']['sth_log_file'],
+                log_owner=world.config['sth']['sth_log_owner'],
+                log_group=world.config['sth']['sth_log_group'],
+                log_mod=world.config['sth']['sth_log_mod']
         )
 
         world.mongo = Mongo(host=world.config['mongo']['mongo_host'],

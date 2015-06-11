@@ -17,6 +17,7 @@
 # For those usages not covered by the GNU Affero General Public License please contact:
 # iot_support at tid.es
 #
+import time
 
 __author__ = 'Iván Arias León (ivan.ariasleon at telefonica dot com)'
 
@@ -47,6 +48,13 @@ FABRIC_ERROR_RETRY = u'fabric_error_retry'
 FABRIC_SOURCE_PATH = u'fabric_source_path'
 FABRIC_TARGET_PATH = u'fabric_target_path'
 FABRIC_SUDO        = u'fabric_sudo'
+LOG_FILE           = u'log_file'
+LOG_FILE_DEFAULT   = u'/tmp/sth.log'
+LOG_OWNER          = u'log_owner'
+LOG_GROUP          = u'log_group'
+LOG_MOD            = u'log_mod'
+ROOT               = u'root'
+LOG_MOD_DEFAULT    = u'777'
 
 RANDOM                     = u'random'
 CHARS_ALLOWED              = string.ascii_letters + string.digits + u'_'      # [a-zA-Z0-9_]+ regular expression
@@ -93,7 +101,7 @@ class STH:
         self.protocol=kwargs.get(PROTOCOL, PROTOCOL_DEFAULT)
         self.sth_host = kwargs.get(HOST, EMPTY)
         self.sth_port = kwargs.get(PORT, EMPTY)
-        self.sth_url = "%s://%s:%s/%s" % (self.protocol, self.sth_host, self.sth_port, STH_NOTIFICATION)
+        self.sth_url = "%s://%s:%s/" % (self.protocol, self.sth_host, self.sth_port)
         self.sth_version = kwargs.get(VERSION, EMPTY)
         self.sth_verify_version = kwargs.get(VERIFY_VERSION, EMPTY)
         self.sth_version = kwargs.get(VERSION, EMPTY)
@@ -104,6 +112,10 @@ class STH:
         self.fabric_source_path=kwargs.get(FABRIC_SOURCE_PATH, EMPTY)
         self.fabric_target_path=kwargs.get(FABRIC_TARGET_PATH, EMPTY)
         self.fabric_sudo=kwargs.get(FABRIC_SUDO, False)
+        self.log_file=kwargs.get(LOG_FILE, LOG_FILE_DEFAULT)
+        self.log_owner=kwargs.get(LOG_OWNER, ROOT)
+        self.log_group=kwargs.get(LOG_GROUP, ROOT)
+        self.log_mod=kwargs.get(LOG_MOD, LOG_MOD_DEFAULT)
 
     def verify_mongo_version(self):
         """
@@ -126,27 +138,29 @@ class STH:
     def verify_sth_version(self):
         """
         verify sth version
-        Still has not been developed this feature and remember that the assert is better in the step
         """
-        pass
+        resp=http_utils.request(http_utils.GET, url=self.sth_url+VERSION)
+        assert resp.status_code == 200, " ERROR - verifying sth version, error in status code. \n code: %s\n body: %s " % (str(resp.status_code), str(resp.text))
+        dict_json = general_utils.convert_str_to_dict(resp.text, general_utils.JSON)
+        assert dict_json[VERSION] == self.sth_version, " ERROR -- the sth version mismatch...\n received: %s \n expected: %s" % (dict_json[VERSION], self.sth_version)
 
     def init_log_file(self):
         """
         reinitialize log file
         delete and create a new log file (empty)
         """
-        myfab = FabricSupport(host=self.sth_host, user=self.fabric_user, password=self.fabric_password, cert_file=self.fabric_cert_file, retry=self.fabric_error_retry, hide=True, sudo=self.fabric_sudo)
-        log = Remote_Log (fabric=myfab)
+        myfab = FabricSupport(host=self.sth_host, user=self.fabric_user, password=self.fabric_password, cert_file=self.fabric_cert_file, retry=self.fabric_error_retry, hide=False, sudo=self.fabric_sudo)
+        log = Remote_Log (file=self.log_file, fabric=myfab)
         log.delete_log_file()
-        log.create_log_file(owner="sysadmin", group="sysadmin", mod="777")
+        log.create_log_file(owner=self.log_owner, group=self.log_group, mod=self.log_mod)
 
     def sth_service(self, operation):
         """
         cygnus service (status | stop | start | restart)
         :param operation:
         """
-        myfab = FabricSupport(host=self.sth_host, user=self.fabric_user, password=self.fabric_password, cert_file=self.fabric_cert_file, retry=self.fabric_error_retry, hide=False, sudo=self.fabric_sudo)
-        myfab.run("HOST=0.0.0.0 npm start", path=self.fabric_target_path, sudo=False)
+        myfab = FabricSupport(host=self.sth_host, user=self.fabric_user, password=self.fabric_password, cert_file=self.fabric_cert_file, retry=self.fabric_error_retry, hide=True, sudo=self.fabric_sudo)
+        myfab.run("sudo service sth %s" % operation, path=self.fabric_target_path, sudo=False)
 
     def configuration(self, service, service_path, entity_type, entity_id, attributes_number, attributes_name, attribute_type):
         """
@@ -198,7 +212,7 @@ class STH:
         self.content = content
         self.metadata_value = metadata_value
         metadata_attribute_number = 1
-        notification = Notifications (self.sth_url,tenant=self.service, service_path=self.service_path, content=self.content)
+        notification = Notifications (self.sth_url+STH_NOTIFICATION, tenant=self.service, service_path=self.service_path, content=self.content)
         if self.metadata_value.lower() == "true":
             notification.create_metadatas_attribute(metadata_attribute_number, RANDOM, RANDOM, RANDOM)
         notification.create_attributes (self.attributes_number, self.attributes_name, self.attribute_type, attribute_value)
@@ -368,7 +382,7 @@ class STH:
         :param text: text to find (begin since the end)
         """
         myfab = FabricSupport(host=self.sth_host, user=self.fabric_user, password=self.fabric_password, cert_file=self.fabric_cert_file, retry=self.fabric_error_retry, hide=True, sudo=self.fabric_sudo)
-        log = Remote_Log (fabric=myfab)
+        log = Remote_Log (fabric=myfab, file=self.log_file)
         line = log.find_line(label, text)
 
         #verify if a line with a level and a text exists in the log
