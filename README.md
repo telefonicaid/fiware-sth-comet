@@ -448,7 +448,7 @@ In case of executing the tests with the CLEAN option set to false, the contents 
 
 ##<a id="section7"></a>Performance tests
 
-The [Performance tests](performance/README.md) section of the repository includes information to run performance
+The [Performance tests](test/performance/README.md) section of the repository includes information to run performance
 tests on the STH component. If you are interested on them, please navigate to that section of the repository for further information.
 
 [Top](#section0)
