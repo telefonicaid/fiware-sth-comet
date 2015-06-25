@@ -1,20 +1,20 @@
 # Short Term History configuration procedure
 
 STH is able to start multiple instances by adding and configuring certain files of this directory
-using [sth](../../../etc/init.d/sth "sth") service script
+using [sth](https://github.com/telefonicaid/IoT-STH/blob/master/package/rpm/SOURCES/etc/init.d/sth "sth") service script
 
 To start multiple instances is needed to place in `/usr/sth/conf` one configuration file for 
 each instance that is wanted to run. RPM cames with one preconfigured instance (config 
 file called sth_default.conf) that can be used as a template to configure another instances.
 
-The [init.d](../../../etc/init.d/sth "sth") service script to start looks for files in 
+The [init.d](https://github.com/telefonicaid/IoT-STH/blob/master/package/rpm/SOURCES/etc/init.d/sth "sth") service script to start looks for files in 
 `/usr/sth/conf` that begins with `sth_` prefix and has `.conf` extension and start one 
 process for file found.
 
 It is important to change `STH_PORT` to one not used by other STH intances/services. And it is
 good practice change `LOG_FILE_NAME` to avoid logs mixed by serveral instances.
 
-[sth](../../../etc/init.d/sth "sth") init.d is packaged into the RPM and is needed to execute STH
+[sth](https://github.com/telefonicaid/IoT-STH/blob/master/package/rpm/SOURCES/etc/init.d/sth "sth") init.d is packaged into the RPM and is needed to execute STH
 in multiinstace explained above. It has the next operations:
 - **start**: `sudo /sbin/service sth start [<instance>]` if `<instance>` is not provided, script try to
 start as many instances as files that match with `sth_*.conf` template othewise only starts one 
