@@ -4,10 +4,11 @@ This directory contains tools to make and distribute STH in RPM format used, mai
 Fedora Linux distributions.
 
 Within the RPM is included:
+
 - STH software
 - Node.js modules that are needed by STH
-- [sth](rpm/SOURCES/etc/init.d/sth "sth") init.d script with standard operations
-- Daily log rotation [logrotate-sth-daily](rpm/SOURCES/etc/logrotate.d/logrotate-sth-daily "logrotate")
+- [sth](https://github.com/telefonicaid/IoT-STH/blob/master/package/rpm/SOURCES/etc/init.d/sth "sth") init.d script with standard operations
+- Daily log rotation [logrotate-sth-daily](https://github.com/telefonicaid/IoT-STH/blob/master/package/rpm/SOURCES/etc/logrotate.d/logrotate-sth-daily "logrotate")
 - Creation of directories: `/var/log/sth` and `/var/run/sth`
 - User `sth` is created and is the propietary of the installed files and running STH process
 
