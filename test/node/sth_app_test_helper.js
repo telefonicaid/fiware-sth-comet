@@ -93,6 +93,7 @@
       false,
       true,
       true,
+      true,
       function (err, collection) {
         if (err) {
           done(err);
@@ -130,6 +131,7 @@
         entityType: sthTestConfig.ENTITY_TYPE,
         attrName: sthTestConfig.ATTRIBUTE_NAME
       },
+      true,
       true,
       true,
       true,
@@ -652,6 +654,7 @@
           false,
           false,
           false,
+          false,
           function (err, collection) {
             if (err) {
               return done(err);
@@ -673,6 +676,7 @@
             attrName: sthTestConfig.ATTRIBUTE_NAME
           },
           true,
+          false,
           false,
           false,
           function (err, collection) {

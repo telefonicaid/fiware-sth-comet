@@ -322,6 +322,21 @@ a counter used as the suffix for the log file name. Optional. Default value: "0"
 due to MongoDB's limitation regarding the number of bytes a namespace may have (currently limited to 120 bytes). In case of hashing,
 information about the final collection name and its correspondence to each concrete service path, entity and (if applicable) attribute
 is stored in a collection named `COLLECTION_PREFIX + "collection_names"`. Default value: "false".
+- TRUNCATION_EXPIREAFTERSECONDS: Data from the raw and aggregated data collections will be removed if older than the value specified in seconds.
+In case of raw data the reference time is the one stored in the `recvTime` property whereas in the case of the aggregated data
+the reference of time is the one stored in the `_id.origin` property. Set the value to 0 not to apply this time-based truncation
+policy. Default value: "0".
+- TRUNCATION_SIZE: The oldest raw data (according to insertion time) will be removed if the size of the raw data collection
+gets bigger than the value specified in bytes. Set the value to 0 not to apply this truncation
+policy. Take into consideration than the "size" configuration parameter is mandatory in case size collection truncation
+is desired as required by MongoDB. Default value: "0". Notice that this configuration parameter does not affect the aggregated
+data collections since MongoDB does not currently support updating documents in capped collections which increase the size of the documents.
+Notice also that in case of the raw data, the size-based truncation policy takes precedence over the TTL one. More concretely,
+if "size" is set, the value of "exporeAfterSeconds" is ignored for the raw data collections since currently MongoDB does not support TTL in capped collections.
+- TRUNCATION_MAX: The oldest raw data (according to insertion time) will be removed if the number of documents in the raw data
+collections goes beyond the specified value. Set the value to 0 not to apply this truncation policy.
+Default value: "0". Notice that this configuration parameter does not affect the aggregated data collections since MongoDB does not
+currently support updating documents in capped collections which increase the size of the documents.
 - DB_USERNAME: The username to use for the database connection. Optional. Default value: "".
 - DB_PASSWORD: The password to use for the database connection. Optional. Default value: "".
 - DB_URI: The URI to use for the database connection. This does not include the 'mongo://' protocol part (see a couple of examples below).
