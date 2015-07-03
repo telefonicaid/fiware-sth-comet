@@ -394,7 +394,7 @@
           dateFrom: sthHelper.getISODateString(
             sthHelper.getOrigin(
               new Date(
-                events[0].recvTime.getTime() + offset),
+                events[events.length - 1].recvTime.getTime() + offset),
               resolution))
         }
       ),
@@ -443,7 +443,7 @@
           aggrPeriod: resolution,
           dateFrom: sthHelper.getISODateString(
             sthHelper.getOrigin(
-              events[0].recvTime,
+              events[events.length - 1].recvTime,
               resolution))
         }
       ),
@@ -453,7 +453,7 @@
         'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
       }
     }, function (err, response, body) {
-      var theEvent = events[0];
+      var theEvent = events[events.length - 1];
       var index, entries;
       switch(resolution) {
         case 'second':
@@ -502,7 +502,7 @@
         to.equal(sthConfig.FILTER_OUT_EMPTY ? 1 : entries);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].
         points[sthConfig.FILTER_OUT_EMPTY ? 0 : index].samples).
-        to.equal(events.length);
+        to.equal(events.length - (sthTestConfig.COMPLEX_NOTIFICATION_STARTED ? sthTestConfig.SAMPLES : 0));
       var value;
       switch(aggrMethod) {
         case 'min':
@@ -510,10 +510,10 @@
           value = parseFloat(theEvent.attrValue).toFixed(2);
           break;
         case 'sum':
-          value = (events.length * parseFloat(theEvent.attrValue)).toFixed(2);
+          value = ((events.length - (sthTestConfig.COMPLEX_NOTIFICATION_STARTED ? sthTestConfig.SAMPLES : 0)) * parseFloat(theEvent.attrValue)).toFixed(2);
           break;
         case 'sum2':
-          value = (events.length * (Math.pow(parseFloat(theEvent.attrValue), 2))).toFixed(2);
+          value = ((events.length - (sthTestConfig.COMPLEX_NOTIFICATION_STARTED ? sthTestConfig.SAMPLES : 0)) * (Math.pow(parseFloat(theEvent.attrValue), 2))).toFixed(2);
       }
       expect(parseFloat(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].
         points[sthConfig.FILTER_OUT_EMPTY ? 0 : index][aggrMethod]).toFixed(2)).to.equal(value);
@@ -533,25 +533,33 @@
    */
   function rawDataRetrievalSuite(options, checkRecvTime) {
     describe('should respond', function() {
-      var optionsWithDateFrom = {},
+      var optionsWithNoDates = {},
+          optionsWithDateFrom = {},
           optionsWithDateTo = {},
           optionsWithFromAndToDate = {};
 
       before(function() {
         for (var prop in options) {
+          optionsWithNoDates[prop] = options[prop];
           optionsWithDateFrom[prop] = options[prop];
           optionsWithDateTo[prop] = options[prop];
           optionsWithFromAndToDate[prop] = options[prop];
         }
-        optionsWithDateFrom.dateFrom = sthHelper.getISODateString(events[0].recvTime);
+        if (sthTestConfig.COMPLEX_NOTIFICATION_STARTED && 'hLimit' in optionsWithNoDates) {
+          optionsWithNoDates.hOffset = sthTestConfig.SAMPLES;
+        }
+        optionsWithDateFrom.dateFrom = sthHelper.getISODateString(events[events.length - 1].recvTime);
         optionsWithDateTo.dateTo = sthHelper.getISODateString(new Date());
-        optionsWithFromAndToDate.dateFrom = sthHelper.getISODateString(events[0].recvTime);
+        if (sthTestConfig.COMPLEX_NOTIFICATION_STARTED && 'hLimit' in optionsWithDateTo) {
+          optionsWithDateTo.hOffset = sthTestConfig.SAMPLES;
+        }
+        optionsWithFromAndToDate.dateFrom = sthHelper.getISODateString(events[events.length - 1].recvTime);
         optionsWithFromAndToDate.dateTo = sthHelper.getISODateString(new Date());
       });
 
       it('with raw data if data and no dateFrom or dateTo',
         rawDataAvailableSinceDateTest.bind(
-          null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, options, checkRecvTime));
+          null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, optionsWithNoDates, checkRecvTime));
 
       it('with raw data if data since dateFrom',
         rawDataAvailableSinceDateTest.bind(
@@ -860,7 +868,7 @@
 
     describe('complex notification', function() {
       before(function () {
-        events = [];
+        sthTestConfig.COMPLEX_NOTIFICATION_STARTED = true;
       });
 
       describe('reception', function () {
