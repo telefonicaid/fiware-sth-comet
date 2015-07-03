@@ -6,13 +6,14 @@
     * [Updating aggregated time series information] (#section1.3)
 * [Dependencies](#section2)
 * [Installation](#section3)
-* [Running the STH server](#section4)
-* [Inserting data (random single events and its aggregated data) into the database](#section5)
-* [STH component complete test coverage](#section6)
-* [Performance tests](#section7)
-* [Additional resources] (#section8)
-* [How to contribute] (#section9)
-* [Contact](#section10)
+* [Automatic deployment using Docker](#section4)
+* [Running the STH server](#section5)
+* [Inserting data (random single events and its aggregated data) into the database](#section6)
+* [STH component complete test coverage](#section7)
+* [Performance tests](#section8)
+* [Additional resources] (#section9)
+* [How to contribute] (#section10)
+* [Contact](#section11)
 
 ##<a id="section1"></a> Introduction
 The STH component is a FIWARE component in charge of providing aggregated time series information about the evolution in
@@ -270,7 +271,14 @@ The STH component server is ready to be started.
 
 [Top](#section0)
 
-##<a id="section4"></a>Running the STH server
+##<a id="section4"></a> Automatic deployment using Docker
+To ease the testing and deployment of the STH component we have prepared a Docker repository which can be found at
+[https://registry.hub.docker.com/u/gtorodelvalle/iot-sth/](https://registry.hub.docker.com/u/gtorodelvalle/iot-sth/),
+including all the information needed to try and to deploy the STH component via the execution of a simple Docker command.
+
+[Top](#section0)
+
+##<a id="section5"></a>Running the STH server
 1. To run the STH server, just execute:
 <pre> npm start </pre>
 
@@ -352,7 +360,7 @@ of the collection names and the combination of concrete services, service paths,
 
 [Top](#section0)
 
-##<a id="section5"></a> Inserting data (random single events and its aggregated data) into the database
+##<a id="section6"></a> Inserting data (random single events and its aggregated data) into the database
 The STH component source code includes a set of tests to validate the correct functioning of the component. Amongst these
 tests, there is a suite to validate the insertion of aggregated time series information into the MongoDB instance.
 
@@ -394,7 +402,7 @@ In case of executing the tests with the CLEAN option set to false, the contents 
 
 [Top](#section0)
 
-##<a id="section6"></a> STH component complete test coverage
+##<a id="section7"></a> STH component complete test coverage
 The STH component source code includes a set of tests to validate the correct functioning of the whole set of capabilities
 exposed by the component. This set includes:
 
@@ -446,20 +454,20 @@ In case of executing the tests with the CLEAN option set to false, the contents 
 
 [Top](#section0)
 
-##<a id="section7"></a>Performance tests
+##<a id="section8"></a>Performance tests
 
 The [Performance tests](test/performance/README.md) section of the repository includes information to run performance
 tests on the STH component. If you are interested on them, please navigate to that section of the repository for further information.
 
 [Top](#section0)
 
-##<a id="section8"></a>Additional resources
+##<a id="section9"></a>Additional resources
 The [Additional resources](resource/README.md) section of the repository includes some scripts and utilities which may make the developer's life easier.
 If you are interested on them, please navigate to that section of the repository for further information.
 
 [Top](#section0)
 
-##<a id="section9"></a>How to contribute
+##<a id="section10"></a>How to contribute
 
 Would you like to contribute to the project? This is how you can do it:
 
@@ -492,7 +500,7 @@ in the issue's comments to get help from them during its resolution. They will b
 
 [Top](#section0)
 
-##<a id="section10"></a>Contact
+##<a id="section11"></a>Contact
 * Germán Toro del Valle (<a href="mailto:german.torodelvalle@telefonica.com">german.torodelvalle@telefonica.com</a>, <a href="http://www.twitter.com/gtorodelvalle" target="_blank">@gtorodelvalle</a>)
 * Francisco Romero Bueno (<a href="mailto:francisco.romerobueno@telefonica.com">francisco.romerobueno@telefonica.com</a>)
 * Iván Arias León (<a href="mailto:ivan.ariasleon@telefonica.com">ivan.ariasleon@telefonica.com</a>)
