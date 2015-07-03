@@ -159,3 +159,4 @@ rm -rf $RPM_BUILD_ROOT
 - [FEATURE] Set the SHOULD_HASH default option to false (#95)
 - [BUG] Entity id and entity type are converted to lowercase in Cygnus but not in STH (#119)
 - [BUG] In raw request with hlimit and offset returns the last attributes firstly (#121)
+- [FEATURE] Add Dockerfile for automated build generation using Docker (#149)
