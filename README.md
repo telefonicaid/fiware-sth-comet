@@ -114,6 +114,10 @@ An example response provided by the STH component to a request such as the previ
 
 Notice that a paginated response has been requested with a limit of 3 entries and an offset of 0 entries (first page).
 
+It is important to note that if a valid query is made but it returns no data (for example because there is no raw data
+for the specified time frame), a response with code `200` is returned including an empty `values` property array, since it is a valid
+query.
+
 [Top](#section0)
 
 ###<a id="section1.2"></a> Consuming aggregated time series information
@@ -179,6 +183,10 @@ An example response provided by the STH component to a request such as the previ
 In this example response, aggregated time series information for a range of minutes and a resolution of seconds is returned.
 This information has as its origin the 46nd minute, of the 2nd hour of February, the 18th, 2015. And includes data for the
 13th second, for which there is a sample and the sum (and value of that sample) is 34.59.
+
+It is important to note that if a valid query is made but it returns no data (for example because there is no aggregated data
+for the specified time frame), a response with code `200` is returned including an empty `values` property array, since it is a valid
+query.
 
 [Top](#section0)
 
