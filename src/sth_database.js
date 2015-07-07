@@ -306,7 +306,7 @@
    *  if it does not exist
    * @param {boolean} shouldStoreHash Flag indicating if the collection hash should be stored in case the collection
    *  is created
-   * @param {boolean} shouldTruncate Flag indicating if the collection should be truncate according to the requested data
+   * @param {boolean} shouldTruncate Flag indicating if the collection should be truncated according to the requested data
    *  management policies (time or data collection truncation)
    * @param {Function} callback Callback function to be called with the results
    */
