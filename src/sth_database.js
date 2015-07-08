@@ -10,8 +10,14 @@
 
   var sthConfig, sthLogger, sthHelper, connectionURL, eventSchema, aggregatedSchema;
 
-  var MAX_NAMESPACE_SIZE_IN_BYTES = 120,
-      MIN_HASH_SIZE_IN_BYTES = 20;
+  /**
+   * The maximumum namespace size in bytes has to be decreased to 113 bytes
+   *  (from the original 120 bytes) to be able to ensure the TTL index on aggregated
+   *  data collection if requested by the user in the corresponding configuration option.
+   * @type {number} Maximum namespace size in bytes
+   */
+  var MAX_NAMESPACE_SIZE_IN_BYTES = 113;
+  var MIN_HASH_SIZE_IN_BYTES = 20;
 
   var DATA_MODELS = {
     COLLECTIONS_PER_SERVICE_PATH: 'collection-per-service-path',
@@ -300,9 +306,11 @@
    *  if it does not exist
    * @param {boolean} shouldStoreHash Flag indicating if the collection hash should be stored in case the collection
    *  is created
+   * @param {boolean} shouldTruncate Flag indicating if the collection should be truncated according to the requested data
+   *  management policies (time or data collection truncation)
    * @param {Function} callback Callback function to be called with the results
    */
-  function getCollection(params, isAggregated, shouldCreate, shouldStoreHash, callback) {
+  function getCollection(params, isAggregated, shouldCreate, shouldStoreHash, shouldTruncate, callback) {
     var databaseName = getDatabase(params.service);
 
     shouldStoreHash = sthConfig.SHOULD_HASH && shouldStoreHash;
@@ -330,37 +338,106 @@
     sthLogger.debug('Getting access to the collection \'' + collectionName + '\' in database \'' + databaseName + '\'', {
       operationType: sthConfig.OPERATION_TYPE.DB_LOG
     });
+
+    var setTTLPolicy = function(collection) {
+      // Set the TTL policy if required
+      if (parseInt(sthConfig.TRUNCATION_EXPIREAFTERSECONDS) > 0) {
+        if (!isAggregated) {
+          if (parseInt(sthConfig.TRUNCATION_SIZE) == 0) {
+            collection.ensureIndex(
+              {
+                'recvTime': 1
+              },
+              {
+                expireAfterSeconds: parseInt(sthConfig.TRUNCATION_EXPIREAFTERSECONDS)
+              }, function (err) {
+                if (err) {
+                  sthLogger.error(
+                    'Error when creating the index for TTL for collection \'' +
+                    collectionName + '\': ' + err,
+                    {
+                      operationType: sthConfig.OPERATION_TYPE.DB_LOG
+                    }
+                  );
+                }
+              }
+            );
+          }
+        } else {
+          collection.ensureIndex(
+            {
+              '_id.origin': 1
+            },
+            {
+              expireAfterSeconds: parseInt(sthConfig.TRUNCATION_EXPIREAFTERSECONDS)
+            }, function(err) {
+              if (err) {
+                sthLogger.error(
+                  'Error when creating the index for TTL for collection \'' +
+                  collectionName + '\': ' + err,
+                  {
+                    operationType: sthConfig.OPERATION_TYPE.DB_LOG
+                  }
+                );
+              }
+            }
+          );
+        }
+      }
+    };
+
+    var createCollectionCB = function (err, collection) {
+      if (!err && shouldStoreHash) {
+        storeCollectionHash(params, isAggregated, collectionName, function(hashErr) {
+          if (hashErr) {
+            // There was an error when storing the collection hash
+            // Do nothing
+            sthLogger.warn('Error when storing the hash generated as part of the collection name into the database', {
+              operationType: sthConfig.OPERATION_TYPE.DB_LOG
+            });
+          }
+          if (shouldTruncate) {
+            setTTLPolicy(collection);
+          }
+          return callback(hashErr, collection);
+        });
+      } else if (err && err.message === 'collection already exists') {
+        // We have observed that although leaving the strict option to the default value, sometimes
+        //  we get a 'collection already exists' error when executing connection.db#createCollection()
+        connection.db.collection(collectionName, {strict: true},
+          function (err, collection) {
+            return callback(err, collection);
+          }
+        );
+      } else {
+        if (shouldTruncate) {
+          setTTLPolicy(collection);
+        }
+        return callback(err, collection);
+      }
+    };
+
     connection.db.collection(collectionName, {strict: true},
       function (err, collection) {
         if (err &&
           (err.message === 'Collection ' + collectionName + ' does not exist. Currently in strict mode.') &&
-          shouldCreate) {
-          connection.db.createCollection(collectionName,
-            function (err, collection) {
-              if (!err && shouldStoreHash) {
-                storeCollectionHash(params, isAggregated, collectionName, function(hashErr) {
-                  if (hashErr) {
-                    // There was an error when storing the collection hash
-                    // Do nothing
-                    sthLogger.warn('Error when storing the hash generated as part of the collection name into the database', {
-                      operationType: sthConfig.OPERATION_TYPE.DB_LOG
-                    });
-                    return callback(hashErr, collection);
-                  }
-                  return callback(err, collection);
-                });
-              } else if (err && err.message === 'collection already exists') {
-                // We have observed that although leaving the strict option to the default value, sometimes
-                //  we get a 'collection already exists' error when executing connection.db#createCollection()
-                connection.db.collection(collectionName, {strict: true},
-                  function (err, collection) {
-                    return callback(err, collection);
-                  }
-                );
-              } else {
-                return callback(err, collection);
-              }
+            shouldCreate) {
+          if (shouldTruncate && !isAggregated) {
+            // Set the size removal policy if required
+            if (parseInt(sthConfig.TRUNCATION_SIZE) > 0) {
+              var collectionCreationOptions = {
+                capped: true,
+                size: parseInt(sthConfig.TRUNCATION_SIZE),
+                max: parseInt(sthConfig.TRUNCATION_MAX) || null
+              };
+              return connection.db.createCollection(collectionName,
+                collectionCreationOptions,
+                createCollectionCB
+              );
             }
+          }
+          connection.db.createCollection(collectionName,
+            createCollectionCB
           );
         } else {
           return callback(err, collection);
@@ -933,10 +1010,10 @@
         }
       },
       function(err) {
-      if (callback) {
-        callback(err);
-      }
-    });
+        if (callback) {
+          callback(err);
+        }
+      });
   }
 
   /**
@@ -964,7 +1041,7 @@
     getCollection({
       service: params.service,
       collection: sthConfig.COLLECTION_PREFIX + 'collection_names'
-    }, false, true, false, function(err, collection) {
+    }, false, true, false, false, function(err, collection) {
       if (err) {
         return callback(err);
       }

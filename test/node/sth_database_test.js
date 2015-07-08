@@ -52,6 +52,7 @@
         true,
         false,
         false,
+        false,
         function (err, collection) {
           if (err && !collection) {
             // The collection does not exist

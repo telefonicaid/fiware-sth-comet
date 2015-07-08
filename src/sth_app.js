@@ -73,6 +73,22 @@
         operationType: sthConfig.OPERATION_TYPE.SERVER_START
       }
     );
+    sthLogger.info(
+      'STH server configuration parameters:',
+      JSON.stringify(sthConfig),
+      {
+        operationType: sthConfig.OPERATION_TYPE.SERVER_START
+      }
+    );
+    if (sthConfig.TRUNCATION_SIZE === '0' && sthConfig.TRUNCATION_MAX !== '0') {
+      sthLogger.info(
+        'Setting the TRUNCATION_MAX configuration parameter and not setting the TRUNCATION_SIZE one has no effect ' +
+          'regarding collection size truncation as imposed by MongoDB...',
+        {
+          operationType: sthConfig.OPERATION_TYPE.SERVER_START
+        }
+      );
+    }
 
     // Connect to the MongoDB database
     sthDatabase.connect(sthConfig.DB_AUTHENTICATION, sthConfig.DB_URI, sthConfig.REPLICA_SET,

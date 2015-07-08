@@ -77,6 +77,7 @@
         false,
         false,
         false,
+        false,
         function (err, collection) {
           if (err) {
             // The collection does not exist, reply with en empty response
@@ -170,6 +171,7 @@
           attrName: request.params.attrName
         },
         true,
+        false,
         false,
         false,
         function (err, collection) {
@@ -274,6 +276,7 @@
         false,
         true,
         true,
+        true,
         function(err, collection) {
           if (err) {
             // There was an error when getting the collection
@@ -346,6 +349,7 @@
           entityType: contextElement.type,
           attrName: attribute.name
         },
+        true,
         true,
         true,
         true,

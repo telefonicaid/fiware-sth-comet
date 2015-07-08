@@ -128,6 +128,27 @@
   } else {
     module.exports.SHOULD_HASH = false;
   }
+  if (ENV.TRUNCATION_EXPIREAFTERSECONDS) {
+    module.exports.TRUNCATION_EXPIREAFTERSECONDS = ENV.TRUNCATION_EXPIREAFTERSECONDS;
+  } else if (config.database.truncation.expireAfterSeconds) {
+    module.exports.TRUNCATION_EXPIREAFTERSECONDS = config.database.truncation.expireAfterSeconds;
+  } else {
+    module.exports.TRUNCATION_EXPIREAFTERSECONDS = '0';
+  }
+  if (ENV.TRUNCATION_SIZE) {
+    module.exports.TRUNCATION_SIZE = ENV.TRUNCATION_SIZE;
+  } else if (config.database.truncation.size) {
+    module.exports.TRUNCATION_SIZE = config.database.truncation.size;
+  } else {
+    module.exports.TRUNCATION_SIZE = '0'
+  }
+  if (ENV.TRUNCATION_MAX) {
+    module.exports.TRUNCATION_MAX = ENV.TRUNCATION_MAX;
+  } else if (config.database.truncation.max) {
+    module.exports.TRUNCATION_MAX = config.database.truncation.max;
+  } else {
+    module.exports.TRUNCATION_MAX = '0'
+  }
   module.exports.DB_USERNAME = dbUsername;
   module.exports.DB_PASSWORD = dbPassword;
   module.exports.DB_AUTHENTICATION = (dbUsername && dbPassword) ?
