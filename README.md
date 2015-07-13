@@ -273,7 +273,7 @@ The STH component server is ready to be started.
 
 ##<a id="section4"></a> Automatic deployment using Docker
 To ease the testing and deployment of the STH component we have prepared a Docker repository which can be found at
-[https://registry.hub.docker.com/u/gtorodelvalle/iot-sth/](https://registry.hub.docker.com/u/gtorodelvalle/iot-sth/),
+[https://registry.hub.docker.com/u/fiwareiotplatform/iot-sth/](https://registry.hub.docker.com/u/fiwareiotplatform/iot-sth/),
 including all the information needed to try and to deploy the STH component via the execution of a simple Docker command.
 
 [Top](#section0)
