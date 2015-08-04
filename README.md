@@ -217,34 +217,38 @@ curl orion.contextBroker.host:1026/v1/subscribeContext -s -S --header 'Content-T
     "duration": "P1M",
     "notifyConditions": [
         {
-            "type": "ONTIMEINTERVAL",
+            "type": "ONCHANGE",
             "condValues": [
-                "PT1S"
+                "temperature"
             ]
         }
     ],
+    "throttling": "PT1S"
 }
 EOF
 </pre>
 
-In this request, a subscription to be notified the value of the temperature attribute of the Room1 entity every second
-is made to an instance of the Orion Context Broker listening at orion.contextBroker.host:1026.
-The notifications will be sent to the endpoint made available by the STH component at http://<sth.host>:<sth.port>/notify
+In this request, a subscription to be notified the value of the temperature attribute of the Room1 entity whenever it changes
+is made to an instance of the Orion Context Broker listening at `orion.contextBroker.host:1026`.
 
-If the list of "attributes" is empty, this is interpreted by the Orion Context Broker as "all the attributes of the selected entities".
+More concretely, the `condValues` property includes a list of attributes of the entity of interest which should be tracked for changes.
+If any of them changes, a new notification will be sent to the endpoint set in the `reference` property including the current values
+of the attributes specified in the `attributes` property of the subscription request payload. The `condValues` and `attributes` properties
+can include any attributes of the entity of interest (not necessarily the same in both lists) and their change and latest values will be
+notified accordingly.
 
-Of course, the concrete curl command to be used depends on each case but can easily be infered from the previous example.
+If the list of `attributes` is empty, this is interpreted by the Orion Context Broker as "notify the values of all the attributes of the selected entities".
 
-Remember that subscription expire and must be re-enabled. More concretely, the "duration" property sets the duration of the subscription.
+It is important to note that the subscription expire and must be re-enabled. More concretely, the `duration` property sets the duration of the subscription.
 One month in the proposed example.
 
 On the other hand, for the time being the STH component only is able to manage notifications in JSON format and consequently
-it is very important to set the "Accept" header to "application/json".
+it is very important to set the `Accept` header to `application/json`.
 
-Last but not least, the "throttling" makes it possible to control the frequency of the notifications. In this sense and for
+Last but not least, the `throttling` makes it possible to control the frequency of the notifications. In this sense and for
 this concrete example, the Orion Context Broker will send notifications separated 1 second in time the least. This is, the
 time between notifications will be at least 1 second. Depending on the resolution of the aggregated data you are interested
-in, the "throttling" should be fine-tuned accordingly.
+in, the `throttling` should be fine-tuned accordingly.
 
 [Top](#section0)
 
