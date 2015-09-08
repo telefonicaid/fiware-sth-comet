@@ -791,6 +791,24 @@
                 {
                   "name" : sthTestConfig.ATTRIBUTE_NAME,
                   "type" : sthTestConfig.ATTRIBUTE_TYPE,
+                  "value" : '' // Empty string
+                }
+              ],
+              "type": "entityType",
+              "isPattern": "false",
+              "id": "entityId"
+            },
+            "statusCode": {
+              "code": "200",
+              "reasonPhrase": "OK"
+            }
+          },
+          {
+            "contextElement": {
+              "attributes": [
+                {
+                  "name" : sthTestConfig.ATTRIBUTE_NAME,
+                  "type" : sthTestConfig.ATTRIBUTE_TYPE,
                   "value" : 'just a string'
                 }
               ],

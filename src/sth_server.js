@@ -519,7 +519,7 @@
                 contextElement = contextResponses[l1].contextElement;
                 attributes = contextElement.attributes;
                 for (var l2 = 0; l2 < attributes.length; l2++) {
-                  if (isNaN(attributes[l2].value)) {
+                  if (!attributes[l2].value || isNaN(attributes[l2].value)) {
                     // The attribute value is not a number and consequently not able to be aggregated.
                     continue;
                   }
@@ -560,7 +560,7 @@
                   contextElement = contextResponses[i].contextElement;
                   attributes = contextElement.attributes;
                   for (var j = 0; j < attributes.length; j++) {
-                    if (isNaN(attributes[j].value)) {
+                    if (!attributes[j].value || isNaN(attributes[j].value)) {
                       // The attribute value is not a number and consequently not able to be aggregated.
                       sthLogger.warn('Attribute value not aggregatable', {
                         operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
