@@ -73,6 +73,8 @@ The requests can make use the following query parameters:
 * <b>lastN</b>: Only the requested last entries should be returned. It is a mandatory parameter if no hLimit and hOffset are provided.
 * <b>hLimit</b>: In case of pagination, the number of entries per page. It is a mandatory parameter if no lastN is provided.
 * <b>hOffset</b>: In case of pagination, the offset to apply to the requested search of raw data. It is a mandatory parameter if no lastN is provided.
+* <b>dateFrom</b>: The origin of time from which the raw data is desired. It is an optional parameter.
+* <b>dateTo</b>: The end of time until which the raw data is desired. It is an optional parameter.
 
 An example response provided by the STH component to a request such as the previous one could be the following:
 
