@@ -27,109 +27,6 @@
   var DATA_MODEL = DATA_MODELS.COLLECTIONS_PER_ENTITY;
 
   /**
-   * Declares the Mongoose schemas.
-   */
-  function defineSchemas() {
-    switch (DATA_MODEL) {
-      case DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
-        eventSchema = mongoose.Schema({
-          recvTime: Date,
-          entityId: String,
-          entityType: String,
-          attrName: String,
-          attrType: String,
-          attrValue: Number
-        });
-        break;
-      case DATA_MODELS.COLLECTIONS_PER_ENTITY:
-        eventSchema = mongoose.Schema({
-          recvTime: Date,
-          attrName: String,
-          attrType: String,
-          attrValue: Number
-        });
-        break;
-      case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
-        eventSchema = mongoose.Schema({
-          recvTime: Date,
-          attrType: String,
-          attrValue: Number
-        });
-        break;
-    }
-
-    switch (DATA_MODEL) {
-      case DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
-        aggregatedSchema = mongoose.Schema({
-          _id: {
-            type: {
-              entityId: String,
-              entityType: String,
-              attrName: String,
-              range: String,
-              resolution: String,
-              origin: Date
-            },
-            select: true
-          },
-          attrType: String,
-          points: [{
-            offset: Number,
-            samples: Number,
-            sum: Number,
-            sum2: Number,
-            min: Number,
-            max: Number
-          }]
-        });
-        break;
-      case DATA_MODELS.COLLECTIONS_PER_ENTITY:
-        aggregatedSchema = mongoose.Schema({
-          _id: {
-            type: {
-              attrName: String,
-              range: String,
-              resolution: String,
-              origin: Date
-            },
-            select: true
-          },
-          attrType: String,
-          points: [{
-            offset: Number,
-            samples: Number,
-            sum: Number,
-            sum2: Number,
-            min: Number,
-            max: Number
-          }]
-        });
-        break;
-      case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
-        aggregatedSchema = mongoose.Schema({
-          _id: {
-            type: {
-              range: String,
-              resolution: String,
-              origin: Date
-            },
-            select: true
-          },
-          attrType: String,
-          points: [{
-            offset: Number,
-            samples: Number,
-            sum: Number,
-            sum2: Number,
-            min: Number,
-            max: Number
-          }]
-        });
-        break;
-    }
-  }
-
-  /**
    * Connects to a (MongoDB) database endpoint asynchronously
    * @param {string} authentication The authentication schema to use for the connection
    * @param {string} dbURI The database URI
@@ -141,8 +38,6 @@
   function connect(authentication, dbURI, replicaSet, database, poolSize, callback) {
     connectionURL = 'mongodb://' + authentication + '@' + dbURI + '/' + database +
       (replicaSet ? '/?replicaSet=' + replicaSet : '');
-
-    defineSchemas();
 
     mongoose.connect(connectionURL,
       {
@@ -701,31 +596,14 @@
    * Returns the condition to be used in the MongoDB update operation for aggregated data
    * @param {string} entityId The entity id
    * @param {string} entityType The entity type
-   * @param {string} attrName The attribute id
+   * @param {string} attrName The attribute name
    * @param {string} resolution The resolution
    * @param {Date} recvTime The date (or recvTime) of the notification (attribute value change)
    * @returns {Object} The update condition
    */
   function getAggregateUpdateCondition(
     entityId, entityType, attrName, resolution, recvTime) {
-    var offset;
-    switch (resolution) {
-      case sthConfig.RESOLUTION.SECOND:
-        offset = recvTime.getUTCSeconds();
-        break;
-      case sthConfig.RESOLUTION.MINUTE:
-        offset = recvTime.getUTCMinutes();
-        break;
-      case sthConfig.RESOLUTION.HOUR:
-        offset = recvTime.getUTCHours();
-        break;
-      case sthConfig.RESOLUTION.DAY:
-        offset = recvTime.getUTCDate();
-        break;
-      case sthConfig.RESOLUTION.MONTH:
-        offset = recvTime.getUTCMonth() + 1;
-        break;
-    }
+    var offset = sthHelper.getOffset(resolution, recvTime);
 
     var aggregateUpdateCondition;
     switch (DATA_MODEL) {
@@ -763,9 +641,11 @@
 
   /**
    * Returns the data to prepopulate the aggregated data collection with
+   * @param {string} attrType The attribute type
+   * @param {string} attrValue The attribute value
    * @param {string} resolution The resolution
    */
-  function getAggregatePrepopulatedData(resolution) {
+  function getAggregatePrepopulatedData(attrType, attrValue, resolution) {
     var points = [],
       totalValues,
       offsetOrigin = 0;
@@ -790,15 +670,27 @@
         break;
     }
 
-    for (var i = offsetOrigin; i < totalValues; i++) {
-      points.push({
-        offset: i,
-        samples: 0,
-        sum: 0,
-        sum2: 0,
-        min: Number.POSITIVE_INFINITY,
-        max: Number.NEGATIVE_INFINITY
-      });
+    if (!isNaN(attrValue)) {
+      for (var i = offsetOrigin; i < totalValues; i++) {
+        points.push({
+          offset: i,
+          samples: 0,
+          sum: 0,
+          sum2: 0,
+          min: Number.POSITIVE_INFINITY,
+          max: Number.NEGATIVE_INFINITY
+        });
+      }
+    } else {
+      for (var i = offsetOrigin; i < totalValues; i++) {
+        var entry = {
+          offset: i,
+          samples: 0,
+          occur: {
+          }
+        };
+        points.push(entry);
+      }
     }
 
     return points;
@@ -807,14 +699,15 @@
   /**
    * Returns the update to be used in the MongoDB update operation for aggregated data
    * @param {string} attrType The type of the attribute to aggregate
+   * @param {string} attrValue The value of the attribute to aggregate
    * @param {string} resolution The resolution
    * @returns {Object} The update operation
    */
-  function getAggregateUpdate4Insert(attrType, resolution) {
+  function getAggregateUpdate4Insert(attrType, attrValue, resolution) {
     return {
       '$setOnInsert': {
         attrType: attrType,
-        points: getAggregatePrepopulatedData(resolution)
+        points: getAggregatePrepopulatedData(attrType, attrValue, resolution)
       }
     };
   }
@@ -823,25 +716,46 @@
    * Returns the update to be used in the MongoDB update operation for aggregated data
    * @param {number} attrType The type of the attribute to aggregate
    * @param {number} attrValue The value of the attribute to aggregate
+   * @param {string} resolution The resolution
+   * @param {date} recvTime The data reception time
    * @returns {Object} The update operation
    */
-  function getAggregateUpdate4Update(attrType, attrValue) {
-    return {
-      '$set': {
-        'attrType': attrType
-      },
-      '$inc': {
-        'points.$.samples': 1,
-        'points.$.sum': attrValue,
-        'points.$.sum2': Math.pow(attrValue, 2)
-      },
-      '$min': {
-        'points.$.min': attrValue
-      },
-      '$max': {
-        'points.$.max': attrValue
-      }
-    };
+  function getAggregateUpdate4Update(attrType, attrValue, resolution, recvTime) {
+    var aggregateUpdate4Update,
+        attrValueAsNumber;
+    if (!isNaN(attrValue)) {
+      attrValueAsNumber = parseFloat(attrValue);
+      aggregateUpdate4Update = {
+        '$set': {
+          'attrType': attrType
+        },
+        '$inc': {
+          'points.$.samples': 1,
+          'points.$.sum': attrValueAsNumber,
+          'points.$.sum2': Math.pow(attrValueAsNumber, 2)
+        },
+        '$min': {
+          'points.$.min': attrValueAsNumber
+        },
+        '$max': {
+          'points.$.max': attrValueAsNumber
+        }
+      };
+    } else {
+      var offset = sthHelper.getOffset(resolution, recvTime);
+      aggregateUpdate4Update = {
+        '$set': {
+          'attrType': attrType
+        },
+        '$inc': {
+          'points.$.samples': 1
+        }
+      };
+      aggregateUpdate4Update['$inc']['points.' +
+        (offset - (resolution === 'day' || resolution === 'month' || resolution === 'year' ? 1 : 0)) +
+        '.occur.' + attrValue] = 1;
+    }
+    return aggregateUpdate4Update;
   }
 
   /**
@@ -885,7 +799,7 @@
     collection.update(
       getAggregateUpdateCondition(
         entityId, entityType, attrName, resolution, recvTime),
-      getAggregateUpdate4Insert(attrType, resolution),
+      getAggregateUpdate4Insert(attrType, attrValue, resolution),
       {
         upsert: true,
         writeConcern: {
@@ -901,7 +815,7 @@
         collection.update(
           getAggregateUpdateCondition(
             entityId, entityType, attrName, resolution, recvTime),
-          getAggregateUpdate4Update(attrType, parseFloat(attrValue)),
+          getAggregateUpdate4Update(attrType, attrValue, resolution, recvTime),
           {
             writeConcern: {
               w: !isNaN(sthConfig.WRITE_CONCERN) ? parseInt(sthConfig.WRITE_CONCERN) : sthConfig.WRITE_CONCERN
