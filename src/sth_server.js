@@ -483,7 +483,7 @@
               lastN: joi.number().integer().greater(-1).optional(),
               hLimit: joi.number().integer().greater(-1).optional(),
               hOffset: joi.number().integer().greater(-1).optional(),
-              aggrMethod: joi.string().valid('max', 'min', 'sum', 'sum2').optional(),
+              aggrMethod: joi.string().valid('max', 'min', 'sum', 'sum2', 'occur').optional(),
               aggrPeriod: joi.string().required().valid('month', 'day', 'hour', 'minute', 'second').optional(),
               dateFrom: joi.date().optional(),
               dateTo: joi.date().optional()
@@ -519,7 +519,8 @@
                 contextElement = contextResponses[l1].contextElement;
                 attributes = contextElement.attributes;
                 for (var l2 = 0; l2 < attributes.length; l2++) {
-                  if (!attributes[l2].value || isNaN(attributes[l2].value)) {
+                  if (!attributes[l2].value ||
+                    (isNaN(attributes[l2].value) && typeof(attributes[l2].value) !== 'string')) {
                     // The attribute value is not a number and consequently not able to be aggregated.
                     continue;
                   }
@@ -560,7 +561,8 @@
                   contextElement = contextResponses[i].contextElement;
                   attributes = contextElement.attributes;
                   for (var j = 0; j < attributes.length; j++) {
-                    if (!attributes[j].value || isNaN(attributes[j].value)) {
+                    if (!attributes[j].value ||
+                      (isNaN(attributes[j].value) && typeof(attributes[j].value) !== 'string')) {
                       // The attribute value is not a number and consequently not able to be aggregated.
                       sthLogger.warn('Attribute value not aggregatable', {
                         operationType: sthConfig.OPERATION_TYPE.SERVER_LOG

@@ -2,3 +2,4 @@
 - [FEATURE] Do not store raw or aggregated data if hash collision (#101)
 - [FEATURE] Time-based and size-based data management policies in collections are needed (#147)
 - [BUG] Log error if was not possible to get the collection for writing raw and/or aggregated data (#116)
+- [FEATURE] Support string attribute values when calculating aggregated data (#175)

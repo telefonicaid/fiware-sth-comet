@@ -133,8 +133,9 @@ The entries between "<" and ">" in the URL path depend on the concrete case (typ
 
 The requests can make use the following query parameters:
 
-* <b>aggrMethod</b>: The aggregation method. The STH component supports the following aggregation methods: max (maximum
-value), min (minimum value), sum (sum of all the samples) and sum2 (sum of the square value of all the samples). Combining
+* <b>aggrMethod</b>: The aggregation method. The STH component supports the following aggregation methods: `max` (maximum
+value), `min (minimum value), `sum` (sum of all the samples) and `sum2` (sum of the square value of all the samples) for numeric
+attribute values and `occur` for attributes values of type string. Combining
 the information provided by these aggregated methods with the number of samples, it is possible to calculate probabilistic
 values such as the average value, the variance as well as the standard deviation. It is a mandatory parameter.
 * <b>aggrPeriod</b>: Aggregation period or resolution. For the time being, a fixed resolution determines the range as
@@ -142,7 +143,7 @@ well as the origin time format and the possible offsets. It is a mandatory param
 * <b>dateFrom</b>: The origin of time from which the aggregated time series information is desired. It is an optional parameter.
 * <b>dateTo</b>: The end of time until which the aggregated time series information is desired. It is an optional parameter.
 
-An example response provided by the STH component to a request such as the previous one could be the following:
+An example response provided by the STH component to a request such as the previous one (for a numeric attribute value) could be the following:
 
 <pre>
 {
@@ -185,6 +186,57 @@ An example response provided by the STH component to a request such as the previ
 In this example response, aggregated time series information for a range of minutes and a resolution of seconds is returned.
 This information has as its origin the 46nd minute, of the 2nd hour of February, the 18th, 2015. And includes data for the
 13th second, for which there is a sample and the sum (and value of that sample) is 34.59.
+
+On the other hand, if the attribute value was of type string, a query such as the following (with `aggrMethod` as `occur`)
+sent to the STH component:
+
+<pre>http://localhost:8666/STH/v1/contextEntities/type/&lt;entityType&gt;/id/&lt;entityId&gt;/attributes/&lt;attrName&gt;?aggrMethod=occur&aggrPeriod=second&dateFrom=2015-02-22T00:00:00.000Z&dateTo=2015-02-22T23:00:00.000Z</pre>
+
+may end up receiving the following payload as a possible response:
+
+<pre>
+{
+    "contextResponses": [
+        {
+            "contextElement": {
+                "attributes": [
+                    {
+                        "name": "attrName",
+                        "values": [
+                            {
+                                "_id": {
+                                    "origin": "2015-02-18T02:46:00.000Z",
+                                    "range": "minute",
+                                    "resolution": "second"
+                                },
+                                "points": [
+                                    {
+                                        "offset": 35,
+                                        "samples": 34,
+                                        "occur": {
+                                            "string01": 7,
+                                            "string02": 4,
+                                            "string03": 5,
+                                            "string04": 6,
+                                            "string05": 12
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "id": "entityId",
+                "isPattern": false
+            },
+            "statusCode": {
+                "code": "200",
+                "reasonPhrase": "OK"
+            }
+        }
+    ]
+}
+</pre>
 
 It is important to note that if a valid query is made but it returns no data (for example because there is no aggregated data
 for the specified time frame), a response with code `200` is returned including an empty `values` property array, since it is a valid

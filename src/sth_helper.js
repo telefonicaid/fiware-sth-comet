@@ -73,6 +73,34 @@
   }
 
   /**
+   * Returns the offset of a date for certain resolution
+   * @param resolution The resolution
+   * @param date The date
+   * @return {Number} Returns the offset
+   */
+  function getOffset(resolution, date) {
+    var offset;
+    switch (resolution) {
+      case sthConfig.RESOLUTION.SECOND:
+        offset = date.getUTCSeconds();
+        break;
+      case sthConfig.RESOLUTION.MINUTE:
+        offset = date.getUTCMinutes();
+        break;
+      case sthConfig.RESOLUTION.HOUR:
+        offset = date.getUTCHours();
+        break;
+      case sthConfig.RESOLUTION.DAY:
+        offset = date.getUTCDate();
+        break;
+      case sthConfig.RESOLUTION.MONTH:
+        offset = date.getUTCMonth() + 1;
+        break;
+    }
+    return offset;
+  }
+
+  /**
    * Returns the object to return in case no aggregated data exists for
    *  certain criteria
    * @returns {Array} An empty array
@@ -215,6 +243,7 @@
     return {
       getOrigin: getOrigin,
       getRange: getRange,
+      getOffset: getOffset,
       getEmptyResponse: getEmptyResponse,
       getUnicaCorrelator: getUnicaCorrelator,
       getTransactionId: getTransactionId,
