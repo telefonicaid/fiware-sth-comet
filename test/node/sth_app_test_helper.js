@@ -195,7 +195,7 @@
       addEventTest(anEvent, done);
     });
 
-    it('should store aggregated data for each pair resolution - range',
+    it('should store aggregated data for each resolution',
       function(done) {
         addAggregatedDataTest(anEvent, done);
       }
@@ -516,8 +516,6 @@
         to.equal(attrName || sthTestConfig.ATTRIBUTE_NAME);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0]._id.resolution).
         to.equal(resolution);
-      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0]._id.range).
-        to.equal(sthHelper.getRange(resolution));
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0]._id.origin).
         to.be(sthHelper.getISODateString(
           sthHelper.getOrigin(
@@ -626,65 +624,19 @@
    */
   function aggregatedDataRetrievalSuite(attrName, attrType, aggrMethod) {
     describe('with aggrMethod as ' + aggrMethod, function() {
-      describe('and aggrPeriod as ' + sthConfig.RESOLUTION.SECOND, function() {
-        it('should respond with empty aggregated data if no data since dateFrom',
-          noAggregatedDataSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, attrName, attrType, aggrMethod,
-            sthConfig.RESOLUTION.SECOND));
+      for (var i = 0; i < sthConfig.AGGREGATION.length; i++) {
+        describe('and aggrPeriod as ' + sthConfig.AGGREGATION[i], function() {
+          it('should respond with empty aggregated data if no data since dateFrom',
+            noAggregatedDataSinceDateTest.bind(
+              null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, attrName, attrType, aggrMethod,
+              sthConfig.AGGREGATION[i]));
 
-        it('should respond with aggregated data if data since dateFrom',
-          aggregatedDataAvailableSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, attrName, attrType, aggrMethod,
-            sthConfig.RESOLUTION.SECOND));
-      });
-
-      describe('and aggrPeriod as minute', function() {
-        it('should respond with empty aggregated data if no data since dateFrom',
-          noAggregatedDataSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, attrName, attrType, aggrMethod,
-            sthConfig.RESOLUTION.MINUTE));
-
-        it('should respond with aggregated data if data since dateFrom',
-          aggregatedDataAvailableSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, attrName, attrType, aggrMethod,
-            sthConfig.RESOLUTION.MINUTE));
-      });
-
-      describe('and aggrPeriod as hour', function() {
-        it('should respond with empty aggregated data if no data since dateFrom',
-          noAggregatedDataSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, attrName, attrType, aggrMethod,
-            sthConfig.RESOLUTION.HOUR));
-
-        it('should respond with aggregated data if data since dateFrom',
-          aggregatedDataAvailableSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, attrName, attrType, aggrMethod,
-            sthConfig.RESOLUTION.HOUR));
-      });
-
-      describe('and aggrPeriod as day', function() {
-        it('should respond with empty aggregated data if no data since dateFrom',
-          noAggregatedDataSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, attrName, attrType, aggrMethod,
-            sthConfig.RESOLUTION.DAY));
-
-        it('should respond with aggregated data if data since dateFrom',
-          aggregatedDataAvailableSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, attrName, attrType, aggrMethod,
-            sthConfig.RESOLUTION.DAY));
-      });
-
-      describe('and aggrPeriod as month', function() {
-        it('should respond with empty aggregated data if no data since dateFrom',
-          noAggregatedDataSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, attrName, attrType, aggrMethod,
-            sthConfig.RESOLUTION.MONTH));
-
-        it('should respond with aggregated data if data since dateFrom',
-          aggregatedDataAvailableSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, attrName, attrType, aggrMethod,
-            sthConfig.RESOLUTION.MONTH));
-      });
+          it('should respond with aggregated data if data since dateFrom',
+            aggregatedDataAvailableSinceDateTest.bind(
+              null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, attrName, attrType, aggrMethod,
+              sthConfig.AGGREGATION[i]));
+        });
+      }
     });
   }
 

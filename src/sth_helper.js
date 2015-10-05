@@ -47,32 +47,6 @@
   }
 
   /**
-   * Returns the range associated to certain resolution
-   * @param {string} resolution The resolution (typically, second, minute,
-   *  hour, day or month)
-   * @returns {string} The range associated to the passed resolution
-   */
-  function getRange(resolution) {
-    var RESOLUTION = sthConfig.RESOLUTION,
-      RANGE = sthConfig.RANGE;
-    if (resolution === RESOLUTION.MONTH) {
-      return RANGE.YEAR;
-    } else if (resolution === RESOLUTION.WEEK) {
-      return RANGE.YEAR;
-    } else if (resolution === RESOLUTION.DAY) {
-      return RANGE.MONTH;
-    } else if (resolution === RESOLUTION.HOUR) {
-      return RANGE.DAY;
-    } else if (resolution === RESOLUTION.MINUTE) {
-      return RANGE.HOUR;
-    } else if (resolution === RESOLUTION.SECOND) {
-      return RANGE.MINUTE;
-    } else {
-      return null;
-    }
-  }
-
-  /**
    * Returns the offset of a date for certain resolution
    * @param resolution The resolution
    * @param date The date
@@ -242,7 +216,6 @@
     sthLogger = aSthLogger;
     return {
       getOrigin: getOrigin,
-      getRange: getRange,
       getOffset: getOffset,
       getEmptyResponse: getEmptyResponse,
       getUnicaCorrelator: getUnicaCorrelator,
