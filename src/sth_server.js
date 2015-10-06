@@ -443,7 +443,10 @@
               }
             );
             var error = boom.badRequest(message);
-            error.output.payload.validation = {source: 'query', keys: ['lastN', 'hLimit', 'hOffset', 'aggrMethod', 'aggrPeriod']};
+            error.output.payload.validation = {
+              source: 'query',
+              keys: ['lastN', 'hLimit', 'hOffset', 'aggrMethod', 'aggrPeriod']
+            };
             return reply(error);
           }
         },

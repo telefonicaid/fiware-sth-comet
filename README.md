@@ -42,22 +42,20 @@ it is the responsibility of the people or software in charge of creating the nee
 time series database twice (i.e. to avoid enabling both mechanisms at the same time). This would happen if both mechanisms
 are enabled for the same attribute of the same entity.
 
-Regarding the aggregated time series information provided by the STH component, there are 4 main concepts which are
+Regarding the aggregated time series information provided by the STH component, there are 3 main concepts which are
 important to know about:
 
-* <b>Range</b>: The period of time about which the aggregated time series information is provided. Possible valid
-ranges values are: year, month, day, hour, minute.
 * <b>Resolution</b> or <b>aggregation period</b>: The time period by which the aggregated time series information is grouped.
-Possible valid resolution values are: month, day, hour, minute and second. For the time being, we only consider the
-following range-resolution pairs: year-month, month-day, day-hour, hour-minute and minute-second.
-* <b>Origin</b>: For certain range-resolution pair, it is the origin of time for which the aggregated time series
-information applies. For example, for a pair hour-minute, a valid origin value could be: ```2015-03-01T13:00:00.000Z```,
+Possible valid resolution values are: month, day, hour, minute and second.
+* <b>Origin</b>: For certain resolution, it is the origin of time for which the aggregated time series
+information applies. For example, for a resolution of minutes, a valid origin value could be: ```2015-03-01T13:00:00.000Z```,
 meaning the 13th hour of March, the 3rd, 2015. The origin is stored using UTC time to avoid locale issues.
-* <b>Offset</b>: For certain range-resolution pair, it is the offset from the origin for which the aggregated time series
-information applies. For example, for a pair hour-minute and an origin ```2015-03-01T13:00:00.000Z```, an offset of 10
+* <b>Offset</b>: For certain resolution, it is the offset from the origin for which the aggregated time series
+information applies. For example, for a resolution of minutes and an origin ```2015-03-01T13:00:00.000Z```, an offset of 10
 refers to the 10th minute of the concrete hour pointed by the origin. In this example, there would be a maximum of 60
 offsets from 0 to 59 corresponding to each one of the 60 minutes within the concrete hour.
-* <b>Samples</b>: For a quadruple range-resolution-origin-offset, it is the number of samples, values, events or notifications available.
+* <b>Samples</b>: For a triple resolution, origin and offset, it is the number of samples, values, events or notifications available
+for that concrete offset from the origin.
 
 ###<a id="section1.1"></a> Consuming raw data
 
@@ -138,8 +136,8 @@ value), `min (minimum value), `sum` (sum of all the samples) and `sum2` (sum of 
 attribute values and `occur` for attributes values of type string. Combining
 the information provided by these aggregated methods with the number of samples, it is possible to calculate probabilistic
 values such as the average value, the variance as well as the standard deviation. It is a mandatory parameter.
-* <b>aggrPeriod</b>: Aggregation period or resolution. For the time being, a fixed resolution determines the range as
-well as the origin time format and the possible offsets. It is a mandatory parameter.
+* <b>aggrPeriod</b>: Aggregation period or resolution. A fixed resolution determines the origin time format and the
+possible offsets. It is a mandatory parameter.
 * <b>dateFrom</b>: The origin of time from which the aggregated time series information is desired. It is an optional parameter.
 * <b>dateTo</b>: The end of time until which the aggregated time series information is desired. It is an optional parameter.
 
@@ -157,7 +155,6 @@ An example response provided by the STH component to a request such as the previ
                             {
                                 "_id": {
                                     "origin": "2015-02-18T02:46:00.000Z",
-                                    "range": "minute",
                                     "resolution": "second"
                                 },
                                 "points": [
@@ -183,7 +180,7 @@ An example response provided by the STH component to a request such as the previ
 }
 </pre>
 
-In this example response, aggregated time series information for a range of minutes and a resolution of seconds is returned.
+In this example response, aggregated time series information for a resolution of seconds is returned.
 This information has as its origin the 46nd minute, of the 2nd hour of February, the 18th, 2015. And includes data for the
 13th second, for which there is a sample and the sum (and value of that sample) is 34.59.
 
@@ -206,7 +203,6 @@ may end up receiving the following payload as a possible response:
                             {
                                 "_id": {
                                     "origin": "2015-02-18T02:46:00.000Z",
-                                    "range": "minute",
                                     "resolution": "second"
                                 },
                                 "points": [
@@ -352,11 +348,18 @@ The STH component provides the user with 2 mechanisms to configure the component
 
 * Environment variables, which can be set assigning values to them or using the `sth_default.conf` file if a packaged
 version of the STH component is used.
-* The [`config.js`](https://github.com/telefonicaid/IoT-STH/blob/develop/config.js) located at the root of the STH component code, a JSON formatted file including the configuration properties.
+* The [`config.js`](https://github.com/telefonicaid/IoT-STH/blob/develop/config.js) file located at the root of the STH component code, a JSON formatted file including the configuration properties.
 
-It is important to note that environment variables, if set, take precedence over the properties defined in the `config.js` file.
+It is important to note that environment variables, if set, take precedence over the properties defined in the
+[`config.js`](https://github.com/telefonicaid/IoT-STH/blob/develop/config.js) file.
 
-The script accepts the following parameters as environment variables:
+On the other hand, it is also important to note that the aggregation resolutions can only be configured using the
+[`config.js`](https://github.com/telefonicaid/IoT-STH/blob/develop/config.js) file and
+consequently this is the preferred way to configure the STH component behavior. The mentioned resolutions can be configured using
+the `config.server.aggregation` property in the [`config.js`](https://github.com/telefonicaid/IoT-STH/blob/develop/config.js) file
+including the desired resolution to be used when aggregating data. Accepted resolution values include: `month`, `day`, `hour`, `minute` and `second`.
+
+In case of preferring using environment variables, the script accepts the following parameters as environment variables:
 
 - STH_HOST: The host where the STH server will be started. Optional. Default value: "localhost".
 - STH_PORT: The port where the STH server will be listening. Optional. Default value: "8666".

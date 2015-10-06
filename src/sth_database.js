@@ -476,21 +476,18 @@
             '_id.entityId': entityId,
             '_id.entityType': entityType,
             '_id.attrName': attrName,
-            '_id.resolution': resolution,
-            '_id.range': sthHelper.getRange(resolution)
+            '_id.resolution': resolution
           };
           break;
         case DATA_MODELS.COLLECTIONS_PER_ENTITY:
           matchCondition = {
             '_id.attrName': attrName,
-            '_id.resolution': resolution,
-            '_id.range': sthHelper.getRange(resolution)
+            '_id.resolution': resolution
           };
           break;
         case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
           matchCondition = {
-            '_id.resolution': resolution,
-            '_id.range': sthHelper.getRange(resolution)
+            '_id.resolution': resolution
           };
           break;
       }
@@ -506,7 +503,6 @@
             entityType: '$_id.entityType',
             attrName: '$_id.attrName',
             origin: '$_id.origin',
-            range: '$_id.range',
             resolution: '$_id.resolution'
           };
           break;
@@ -514,14 +510,12 @@
           groupId = {
             attrName: '$_id.attrName',
             origin: '$_id.origin',
-            range: '$_id.range',
             resolution: '$_id.resolution'
           };
           break;
         case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
           groupId = {
             origin: '$_id.origin',
-            range: '$_id.range',
             resolution: '$_id.resolution'
           };
           break;
@@ -563,21 +557,18 @@
             '_id.entityId': entityId,
             '_id.entityType': entityType,
             '_id.attrName': attrName,
-            '_id.resolution': resolution,
-            '_id.range': sthHelper.getRange(resolution)
+            '_id.resolution': resolution
           };
           break;
         case DATA_MODELS.COLLECTIONS_PER_ENTITY:
           findCondition = {
             '_id.attrName': attrName,
-            '_id.resolution': resolution,
-            '_id.range': sthHelper.getRange(resolution)
+            '_id.resolution': resolution
           };
           break;
         case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
           findCondition = {
-            '_id.resolution': resolution,
-            '_id.range': sthHelper.getRange(resolution)
+            '_id.resolution': resolution
           };
           break;
       }
@@ -614,7 +605,6 @@
           '_id.attrName': attrName,
           '_id.origin': sthHelper.getOrigin(recvTime, resolution),
           '_id.resolution': resolution,
-          '_id.range': sthHelper.getRange(resolution),
           'points.offset': offset
         };
         break;
@@ -623,7 +613,6 @@
           '_id.attrName': attrName,
           '_id.origin': sthHelper.getOrigin(recvTime, resolution),
           '_id.resolution': resolution,
-          '_id.range': sthHelper.getRange(resolution),
           'points.offset': offset
         };
         break;
@@ -631,7 +620,6 @@
         aggregateUpdateCondition = {
           '_id.origin': sthHelper.getOrigin(recvTime, resolution),
           '_id.resolution': resolution,
-          '_id.range': sthHelper.getRange(resolution),
           'points.offset': offset
         };
         break;
@@ -795,7 +783,7 @@
       );
      */
     // Prepopulate the aggregated data collection if there is no entry for the concrete
-    //  origin, resolution and range.
+    //  origin and resolution.
     collection.update(
       getAggregateUpdateCondition(
         entityId, entityType, attrName, resolution, recvTime),
@@ -848,30 +836,16 @@
         error;
     function onCompletion(err) {
       error = err;
-      if (++counter === 5) {
+      if (++counter === sthConfig.AGGREGATION.length) {
         callback(err);
       }
     }
 
-    storeAggregatedData4Resolution(
-      collection, entityId, entityType, attrName, attrType, attrValue,
-      sthConfig.RESOLUTION.SECOND, recvTime, onCompletion);
-
-    storeAggregatedData4Resolution(
-      collection, entityId, entityType, attrName, attrType, attrValue,
-      sthConfig.RESOLUTION.MINUTE, recvTime, onCompletion);
-
-    storeAggregatedData4Resolution(
-      collection, entityId, entityType, attrName, attrType, attrValue,
-      sthConfig.RESOLUTION.HOUR, recvTime, onCompletion);
-
-    storeAggregatedData4Resolution(
-      collection, entityId, entityType, attrName, attrType, attrValue,
-      sthConfig.RESOLUTION.DAY, recvTime, onCompletion);
-
-    storeAggregatedData4Resolution(
-      collection, entityId, entityType, attrName, attrType, attrValue,
-      sthConfig.RESOLUTION.MONTH, recvTime, onCompletion);
+    sthConfig.AGGREGATION.forEach(function(entry) {
+      storeAggregatedData4Resolution(
+        collection, entityId, entityType, attrName, attrType, attrValue,
+        entry, recvTime, onCompletion);
+    });
   }
 
   /**

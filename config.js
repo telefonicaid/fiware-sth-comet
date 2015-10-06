@@ -11,7 +11,10 @@ config.server = {
   port: '8666',
   // A flag indicating if the empty results should be removed from the response.
   //  Default value: "true".
-  filterOutEmpty: 'true'
+  filterOutEmpty: 'true',
+  // Array of resolutions the STH component should aggregate values for.
+  // Valid resolution values are: 'month', 'day', 'hour', 'minute' and 'second'
+  aggregation: ['day', 'hour', 'minute']
 };
 
 // Database configuration
