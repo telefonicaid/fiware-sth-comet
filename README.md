@@ -136,7 +136,7 @@ value), `min (minimum value), `sum` (sum of all the samples) and `sum2` (sum of 
 attribute values and `occur` for attributes values of type string. Combining
 the information provided by these aggregated methods with the number of samples, it is possible to calculate probabilistic
 values such as the average value, the variance as well as the standard deviation. It is a mandatory parameter.
-* <b>aggrPeriod</b>: Aggregation period or resolution. A fixed resolution determines the the origin time format and the
+* <b>aggrPeriod</b>: Aggregation period or resolution. A fixed resolution determines the origin time format and the
 possible offsets. It is a mandatory parameter.
 * <b>dateFrom</b>: The origin of time from which the aggregated time series information is desired. It is an optional parameter.
 * <b>dateTo</b>: The end of time until which the aggregated time series information is desired. It is an optional parameter.
