@@ -10,8 +10,14 @@
 
   var sthConfig, sthLogger, sthHelper, connectionURL, eventSchema, aggregatedSchema;
 
-  var MAX_NAMESPACE_SIZE_IN_BYTES = 120,
-      MIN_HASH_SIZE_IN_BYTES = 20;
+  /**
+   * The maximumum namespace size in bytes has to be decreased to 113 bytes
+   *  (from the original 120 bytes) to be able to ensure the TTL index on aggregated
+   *  data collection if requested by the user in the corresponding configuration option.
+   * @type {number} Maximum namespace size in bytes
+   */
+  var MAX_NAMESPACE_SIZE_IN_BYTES = 113;
+  var MIN_HASH_SIZE_IN_BYTES = 20;
 
   var DATA_MODELS = {
     COLLECTIONS_PER_SERVICE_PATH: 'collection-per-service-path',
@@ -19,109 +25,6 @@
     COLLECTIONS_PER_ATTRIBUTE: 'collection-per-attribute'
   };
   var DATA_MODEL = DATA_MODELS.COLLECTIONS_PER_ENTITY;
-
-  /**
-   * Declares the Mongoose schemas.
-   */
-  function defineSchemas() {
-    switch (DATA_MODEL) {
-      case DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
-        eventSchema = mongoose.Schema({
-          recvTime: Date,
-          entityId: String,
-          entityType: String,
-          attrName: String,
-          attrType: String,
-          attrValue: Number
-        });
-        break;
-      case DATA_MODELS.COLLECTIONS_PER_ENTITY:
-        eventSchema = mongoose.Schema({
-          recvTime: Date,
-          attrName: String,
-          attrType: String,
-          attrValue: Number
-        });
-        break;
-      case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
-        eventSchema = mongoose.Schema({
-          recvTime: Date,
-          attrType: String,
-          attrValue: Number
-        });
-        break;
-    }
-
-    switch (DATA_MODEL) {
-      case DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
-        aggregatedSchema = mongoose.Schema({
-          _id: {
-            type: {
-              entityId: String,
-              entityType: String,
-              attrName: String,
-              range: String,
-              resolution: String,
-              origin: Date
-            },
-            select: true
-          },
-          attrType: String,
-          points: [{
-            offset: Number,
-            samples: Number,
-            sum: Number,
-            sum2: Number,
-            min: Number,
-            max: Number
-          }]
-        });
-        break;
-      case DATA_MODELS.COLLECTIONS_PER_ENTITY:
-        aggregatedSchema = mongoose.Schema({
-          _id: {
-            type: {
-              attrName: String,
-              range: String,
-              resolution: String,
-              origin: Date
-            },
-            select: true
-          },
-          attrType: String,
-          points: [{
-            offset: Number,
-            samples: Number,
-            sum: Number,
-            sum2: Number,
-            min: Number,
-            max: Number
-          }]
-        });
-        break;
-      case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
-        aggregatedSchema = mongoose.Schema({
-          _id: {
-            type: {
-              range: String,
-              resolution: String,
-              origin: Date
-            },
-            select: true
-          },
-          attrType: String,
-          points: [{
-            offset: Number,
-            samples: Number,
-            sum: Number,
-            sum2: Number,
-            min: Number,
-            max: Number
-          }]
-        });
-        break;
-    }
-  }
 
   /**
    * Connects to a (MongoDB) database endpoint asynchronously
@@ -135,8 +38,6 @@
   function connect(authentication, dbURI, replicaSet, database, poolSize, callback) {
     connectionURL = 'mongodb://' + authentication + '@' + dbURI + '/' + database +
       (replicaSet ? '/?replicaSet=' + replicaSet : '');
-
-    defineSchemas();
 
     mongoose.connect(connectionURL,
       {
@@ -300,9 +201,11 @@
    *  if it does not exist
    * @param {boolean} shouldStoreHash Flag indicating if the collection hash should be stored in case the collection
    *  is created
+   * @param {boolean} shouldTruncate Flag indicating if the collection should be truncated according to the requested data
+   *  management policies (time or data collection truncation)
    * @param {Function} callback Callback function to be called with the results
    */
-  function getCollection(params, isAggregated, shouldCreate, shouldStoreHash, callback) {
+  function getCollection(params, isAggregated, shouldCreate, shouldStoreHash, shouldTruncate, callback) {
     var databaseName = getDatabase(params.service);
 
     shouldStoreHash = sthConfig.SHOULD_HASH && shouldStoreHash;
@@ -330,36 +233,106 @@
     sthLogger.debug('Getting access to the collection \'' + collectionName + '\' in database \'' + databaseName + '\'', {
       operationType: sthConfig.OPERATION_TYPE.DB_LOG
     });
+
+    var setTTLPolicy = function(collection) {
+      // Set the TTL policy if required
+      if (parseInt(sthConfig.TRUNCATION_EXPIREAFTERSECONDS) > 0) {
+        if (!isAggregated) {
+          if (parseInt(sthConfig.TRUNCATION_SIZE) == 0) {
+            collection.ensureIndex(
+              {
+                'recvTime': 1
+              },
+              {
+                expireAfterSeconds: parseInt(sthConfig.TRUNCATION_EXPIREAFTERSECONDS)
+              }, function (err) {
+                if (err) {
+                  sthLogger.error(
+                    'Error when creating the index for TTL for collection \'' +
+                    collectionName + '\': ' + err,
+                    {
+                      operationType: sthConfig.OPERATION_TYPE.DB_LOG
+                    }
+                  );
+                }
+              }
+            );
+          }
+        } else {
+          collection.ensureIndex(
+            {
+              '_id.origin': 1
+            },
+            {
+              expireAfterSeconds: parseInt(sthConfig.TRUNCATION_EXPIREAFTERSECONDS)
+            }, function(err) {
+              if (err) {
+                sthLogger.error(
+                  'Error when creating the index for TTL for collection \'' +
+                  collectionName + '\': ' + err,
+                  {
+                    operationType: sthConfig.OPERATION_TYPE.DB_LOG
+                  }
+                );
+              }
+            }
+          );
+        }
+      }
+    };
+
+    var createCollectionCB = function (err, collection) {
+      if (!err && shouldStoreHash) {
+        storeCollectionHash(params, isAggregated, collectionName, function(hashErr) {
+          if (hashErr) {
+            // There was an error when storing the collection hash
+            // Do nothing
+            sthLogger.warn('Error when storing the hash generated as part of the collection name into the database', {
+              operationType: sthConfig.OPERATION_TYPE.DB_LOG
+            });
+          }
+          if (shouldTruncate) {
+            setTTLPolicy(collection);
+          }
+          return callback(hashErr, collection);
+        });
+      } else if (err && err.message === 'collection already exists') {
+        // We have observed that although leaving the strict option to the default value, sometimes
+        //  we get a 'collection already exists' error when executing connection.db#createCollection()
+        connection.db.collection(collectionName, {strict: true},
+          function (err, collection) {
+            return callback(err, collection);
+          }
+        );
+      } else {
+        if (shouldTruncate) {
+          setTTLPolicy(collection);
+        }
+        return callback(err, collection);
+      }
+    };
+
     connection.db.collection(collectionName, {strict: true},
       function (err, collection) {
         if (err &&
           (err.message === 'Collection ' + collectionName + ' does not exist. Currently in strict mode.') &&
-          shouldCreate) {
-          connection.db.createCollection(collectionName,
-            function (err, collection) {
-              if (!err && shouldStoreHash) {
-                storeCollectionHash(params, isAggregated, collectionName, function(err) {
-                  if (err) {
-                    // There was an error when storing the collection hash
-                    // Do nothing
-                    sthLogger.warn('Error when storing the hash generated as part of the collection name into the database', {
-                      operationType: sthConfig.OPERATION_TYPE.DB_LOG
-                    });
-                  }
-                });
-              }
-              if (err && err.message === 'collection already exists') {
-                // We have observed that although leaving the strict option to the default value, sometimes
-                //  we get a 'collection already exists' error when executing connection.db#createCollection()
-                connection.db.collection(collectionName, {strict: true},
-                  function (err, collection) {
-                    return callback(err, collection);
-                  }
-                );
-              } else {
-                return callback(err, collection);
-              }
+            shouldCreate) {
+          if (shouldTruncate && !isAggregated) {
+            // Set the size removal policy if required
+            if (parseInt(sthConfig.TRUNCATION_SIZE) > 0) {
+              var collectionCreationOptions = {
+                capped: true,
+                size: parseInt(sthConfig.TRUNCATION_SIZE),
+                max: parseInt(sthConfig.TRUNCATION_MAX) || null
+              };
+              return connection.db.createCollection(collectionName,
+                collectionCreationOptions,
+                createCollectionCB
+              );
             }
+          }
+          connection.db.createCollection(collectionName,
+            createCollectionCB
           );
         } else {
           return callback(err, collection);
@@ -503,21 +476,18 @@
             '_id.entityId': entityId,
             '_id.entityType': entityType,
             '_id.attrName': attrName,
-            '_id.resolution': resolution,
-            '_id.range': sthHelper.getRange(resolution)
+            '_id.resolution': resolution
           };
           break;
         case DATA_MODELS.COLLECTIONS_PER_ENTITY:
           matchCondition = {
             '_id.attrName': attrName,
-            '_id.resolution': resolution,
-            '_id.range': sthHelper.getRange(resolution)
+            '_id.resolution': resolution
           };
           break;
         case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
           matchCondition = {
-            '_id.resolution': resolution,
-            '_id.range': sthHelper.getRange(resolution)
+            '_id.resolution': resolution
           };
           break;
       }
@@ -533,7 +503,6 @@
             entityType: '$_id.entityType',
             attrName: '$_id.attrName',
             origin: '$_id.origin',
-            range: '$_id.range',
             resolution: '$_id.resolution'
           };
           break;
@@ -541,14 +510,12 @@
           groupId = {
             attrName: '$_id.attrName',
             origin: '$_id.origin',
-            range: '$_id.range',
             resolution: '$_id.resolution'
           };
           break;
         case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
           groupId = {
             origin: '$_id.origin',
-            range: '$_id.range',
             resolution: '$_id.resolution'
           };
           break;
@@ -590,21 +557,18 @@
             '_id.entityId': entityId,
             '_id.entityType': entityType,
             '_id.attrName': attrName,
-            '_id.resolution': resolution,
-            '_id.range': sthHelper.getRange(resolution)
+            '_id.resolution': resolution
           };
           break;
         case DATA_MODELS.COLLECTIONS_PER_ENTITY:
           findCondition = {
             '_id.attrName': attrName,
-            '_id.resolution': resolution,
-            '_id.range': sthHelper.getRange(resolution)
+            '_id.resolution': resolution
           };
           break;
         case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
           findCondition = {
-            '_id.resolution': resolution,
-            '_id.range': sthHelper.getRange(resolution)
+            '_id.resolution': resolution
           };
           break;
       }
@@ -623,31 +587,14 @@
    * Returns the condition to be used in the MongoDB update operation for aggregated data
    * @param {string} entityId The entity id
    * @param {string} entityType The entity type
-   * @param {string} attrName The attribute id
+   * @param {string} attrName The attribute name
    * @param {string} resolution The resolution
    * @param {Date} recvTime The date (or recvTime) of the notification (attribute value change)
    * @returns {Object} The update condition
    */
   function getAggregateUpdateCondition(
     entityId, entityType, attrName, resolution, recvTime) {
-    var offset;
-    switch (resolution) {
-      case sthConfig.RESOLUTION.SECOND:
-        offset = recvTime.getUTCSeconds();
-        break;
-      case sthConfig.RESOLUTION.MINUTE:
-        offset = recvTime.getUTCMinutes();
-        break;
-      case sthConfig.RESOLUTION.HOUR:
-        offset = recvTime.getUTCHours();
-        break;
-      case sthConfig.RESOLUTION.DAY:
-        offset = recvTime.getUTCDate();
-        break;
-      case sthConfig.RESOLUTION.MONTH:
-        offset = recvTime.getUTCMonth() + 1;
-        break;
-    }
+    var offset = sthHelper.getOffset(resolution, recvTime);
 
     var aggregateUpdateCondition;
     switch (DATA_MODEL) {
@@ -658,7 +605,6 @@
           '_id.attrName': attrName,
           '_id.origin': sthHelper.getOrigin(recvTime, resolution),
           '_id.resolution': resolution,
-          '_id.range': sthHelper.getRange(resolution),
           'points.offset': offset
         };
         break;
@@ -667,7 +613,6 @@
           '_id.attrName': attrName,
           '_id.origin': sthHelper.getOrigin(recvTime, resolution),
           '_id.resolution': resolution,
-          '_id.range': sthHelper.getRange(resolution),
           'points.offset': offset
         };
         break;
@@ -675,7 +620,6 @@
         aggregateUpdateCondition = {
           '_id.origin': sthHelper.getOrigin(recvTime, resolution),
           '_id.resolution': resolution,
-          '_id.range': sthHelper.getRange(resolution),
           'points.offset': offset
         };
         break;
@@ -685,9 +629,11 @@
 
   /**
    * Returns the data to prepopulate the aggregated data collection with
+   * @param {string} attrType The attribute type
+   * @param {string} attrValue The attribute value
    * @param {string} resolution The resolution
    */
-  function getAggregatePrepopulatedData(resolution) {
+  function getAggregatePrepopulatedData(attrType, attrValue, resolution) {
     var points = [],
       totalValues,
       offsetOrigin = 0;
@@ -712,15 +658,27 @@
         break;
     }
 
-    for (var i = offsetOrigin; i < totalValues; i++) {
-      points.push({
-        offset: i,
-        samples: 0,
-        sum: 0,
-        sum2: 0,
-        min: Number.POSITIVE_INFINITY,
-        max: Number.NEGATIVE_INFINITY
-      });
+    if (!isNaN(attrValue)) {
+      for (var i = offsetOrigin; i < totalValues; i++) {
+        points.push({
+          offset: i,
+          samples: 0,
+          sum: 0,
+          sum2: 0,
+          min: Number.POSITIVE_INFINITY,
+          max: Number.NEGATIVE_INFINITY
+        });
+      }
+    } else {
+      for (var i = offsetOrigin; i < totalValues; i++) {
+        var entry = {
+          offset: i,
+          samples: 0,
+          occur: {
+          }
+        };
+        points.push(entry);
+      }
     }
 
     return points;
@@ -729,14 +687,15 @@
   /**
    * Returns the update to be used in the MongoDB update operation for aggregated data
    * @param {string} attrType The type of the attribute to aggregate
+   * @param {string} attrValue The value of the attribute to aggregate
    * @param {string} resolution The resolution
    * @returns {Object} The update operation
    */
-  function getAggregateUpdate4Insert(attrType, resolution) {
+  function getAggregateUpdate4Insert(attrType, attrValue, resolution) {
     return {
       '$setOnInsert': {
         attrType: attrType,
-        points: getAggregatePrepopulatedData(resolution)
+        points: getAggregatePrepopulatedData(attrType, attrValue, resolution)
       }
     };
   }
@@ -745,25 +704,46 @@
    * Returns the update to be used in the MongoDB update operation for aggregated data
    * @param {number} attrType The type of the attribute to aggregate
    * @param {number} attrValue The value of the attribute to aggregate
+   * @param {string} resolution The resolution
+   * @param {date} recvTime The data reception time
    * @returns {Object} The update operation
    */
-  function getAggregateUpdate4Update(attrType, attrValue) {
-    return {
-      '$set': {
-        'attrType': attrType
-      },
-      '$inc': {
-        'points.$.samples': 1,
-        'points.$.sum': attrValue,
-        'points.$.sum2': Math.pow(attrValue, 2)
-      },
-      '$min': {
-        'points.$.min': attrValue
-      },
-      '$max': {
-        'points.$.max': attrValue
-      }
-    };
+  function getAggregateUpdate4Update(attrType, attrValue, resolution, recvTime) {
+    var aggregateUpdate4Update,
+        attrValueAsNumber;
+    if (!isNaN(attrValue)) {
+      attrValueAsNumber = parseFloat(attrValue);
+      aggregateUpdate4Update = {
+        '$set': {
+          'attrType': attrType
+        },
+        '$inc': {
+          'points.$.samples': 1,
+          'points.$.sum': attrValueAsNumber,
+          'points.$.sum2': Math.pow(attrValueAsNumber, 2)
+        },
+        '$min': {
+          'points.$.min': attrValueAsNumber
+        },
+        '$max': {
+          'points.$.max': attrValueAsNumber
+        }
+      };
+    } else {
+      var offset = sthHelper.getOffset(resolution, recvTime);
+      aggregateUpdate4Update = {
+        '$set': {
+          'attrType': attrType
+        },
+        '$inc': {
+          'points.$.samples': 1
+        }
+      };
+      aggregateUpdate4Update['$inc']['points.' +
+        (offset - (resolution === 'day' || resolution === 'month' || resolution === 'year' ? 1 : 0)) +
+        '.occur.' + attrValue] = 1;
+    }
+    return aggregateUpdate4Update;
   }
 
   /**
@@ -803,11 +783,11 @@
       );
      */
     // Prepopulate the aggregated data collection if there is no entry for the concrete
-    //  origin, resolution and range.
+    //  origin and resolution.
     collection.update(
       getAggregateUpdateCondition(
         entityId, entityType, attrName, resolution, recvTime),
-      getAggregateUpdate4Insert(attrType, resolution),
+      getAggregateUpdate4Insert(attrType, attrValue, resolution),
       {
         upsert: true,
         writeConcern: {
@@ -823,7 +803,7 @@
         collection.update(
           getAggregateUpdateCondition(
             entityId, entityType, attrName, resolution, recvTime),
-          getAggregateUpdate4Update(attrType, parseFloat(attrValue)),
+          getAggregateUpdate4Update(attrType, attrValue, resolution, recvTime),
           {
             writeConcern: {
               w: !isNaN(sthConfig.WRITE_CONCERN) ? parseInt(sthConfig.WRITE_CONCERN) : sthConfig.WRITE_CONCERN
@@ -856,30 +836,16 @@
         error;
     function onCompletion(err) {
       error = err;
-      if (++counter === 5) {
+      if (++counter === sthConfig.AGGREGATION.length) {
         callback(err);
       }
     }
 
-    storeAggregatedData4Resolution(
-      collection, entityId, entityType, attrName, attrType, attrValue,
-      sthConfig.RESOLUTION.SECOND, recvTime, onCompletion);
-
-    storeAggregatedData4Resolution(
-      collection, entityId, entityType, attrName, attrType, attrValue,
-      sthConfig.RESOLUTION.MINUTE, recvTime, onCompletion);
-
-    storeAggregatedData4Resolution(
-      collection, entityId, entityType, attrName, attrType, attrValue,
-      sthConfig.RESOLUTION.HOUR, recvTime, onCompletion);
-
-    storeAggregatedData4Resolution(
-      collection, entityId, entityType, attrName, attrType, attrValue,
-      sthConfig.RESOLUTION.DAY, recvTime, onCompletion);
-
-    storeAggregatedData4Resolution(
-      collection, entityId, entityType, attrName, attrType, attrValue,
-      sthConfig.RESOLUTION.MONTH, recvTime, onCompletion);
+    sthConfig.AGGREGATION.forEach(function(entry) {
+      storeAggregatedData4Resolution(
+        collection, entityId, entityType, attrName, attrType, attrValue,
+        entry, recvTime, onCompletion);
+    });
   }
 
   /**
@@ -932,10 +898,10 @@
         }
       },
       function(err) {
-      if (callback) {
-        callback(err);
-      }
-    });
+        if (callback) {
+          callback(err);
+        }
+      });
   }
 
   /**
@@ -963,12 +929,13 @@
     getCollection({
       service: params.service,
       collection: sthConfig.COLLECTION_PREFIX + 'collection_names'
-    }, false, true, false, function(err, collection) {
+    }, false, true, false, false, function(err, collection) {
       if (err) {
         return callback(err);
       }
 
       var entry = {
+        _id: hash,
         dataModel: DATA_MODEL,
         isAggregated: isAggregated,
         service: params.service,
@@ -985,34 +952,47 @@
           entry.attrName = params.attrName;
           break;
       }
-      // 2 updates operations are needed since MongoDB currently does not support the possibility
-      //  to address the same field in a $set operation as a $setOnInsert update operation
-      collection.update(
+      // Check if there is already an entry for the provided hash (hash collision)
+      collection.findOne(
         {
           _id: hash
         },
-        {
-          '$setOnInsert': entry
-        }, {
-          upsert: true
-        },
-        function(err) {
-          if (err && callback) {
-            return callback(err);
-          }
-          collection.update(
-            {
-              _id: hash
-            },
-            {
-              '$set': entry
-            },
-            function(err) {
-              if (callback) {
-                return callback(err);
+        function(err, doc) {
+          if (!doc) {
+            // If no hash collision or if error when checking for a collision,
+            //  try to insert an entry in the collection name hashes to params mapping collection
+            collection.insert(
+              entry,
+              {
+                writeConcern: {
+                  w: !isNaN(sthConfig.WRITE_CONCERN) ? parseInt(sthConfig.WRITE_CONCERN) : sthConfig.WRITE_CONCERN
+                }
+              },
+              function(err) {
+                if (err) {
+                  sthLogger.warn('Collection name hash collision for new entry (' +
+                    JSON.stringify(entry) + ')',
+                    {
+                      operationType: sthConfig.OPERATION_TYPE.DB_LOG
+                    }
+                  );
+                }
+                if (callback) {
+                  return callback(err);
+                }
               }
+            );
+          } else if (doc) {
+            sthLogger.warn('Collection name hash collision for new entry (' +
+              JSON.stringify(entry) + ')',
+              {
+                operationType: sthConfig.OPERATION_TYPE.DB_LOG
+              }
+            );
+            if (callback) {
+              return callback(new Error('Collection name hash collision'));
             }
-          );
+          }
         }
       );
     });

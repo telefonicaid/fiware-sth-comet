@@ -4,6 +4,7 @@
 *.pyc
 .idea/
 logs/
+jenkins/
 settings/
 testreport/
 properties.json

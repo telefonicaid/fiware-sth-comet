@@ -30,12 +30,11 @@ from termcolor import colored
 import tools.general_utils
 from tools.properties_config import Properties
 
-def initial_conf(file_name, sudo_run, drop_all_databases):
+def initial_conf(file_name, sudo_run):
     """
     define initial config simulate background in lettuce
     :param file_name:
     :param sudo_run:
-    :param drop_all_databases:
     """
     print colored("  Background: in terrain...", 'white', 'on_grey', attrs=['bold'])
     print colored("    Given starting the configuration from terrain...", 'green', 'on_grey', attrs=['bold'])
@@ -45,14 +44,13 @@ def initial_conf(file_name, sudo_run, drop_all_databases):
     print colored("    And reading properties", 'green', 'on_grey', attrs=['bold'])
     properties.storing_dictionaries()
     print colored("    And creating instances to sth and mongo with properties", 'green', 'on_grey', attrs=['bold'])
-    # The next line is commented because at the moment the rpm package does not exists. STH is executed manually
-    #world.sth.sth_service("restart")
-    #print colored("    And restarting sth service", 'green', 'on_grey', attrs=['bold'])
+    world.sth.sth_service("restart")
+    print colored("    And restarting sth service", 'green', 'on_grey', attrs=['bold'])
     world.sth.verify_sth_version()
     print colored("    And verifying sth version", 'green', 'on_grey', attrs=['bold'])
     world.sth.verify_mongo_version()
     print colored("    And verifying mongo version", 'green', 'on_grey', attrs=['bold'])
-    if drop_all_databases:
+    if properties.get_drop_all_databases().lower().find("true") >=0:
         world.sth.drop_all_test_databases()
         print colored("    And drop all tests databases with prefix: sth_test", 'green', 'on_grey', attrs=['bold'])
     print colored("    Then completed the configuration from terrain...", 'green', 'on_grey', attrs=['bold'])
@@ -75,12 +73,11 @@ def setup_some_feature(feature):
     """
     config_properties_file   = u'epg_config.txt'
     config_local_sudo_run    = u'false'
-    drop_all_tests_databases = False
 
     if feature.described_at.file.find("notifications.feature") >= 0 or \
        feature.described_at.file.find("aggregated.feature") >= 0 or\
        feature.described_at.file.find("raw.feature") >= 0:
-        initial_conf(config_properties_file, config_local_sudo_run, drop_all_tests_databases)
+        initial_conf(config_properties_file, config_local_sudo_run)
 
 
 @before.each_scenario
@@ -102,15 +99,16 @@ def after_each_scenario(scenario):
     print colored("    And database is dropped. See terrain.py not steps", 'cyan', 'on_grey', attrs=['bold'])
 
 
+
 @after.all
 def after_all_scenarios(scenario):
     """
     Actions after all scenarios
     Show the initial and final time of the tests completed
-    Delete all cygnus instances files and cygnus services is stopped
+    sth service is stopped
     :param scenario:
     """
-    # The next line is commented because at the moment the rpm package does not exists. STH is executed manually
-    #world.sth.sth_service("stop")
+    world.sth.sth_service("stop")
+    print colored("    And service is stopped. See terrain.py not steps", 'cyan', 'on_grey', attrs=['bold'])
     tools.general_utils.show_times(world.test_time_init)
 

@@ -77,11 +77,12 @@
         false,
         false,
         false,
+        false,
         function (err, collection) {
           if (err) {
             // The collection does not exist, reply with en empty response
             sthLogger.warn(
-              'The collection does not exist', request.info.sth);
+              'Error when getting the collection (the collection may not exist)', request.info.sth);
 
             sthLogger.debug(
               'Responding with no points',
@@ -172,11 +173,12 @@
         true,
         false,
         false,
+        false,
         function (err, collection) {
           if (err) {
             // The collection does not exist, reply with en empty response
             sthLogger.warn(
-              'The collection does not exist', request.info.sth);
+              'Error when getting the collection (the collection may not exist)', request.info.sth);
 
             sthLogger.debug(
               'Responding with no points',
@@ -274,13 +276,16 @@
         false,
         true,
         true,
+        true,
         function(err, collection) {
           if (err) {
             // There was an error when getting the collection
-            sthLogger.warn(
+            sthLogger.error(
               'Error when getting the collection',
               request.info.sth);
-            return reply(err);
+            if (++counterObj.counter === totalTasks) {
+              return reply(err);
+            }
           } else {
             // The collection exists
             sthLogger.debug(
@@ -347,13 +352,16 @@
         true,
         true,
         true,
+        true,
         function(err, collection) {
           if (err) {
             // There was an error when getting the collection
-            sthLogger.warn(
+            sthLogger.error(
               'Error when getting the collection',
               request.info.sth);
-            return reply(err);
+            if (++counterObj.counter === totalTasks) {
+              return reply(err);
+            }
           } else {
             // The collection exists
             sthLogger.debug(
@@ -435,7 +443,10 @@
               }
             );
             var error = boom.badRequest(message);
-            error.output.payload.validation = {source: 'query', keys: ['lastN', 'hLimit', 'hOffset', 'aggrMethod', 'aggrPeriod']};
+            error.output.payload.validation = {
+              source: 'query',
+              keys: ['lastN', 'hLimit', 'hOffset', 'aggrMethod', 'aggrPeriod']
+            };
             return reply(error);
           }
         },
@@ -475,7 +486,7 @@
               lastN: joi.number().integer().greater(-1).optional(),
               hLimit: joi.number().integer().greater(-1).optional(),
               hOffset: joi.number().integer().greater(-1).optional(),
-              aggrMethod: joi.string().valid('max', 'min', 'sum', 'sum2').optional(),
+              aggrMethod: joi.string().valid('max', 'min', 'sum', 'sum2', 'occur').optional(),
               aggrPeriod: joi.string().required().valid('month', 'day', 'hour', 'minute', 'second').optional(),
               dateFrom: joi.date().optional(),
               dateTo: joi.date().optional()
@@ -511,7 +522,8 @@
                 contextElement = contextResponses[l1].contextElement;
                 attributes = contextElement.attributes;
                 for (var l2 = 0; l2 < attributes.length; l2++) {
-                  if (isNaN(attributes[l2].value)) {
+                  if (!attributes[l2].value ||
+                    (isNaN(attributes[l2].value) && typeof(attributes[l2].value) !== 'string')) {
                     // The attribute value is not a number and consequently not able to be aggregated.
                     continue;
                   }
@@ -552,7 +564,8 @@
                   contextElement = contextResponses[i].contextElement;
                   attributes = contextElement.attributes;
                   for (var j = 0; j < attributes.length; j++) {
-                    if (isNaN(attributes[j].value)) {
+                    if (!attributes[j].value ||
+                      (isNaN(attributes[j].value) && typeof(attributes[j].value) !== 'string')) {
                       // The attribute value is not a number and consequently not able to be aggregated.
                       sthLogger.warn('Attribute value not aggregatable', {
                         operationType: sthConfig.OPERATION_TYPE.SERVER_LOG

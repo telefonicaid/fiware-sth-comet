@@ -34,9 +34,6 @@ OWNER                 = u'owner'
 GROUP                 = u'group'
 MOD                   = u'mod'
 MOD_DEFAULT           = u'664'
-CONFIGURATION_FILE    = u'configuration.json'
-LOG_FILE              = u'log_file'
-
 
 class Remote_Log:
     """
@@ -56,15 +53,9 @@ class Remote_Log:
                                       hide=True,
                                       sudo=sudo_cygnus)
         """
-        self.file_path  = kwargs.get(FILE, FILE_DEFAULT)
-        self.fabric     = kwargs.get(FABRIC, None)
+        self.file_path = kwargs.get("file", FILE_DEFAULT)
+        self.fabric    = kwargs.get(FABRIC, None)
 
-        if self.file_path == FILE_DEFAULT:
-            with open(CONFIGURATION_FILE) as config_file:   # open configuration.json file
-                try:
-                    self.file_path = json.load(config_file)[LOG_FILE]
-                except Exception, e:
-                    assert False, 'ERROR  - parsing %s file: \n%s' % (CONFIGURATION_FILE, e)
         try:
             temp = os.path.split(self.file_path)  # split the path and the file of the file and path together
             self.file = temp[1]
@@ -85,7 +76,7 @@ class Remote_Log:
         except Exception, e:
             assert False,  " ERROR - converting %s string to list with separator: %s \nException error:%s" % (str(text), str(separator), str(e))  
 
-    def delete_log_file (self):
+    def delete_log_file(self):
         """
         delete file log
         """

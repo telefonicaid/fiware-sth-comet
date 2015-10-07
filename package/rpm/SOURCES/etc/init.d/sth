@@ -1,5 +1,36 @@
 #!/usr/bin/env bash
 
+# Copyright 2015 Telefonica Investigación y Desarrollo, S.A.U
+#
+# This file is part of Short Term Historic (FIWARE project).
+#
+# iot-sth is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+# iot-sth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+# warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Affero General Public License along with iot-sth. If not, see
+#    http://www.gnu.org/licenses/.
+#
+# For those usages not covered by the GNU Affero General Public License please contact:
+#    iot_support at tid.es
+#
+
+### BEGIN INIT INFO
+# Provides: sth
+# Required-Start: $local_fs $syslog
+# Required-Stop: $local_fs $syslog
+# Default-Start:  345
+# Default-Stop: 90
+# Short-Description: run sth
+# Description: The STH component is a FIWARE component in charge of providing aggregated 
+# time series information about the evolution in time of entity attribute values registered 
+# using the Orion Context Broker, an implementation of the publish/subscribe context 
+# management system exposing NGSI9 and NGSI10 interfaces.
+### END INIT INFO
+
 # Load some fancy functions for init.d
 . /etc/rc.d/init.d/functions
 

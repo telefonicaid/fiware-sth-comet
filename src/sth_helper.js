@@ -47,29 +47,31 @@
   }
 
   /**
-   * Returns the range associated to certain resolution
-   * @param {string} resolution The resolution (typically, second, minute,
-   *  hour, day or month)
-   * @returns {string} The range associated to the passed resolution
+   * Returns the offset of a date for certain resolution
+   * @param resolution The resolution
+   * @param date The date
+   * @return {Number} Returns the offset
    */
-  function getRange(resolution) {
-    var RESOLUTION = sthConfig.RESOLUTION,
-      RANGE = sthConfig.RANGE;
-    if (resolution === RESOLUTION.MONTH) {
-      return RANGE.YEAR;
-    } else if (resolution === RESOLUTION.WEEK) {
-      return RANGE.YEAR;
-    } else if (resolution === RESOLUTION.DAY) {
-      return RANGE.MONTH;
-    } else if (resolution === RESOLUTION.HOUR) {
-      return RANGE.DAY;
-    } else if (resolution === RESOLUTION.MINUTE) {
-      return RANGE.HOUR;
-    } else if (resolution === RESOLUTION.SECOND) {
-      return RANGE.MINUTE;
-    } else {
-      return null;
+  function getOffset(resolution, date) {
+    var offset;
+    switch (resolution) {
+      case sthConfig.RESOLUTION.SECOND:
+        offset = date.getUTCSeconds();
+        break;
+      case sthConfig.RESOLUTION.MINUTE:
+        offset = date.getUTCMinutes();
+        break;
+      case sthConfig.RESOLUTION.HOUR:
+        offset = date.getUTCHours();
+        break;
+      case sthConfig.RESOLUTION.DAY:
+        offset = date.getUTCDate();
+        break;
+      case sthConfig.RESOLUTION.MONTH:
+        offset = date.getUTCMonth() + 1;
+        break;
     }
+    return offset;
   }
 
   /**
@@ -214,7 +216,7 @@
     sthLogger = aSthLogger;
     return {
       getOrigin: getOrigin,
-      getRange: getRange,
+      getOffset: getOffset,
       getEmptyResponse: getEmptyResponse,
       getUnicaCorrelator: getUnicaCorrelator,
       getTransactionId: getTransactionId,

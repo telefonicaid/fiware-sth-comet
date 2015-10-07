@@ -17,6 +17,7 @@
 # For those usages not covered by the GNU Affero General Public License please contact:
 # iot_support at tid.es
 #
+import time
 
 __author__ = 'Iván Arias León (ivan.ariasleon at telefonica dot com)'
 
@@ -47,6 +48,13 @@ FABRIC_ERROR_RETRY = u'fabric_error_retry'
 FABRIC_SOURCE_PATH = u'fabric_source_path'
 FABRIC_TARGET_PATH = u'fabric_target_path'
 FABRIC_SUDO        = u'fabric_sudo'
+LOG_FILE           = u'log_file'
+LOG_FILE_DEFAULT   = u'/tmp/sth.log'
+LOG_OWNER          = u'log_owner'
+LOG_GROUP          = u'log_group'
+LOG_MOD            = u'log_mod'
+ROOT               = u'root'
+LOG_MOD_DEFAULT    = u'777'
 
 RANDOM                     = u'random'
 CHARS_ALLOWED              = string.ascii_letters + string.digits + u'_'      # [a-zA-Z0-9_]+ regular expression
@@ -93,7 +101,7 @@ class STH:
         self.protocol=kwargs.get(PROTOCOL, PROTOCOL_DEFAULT)
         self.sth_host = kwargs.get(HOST, EMPTY)
         self.sth_port = kwargs.get(PORT, EMPTY)
-        self.sth_url = "%s://%s:%s/%s" % (self.protocol, self.sth_host, self.sth_port, STH_NOTIFICATION)
+        self.sth_url = "%s://%s:%s/" % (self.protocol, self.sth_host, self.sth_port)
         self.sth_version = kwargs.get(VERSION, EMPTY)
         self.sth_verify_version = kwargs.get(VERIFY_VERSION, EMPTY)
         self.sth_version = kwargs.get(VERSION, EMPTY)
@@ -104,6 +112,11 @@ class STH:
         self.fabric_source_path=kwargs.get(FABRIC_SOURCE_PATH, EMPTY)
         self.fabric_target_path=kwargs.get(FABRIC_TARGET_PATH, EMPTY)
         self.fabric_sudo=kwargs.get(FABRIC_SUDO, False)
+        self.log_file=kwargs.get(LOG_FILE, LOG_FILE_DEFAULT)
+        self.log_owner=kwargs.get(LOG_OWNER, ROOT)
+        self.log_group=kwargs.get(LOG_GROUP, ROOT)
+        self.log_mod=kwargs.get(LOG_MOD, LOG_MOD_DEFAULT)
+
 
     def verify_mongo_version(self):
         """
@@ -126,27 +139,31 @@ class STH:
     def verify_sth_version(self):
         """
         verify sth version
-        Still has not been developed this feature and remember that the assert is better in the step
         """
-        pass
+        if self.sth_verify_version.lower().find("true") >= 0:
+            resp=http_utils.request(http_utils.GET, url=self.sth_url+VERSION)
+            assert resp.status_code == 200, " ERROR - verifying sth version, error in status code. \n code: %s\n body: %s " % (str(resp.status_code), str(resp.text))
+            dict_json = general_utils.convert_str_to_dict(resp.text, general_utils.JSON)
+            assert dict_json[VERSION] == self.sth_version, " ERROR -- the sth version mismatch...\n received: %s \n expected: %s" % (dict_json[VERSION], self.sth_version)
 
     def init_log_file(self):
         """
         reinitialize log file
         delete and create a new log file (empty)
         """
-        myfab = FabricSupport(host=self.sth_host, user=self.fabric_user, password=self.fabric_password, cert_file=self.fabric_cert_file, retry=self.fabric_error_retry, hide=True, sudo=self.fabric_sudo)
-        log = Remote_Log (fabric=myfab)
+        myfab = FabricSupport(host=self.sth_host, user=self.fabric_user, password=self.fabric_password, cert_file=self.fabric_cert_file, retry=self.fabric_error_retry, hide=False, sudo=self.fabric_sudo)
+        log = Remote_Log (file=self.log_file, fabric=myfab)
         log.delete_log_file()
-        log.create_log_file(owner="sysadmin", group="sysadmin", mod="777")
+        log.create_log_file(owner=self.log_owner, group=self.log_group, mod=self.log_mod)
 
     def sth_service(self, operation):
         """
         cygnus service (status | stop | start | restart)
         :param operation:
         """
-        myfab = FabricSupport(host=self.sth_host, user=self.fabric_user, password=self.fabric_password, cert_file=self.fabric_cert_file, retry=self.fabric_error_retry, hide=False, sudo=self.fabric_sudo)
-        myfab.run("HOST=0.0.0.0 npm start", path=self.fabric_target_path, sudo=False)
+        myfab = FabricSupport(host=self.sth_host, user=self.fabric_user, password=self.fabric_password, cert_file=self.fabric_cert_file, retry=self.fabric_error_retry, hide=True, sudo=self.fabric_sudo)
+        if self.sth_host != "localhost" and self.sth_host != "127.0.0.1":
+            myfab.run("sudo service sth %s" % operation, path=self.fabric_target_path, sudo=False)
 
     def configuration(self, service, service_path, entity_type, entity_id, attributes_number, attributes_name, attribute_type):
         """
@@ -163,14 +180,14 @@ class STH:
         # service_path
         if service_path.find(RANDOM_SERVICE_PATH_LENGTH) >= 0:
             characters = int(service_path.split(" = ")[1])
-            self.service_path = "/"+general_utils.string_generator(characters, CHARS_ALLOWED)
+            self.service_path = "/"+general_utils.string_generator(characters, CHARS_ALLOWED).lower()
         else:
-            self.service_path = service_path
-        #if self.service_path[:1] == "/": self.service_path = self.service_path[1:]
+            self.service_path = service_path.lower()
 
         # entity_type and entity id
-        self.entity_type = entity_type
-        self.entity_id   = entity_id
+        self.entity_type = entity_type.lower()
+        self.entity_id   = entity_id.lower()
+
         #attributes
         self.attributes_number    = int(attributes_number)
         self.attributes_name      = attributes_name
@@ -198,7 +215,7 @@ class STH:
         self.content = content
         self.metadata_value = metadata_value
         metadata_attribute_number = 1
-        notification = Notifications (self.sth_url,tenant=self.service, service_path=self.service_path, content=self.content)
+        notification = Notifications (self.sth_url+STH_NOTIFICATION, tenant=self.service, service_path=self.service_path, content=self.content)
         if self.metadata_value.lower() == "true":
             notification.create_metadatas_attribute(metadata_attribute_number, RANDOM, RANDOM, RANDOM)
         notification.create_attributes (self.attributes_number, self.attributes_name, self.attribute_type, attribute_value)
@@ -220,7 +237,6 @@ class STH:
             temp_value = Decimal(attribute_value_init) + i
             world.sth.received_notification(str(temp_value), "False", "json")
         self.attributes_value = attribute_value_init
-
 
     def drop_database_in_mongo(self, driver):
          """
@@ -280,14 +296,12 @@ class STH:
         verify attribute value and type from mongo
         :return document dict (cursor)
         """
-        find_dict = { "entityId" : self.entity_id,
-                      "entityType": self.entity_type,
-                      "attrName": {'$regex':'%s.*' % (self.attributes_name)}, #the regular expression is because in  multi attribute the name is with postfix <_value>. ex: temperature_0
+        find_dict = { "attrName": {'$regex':'%s.*' % (self.attributes_name)}, #the regular expression is because in  multi attribute the name is with postfix <_value>. ex: temperature_0
                       "attrType" : self.attribute_type,
                       "attrValue" : str(self.attributes_value)
         }
         world.mongo.connect("%s_%s" % (STH_DATABASE_PREFIX, self.service))
-        world.mongo.choice_collection("%s_%s" % (STH_COLLECTION_PREFIX, self.service_path))
+        world.mongo.choice_collection("%s_%s_%s_%s" % (STH_COLLECTION_PREFIX, self.service_path, self.entity_id, self.entity_type))
         cursor = world.mongo.find_with_retry(find_dict)
         assert cursor.count() != 0, " ERROR - the attributes with prefix %s has not been stored in mongo successfully" % (self.attributes_name)
         world.mongo.disconnect()
@@ -300,8 +314,6 @@ class STH:
         """
         time_zone = 2
         find_dict = {"_id.attrName" :  {'$regex':'%s.*' % (self.attributes_name)}, #the regular expression is because in  multi attribute the name is with postfix + <_value>. ex: temperature_0
-                     "_id.entityId" : self.entity_id,
-                     "_id.entityType" : self.entity_type,
                      "_id.resolution" : resolution}
 
         origin_year   = general_utils.get_date_only_one_value(self.date_time, "year")
@@ -313,7 +325,7 @@ class STH:
         origin_second = general_utils.get_date_only_one_value(self.date_time, "second")
 
         world.mongo.connect("%s_%s" % (STH_DATABASE_PREFIX, self.service))
-        world.mongo.choice_collection("%s_%s.%s" % (STH_COLLECTION_PREFIX, self.service_path, AGGR))
+        world.mongo.choice_collection("%s_%s_%s_%s.%s" % (STH_COLLECTION_PREFIX, self.service_path, self.entity_id, self.entity_type, AGGR))
         cursor = world.mongo.find_with_retry(find_dict)
         assert cursor.count() != 0, " ERROR - the aggregated has not been stored in mongo successfully "
         doc_list = world.mongo.get_cursor_value(cursor)   # get all dictionaries into a cursor, return a list
@@ -359,11 +371,9 @@ class STH:
         :param resolution: resolutions type (  month | day | hour | minute | second )
         """
         find_dict = {"_id.attrName" :  {'$regex':'%s.*' % (self.attributes_name)}, #the regular expression is because in  multi attribute the name is with postfix + <_value>. ex: temperature_0
-                     "_id.entityId" : self.entity_id,
-                     "_id.entityType" : self.entity_type,
                      "_id.resolution" : resolution }
         world.mongo.connect("%s_%s" % (STH_DATABASE_PREFIX, self.service))
-        world.mongo.choice_collection("%s_%s.%s" % (STH_COLLECTION_PREFIX, self.service_path, AGGR))
+        world.mongo.choice_collection("%s_%s_%s_%s.%s" % (STH_COLLECTION_PREFIX, self.service_path, self.entity_id, self.entity_type, AGGR))
         cursor = world.mongo.find_data(find_dict)
         assert cursor.count() == 0, " ERROR - the aggregated has been stored in mongo."
         world.mongo.disconnect()
@@ -375,7 +385,7 @@ class STH:
         :param text: text to find (begin since the end)
         """
         myfab = FabricSupport(host=self.sth_host, user=self.fabric_user, password=self.fabric_password, cert_file=self.fabric_cert_file, retry=self.fabric_error_retry, hide=True, sudo=self.fabric_sudo)
-        log = Remote_Log (fabric=myfab)
+        log = Remote_Log (fabric=myfab, file=self.log_file)
         line = log.find_line(label, text)
 
         #verify if a line with a level and a text exists in the log
@@ -429,10 +439,6 @@ class STH:
         assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["name"]) == "%s_%s" % (self.attributes_name, u'0'), \
             "  ERROR - in aggregated with name %s_%s" % (self.attributes_name, u'0')
         # values
-        assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["_id"]["entityId"]) == self.entity_id, \
-            "  ERROR - in aggregated with entity id %s" % (self.entity_id)
-        assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["_id"]["entityType"]) == self.entity_type, \
-            "  ERROR - in aggregated with entity type %s" % (self.entity_type)
         assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["_id"]["attrName"]) == "%s_%s" % (self.attributes_name, u'0'), \
              "  ERROR - in aggregated with name %s_%s" % (self.attributes_name, u'0')
         assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][0]["_id"]["origin"]) == origin_by_resolution, \
@@ -537,7 +543,8 @@ class STH:
             if self.last_n == EMPTY:
                 temp_value = Decimal(self.attributes_value) + i + int(self.h_offset)
             else:
-                temp_value = Decimal(self.attributes_value) + int(self.notifications_number) - i #reverse
+                if int(self.notifications_number) < int(self.last_n): self.last_n = int(self.notifications_number)
+                temp_value = Decimal(self.attributes_value) + int(self.notifications_number) - int(self.last_n) + i
 
             assert str(context_json["contextResponses"][0]["contextElement"]["attributes"][0]["values"][i]["attrValue"]) == str (temp_value), \
                 "  ERROR - in raw with attribute value in position: %s" % (str(i))

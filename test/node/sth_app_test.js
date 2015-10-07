@@ -55,6 +55,9 @@
 
     it('should drop the aggregated data collection if it exists',
       sthTestHelper.dropAggregatedDataCollectionTest);
+
+    it('should drop the collection names collection if it exists',
+      sthTestHelper.dropCollectionNamesCollectionTest);
   });
 
   describe('server start', function() {
@@ -184,33 +187,53 @@
     );
   });
 
-  function eachEventTestSuiteContainer() {
-    describe('for each new event', sthTestHelper.eachEventTestSuite);
+  function eachEventTestSuiteContainer(attrName, attrType) {
+    describe('for each new event with attribute of type ' + attrType,
+      sthTestHelper.eachEventTestSuite.bind(null, attrName, attrType));
   }
 
   for(var i = 0; i < sthTestConfig.SAMPLES; i ++) {
-    describe('data storage', eachEventTestSuiteContainer);
+    describe('data storage', eachEventTestSuiteContainer.bind(
+      null, 'attribute-float', 'float'));
 
     describe('raw data retrieval',
-      sthTestHelper.rawDataRetrievalSuite.bind(null, {lastN: 1}, true));
+      sthTestHelper.rawDataRetrievalSuite.bind(null, {lastN: i+1}, 'attribute-float', 'float', true));
 
     describe('raw data retrieval',
-      sthTestHelper.rawDataRetrievalSuite.bind(null, {hLimit: 1, hOffset: '0'}, true));
+      sthTestHelper.rawDataRetrievalSuite.bind(null, {hLimit: 1, hOffset: i}, 'attribute-float', 'float', true));
 
     describe('aggregated data retrieval',
-      sthTestHelper.aggregatedDataRetrievalSuite.bind(null, 'min'));
+      sthTestHelper.aggregatedDataRetrievalSuite.bind(null, 'attribute-float', 'float', 'min'));
 
     describe('aggregated data retrieval',
-      sthTestHelper.aggregatedDataRetrievalSuite.bind(null, 'max'));
+      sthTestHelper.aggregatedDataRetrievalSuite.bind(null, 'attribute-float', 'float', 'max'));
 
     describe('aggregated data retrieval',
-      sthTestHelper.aggregatedDataRetrievalSuite.bind(null, 'sum'));
+      sthTestHelper.aggregatedDataRetrievalSuite.bind(null, 'attribute-float', 'float', 'sum'));
 
     describe('aggregated data retrieval',
-      sthTestHelper.aggregatedDataRetrievalSuite.bind(null, 'sum2'));
+      sthTestHelper.aggregatedDataRetrievalSuite.bind(null, 'attribute-float', 'float', 'sum2'));
   }
 
-  describe('event notification by the Orion Context Broker', sthTestHelper.eventNotificationSuite);
+  for(var i = 0; i < sthTestConfig.SAMPLES; i ++) {
+    describe('data storage', eachEventTestSuiteContainer.bind(
+     null, 'attribute-string', 'string'));
+
+    describe('raw data retrieval',
+      sthTestHelper.rawDataRetrievalSuite.bind(null, {lastN: i+1}, 'attribute-string', 'string', true));
+
+    describe('raw data retrieval',
+      sthTestHelper.rawDataRetrievalSuite.bind(null, {hLimit: 1, hOffset: i}, 'attribute-string', 'string', true));
+
+    describe('aggregated data retrieval',
+      sthTestHelper.aggregatedDataRetrievalSuite.bind(null, 'attribute-string', 'string', 'occur'));
+  }
+
+  describe('notification by the Orion Context Broker of',
+    sthTestHelper.eventNotificationSuite.bind(null, 'attribute-float', 'float'));
+
+  describe('notification by the Orion Context Broker of',
+    sthTestHelper.eventNotificationSuite.bind(null, 'attribute-string', 'string'));
 
   describe('GET /version', function() {
     it('should provide version information', function(done){

@@ -164,7 +164,7 @@ Feature: Store in mongo new notifications from context broker in raw and aggrega
     | 4234234234.324234233129797897978997 | False    |
     | random number=10                    | True     |
 
-  @error_values @BUG_46
+  @error_values @BUG_46 @skip
   Scenario Outline:  stored new notifications in mongo from context broker with metadata with several attributes values and metadatas
     Given service "test_error_values", service path "/my_service_path", entity type "house", entity_id "room2", with attribute number "1", attribute name "random" and attribute type "celcius"
     When receives a notification with attributes value "<attributes_value>", metadata value "False" and content "json"

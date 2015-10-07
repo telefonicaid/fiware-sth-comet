@@ -25,42 +25,51 @@
 
   /**
    * Returns a new raw event
-   * @param recvTime The event timestamp
-   * @returns {{recvTime: Date, type: string, value: string}} The created raw event
+   * @param {string} attrName The attribute name
+   * @param {string} attrType The attribute type
+   * @param {Date} recvTime The event timestamp
+   * @returns {Object} The created raw event
    */
-  function createEvent(recvTime) {
+  function createEvent(attrName, attrType, recvTime) {
     var theEvent;
-    var attrValue = (Math.random() *
+    var attrValue = attrType !== 'string' ? (Math.random() *
       (parseFloat(sthTestConfig.MAX_VALUE) - parseFloat(sthTestConfig.MIN_VALUE)) -
-        Math.abs(parseFloat(sthTestConfig.MIN_VALUE))).toFixed(2);
+        Math.abs(parseFloat(sthTestConfig.MIN_VALUE))).toFixed(2) : 'just a string';
     switch (sthDatabase.DATA_MODEL) {
       case sthDatabase.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
         theEvent = {
           recvTime: recvTime,
           entityId: sthTestConfig.ENTITY_ID,
           entityType: sthTestConfig.ENTITY_TYPE,
-          attrName: sthTestConfig.ATTRIBUTE_NAME,
-          attrType: sthTestConfig.ATTRIBUTE_TYPE,
+          attrName: attrName,
+          attrType: attrType,
           attrValue: attrValue
         };
         break;
       case sthDatabase.DATA_MODELS.COLLECTIONS_PER_ENTITY:
         theEvent = {
           recvTime: recvTime,
-          attrName: sthTestConfig.ATTRIBUTE_NAME,
-          attrType: sthTestConfig.ATTRIBUTE_TYPE,
+          attrName: attrName,
+          attrType: attrType,
           attrValue: attrValue
         };
         break;
       case sthDatabase.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
         theEvent = {
           recvTime: recvTime,
-          attrType: sthTestConfig.ATTRIBUTE_TYPE,
+          // This property is not really stored for the collections per attribute model.
+          //  It is included just to ease its recovery
+          attrName: attrName,
+          attrType: attrType,
           attrValue: attrValue
         };
         break;
     }
     return theEvent;
+  }
+
+  function cleanEvents() {
+    events = [];
   }
 
   /**
@@ -88,9 +97,10 @@
         servicePath: sthConfig.DEFAULT_SERVICE_PATH,
         entityId: sthTestConfig.ENTITY_ID,
         entityType: sthTestConfig.ENTITY_TYPE,
-        attrName: sthTestConfig.ATTRIBUTE_NAME
+        attrName: anEvent.attrName
       },
       false,
+      true,
       true,
       true,
       function (err, collection) {
@@ -98,8 +108,8 @@
           done(err);
         } else {
           sthDatabase.storeRawData(collection, anEvent.recvTime, sthConfig.DEFAULT_SERVICE_PATH,
-            sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE, sthTestConfig.ATTRIBUTE_NAME,
-            sthTestConfig.ATTRIBUTE_TYPE, anEvent.attrValue, done);
+            sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE, anEvent.attrName,
+            anEvent.attrType, anEvent.attrValue, done);
         }
       }
     );
@@ -109,10 +119,18 @@
    * A mocha test which adds aggregated data to the aggregated data collection
    *  for an event based on a resolution
    * @param {Object} anEvent The event
-   * @param {string} resolution The resolution
    * @param {Function} done The mocha done() callback function
    */
-  function addAggregatedDataTest(anEvent, resolution, done) {
+  function addAggregatedDataTest(anEvent, done) {
+    var counter = 0;
+    var callback = function(err) {
+      if (err) {
+        done(err);
+      }
+      if (++counter == 5) {
+        done();
+      }
+    };
     // Check if the collection exists
     sthDatabase.getCollection(
       {
@@ -120,8 +138,9 @@
         servicePath: sthConfig.DEFAULT_SERVICE_PATH,
         entityId: sthTestConfig.ENTITY_ID,
         entityType: sthTestConfig.ENTITY_TYPE,
-        attrName: sthTestConfig.ATTRIBUTE_NAME
+        attrName: anEvent.attrName
       },
+      true,
       true,
       true,
       true,
@@ -131,8 +150,24 @@
         } else {
           sthDatabase.storeAggregatedData4Resolution(
             collection, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
-            sthTestConfig.ATTRIBUTE_NAME, sthTestConfig.ATTRIBUTE_TYPE, anEvent.attrValue,
-            resolution, anEvent.recvTime, done);
+            anEvent.attrName, anEvent.attrType, anEvent.attrValue,
+            sthConfig.RESOLUTION.SECOND, anEvent.recvTime, callback);
+          sthDatabase.storeAggregatedData4Resolution(
+            collection, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+            anEvent.attrName, anEvent.attrType, anEvent.attrValue,
+            sthConfig.RESOLUTION.MINUTE, anEvent.recvTime, callback);
+          sthDatabase.storeAggregatedData4Resolution(
+            collection, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+            anEvent.attrName, anEvent.attrType, anEvent.attrValue,
+            sthConfig.RESOLUTION.HOUR, anEvent.recvTime, callback);
+          sthDatabase.storeAggregatedData4Resolution(
+            collection, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+            anEvent.attrName, anEvent.attrType, anEvent.attrValue,
+            sthConfig.RESOLUTION.DAY, anEvent.recvTime, callback);
+          sthDatabase.storeAggregatedData4Resolution(
+            collection, sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+            anEvent.attrName, anEvent.attrType, anEvent.attrValue,
+            sthConfig.RESOLUTION.MONTH, anEvent.recvTime, callback);
         }
       }
     );
@@ -140,13 +175,18 @@
 
   /**
    * A mocha test suite to be run for each new raw event
+   * @param {string} attrName The attribute name
+   * @param {string} attrType The attribute type
    */
-  function eachEventTestSuite() {
+  function eachEventTestSuite(attrName, attrType) {
     var anEvent;
 
     before(function () {
-      anEvent = events[0] || createEvent(getRandomDate(
-        sthTestConfig.START_DATE, sthTestConfig.END_DATE));
+      if (events.length === sthTestConfig.SAMPLES) {
+        cleanEvents();
+      }
+      anEvent = events[0] || createEvent(
+          attrName, attrType, getRandomDate(sthTestConfig.START_DATE, sthTestConfig.END_DATE));
       events.push(anEvent);
       console.log('New event: %s', JSON.stringify(anEvent));
     });
@@ -155,38 +195,9 @@
       addEventTest(anEvent, done);
     });
 
-    it('should store aggregated data (resolution: second, range: minute)',
+    it('should store aggregated data for each resolution',
       function(done) {
-        addAggregatedDataTest(
-          anEvent, sthConfig.RESOLUTION.SECOND, done);
-      }
-    );
-
-    it('should store aggregated data (resolution: minute, range: hour)',
-      function(done) {
-        addAggregatedDataTest(
-          anEvent, sthConfig.RESOLUTION.MINUTE, done);
-      }
-    );
-
-    it('should store aggregated data (resolution: hour, range: day)',
-      function(done) {
-        addAggregatedDataTest(
-          anEvent, sthConfig.RESOLUTION.HOUR, done);
-      }
-    );
-
-    it('should store aggregated data (resolution: day, range: month)',
-      function(done) {
-        addAggregatedDataTest(
-          anEvent, sthConfig.RESOLUTION.DAY, done);
-      }
-    );
-
-    it('should store aggregated data (resolution: month, range: year)',
-      function(done) {
-        addAggregatedDataTest(
-          anEvent, sthConfig.RESOLUTION.MONTH, done);
+        addAggregatedDataTest(anEvent, done);
       }
     );
   }
@@ -226,14 +237,30 @@
   }
 
   /**
+   * A mocha test to drop the collection names collection from the database
+   * @param {Function} done The mocha done() callback function
+   */
+  function dropCollectionNamesCollectionTest(done) {
+    var databaseName = sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE);
+    var collectionName = sthConfig.COLLECTION_PREFIX + 'collection_names';
+    sthDatabase.connection.db.dropCollection(collectionName, function (err) {
+      if (err && err.message === 'ns not found') {
+        err = null;
+      }
+      return done(err);
+    });
+  }
+
+  /**
    * Returns an URL based on certain criteria passed as arguments
    * @param {string} type The type of operation
    * @param {Object} options The options to apply when generating the invalid
    *  URL (possible keys are 'invalidPath', and an entry for each one of the accepted
-   *  query params ('lastN', 'hLimit', 'hOffset', aggrMethod', 'aggrPeriod', 'dateFrom' and 'dateTo').
+   *  query params ('lastN', 'hLimit', 'hOffset', aggrMethod', 'aggrPeriod', 'dateFrom' and 'dateTo')
+   *  @param {string} attrName The attribute name
    * @returns {string}
    */
-  function getURL(type, options) {
+  function getURL(type, options, attrName) {
     var url = 'http://' + sthConfig.STH_HOST + ':' + sthConfig.STH_PORT,
       isParams = false;
 
@@ -255,7 +282,7 @@
         } else {
           url += '/STH/v1/contextEntities/type/' + sthTestConfig.ENTITY_TYPE + '/' +
             'id/' + sthTestConfig.ENTITY_ID +
-            '/attributes/' + sthTestConfig.ATTRIBUTE_NAME;
+            '/attributes/' + attrName || sthTestConfig.ATTRIBUTE_NAME;
         }
         if (options && (options.lastN || options.lastN === 0)) {
           url += (getQuerySeparator() + 'lastN=' + options.lastN);
@@ -302,20 +329,21 @@
    *  for the passed aggregation method and resolution
    * @param {string} service The service
    * @param {string} servicePath The service path
+   * @param {string} attrName The attribute name
+   * @param {string} attrType The attribute type
    * @param {Object} options To generate the URL
    * @param {boolean} checkRecvTime Flag indicating of the recvTime should be checked
    * @param {Function} done The mocha done() callback function
    */
-  function rawDataAvailableSinceDateTest(service, servicePath, options, checkRecvTime, done) {
+  function rawDataAvailableDateFilter(service, servicePath, attrName, attrType, options, checkRecvTime, done) {
     request({
-      uri: getURL(sthTestConfig.API_OPERATION.READ, options),
+      uri: getURL(sthTestConfig.API_OPERATION.READ, options, attrName),
       method: 'GET',
       headers: {
         'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
         'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
       }
     }, function (err, response, body) {
-      var theEvent = events[events.length - 1];
       var bodyJSON = JSON.parse(body);
       expect(err).to.equal(null);
       expect(response.statusCode).to.equal(200);
@@ -325,14 +353,16 @@
       expect(bodyJSON.contextResponses[0].contextElement.isPattern).
         to.equal(false);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).
-        to.equal(sthTestConfig.ATTRIBUTE_NAME);
+        to.equal(attrName || sthTestConfig.ATTRIBUTE_NAME);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).
-        to.equal(1);
-      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).
-        to.equal(theEvent.attrValue);
+        to.equal(options.lastN ? events.length : 1);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].
+        values[options.lastN ? events.length - 1 : 0].attrValue).to.equal(
+         events[events.length - 1].attrValue);
       if (checkRecvTime) {
-        expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].recvTime).
-          to.equal(sthHelper.getISODateString(theEvent.recvTime));
+        expect(bodyJSON.contextResponses[0].contextElement.attributes[0].
+          values[options.lastN ? events.length - 1 : 0].recvTime).
+          to.equal(sthHelper.getISODateString(events[events.length - 1].recvTime));
       }
       expect(bodyJSON.contextResponses[0].statusCode.code).
         to.equal('200');
@@ -347,11 +377,13 @@
    *  the passed aggregation method and resolution
    * @param {string} service The service
    * @param {string} servicePath The service path
+   * @param {string} attrName The attribute name
+   * @param {string} attrType The attribute type
    * @param {string} aggrMethod The aggregation method
    * @param {string} resolution The resolution
    * @param {string} done The mocha done() callback function
    */
-  function noAggregatedDataSinceDateTest(service, servicePath, aggrMethod, resolution, done) {
+  function noAggregatedDataSinceDateTest(service, servicePath, attrName, attrType, aggrMethod, resolution, done) {
     var offset;
     switch(resolution) {
       case 'second':
@@ -384,9 +416,10 @@
           dateFrom: sthHelper.getISODateString(
             sthHelper.getOrigin(
               new Date(
-                events[0].recvTime.getTime() + offset),
+                events[events.length - 1].recvTime.getTime() + offset),
               resolution))
-        }
+        },
+        attrName
       ),
       method: 'GET',
       headers: {
@@ -403,7 +436,7 @@
       expect(bodyJSON.contextResponses[0].contextElement.isPattern).
         to.equal(false);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).
-        to.equal(sthTestConfig.ATTRIBUTE_NAME);
+        to.equal(attrName || sthTestConfig.ATTRIBUTE_NAME);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).
         to.be.an(Array);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).
@@ -421,11 +454,14 @@
    *  for the passed aggregation method and resolution
    * @param {string} service The service
    * @param {string} servicePath The service path
+   * @param {string} attrName The attribute name
+   * @param {string} attrType The attribute type
    * @param {string} aggrMethod The aggregation method
    * @param {string} resolution The resolution
    * @param {Function} done The mocha done() callback function
    */
-  function aggregatedDataAvailableSinceDateTest(service, servicePath, aggrMethod, resolution, done) {
+  function aggregatedDataAvailableSinceDateTest(service, servicePath, attrName, attrType, aggrMethod, resolution,
+                                                done) {
     request({
       uri: getURL(sthTestConfig.API_OPERATION.READ,
         {
@@ -433,9 +469,10 @@
           aggrPeriod: resolution,
           dateFrom: sthHelper.getISODateString(
             sthHelper.getOrigin(
-              events[0].recvTime,
+              events[events.length - 1].recvTime,
               resolution))
-        }
+        },
+        attrName
       ),
       method: 'GET',
       headers: {
@@ -443,7 +480,7 @@
         'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
       }
     }, function (err, response, body) {
-      var theEvent = events[0];
+      var theEvent = events[events.length - 1];
       var index, entries;
       switch(resolution) {
         case 'second':
@@ -476,11 +513,9 @@
       expect(bodyJSON.contextResponses[0].contextElement.isPattern).
         to.equal(false);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).
-        to.equal(sthTestConfig.ATTRIBUTE_NAME);
+        to.equal(attrName || sthTestConfig.ATTRIBUTE_NAME);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0]._id.resolution).
         to.equal(resolution);
-      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0]._id.range).
-        to.equal(sthHelper.getRange(resolution));
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0]._id.origin).
         to.be(sthHelper.getISODateString(
           sthHelper.getOrigin(
@@ -503,10 +538,19 @@
           value = (events.length * parseFloat(theEvent.attrValue)).toFixed(2);
           break;
         case 'sum2':
-          value = (events.length * (Math.pow(parseFloat(theEvent.attrValue), 2))).toFixed(2);
+          value = ((events.length) * (Math.pow(parseFloat(theEvent.attrValue), 2))).toFixed(2);
+          break;
+        case 'occur':
+          value = events.length;
+          break;
       }
-      expect(parseFloat(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].
-        points[sthConfig.FILTER_OUT_EMPTY ? 0 : index][aggrMethod]).toFixed(2)).to.equal(value);
+      if (attrType === 'float') {
+        expect(parseFloat(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].
+          points[sthConfig.FILTER_OUT_EMPTY ? 0 : index][aggrMethod]).toFixed(2)).to.equal(value);
+      } else if (attrType === 'string') {
+        expect(parseFloat(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].
+          points[sthConfig.FILTER_OUT_EMPTY ? 0 : index][aggrMethod]['just a string'])).to.equal(value);
+      }
       expect(bodyJSON.contextResponses[0].statusCode.code).
         to.equal('200');
       expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).
@@ -519,100 +563,80 @@
    * A mocha test suite including tests to check the retrieval of raw data
    *  from the database
    * @param {object} options Options to generate the URL
+   * @param {string} attrName The attribute name
+   * @param {string} attrType The attribute type
    * @param {boolean} checkRecvTime Flag indicating if the recvTime should be checked
    */
-  function rawDataRetrievalSuite(options, checkRecvTime) {
+  function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
     describe('should respond', function() {
-      var optionsWithDateFrom = {},
+      var optionsWithNoDates = {},
+          optionsWithDateFrom = {},
           optionsWithDateTo = {},
           optionsWithFromAndToDate = {};
 
       before(function() {
         for (var prop in options) {
+          optionsWithNoDates[prop] = options[prop];
           optionsWithDateFrom[prop] = options[prop];
           optionsWithDateTo[prop] = options[prop];
           optionsWithFromAndToDate[prop] = options[prop];
         }
+        if (sthTestConfig.COMPLEX_NOTIFICATION_STARTED && 'hLimit' in optionsWithNoDates) {
+          optionsWithNoDates.hOffset = sthTestConfig.SAMPLES;
+        }
         optionsWithDateFrom.dateFrom = sthHelper.getISODateString(events[0].recvTime);
         optionsWithDateTo.dateTo = sthHelper.getISODateString(new Date());
+        if (sthTestConfig.COMPLEX_NOTIFICATION_STARTED && 'hLimit' in optionsWithDateTo) {
+          optionsWithDateTo.hOffset = sthTestConfig.SAMPLES;
+        }
         optionsWithFromAndToDate.dateFrom = sthHelper.getISODateString(events[0].recvTime);
         optionsWithFromAndToDate.dateTo = sthHelper.getISODateString(new Date());
       });
 
       it('with raw data if data and no dateFrom or dateTo',
-        rawDataAvailableSinceDateTest.bind(
-          null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, options, checkRecvTime));
+        rawDataAvailableDateFilter.bind(
+          null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, attrName, attrType, optionsWithNoDates,
+          checkRecvTime));
 
       it('with raw data if data since dateFrom',
-        rawDataAvailableSinceDateTest.bind(
-          null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, optionsWithDateFrom, checkRecvTime));
+        rawDataAvailableDateFilter.bind(
+          null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, attrName, attrType, optionsWithDateFrom,
+          checkRecvTime));
 
       it('with raw data if data before dateTo',
-        rawDataAvailableSinceDateTest.bind(
-          null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, optionsWithDateTo, checkRecvTime));
+        rawDataAvailableDateFilter.bind(
+          null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, attrName, attrType, optionsWithDateTo,
+          checkRecvTime));
 
       it('with raw data if data from dateFrom and before dateTo',
-        rawDataAvailableSinceDateTest.bind(
-          null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, optionsWithFromAndToDate, checkRecvTime));
+        rawDataAvailableDateFilter.bind(
+          null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, attrName, attrType, optionsWithFromAndToDate,
+          checkRecvTime));
     });
   }
 
   /**
    * A mocha test suite including tests to check the retrieval of aggregated data
    *  from the database for the passed aggregation method
+   * @param {string} attrName The attribute name
+   * @param {string} attrType The attribute type
    * @param {string} aggrMethod The aggregation method
    */
-  function aggregatedDataRetrievalSuite(aggrMethod) {
+  function aggregatedDataRetrievalSuite(attrName, attrType, aggrMethod) {
     describe('with aggrMethod as ' + aggrMethod, function() {
-      describe('and aggrPeriod as ' + sthConfig.RESOLUTION.SECOND, function() {
-        it('should respond with empty aggregated data if no data since dateFrom',
-          noAggregatedDataSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.SECOND));
+      for (var i = 0; i < sthConfig.AGGREGATION.length; i++) {
+        describe('and aggrPeriod as ' + sthConfig.AGGREGATION[i], function() {
+          it('should respond with empty aggregated data if no data since dateFrom',
+            noAggregatedDataSinceDateTest.bind(
+              null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, attrName, attrType, aggrMethod,
+              sthConfig.AGGREGATION[i]));
 
-        it('should respond with aggregated data if data since dateFrom',
-          aggregatedDataAvailableSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.SECOND));
-      });
-
-      describe('and aggrPeriod as minute', function() {
-        it('should respond with empty aggregated data if no data since dateFrom',
-          noAggregatedDataSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.MINUTE));
-
-        it('should respond with aggregated data if data since dateFrom',
-          aggregatedDataAvailableSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH,aggrMethod, sthConfig.RESOLUTION.MINUTE));
-      });
-
-      describe('and aggrPeriod as hour', function() {
-        it('should respond with empty aggregated data if no data since dateFrom',
-          noAggregatedDataSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.HOUR));
-
-        it('should respond with aggregated data if data since dateFrom',
-          aggregatedDataAvailableSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.HOUR));
-      });
-
-      describe('and aggrPeriod as day', function() {
-        it('should respond with empty aggregated data if no data since dateFrom',
-          noAggregatedDataSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.DAY));
-
-        it('should respond with aggregated data if data since dateFrom',
-          aggregatedDataAvailableSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.DAY));
-      });
-
-      describe('and aggrPeriod as month', function() {
-        it('should respond with empty aggregated data if no data since dateFrom',
-          noAggregatedDataSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.MONTH));
-
-        it('should respond with aggregated data if data since dateFrom',
-          aggregatedDataAvailableSinceDateTest.bind(
-            null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, aggrMethod, sthConfig.RESOLUTION.MONTH));
-      });
+          it('should respond with aggregated data if data since dateFrom',
+            aggregatedDataAvailableSinceDateTest.bind(
+              null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, attrName, attrType, aggrMethod,
+              sthConfig.AGGREGATION[i]));
+        });
+      }
     });
   }
 
@@ -631,6 +655,7 @@
             entityType: sthTestConfig.ENTITY_TYPE,
             attrName: sthTestConfig.ATTRIBUTE_NAME
           },
+          false,
           false,
           false,
           false,
@@ -655,6 +680,7 @@
             attrName: sthTestConfig.ATTRIBUTE_NAME
           },
           true,
+          false,
           false,
           false,
           function (err, collection) {
@@ -694,9 +720,9 @@
           {
             "contextElement": {
               "attributes": [],
-              "type": "entityType",
+              "type": sthTestConfig.ENTITY_TYPE,
               "isPattern": "false",
-              "id": "entityId"
+              "id": sthTestConfig.ENTITY_ID
             },
             "statusCode": {
               "code": "200",
@@ -706,9 +732,9 @@
           {
             "contextElement": {
               "attributes": [],
-              "type": "entityType",
+              "type": sthTestConfig.ENTITY_TYPE,
               "isPattern": "false",
-              "id": "entityId"
+              "id": sthTestConfig.ENTITY_ID
             },
             "statusCode": {
               "code": "200",
@@ -718,9 +744,9 @@
           {
             "contextElement": {
               "attributes": [],
-              "type": "entityType",
+              "type": sthTestConfig.ENTITY_TYPE,
               "isPattern": "false",
-              "id": "entityId"
+              "id": sthTestConfig.ENTITY_ID
             },
             "statusCode": {
               "code": "200",
@@ -769,30 +795,12 @@
                 {
                   "name" : sthTestConfig.ATTRIBUTE_NAME,
                   "type" : sthTestConfig.ATTRIBUTE_TYPE,
-                  "value" : 'just a string'
-                }
-              ],
-              "type": "entityType",
-              "isPattern": "false",
-              "id": "entityId"
-            },
-            "statusCode": {
-              "code": "200",
-              "reasonPhrase": "OK"
-            }
-          },
-          {
-            "contextElement": {
-              "attributes": [
-                {
-                  "name" : sthTestConfig.ATTRIBUTE_NAME,
-                  "type" : sthTestConfig.ATTRIBUTE_TYPE,
                   "value" : ['just', 'an', 'array']
                 }
               ],
-              "type": "entityType",
+              "type": sthTestConfig.ENTITY_TYPE,
               "isPattern": "false",
-              "id": "entityId"
+              "id": sthTestConfig.ENTITY_ID
             },
             "statusCode": {
               "code": "200",
@@ -810,9 +818,9 @@
                   }
                 }
               ],
-              "type": "entityType",
+              "type": sthTestConfig.ENTITY_TYPE,
               "isPattern": "false",
-              "id": "entityId"
+              "id": sthTestConfig.ENTITY_ID
             },
             "statusCode": {
               "code": "200",
@@ -836,8 +844,14 @@
 
   /**
    * A mocha test suite to check the reception of notifications by the Orion Context Broker
+   * @param {string} attrName The attribute name
+   * @param {string} attrType The attribute type
    */
-  function eventNotificationSuite() {
+  function eventNotificationSuite(attrName, attrType) {
+    before(function() {
+      cleanEvents();
+    });
+
     describe('no attribute values notification', function() {
       it('should respond with 400 - Bad Request', noAttributesTest.bind(
         null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH));
@@ -848,48 +862,84 @@
         null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH));
     });
 
-    describe('complex notification', function() {
+    describe('value changed of', complexNotificationSuite.bind(null, attrName, attrType));
+  }
+
+  /**
+   * Complex notification suite
+   * @param {string} attrName The attribute name
+   * @param {string} attrType The attribute type
+   */
+  function complexNotificationSuite(attrName, attrType) {
+    describe('attribute of type ' + attrType, function() {
       before(function () {
-        events = [];
+        sthTestConfig.COMPLEX_NOTIFICATION_STARTED = true;
       });
 
       describe('reception', function () {
         it('should attend the notification', complexNotificationTest.bind(
-          null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH));
+          null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, attrName, attrType));
       });
 
       describe('for each new notification', function () {
         describe('raw data retrieval with lastN',
-          rawDataRetrievalSuite.bind(null, {lastN: 1}, false));
+          rawDataRetrievalSuite.bind(null, {lastN: sthTestConfig.EVENT_NOTIFICATION_CONTEXT_ELEMENTS},
+            attrName, attrType, false));
 
         describe('raw data retrieval with hLimit and hOffset',
-          rawDataRetrievalSuite.bind(null, {hLimit: 1, hOffset: 0}, false));
+          rawDataRetrievalSuite.bind(null, {hLimit: 1, hOffset: 0}, attrName, attrType, false));
 
-        describe('aggregated data retrieval',
-          aggregatedDataRetrievalSuite.bind(null, 'min'));
+        if (attrType === 'float') {
+          describe('aggregated data retrieval',
+            aggregatedDataRetrievalSuite.bind(null, attrName, attrType, 'min'));
 
-        describe('aggregated data retrieval',
-          aggregatedDataRetrievalSuite.bind(null, 'max'));
+          describe('aggregated data retrieval',
+            aggregatedDataRetrievalSuite.bind(null, attrName, attrType, 'max'));
 
-        describe('aggregated data retrieval',
-          aggregatedDataRetrievalSuite.bind(null, 'sum'));
+          describe('aggregated data retrieval',
+            aggregatedDataRetrievalSuite.bind(null, attrName, attrType, 'sum'));
 
-        describe('aggregated data retrieval',
-          aggregatedDataRetrievalSuite.bind(null, 'sum2'));
+          describe('aggregated data retrieval',
+            aggregatedDataRetrievalSuite.bind(null, attrName, attrType, 'sum2'));
+        } else if (attrType === 'string') {
+          describe('aggregated data retrieval',
+            aggregatedDataRetrievalSuite.bind(null, attrName, attrType, 'occur'));
+        }
       });
     });
   }
 
   /**
    * A mocha test to check the reception of a new notification by the Orion Context Broker
+   * @param {string} service The service
+   * @param {string} servicePath The service path
+   * @param {string} attrName The attribute name
+   * @param {string} attrType The attribute type
    * @param {Function} done The mocha done() callback function
    */
-  function complexNotificationTest(service, servicePath, done) {
-    var anEvent = {
-      recvTime: new Date(),
-      attrType: sthTestConfig.ATTRIBUTE_TYPE,
-      attrValue: 66.6
-    };
+  function complexNotificationTest(service, servicePath, attrName, attrType, done) {
+    var anEvent = createEvent(attrName, attrType, new Date());
+    var contextResponses = [];
+    for (var i = 0; i < sthTestConfig.EVENT_NOTIFICATION_CONTEXT_ELEMENTS; i++) {
+      contextResponses.push({
+        "contextElement" : {
+          "attributes" : [
+            {
+              "name" : anEvent.attrName,
+              "type" : anEvent.attrType,
+              "value" : anEvent.attrValue
+            }
+          ],
+          "type" : sthTestConfig.ENTITY_TYPE,
+          "isPattern" : "false",
+          "id" : sthTestConfig.ENTITY_ID
+        },
+        "statusCode" : {
+          "code" : "200",
+          "reasonPhrase" : "OK"
+        }
+      });
+    }
     request({
       uri: getURL(sthTestConfig.API_OPERATION.NOTIFY),
       method: 'POST',
@@ -903,62 +953,7 @@
       body: {
         "subscriptionId" : "1234567890ABCDF123456789",
         "originator" : "orion.contextBroker.instance",
-        "contextResponses" : [
-          {
-            "contextElement" : {
-              "attributes" : [
-                {
-                  "name" : sthTestConfig.ATTRIBUTE_NAME,
-                  "type" : anEvent.attrType,
-                  "value" : anEvent.attrValue
-                }
-              ],
-              "type" : "entityType",
-              "isPattern" : "false",
-              "id" : "entityId"
-            },
-            "statusCode" : {
-              "code" : "200",
-              "reasonPhrase" : "OK"
-            }
-          },
-          {
-            "contextElement" : {
-              "attributes" : [
-                {
-                  "name" : sthTestConfig.ATTRIBUTE_NAME,
-                  "type" : anEvent.attrType,
-                  "value" : anEvent.attrValue
-                }
-              ],
-              "type" : "entityType",
-              "isPattern" : "false",
-              "id" : "entityId"
-            },
-            "statusCode" : {
-              "code" : "200",
-              "reasonPhrase" : "OK"
-            }
-          },
-          {
-            "contextElement" : {
-              "attributes" : [
-                {
-                  "name" : sthTestConfig.ATTRIBUTE_NAME,
-                  "type" : anEvent.attrType,
-                  "value" : anEvent.attrValue
-                }
-              ],
-              "type" : "entityType",
-              "isPattern" : "false",
-              "id" : "entityId"
-            },
-            "statusCode" : {
-              "code" : "200",
-              "reasonPhrase" : "OK"
-            }
-          }
-        ]
+        "contextResponses" : contextResponses
       }
     }, function (err, response, body) {
       for (var i = 0; i < 3; i++) {
@@ -1006,6 +1001,7 @@
       eachEventTestSuite: eachEventTestSuite,
       dropRawEventCollectionTest: dropRawEventCollectionTest,
       dropAggregatedDataCollectionTest: dropAggregatedDataCollectionTest,
+      dropCollectionNamesCollectionTest: dropCollectionNamesCollectionTest,
       getURL: getURL,
       rawDataRetrievalSuite: rawDataRetrievalSuite,
       aggregatedDataRetrievalSuite: aggregatedDataRetrievalSuite,

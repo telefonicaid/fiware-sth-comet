@@ -42,22 +42,20 @@ it is the responsibility of the people or software in charge of creating the nee
 time series database twice (i.e. to avoid enabling both mechanisms at the same time). This would happen if both mechanisms
 are enabled for the same attribute of the same entity.
 
-Regarding the aggregated time series information provided by the STH component, there are 4 main concepts which are
+Regarding the aggregated time series information provided by the STH component, there are 3 main concepts which are
 important to know about:
 
-* <b>Range</b>: The period of time about which the aggregated time series information is provided. Possible valid
-ranges values are: year, month, day, hour, minute.
 * <b>Resolution</b> or <b>aggregation period</b>: The time period by which the aggregated time series information is grouped.
-Possible valid resolution values are: month, day, hour, minute and second. For the time being, we only consider the
-following range-resolution pairs: year-month, month-day, day-hour, hour-minute and minute-second.
-* <b>Origin</b>: For certain range-resolution pair, it is the origin of time for which the aggregated time series
-information applies. For example, for a pair hour-minute, a valid origin value could be: ```2015-03-01T13:00:00.000Z```,
+Possible valid resolution values are: month, day, hour, minute and second.
+* <b>Origin</b>: For certain resolution, it is the origin of time for which the aggregated time series
+information applies. For example, for a resolution of minutes, a valid origin value could be: ```2015-03-01T13:00:00.000Z```,
 meaning the 13th hour of March, the 3rd, 2015. The origin is stored using UTC time to avoid locale issues.
-* <b>Offset</b>: For certain range-resolution pair, it is the offset from the origin for which the aggregated time series
-information applies. For example, for a pair hour-minute and an origin ```2015-03-01T13:00:00.000Z```, an offset of 10
+* <b>Offset</b>: For certain resolution, it is the offset from the origin for which the aggregated time series
+information applies. For example, for a resolution of minutes and an origin ```2015-03-01T13:00:00.000Z```, an offset of 10
 refers to the 10th minute of the concrete hour pointed by the origin. In this example, there would be a maximum of 60
 offsets from 0 to 59 corresponding to each one of the 60 minutes within the concrete hour.
-* <b>Samples</b>: For a quadruple range-resolution-origin-offset, it is the number of samples, values, events or notifications available.
+* <b>Samples</b>: For a triple resolution, origin and offset, it is the number of samples, values, events or notifications available
+for that concrete offset from the origin.
 
 ###<a id="section1.1"></a> Consuming raw data
 
@@ -73,6 +71,8 @@ The requests can make use the following query parameters:
 * <b>lastN</b>: Only the requested last entries should be returned. It is a mandatory parameter if no hLimit and hOffset are provided.
 * <b>hLimit</b>: In case of pagination, the number of entries per page. It is a mandatory parameter if no lastN is provided.
 * <b>hOffset</b>: In case of pagination, the offset to apply to the requested search of raw data. It is a mandatory parameter if no lastN is provided.
+* <b>dateFrom</b>: The origin of time from which the raw data is desired. It is an optional parameter.
+* <b>dateTo</b>: The end of time until which the raw data is desired. It is an optional parameter.
 
 An example response provided by the STH component to a request such as the previous one could be the following:
 
@@ -114,6 +114,10 @@ An example response provided by the STH component to a request such as the previ
 
 Notice that a paginated response has been requested with a limit of 3 entries and an offset of 0 entries (first page).
 
+It is important to note that if a valid query is made but it returns no data (for example because there is no raw data
+for the specified time frame), a response with code `200` is returned including an empty `values` property array, since it is a valid
+query.
+
 [Top](#section0)
 
 ###<a id="section1.2"></a> Consuming aggregated time series information
@@ -127,16 +131,17 @@ The entries between "<" and ">" in the URL path depend on the concrete case (typ
 
 The requests can make use the following query parameters:
 
-* <b>aggrMethod</b>: The aggregation method. The STH component supports the following aggregation methods: max (maximum
-value), min (minimum value), sum (sum of all the samples) and sum2 (sum of the square value of all the samples). Combining
+* <b>aggrMethod</b>: The aggregation method. The STH component supports the following aggregation methods: `max` (maximum
+value), `min (minimum value), `sum` (sum of all the samples) and `sum2` (sum of the square value of all the samples) for numeric
+attribute values and `occur` for attributes values of type string. Combining
 the information provided by these aggregated methods with the number of samples, it is possible to calculate probabilistic
 values such as the average value, the variance as well as the standard deviation. It is a mandatory parameter.
-* <b>aggrPeriod</b>: Aggregation period or resolution. For the time being, a fixed resolution determines the range as
-well as the origin time format and the possible offsets. It is a mandatory parameter.
+* <b>aggrPeriod</b>: Aggregation period or resolution. A fixed resolution determines the origin time format and the
+possible offsets. It is a mandatory parameter.
 * <b>dateFrom</b>: The origin of time from which the aggregated time series information is desired. It is an optional parameter.
 * <b>dateTo</b>: The end of time until which the aggregated time series information is desired. It is an optional parameter.
 
-An example response provided by the STH component to a request such as the previous one could be the following:
+An example response provided by the STH component to a request such as the previous one (for a numeric attribute value) could be the following:
 
 <pre>
 {
@@ -150,7 +155,6 @@ An example response provided by the STH component to a request such as the previ
                             {
                                 "_id": {
                                     "origin": "2015-02-18T02:46:00.000Z",
-                                    "range": "minute",
                                     "resolution": "second"
                                 },
                                 "points": [
@@ -176,9 +180,63 @@ An example response provided by the STH component to a request such as the previ
 }
 </pre>
 
-In this example response, aggregated time series information for a range of minutes and a resolution of seconds is returned.
+In this example response, aggregated time series information for a resolution of seconds is returned.
 This information has as its origin the 46nd minute, of the 2nd hour of February, the 18th, 2015. And includes data for the
 13th second, for which there is a sample and the sum (and value of that sample) is 34.59.
+
+On the other hand, if the attribute value was of type string, a query such as the following (with `aggrMethod` as `occur`)
+sent to the STH component:
+
+<pre>http://localhost:8666/STH/v1/contextEntities/type/&lt;entityType&gt;/id/&lt;entityId&gt;/attributes/&lt;attrName&gt;?aggrMethod=occur&aggrPeriod=second&dateFrom=2015-02-22T00:00:00.000Z&dateTo=2015-02-22T23:00:00.000Z</pre>
+
+may end up receiving the following payload as a possible response:
+
+<pre>
+{
+    "contextResponses": [
+        {
+            "contextElement": {
+                "attributes": [
+                    {
+                        "name": "attrName",
+                        "values": [
+                            {
+                                "_id": {
+                                    "origin": "2015-02-18T02:46:00.000Z",
+                                    "resolution": "second"
+                                },
+                                "points": [
+                                    {
+                                        "offset": 35,
+                                        "samples": 34,
+                                        "occur": {
+                                            "string01": 7,
+                                            "string02": 4,
+                                            "string03": 5,
+                                            "string04": 6,
+                                            "string05": 12
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "id": "entityId",
+                "isPattern": false
+            },
+            "statusCode": {
+                "code": "200",
+                "reasonPhrase": "OK"
+            }
+        }
+    ]
+}
+</pre>
+
+It is important to note that if a valid query is made but it returns no data (for example because there is no aggregated data
+for the specified time frame), a response with code `200` is returned including an empty `values` property array, since it is a valid
+query.
 
 [Top](#section0)
 
@@ -290,11 +348,18 @@ The STH component provides the user with 2 mechanisms to configure the component
 
 * Environment variables, which can be set assigning values to them or using the `sth_default.conf` file if a packaged
 version of the STH component is used.
-* The [`config.js`](https://github.com/telefonicaid/IoT-STH/blob/develop/config.js) located at the root of the STH component code, a JSON formatted file including the configuration properties.
+* The [`config.js`](https://github.com/telefonicaid/IoT-STH/blob/develop/config.js) file located at the root of the STH component code, a JSON formatted file including the configuration properties.
 
-It is important to note that environment variables, if set, take precedence over the properties defined in the `config.js` file.
+It is important to note that environment variables, if set, take precedence over the properties defined in the
+[`config.js`](https://github.com/telefonicaid/IoT-STH/blob/develop/config.js) file.
 
-The script accepts the following parameters as environment variables:
+On the other hand, it is also important to note that the aggregation resolutions can only be configured using the
+[`config.js`](https://github.com/telefonicaid/IoT-STH/blob/develop/config.js) file and
+consequently this is the preferred way to configure the STH component behavior. The mentioned resolutions can be configured using
+the `config.server.aggregation` property in the [`config.js`](https://github.com/telefonicaid/IoT-STH/blob/develop/config.js) file
+including the desired resolution to be used when aggregating data. Accepted resolution values include: `month`, `day`, `hour`, `minute` and `second`.
+
+In case of preferring using environment variables, the script accepts the following parameters as environment variables:
 
 - STH_HOST: The host where the STH server will be started. Optional. Default value: "localhost".
 - STH_PORT: The port where the STH server will be listening. Optional. Default value: "8666".
@@ -318,6 +383,21 @@ a counter used as the suffix for the log file name. Optional. Default value: "0"
 due to MongoDB's limitation regarding the number of bytes a namespace may have (currently limited to 120 bytes). In case of hashing,
 information about the final collection name and its correspondence to each concrete service path, entity and (if applicable) attribute
 is stored in a collection named `COLLECTION_PREFIX + "collection_names"`. Default value: "false".
+- TRUNCATION_EXPIREAFTERSECONDS: Data from the raw and aggregated data collections will be removed if older than the value specified in seconds.
+In case of raw data the reference time is the one stored in the `recvTime` property whereas in the case of the aggregated data
+the reference of time is the one stored in the `_id.origin` property. Set the value to 0 not to apply this time-based truncation
+policy. Default value: "0".
+- TRUNCATION_SIZE: The oldest raw data (according to insertion time) will be removed if the size of the raw data collection
+gets bigger than the value specified in bytes. Set the value to 0 not to apply this truncation
+policy. Take into consideration than the "size" configuration parameter is mandatory in case size collection truncation
+is desired as required by MongoDB. Default value: "0". Notice that this configuration parameter does not affect the aggregated
+data collections since MongoDB does not currently support updating documents in capped collections which increase the size of the documents.
+Notice also that in case of the raw data, the size-based truncation policy takes precedence over the TTL one. More concretely,
+if "size" is set, the value of "exporeAfterSeconds" is ignored for the raw data collections since currently MongoDB does not support TTL in capped collections.
+- TRUNCATION_MAX: The oldest raw data (according to insertion time) will be removed if the number of documents in the raw data
+collections goes beyond the specified value. Set the value to 0 not to apply this truncation policy.
+Default value: "0". Notice that this configuration parameter does not affect the aggregated data collections since MongoDB does not
+currently support updating documents in capped collections which increase the size of the documents.
 - DB_USERNAME: The username to use for the database connection. Optional. Default value: "".
 - DB_PASSWORD: The password to use for the database connection. Optional. Default value: "".
 - DB_URI: The URI to use for the database connection. This does not include the 'mongo://' protocol part (see a couple of examples below).
@@ -460,7 +540,7 @@ In case of executing the tests with the CLEAN option set to false, the contents 
 
 ##<a id="section8"></a>Performance tests
 
-The [Performance tests](performance/README.md) section of the repository includes information to run performance
+The [Performance tests](test/performance/README.md) section of the repository includes information to run performance
 tests on the STH component. If you are interested on them, please navigate to that section of the repository for further information.
 
 [Top](#section0)

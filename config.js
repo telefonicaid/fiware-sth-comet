@@ -11,7 +11,10 @@ config.server = {
   port: '8666',
   // A flag indicating if the empty results should be removed from the response.
   //  Default value: "true".
-  filterOutEmpty: 'true'
+  filterOutEmpty: 'true',
+  // Array of resolutions the STH component should aggregate values for.
+  // Valid resolution values are: 'month', 'day', 'hour', 'minute' and 'second'
+  aggregation: ['day', 'hour', 'minute']
 };
 
 // Database configuration
@@ -50,7 +53,31 @@ config.database = {
   //  (currently limited to 120 bytes). In case of hashing, information about the final collection name
   //  and its correspondence to each concrete service path, entity and (if applicable) attribute
   //  is stored in a collection named `COLLECTION_PREFIX + "collection_names"`. Default value: "false".
-  shouldHash: 'false'
+  shouldHash: 'false',
+  truncation: {
+    // Data from the raw and aggregated data collections will be removed if older than the value specified in seconds.
+    //  Set the value to 0 or remove the property entry not to apply this time-based truncation policy. Default value: "0".
+    expireAfterSeconds: '0',
+    // The oldest raw data (according to insertion time) will be removed if the size of the raw data collection
+    //  gets bigger than the value specified in bytes. In case of raw data the reference time is the one stored in the
+    //  'recvTime' property whereas in the case of the aggregated data the reference of time is the one stored in the
+    //  '_id.origin' property. Set the value to 0 or remove the property entry not to apply this
+    //  truncation policy. Default value: "0".
+    // The "size" configuration parameter is mandatory in case size collection truncation is desired as required by MongoDB.
+    // Notice that this configuration parameter does not affect the aggregated data collections since MongoDB does not
+    //  currently support updating documents in capped collections which increase the size of the documents.
+    // Notice also that in case of the raw data, the size-based truncation policy takes precedence over the TTL one. More
+    //  concretely, if "size" is set, the value of "exporeAfterSeconds" is ignored for the raw data collections since currently
+    //  MongoDB does not support TTL in capped collections.
+    size: '0',
+    // The oldest raw data (according to insertion time) will be removed if the number of documents in the raw data
+    //  collections goes beyond the specified value. Set the value to 0 or remove the property entry not to apply this
+    //  truncation policy. Default value: "0".
+    // Notice that this configuration parameter does not affect the aggregated data collections since MongoDB does not
+    //  currently support updating documents in capped collections which increase the size of the documents.
+    max: '0'
+  }
+
 };
 
 // Logging configuration

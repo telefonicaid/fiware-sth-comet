@@ -12,17 +12,8 @@
   var dbPassword = ENV.DB_PASSWORD || config.database.password || '';
 
   module.exports = {
-    RANGE: {
-      YEAR: 'year',
-      MONTH: 'month',
-      WEEK: 'week',
-      DAY: 'day',
-      HOUR: 'hour',
-      MINUTE: 'minute'
-    },
     RESOLUTION: {
       MONTH: 'month',
-      WEEK: 'week',
       DAY: 'day',
       HOUR: 'hour',
       MINUTE: 'minute',
@@ -63,6 +54,7 @@
   } else {
     module.exports.LOG_TO_CONSOLE = true;
   }
+
   if (ENV.LOG_TO_FILE) {
     module.exports.LOG_TO_FILE = ENV.LOG_TO_FILE !== 'false';
   } else if (config.logging.toFile) {
@@ -70,6 +62,7 @@
   } else {
     module.exports.LOG_TO_FILE = true;
   }
+
   if (!isNaN(ENV.LOG_FILE_MAX_SIZE_IN_BYTES)) {
     module.exports.LOG_FILE_MAX_SIZE_IN_BYTES = parseInt(ENV.LOG_FILE_MAX_SIZE_IN_BYTES);
   } else if (!isNaN(config.logging.maxFileSize)) {
@@ -77,8 +70,13 @@
   } else {
     module.exports.LOG_FILE_MAX_SIZE_IN_BYTES = 0;
   }
+
   module.exports.LOG_DIR = ENV.LOG_DIR || config.logging.directoryPath || ('.' + path.sep + 'log');
+
   module.exports.LOG_FILE_NAME = ENV.LOG_FILE_NAME || config.logging.fileName || 'sth_app.log';
+
+  var sthLogger = require('./sth_logger')(module.exports);
+
   if (!isNaN(ENV.PROOF_OF_LIFE_INTERVAL)) {
     module.exports.PROOF_OF_LIFE_INTERVAL = ENV.PROOF_OF_LIFE_INTERVAL;
   } else if (!isNaN(config.logging.proofOfLifeInterval)) {
@@ -86,8 +84,11 @@
   } else {
     module.exports.PROOF_OF_LIFE_INTERVAL = '60';
   }
+
   module.exports.DEFAULT_SERVICE = ENV.DEFAULT_SERVICE || config.database.defaultService || 'orion';
+
   module.exports.DEFAULT_SERVICE_PATH = ENV.DEFAULT_SERVICE_PATH || config.database.defaultServicePath || '/';
+
   if (ENV.POOL_SIZE && !isNaN(ENV.POOL_SIZE) && parseInt(ENV.POOL_SIZE) > 0) {
     module.exports.POOL_SIZE = parseInt(ENV.POOL_SIZE);
   } else if (config.database.poolSize && !isNaN(config.database.poolSize) && parseInt(config.database.poolSize) > 0) {
@@ -95,6 +96,7 @@
   } else {
     module.exports.POOL_SIZE = 5;
   }
+
   try {
     if (ENV.WRITE_CONCERN && (!isNaN(ENV.WRITE_CONCERN) || ENV.WRITE_CONCERN === 'majority' || JSON.parse(ENV.WRITE_CONCERN))) {
       module.exports.WRITE_CONCERN = ENV.WRITE_CONCERN;
@@ -106,6 +108,7 @@
   } catch (exception) {
     module.exports.WRITE_CONCERN = config.database.writeConcern || 1;
   }
+
   if ([
       module.exports.DATA_TO_STORE.ONLY_RAW,
       module.exports.DATA_TO_STORE.ONLY_AGGREGATED,
@@ -121,6 +124,7 @@
   } else {
     module.exports.SHOULD_STORE = 'both';
   }
+
   if (ENV.SHOULD_HASH) {
     module.exports.SHOULD_HASH = ENV.SHOULD_HASH !== 'false';
   } else if (config.database.shouldHash) {
@@ -128,13 +132,44 @@
   } else {
     module.exports.SHOULD_HASH = false;
   }
+
+  if (ENV.TRUNCATION_EXPIREAFTERSECONDS) {
+    module.exports.TRUNCATION_EXPIREAFTERSECONDS = ENV.TRUNCATION_EXPIREAFTERSECONDS;
+  } else if (config.database.truncation.expireAfterSeconds) {
+    module.exports.TRUNCATION_EXPIREAFTERSECONDS = config.database.truncation.expireAfterSeconds;
+  } else {
+    module.exports.TRUNCATION_EXPIREAFTERSECONDS = '0';
+  }
+
+  if (ENV.TRUNCATION_SIZE) {
+    module.exports.TRUNCATION_SIZE = ENV.TRUNCATION_SIZE;
+  } else if (config.database.truncation.size) {
+    module.exports.TRUNCATION_SIZE = config.database.truncation.size;
+  } else {
+    module.exports.TRUNCATION_SIZE = '0'
+  }
+
+  if (ENV.TRUNCATION_MAX) {
+    module.exports.TRUNCATION_MAX = ENV.TRUNCATION_MAX;
+  } else if (config.database.truncation.max) {
+    module.exports.TRUNCATION_MAX = config.database.truncation.max;
+  } else {
+    module.exports.TRUNCATION_MAX = '0'
+  }
+
   module.exports.DB_USERNAME = dbUsername;
+
   module.exports.DB_PASSWORD = dbPassword;
+
   module.exports.DB_AUTHENTICATION = (dbUsername && dbPassword) ?
       (dbUsername + ':' + dbPassword) : '';
+
   module.exports.DB_URI = ENV.DB_URI || config.database.URI || 'localhost:27017';
+
   module.exports.REPLICA_SET = ENV.REPLICA_SET || config.database.replicaSet || '';
+
   module.exports.STH_HOST = ENV.STH_HOST || config.server.host || 'localhost';
+
   if (!isNaN(ENV.STH_PORT)) {
     module.exports.STH_PORT = parseInt(ENV.STH_PORT);
   } else if (!isNaN(config.server.port)) {
@@ -142,6 +177,27 @@
   } else {
     module.exports.STH_PORT = 8666;
   }
+
+  module.exports.AGGREGATION = [];
+  if (config.server.aggregation && config.server.aggregation.length) {
+    config.server.aggregation.forEach(function(entry) {
+      if (module.exports.RESOLUTION[entry.toUpperCase()]) {
+        module.exports.AGGREGATION.push(entry);
+      } else {
+        sthLogger.warn('The following aggregation configuration is not valid: ' + JSON.stringify(entry) +
+          '. It will be ignored. Please, see the component documentation in Github to fix it.', {
+          operationType: module.exports.OPERATION_TYPE.SERVER_START
+        });
+      }
+    });
+  }
+  if (module.exports.AGGREGATION.length === 0) {
+    sthLogger.warn('No valid aggregation configuration has been set. Nothing will be aggregated. Please, configure it in the ' +
+      'config.js file according to the component documentation in Github.', {
+      operationType: module.exports.OPERATION_TYPE.SERVER_START
+    });
+  }
+
   if (ENV.FILTER_OUT_EMPTY) {
     module.exports.FILTER_OUT_EMPTY = ENV.FILTER_OUT_EMPTY !== 'false';
   } else if (config.server.filterOutEmpty) {
