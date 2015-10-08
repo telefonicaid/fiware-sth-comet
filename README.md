@@ -1,5 +1,7 @@
 #<a id="section0"></a> IoT-STH
 
+[![Join the chat at https://gitter.im/telefonicaid/IoT-STH](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/telefonicaid/IoT-STH?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 * [Introduction] (#section1)
     * [Consuming raw data] (#section1.1)
     * [Consuming aggregated time series information] (#section1.2)
