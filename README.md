@@ -1,9 +1,10 @@
-#<a id="section0"></a> IoT-STH
+#<a id="section0"></a> Short Time Historic (aka. Comet)
 
 * [Introduction] (#section1)
-    * [Consuming raw data] (#section1.1)
-    * [Consuming aggregated time series information] (#section1.2)
-    * [Updating aggregated time series information] (#section1.3)
+    * [Why Comet?] (#section1.1)
+    * [Consuming raw data] (#section1.2)
+    * [Consuming aggregated time series information] (#section1.3)
+    * [Updating aggregated time series information] (#section1.4)
 * [Dependencies](#section2)
 * [Installation](#section3)
 * [Automatic deployment using Docker](#section4)
@@ -16,7 +17,8 @@
 * [Contact](#section11)
 
 ##<a id="section1"></a> Introduction
-The STH component is a FIWARE component in charge of providing aggregated time series information about the evolution in
+The Short Time Historic (STH, aka. Comet) is a component of the [FIWARE](https://www.fiware.org/) ecosystem
+in charge of providing aggregated time series information about the evolution in
 time of entity attribute values registered using the
 <a href="http://catalogue.fiware.org/enablers/publishsubscribe-context-broker-orion-context-broker" target="_blank">Orion Context Broker</a>,
 an implementation of the publish/subscribe context management system exposing NGSI9 and
@@ -57,7 +59,13 @@ offsets from 0 to 59 corresponding to each one of the 60 minutes within the conc
 * <b>Samples</b>: For a triple resolution, origin and offset, it is the number of samples, values, events or notifications available
 for that concrete offset from the origin.
 
-###<a id="section1.1"></a> Consuming raw data
+###<a id="section1.1"></a> Why Comet?
+
+Since most of the components which conform the [FIWARE](https://www.fiware.org/) ecosystem have astrological
+names, we decided to follow that path in the case of the STH too. Since the STH is in charge of collecting historical information
+about the values attributes took over time, we decided to name it "Comet", in reference to the tails comets leave on their way as they move.
+
+###<a id="section1.2"></a> Consuming raw data
 
 The STH component exposes an HTTP REST API to let external clients query the raw events (aka. raw data) from which the
 aggregated time series information is generated. A typical URL querying for this information using a GET request is the following:
@@ -120,7 +128,7 @@ query.
 
 [Top](#section0)
 
-###<a id="section1.2"></a> Consuming aggregated time series information
+###<a id="section1.3"></a> Consuming aggregated time series information
 
 The STH component exposes an HTTP REST API to let external clients query this aggregated time series information. A
 typical URL querying for this information using a GET request is the following:
@@ -240,7 +248,7 @@ query.
 
 [Top](#section0)
 
-###<a id="section1.3"></a> Updating aggregated time series information
+###<a id="section1.4"></a> Updating aggregated time series information
 
 As already mentioned, there are 2 main ways to update the aggregated time series information associated to attributes.
 The so-called minimalist option and the formal one.
