@@ -332,9 +332,9 @@ Consequently, a MongoDB instance version &gt;= 2.6 is needed to store the aggreg
 
 ##<a id="section3"></a> Installation
 1. Clone the repository:
-<pre> git clone https://github.com/telefonicaid/IoT-STH.git </pre>
+<pre> git clone https://github.com/telefonicaid/fiware-sth-comet.git </pre>
 2. Get into the directory where the STH repository has been cloned:
-<pre> cd IoT-STH/ </pre>
+<pre> cd fiware-sth-comet/ </pre>
 3. Install the Node.js modules and dependencies:
 <pre> npm install </pre>
 The STH component server is ready to be started.
@@ -356,15 +356,15 @@ The STH component provides the user with 2 mechanisms to configure the component
 
 * Environment variables, which can be set assigning values to them or using the `sth_default.conf` file if a packaged
 version of the STH component is used.
-* The [`config.js`](https://github.com/telefonicaid/IoT-STH/blob/develop/config.js) file located at the root of the STH component code, a JSON formatted file including the configuration properties.
+* The `config.js` file located at the root of the STH component code, a JSON formatted file including the configuration properties.
 
 It is important to note that environment variables, if set, take precedence over the properties defined in the
-[`config.js`](https://github.com/telefonicaid/IoT-STH/blob/develop/config.js) file.
+`config.js` file.
 
 On the other hand, it is also important to note that the aggregation resolutions can only be configured using the
-[`config.js`](https://github.com/telefonicaid/IoT-STH/blob/develop/config.js) file and
+`config.js` file and
 consequently this is the preferred way to configure the STH component behavior. The mentioned resolutions can be configured using
-the `config.server.aggregation` property in the [`config.js`](https://github.com/telefonicaid/IoT-STH/blob/develop/config.js) file
+the `config.server.aggregation` property in the `config.js` file
 including the desired resolution to be used when aggregating data. Accepted resolution values include: `month`, `day`, `hour`, `minute` and `second`.
 
 In case of preferring using environment variables, the script accepts the following parameters as environment variables:
@@ -427,7 +427,7 @@ The STH component creates a new database for each <a href="https://forge.fiware.
 The name of these databases will be the concatenation of the DB_PREFIX environment variable and the service, using an underscore ("_") as the separator.
 
 As already mentioned, all this configuration parameters can also be adjusted using the
-[`config.js`](https://github.com/telefonicaid/IoT-STH/blob/develop/config.js) file whose contents are self-explanatory.
+`config.js` file whose contents are self-explanatory.
 
 It is important to note that there is a limitation of 120 bytes for the namespaces (concatenation of the database name and
 collection names) in MongoDB (see <a href="http://docs.mongodb.org/manual/reference/limits/#namespaces" target="_blank">http://docs.mongodb.org/manual/reference/limits/#namespaces</a>
@@ -565,26 +565,28 @@ Would you like to contribute to the project? This is how you can do it:
 
 1. Fork this repository clicking on the "Fork" button on the upper-right area of the page.
 2. Clone your just forked repository:
-<pre>git clone https://github.com/your-github-username/IoT-STH.git</pre>
-3. Add the main IoT-STH repository as a remote to your forked repository (use any name for your remote repository, it does not have to be IoT-STH, although we will use it in the next steps):
-<pre>git remote add IoT-STH https://github.com/telefonicaid/IoT-STH.git</pre>
-4. Synchronize the ```develop``` branch in your forked repository with the ```develop``` branch in the main IoT-STH repository:
+<pre>git clone https://github.com/your-github-username/fiware-sth-comet.git</pre>
+3. Add the main fiware-sth-comet repository as a remote to your forked repository (use any name for your remote repository,
+it does not have to be fiware-sth-comet, although we will use it in the next steps):
+<pre>git remote add fiware-sth-comet https://github.com/telefonicaid/fiware-sth-comet.git</pre>
+4. Synchronize the ```develop``` branch in your forked repository with the ```develop``` branch in the main fiware-sth-comet repository:
 <br/><br/>(step 4.1, just in case you were not in the ```develop``` branch yet) <pre>git checkout develop</pre>
-(step 4.2)<pre>git fetch IoT-STH</pre>
-(step 4.3)<pre>git rebase IoT-STH/develop</pre>
+(step 4.2)<pre>git fetch fiware-sth-comet</pre>
+(step 4.3)<pre>git rebase fiware-sth-comet/develop</pre>
 5. Create a new local branch for your new code (currently we use the prefixes: ```feature/``` for new features, ```task/``` for maintenance and documentation issues and ```bug/``` for bugs):
 <pre>git checkout -b feature/some-new-feature</pre>
 6. Include your changes and create the corresponding commits.
-7. To assure that your code will land nicely, repeat steps 4.2 and 4.3 from your ```feature/some-new-feature``` branch to synchronize it with the latest code which may have landed in the ```develop``` branch of the main IoT-STH repository during your implementation.
+7. To assure that your code will land nicely, repeat steps 4.2 and 4.3 from your ```feature/some-new-feature``` branch to synchronize it with the latest code which may have landed in the ```develop``` branch of the main fiware-sth-comet repository during your implementation.
 8. Push your code to your forked repository hosted in Github:
 <pre>git push origin feature/some-new-feature</pre>
-9. Launch a new pull request from your forked repository to the ```develop``` branch of the main IoT-STH repository. You may find some active pull requests available at <a href="https://github.com/telefonicaid/IoT-STH/pulls" target="_blank">https://github.com/telefonicaid/IoT-STH/pulls</a>.
-10. Assign the pull request to any of the main IoT-STH developers (currently, [@gtorodelvalle](https://github.com/gtorodelvalle) or [@frbattid](https://github.com/frbattid)) for review.
-11. After the review process is successfully completed, your code will land into the ```develop``` branch of the main IoT-STH repository. Congratulations!!!
+9. Launch a new pull request from your forked repository to the ```develop``` branch of the main fiware-sth-comet repository.
+You may find some active pull requests available at <a href="https://github.com/telefonicaid/fiware-sth-comet/pulls" target="_blank">https://github.com/telefonicaid/fiware-sth-comet/pulls</a>.
+10. Assign the pull request to any of the main fiware-sth-comet developers (currently, [@gtorodelvalle](https://github.com/gtorodelvalle) or [@frbattid](https://github.com/frbattid)) for review.
+11. After the review process is successfully completed, your code will land into the ```develop``` branch of the main fiware-sth-comet repository. Congratulations!!!
 
 For additional contributions, just repeat these steps from step 4 on.
 
-To further guide you through your first contributions, we have created the label [```mentored```](https://github.com/telefonicaid/IoT-STH/labels/mentored)
+To further guide you through your first contributions, we have created the label [```mentored```](https://github.com/telefonicaid/fiware-sth-comet/labels/mentored)
 which are assigned to those bugs and issues simple and interesting enough to be solved by people new to the project.
 Feel free to assign any of them to yourself and do not hesitate to mention any of the main developers
 (this is, [@gtorodelvalle](https://github.com/gtorodelvalle) or [@frbattid](https://github.com/frbattid))
