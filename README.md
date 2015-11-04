@@ -246,6 +246,14 @@ It is important to note that if a valid query is made but it returns no data (fo
 for the specified time frame), a response with code `200` is returned including an empty `values` property array, since it is a valid
 query.
 
+Another very important aspect is that since the strings are used as properties in the generated aggregated data, the [limitations
+to this regard imposed by MongoDB](https://docs.mongodb.org/manual/faq/developers/#dollar-sign-operator-escaping) must be followed. More concretely: "In some cases, you may wish to build a BSON object with a user-provided key. 
+In these situations, keys will need to substitute the reserved $ and . characters. Any character is sufficient, but consider
+using the Unicode full width equivalents: U+FF04 (i.e. “＄”) and U+FF0E (i.e. “．”).". Consequently, take into consideration
+that if the textual values stored in the attributes for which aggregated data is being generated contain the `$` or the `.` characters,
+they will be substituted for their Javascript Unicode full width equivalents, this is: `\uFF04` instead of `$` and `\uFF0E`
+instead of `.`.
+
 [Top](#section0)
 
 ###<a id="section1.4"></a> Updating aggregated time series information

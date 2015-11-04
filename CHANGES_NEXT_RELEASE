@@ -1,2 +1,3 @@
 - [TASK] Including documentation about the new 'Comet' name
 - [TASK] Including Apiary documentation for the STH component
+- [BUG] Dealing with the aggregation of texts including the '.' and '$' characters
