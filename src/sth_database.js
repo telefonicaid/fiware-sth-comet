@@ -710,7 +710,8 @@
    */
   function getAggregateUpdate4Update(attrType, attrValue, resolution, recvTime) {
     var aggregateUpdate4Update,
-        attrValueAsNumber;
+        attrValueAsNumber,
+        escapedAttrValue;
     if (!isNaN(attrValue)) {
       attrValueAsNumber = parseFloat(attrValue);
       aggregateUpdate4Update = {
@@ -739,9 +740,11 @@
           'points.$.samples': 1
         }
       };
+      escapedAttrValue = attrValue.replace(/\$/g,'\uFF04').
+        replace(/\./g, '\uFF0E');
       aggregateUpdate4Update['$inc']['points.' +
         (offset - (resolution === 'day' || resolution === 'month' || resolution === 'year' ? 1 : 0)) +
-        '.occur.' + attrValue] = 1;
+        '.occur.' + escapedAttrValue] = 1;
     }
     return aggregateUpdate4Update;
   }
