@@ -2,7 +2,16 @@
 #
 # Bash lib to know the RPM version and revision from a GitHub repository
 # Call method get_rpm_version_string to obtain them for rpmbuild
+# The result appear on the vars ver and rel
+# The requisites are tags similar to 0.1.0/KO. This tag must be created by 'git tag -a 0.1.0'
+# The main purpose to use this script is to deploy CI on develop branch.
 #
+# Steps to get version and release:
+# 1 - source get_version_string.sh
+# 2 - Execute any of the functions on the script
+#   - It will be use the command 'read ver rel < <(get_rpm_version_string)' in order to get version and release on different vars
+
+
 shopt -s extglob
 
 get_branch()
