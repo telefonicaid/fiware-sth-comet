@@ -35,8 +35,8 @@
     var attrValue = attrType !== 'string' ? (Math.random() *
       (parseFloat(sthTestConfig.MAX_VALUE) - parseFloat(sthTestConfig.MIN_VALUE)) -
         Math.abs(parseFloat(sthTestConfig.MIN_VALUE))).toFixed(2) : 'just a string';
-    switch (sthDatabase.DATA_MODEL) {
-      case sthDatabase.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+    switch (sthDatabase.COLLECTION_MODEL) {
+      case sthDatabase.COLLECTION_MODELS.COLLECTIONS_PER_SERVICE_PATH:
         theEvent = {
           recvTime: recvTime,
           entityId: sthTestConfig.ENTITY_ID,
@@ -46,7 +46,7 @@
           attrValue: attrValue
         };
         break;
-      case sthDatabase.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+      case sthDatabase.COLLECTION_MODELS.COLLECTIONS_PER_ENTITY:
         theEvent = {
           recvTime: recvTime,
           attrName: attrName,
@@ -54,7 +54,7 @@
           attrValue: attrValue
         };
         break;
-      case sthDatabase.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+      case sthDatabase.COLLECTION_MODELS.COLLECTIONS_PER_ATTRIBUTE:
         theEvent = {
           recvTime: recvTime,
           // This property is not really stored for the collections per attribute model.
@@ -209,7 +209,7 @@
   function dropRawEventCollectionTest(done) {
     var databaseName = sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE);
     var collectionName4Events = sthDatabase.getCollectionName4Events(
-      databaseName, sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID,
+      databaseName, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID,
       sthTestConfig.ENTITY_TYPE, sthTestConfig.ATTRIBUTE_NAME);
     sthDatabase.connection.dropCollection(collectionName4Events, function (err) {
       if (err && err.message === 'ns not found') {
@@ -226,7 +226,7 @@
   function dropAggregatedDataCollectionTest(done) {
     var databaseName = sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE);
     var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
-      databaseName, sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID,
+      databaseName, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID,
       sthTestConfig.ENTITY_TYPE, sthTestConfig.ATTRIBUTE_NAME);
     sthDatabase.connection.dropCollection(collectionName4Aggregated, function (err) {
       if (err && err.message === 'ns not found') {

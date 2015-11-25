@@ -420,10 +420,6 @@
             request.method.toUpperCase() + ' ' + request.url.path,
             request.info.sth);
 
-          // Compose the collection name for the required data
-          var databaseName = sthDatabase.getDatabase(
-            request.headers['fiware-service']);
-
           if ((request.query.lastN || request.query.lastN === 0)  ||
             ((request.query.hLimit || request.query.hLimit === 0) &&
             (request.query.hOffset || request.query.hOffset === 0))) {

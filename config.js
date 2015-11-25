@@ -35,8 +35,10 @@ config.database = {
   URI: 'localhost:27017',
   // The name of the replica set to connect to, if any. Default value: "".
   replicaSet: '',
-  // The prefix to be added to the service for the creation of the databases. Default value: "sth".
-  prefix: 'sth_',
+  // The prefix to be added to the database names. Default value: "sth_".
+  databasePrefix: 'sth_',
+  // Name of the database where the STH related data will be stored. Default value: "data".
+  defaultDatabase: 'data',
   // The prefix to be added to the collections in the databases. More information below.
   //  Default value: "sth".
   collectionPrefix: 'sth_',
@@ -77,7 +79,6 @@ config.database = {
     //  currently support updating documents in capped collections which increase the size of the documents.
     max: '0'
   }
-
 };
 
 // Logging configuration

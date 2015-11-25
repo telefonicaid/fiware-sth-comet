@@ -37,7 +37,7 @@
       SERVER_LOG: 'OPER_STH_SERVER_LOG',
       SERVER_STOP: 'OPER_STH_SERVER_STOP'
     },
-    DB_PREFIX: ENV.DB_PREFIX || config.database.prefix || 'sth_',
+    DB_PREFIX: ENV.DB_PREFIX || config.database.databasePrefix || 'sth_',
     COLLECTION_PREFIX: ENV.COLLECTION_PREFIX || config.database.collectionPrefix || 'sth_',
     DATA_TO_STORE: {
       ONLY_RAW: 'only-raw',
@@ -88,6 +88,8 @@
   module.exports.DEFAULT_SERVICE = ENV.DEFAULT_SERVICE || config.database.defaultService || 'orion';
 
   module.exports.DEFAULT_SERVICE_PATH = ENV.DEFAULT_SERVICE_PATH || config.database.defaultServicePath || '/';
+
+  module.exports.DEFAULT_DATABASE = ENV.DEFAULT_DATABASE || config.database.defaultDatabase || 'data';
 
   if (ENV.POOL_SIZE && !isNaN(ENV.POOL_SIZE) && parseInt(ENV.POOL_SIZE) > 0) {
     module.exports.POOL_SIZE = parseInt(ENV.POOL_SIZE);

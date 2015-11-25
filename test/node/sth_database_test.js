@@ -20,10 +20,10 @@
 
   var databaseName = sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE);
   var collectionName4Events = sthDatabase.getCollectionName4Events(
-    databaseName, sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID,
+    databaseName, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID,
     sthTestConfig.ENTITY_TYPE, sthTestConfig.ATTRIBUTE_NAME);
   var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
-    databaseName, sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID,
+    databaseName, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID,
     sthTestConfig.ENTITY_TYPE, sthTestConfig.ATTRIBUTE_NAME);
 
   describe('Database operation', function () {

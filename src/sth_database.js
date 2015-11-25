@@ -19,12 +19,17 @@
   var MAX_NAMESPACE_SIZE_IN_BYTES = 113;
   var MIN_HASH_SIZE_IN_BYTES = 20;
 
-  var DATA_MODELS = {
+  var DATABASE_MODELS = {
+    UNIQUE_DATABASE: 'unique-database',
+    DATABASE_PER_SERVICE: 'database-per-service'
+  };
+  var DATABASE_MODEL = DATABASE_MODELS.UNIQUE_DATABASE;
+  var COLLECTION_MODELS = {
     COLLECTIONS_PER_SERVICE_PATH: 'collection-per-service-path',
     COLLECTIONS_PER_ENTITY: 'collection-per-entity',
     COLLECTIONS_PER_ATTRIBUTE: 'collection-per-attribute'
   };
-  var DATA_MODEL = DATA_MODELS.COLLECTIONS_PER_ENTITY;
+  var COLLECTION_MODEL = COLLECTION_MODELS.COLLECTIONS_PER_ENTITY;
 
   /**
    * Connects to a (MongoDB) database endpoint asynchronously
@@ -83,29 +88,39 @@
    * @return {string} The database name
    */
   function getDatabase(service) {
-    return sthConfig.DB_PREFIX + service;
+    if (DATABASE_MODEL === DATABASE_MODELS.UNIQUE_DATABASE) {
+        return sthConfig.DB_PREFIX + sthConfig.DEFAULT_DATABASE;
+    } else {
+      return sthConfig.DB_PREFIX + service;
+    }
   }
 
   /**
    * Return the name of the collection which will store the raw events
    * @param {string} databaseName The database name
+   * @param {string} service The service of the entity the event is related to
    * @param {string} servicePath The service path of the entity the event is related to
    * @param {string} entityId The entity id related to the event
    * @param {string} entityType The type of entity related to the event
    * @param {string} attrName The attribute id related to the event
    * @returns {string} The collection name
    */
-  function getCollectionName4Events(databaseName, servicePath, entityId, entityType, attrName) {
+  function getCollectionName4Events(databaseName, service, servicePath, entityId, entityType, attrName) {
     var collectionName4Events;
-    switch(DATA_MODEL) {
-      case DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
-        collectionName4Events = servicePath;
+    if (DATABASE_MODEL === DATABASE_MODELS.UNIQUE_DATABASE) {
+      collectionName4Events = service;
+    } else {
+      collectionName4Events = '';
+    }
+    switch(COLLECTION_MODEL) {
+      case COLLECTION_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+        collectionName4Events += servicePath;
         break;
-      case DATA_MODELS.COLLECTIONS_PER_ENTITY:
-        collectionName4Events =  servicePath + '_' + entityId + (entityType ? '_' + entityType : '');
+      case COLLECTION_MODELS.COLLECTIONS_PER_ENTITY:
+        collectionName4Events +=  servicePath + '_' + entityId + (entityType ? '_' + entityType : '');
         break;
-      case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
-        collectionName4Events =  servicePath + '_' + entityId + (entityType ? '_' + entityType : '') +
+      case COLLECTION_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+        collectionName4Events +=  servicePath + '_' + entityId + (entityType ? '_' + entityType : '') +
           '_' + attrName;
         break;
     }
@@ -180,10 +195,10 @@
    * @param {string} attrName The attribute id related to the event
    * @returns {string} The collection name
    */
-  function getCollectionName4Aggregated(databaseName, servicePath, entityId, entityType,
+  function getCollectionName4Aggregated(databaseName, service, servicePath, entityId, entityType,
                                         attrName) {
     var collectionName4Events = getCollectionName4Events(
-      databaseName, servicePath, entityId, entityType, attrName);
+      databaseName, service, servicePath, entityId, entityType, attrName);
     if (collectionName4Events) {
       return collectionName4Events + '.aggr';
     } else {
@@ -215,9 +230,9 @@
       collectionName = params.collection;
     } else {
       collectionName = isAggregated ?
-        getCollectionName4Aggregated(databaseName, params.servicePath, params.entityId, params.entityType,
-          params.attrName) :
-        getCollectionName4Events(databaseName, params.servicePath, params.entityId, params.entityType,
+        getCollectionName4Aggregated(databaseName, params.service, params.servicePath, params.entityId,
+          params.entityType, params.attrName) :
+        getCollectionName4Events(databaseName, params.service, params.servicePath, params.entityId, params.entityType,
           params.attrName);
     }
 
@@ -226,8 +241,13 @@
       return process.nextTick(callback.bind(null, error));
     }
 
-    // Switch to the right database
-    var connection = db.db(databaseName);
+    var connection;
+    if (DATABASE_MODEL === DATABASE_MODELS.UNIQUE_DATABASE) {
+      connection = db;
+    } else {
+      // Switch to the right database if multiple databases
+      connection = db.db(databaseName);
+    }
 
     // Get the connection and notify it via the callback.
     sthLogger.debug('Getting access to the collection \'' + collectionName + '\' in database \'' + databaseName + '\'', {
@@ -357,20 +377,20 @@
   function getRawData(collection, entityId, entityType, attrName, lastN, hLimit, hOffset,
                       from, to, callback) {
     var findCondition;
-    switch (DATA_MODEL) {
-      case DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+    switch (COLLECTION_MODEL) {
+      case COLLECTION_MODELS.COLLECTIONS_PER_SERVICE_PATH:
         findCondition = {
           'entityId': entityId,
           'entityType': entityType,
           'attrName': attrName
         };
         break;
-      case DATA_MODELS.COLLECTIONS_PER_ENTITY:
+      case COLLECTION_MODELS.COLLECTIONS_PER_ENTITY:
         findCondition = {
           'attrName': attrName
         };
         break;
-      case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+      case COLLECTION_MODELS.COLLECTIONS_PER_ATTRIBUTE:
         findCondition = {};
         break;
     }
@@ -585,8 +605,8 @@
       pushAccumulator[aggregatedFunction] = '$points.' + aggregatedFunction;
 
       var matchCondition;
-      switch (DATA_MODEL) {
-        case DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+      switch (COLLECTION_MODEL) {
+        case COLLECTION_MODELS.COLLECTIONS_PER_SERVICE_PATH:
           matchCondition = {
             '_id.entityId': entityId,
             '_id.entityType': entityType,
@@ -594,13 +614,13 @@
             '_id.resolution': resolution
           };
           break;
-        case DATA_MODELS.COLLECTIONS_PER_ENTITY:
+        case COLLECTION_MODELS.COLLECTIONS_PER_ENTITY:
           matchCondition = {
             '_id.attrName': attrName,
             '_id.resolution': resolution
           };
           break;
-        case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+        case COLLECTION_MODELS.COLLECTIONS_PER_ATTRIBUTE:
           matchCondition = {
             '_id.resolution': resolution
           };
@@ -611,8 +631,8 @@
       }
 
       var groupId;
-      switch (DATA_MODEL) {
-        case DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+      switch (COLLECTION_MODEL) {
+        case COLLECTION_MODELS.COLLECTIONS_PER_SERVICE_PATH:
           groupId = {
             entityId: '$_id.entityId',
             entityType: '$_id.entityType',
@@ -621,14 +641,14 @@
             resolution: '$_id.resolution'
           };
           break;
-        case DATA_MODELS.COLLECTIONS_PER_ENTITY:
+        case COLLECTION_MODELS.COLLECTIONS_PER_ENTITY:
           groupId = {
             attrName: '$_id.attrName',
             origin: '$_id.origin',
             resolution: '$_id.resolution'
           };
           break;
-        case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+        case COLLECTION_MODELS.COLLECTIONS_PER_ATTRIBUTE:
           groupId = {
             origin: '$_id.origin',
             resolution: '$_id.resolution'
@@ -674,8 +694,8 @@
       // Get the aggregated data from the database
       // Return the data in ascending order based on the origin
       var findCondition;
-      switch (DATA_MODEL) {
-        case DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+      switch (COLLECTION_MODEL) {
+        case COLLECTION_MODELS.COLLECTIONS_PER_SERVICE_PATH:
           findCondition = {
             '_id.entityId': entityId,
             '_id.entityType': entityType,
@@ -683,13 +703,13 @@
             '_id.resolution': resolution
           };
           break;
-        case DATA_MODELS.COLLECTIONS_PER_ENTITY:
+        case COLLECTION_MODELS.COLLECTIONS_PER_ENTITY:
           findCondition = {
             '_id.attrName': attrName,
             '_id.resolution': resolution
           };
           break;
-        case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+        case COLLECTION_MODELS.COLLECTIONS_PER_ATTRIBUTE:
           findCondition = {
             '_id.resolution': resolution
           };
@@ -725,8 +745,8 @@
     var offset = sthHelper.getOffset(resolution, recvTime);
 
     var aggregateUpdateCondition;
-    switch (DATA_MODEL) {
-      case DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+    switch (COLLECTION_MODEL) {
+      case COLLECTION_MODELS.COLLECTIONS_PER_SERVICE_PATH:
         aggregateUpdateCondition = {
           '_id.entityId': entityId,
           '_id.entityType': entityType,
@@ -736,7 +756,7 @@
           'points.offset': offset
         };
         break;
-      case DATA_MODELS.COLLECTIONS_PER_ENTITY:
+      case COLLECTION_MODELS.COLLECTIONS_PER_ENTITY:
         aggregateUpdateCondition = {
           '_id.attrName': attrName,
           '_id.origin': sthHelper.getOrigin(recvTime, resolution),
@@ -744,7 +764,7 @@
           'points.offset': offset
         };
         break;
-      case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+      case COLLECTION_MODELS.COLLECTIONS_PER_ATTRIBUTE:
         aggregateUpdateCondition = {
           '_id.origin': sthHelper.getOrigin(recvTime, resolution),
           '_id.resolution': resolution,
@@ -994,8 +1014,8 @@
     collection, recvTime, servicePath, entityId, entityType, attrName,
     attrType, attrValue, callback) {
     var theEvent;
-    switch (DATA_MODEL) {
-      case DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+    switch (COLLECTION_MODEL) {
+      case COLLECTION_MODELS.COLLECTIONS_PER_SERVICE_PATH:
         theEvent = {
           recvTime: recvTime,
           entityId: entityId,
@@ -1005,7 +1025,7 @@
           attrValue: attrValue
         };
         break;
-      case DATA_MODELS.COLLECTIONS_PER_ENTITY:
+      case COLLECTION_MODELS.COLLECTIONS_PER_ENTITY:
         theEvent = {
           recvTime: recvTime,
           attrName: attrName,
@@ -1013,7 +1033,7 @@
           attrValue: attrValue
         };
         break;
-      case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+      case COLLECTION_MODELS.COLLECTIONS_PER_ATTRIBUTE:
         theEvent = {
           recvTime: recvTime,
           attrType: attrType,
@@ -1067,17 +1087,17 @@
 
       var entry = {
         _id: hash,
-        dataModel: DATA_MODEL,
+        dataModel: COLLECTION_MODEL,
         isAggregated: isAggregated,
         service: params.service,
         servicePath: params.servicePath
       };
-      switch (DATA_MODEL) {
-        case DATA_MODELS.COLLECTIONS_PER_ENTITY:
+      switch (COLLECTION_MODEL) {
+        case COLLECTION_MODELS.COLLECTIONS_PER_ENTITY:
           entry.entityId = params.entityId;
           entry.entityType = params.entityType;
           break;
-        case DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+        case COLLECTION_MODELS.COLLECTIONS_PER_ATTRIBUTE:
           entry.entityId = params.entityId;
           entry.entityType = params.entityType;
           entry.attrName = params.attrName;
@@ -1143,8 +1163,8 @@
       get connection() {
         return db;
       },
-      DATA_MODELS: DATA_MODELS,
-      DATA_MODEL: DATA_MODEL,
+      COLLECTION_MODELS: COLLECTION_MODELS,
+      COLLECTION_MODEL: COLLECTION_MODEL,
       connect: connect,
       closeConnection: closeConnection,
       getDatabase: getDatabase,
