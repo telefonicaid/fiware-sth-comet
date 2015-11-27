@@ -425,6 +425,121 @@
   }
 
   /**
+   * Filters out the results based on the resolution and the optional from and to dates. For certain resolution, the
+   *  from and to dates are considered and applied until the unit of time indicated by the resolution.
+   * @param results The array of results
+   * @param resolution The resolution
+   * @param from The starting date
+   * @param to The ending date
+   * @param aggregatedFunction The aggregation function
+   * @param shouldFilter Flag indicating if null results should be filtered
+   */
+  function filterResults(results, resolution, from, to, aggregatedFunction, shouldFilter) {
+    if (results.length) {
+      var points;
+      if (from &&
+        results[0]._id.origin.getTime() === sthHelper.getOrigin(from, resolution).getTime()) {
+        points = results[0].points;
+        var minOffset;
+        switch (resolution) {
+          case sthConfig.RESOLUTION.SECOND:
+            minOffset = from.getUTCSeconds();
+            break;
+          case sthConfig.RESOLUTION.MINUTE:
+            minOffset = from.getUTCMinutes();
+            break;
+          case sthConfig.RESOLUTION.HOUR:
+            minOffset = from.getUTCHours();
+            break;
+          case sthConfig.RESOLUTION.DAY:
+            minOffset = from.getUTCDate();
+            break;
+          case sthConfig.RESOLUTION.MONTH:
+            minOffset = from.getUTCMonth();
+            break;
+        }
+        for (var i = 0; i < points.length; i++) {
+          if (points[i]) {
+            if (points[i].offset < minOffset) {
+              if (points[i].samples) {
+                if (shouldFilter) {
+                  points.splice(i, 1);
+                  i--;
+                } else {
+                  points[i].samples = 0;
+                  if (aggregatedFunction === 'occur') {
+                    points[i].occur = {};
+                  } else if (aggregatedFunction === 'min') {
+                    points[i].min = Number.POSITIVE_INFINITY
+                  } else if (aggregatedFunction === 'max') {
+                    points[i].max = Number.NEGATIVE_INFINITY;
+                  } else {
+                    points[i][aggregatedFunction] = 0;
+                  }
+                }
+              }
+            } else {
+              break;
+            }
+          }
+        }
+        if (!points.length) {
+          results.splice(0, 1);
+        }
+      }
+      if (results.length && to &&
+        results[results.length - 1]._id.origin.getTime() === sthHelper.getOrigin(to, resolution).getTime()) {
+        points = results[results.length - 1].points;
+        var maxOffset;
+        switch (resolution) {
+          case sthConfig.RESOLUTION.SECOND:
+            maxOffset = to.getUTCSeconds();
+            break;
+          case sthConfig.RESOLUTION.MINUTE:
+            maxOffset = to.getUTCMinutes();
+            break;
+          case sthConfig.RESOLUTION.HOUR:
+            maxOffset = to.getUTCHours();
+            break;
+          case sthConfig.RESOLUTION.DAY:
+            maxOffset = to.getUTCDate();
+            break;
+          case sthConfig.RESOLUTION.MONTH:
+            maxOffset = to.getUTCMonth();
+            break;
+        }
+        for (var i = points.length - 1; i >= 0; i--) {
+          if (points[i]) {
+            if (points[i].offset > maxOffset) {
+              if (points[i].samples) {
+                if (shouldFilter) {
+                  points.splice(i, 1);
+                } else {
+                  points[i].samples = 0;
+                  if (aggregatedFunction === 'occur') {
+                    points[i].occur = {};
+                  } else if (aggregatedFunction === 'min') {
+                    points[i].min = Number.POSITIVE_INFINITY
+                  } else if (aggregatedFunction === 'max') {
+                    points[i].max = Number.NEGATIVE_INFINITY;
+                  } else {
+                    points[i][aggregatedFunction] = 0;
+                  }
+                }
+              }
+            } else {
+              break;
+            }
+          }
+        }
+        if (!points.length) {
+          results.splice(results.length - 1, 1);
+        }
+      }
+    }
+  }
+
+  /**
    * Returns the required aggregated data from the database asynchronously
    * @param {object} collection The collection from where the data should be extracted
    * @param {string} servicePath The service path of the entity the event is related to
@@ -545,8 +660,16 @@
               $push: pushAccumulator
             }
           }
+        },
+        {
+          $sort: {
+            '_id.origin': 1
         }
-      ], callback);
+    }
+      ], function (err, resultsArr) {
+        filterResults(resultsArr, resolution, from, to, aggregatedFunction, shouldFilter);
+        process.nextTick(callback.bind(null, err, resultsArr));
+      });
     } else {
       // Get the aggregated data from the database
       // Return the data in ascending order based on the origin
@@ -579,7 +702,12 @@
       collection.find(
         findCondition,
         fieldFilter
-      ).sort({'_id.origin': 1}).toArray(callback);
+      ).sort({'_id.origin': 1}).toArray(
+        function (err, resultsArr) {
+          filterResults(resultsArr, resolution, from, to, aggregatedFunction, shouldFilter);
+          process.nextTick(callback.bind(null, err, resultsArr));
+        }
+      );
     }
   }
 
