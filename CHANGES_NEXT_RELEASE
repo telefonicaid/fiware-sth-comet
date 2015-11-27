@@ -1,1 +1,2 @@
-
+- [TASK] Several fixes in the documentation for better clarity
+- [FEATURE] Filtering the results by date (dateFrom and dateTo) to the level set by the resolution
