@@ -459,21 +459,27 @@
             break;
         }
         for (var i = 0; i < points.length; i++) {
-          if (points[i] && points[i].samples && points[i].offset < minOffset) {
-            if (shouldFilter) {
-              points.splice(i, 1);
-              i--;
-            } else {
-              points[i].samples = 0;
-              if (aggregatedFunction === 'occur') {
-                points[i].occur = {};
-              } else if (aggregatedFunction === 'min') {
-                points[i].min = Number.POSITIVE_INFINITY
-              } else if (aggregatedFunction === 'max') {
-                points[i].max = Number.NEGATIVE_INFINITY;
-              } else {
-                points[i][aggregatedFunction] = 0;
+          if (points[i]) {
+            if (points[i].offset < minOffset) {
+              if (points[i].samples) {
+                if (shouldFilter) {
+                  points.splice(i, 1);
+                  i--;
+                } else {
+                  points[i].samples = 0;
+                  if (aggregatedFunction === 'occur') {
+                    points[i].occur = {};
+                  } else if (aggregatedFunction === 'min') {
+                    points[i].min = Number.POSITIVE_INFINITY
+                  } else if (aggregatedFunction === 'max') {
+                    points[i].max = Number.NEGATIVE_INFINITY;
+                  } else {
+                    points[i][aggregatedFunction] = 0;
+                  }
+                }
               }
+            } else {
+              break;
             }
           }
         }
@@ -503,20 +509,26 @@
             break;
         }
         for (var i = points.length - 1; i >= 0; i--) {
-          if (points[i] && points[i].samples && points[i].offset > maxOffset) {
-            if (shouldFilter) {
-              points.splice(i, 1);
-            } else {
-              points[i].samples = 0;
-              if (aggregatedFunction === 'occur') {
-                points[i].occur = {};
-              } else if (aggregatedFunction === 'min') {
-                points[i].min = Number.POSITIVE_INFINITY
-              } else if (aggregatedFunction === 'max') {
-                points[i].max = Number.NEGATIVE_INFINITY;
-              } else {
-                points[i][aggregatedFunction] = 0;
+          if (points[i]) {
+            if (points[i].offset > maxOffset) {
+              if (points[i].samples) {
+                if (shouldFilter) {
+                  points.splice(i, 1);
+                } else {
+                  points[i].samples = 0;
+                  if (aggregatedFunction === 'occur') {
+                    points[i].occur = {};
+                  } else if (aggregatedFunction === 'min') {
+                    points[i].min = Number.POSITIVE_INFINITY
+                  } else if (aggregatedFunction === 'max') {
+                    points[i].max = Number.NEGATIVE_INFINITY;
+                  } else {
+                    points[i][aggregatedFunction] = 0;
+                  }
+                }
               }
+            } else {
+              break;
             }
           }
         }
