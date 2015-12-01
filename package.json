@@ -17,7 +17,7 @@
     "hapi": "^8.5.1",
     "joi": "^5.1.0",
     "mkdirp": "^0.5.1",
-    "mongoose": "^4.0.3",
+    "mongodb": "^2.0.49",
     "winston": "^0.9.0"
   },
   "scripts": {
