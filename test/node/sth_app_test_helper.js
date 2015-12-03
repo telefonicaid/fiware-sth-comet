@@ -211,7 +211,7 @@
     var collectionName4Events = sthDatabase.getCollectionName4Events(
       databaseName, sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID,
       sthTestConfig.ENTITY_TYPE, sthTestConfig.ATTRIBUTE_NAME);
-    sthDatabase.connection.db.dropCollection(collectionName4Events, function (err) {
+    sthDatabase.connection.dropCollection(collectionName4Events, function (err) {
       if (err && err.message === 'ns not found') {
         err = null;
       }
@@ -228,7 +228,7 @@
     var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
       databaseName, sthConfig.DEFAULT_SERVICE_PATH, sthTestConfig.ENTITY_ID,
       sthTestConfig.ENTITY_TYPE, sthTestConfig.ATTRIBUTE_NAME);
-    sthDatabase.connection.db.dropCollection(collectionName4Aggregated, function (err) {
+    sthDatabase.connection.dropCollection(collectionName4Aggregated, function (err) {
       if (err && err.message === 'ns not found') {
         err = null;
       }
@@ -243,7 +243,7 @@
   function dropCollectionNamesCollectionTest(done) {
     var databaseName = sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE);
     var collectionName = sthConfig.COLLECTION_PREFIX + 'collection_names';
-    sthDatabase.connection.db.dropCollection(collectionName, function (err) {
+    sthDatabase.connection.dropCollection(collectionName, function (err) {
       if (err && err.message === 'ns not found') {
         err = null;
       }

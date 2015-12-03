@@ -63,13 +63,13 @@
     });
 
     it('should create the collection for the single events', function (done) {
-      sthDatabase.connection.db.createCollection(collectionName4Events, function (err) {
+      sthDatabase.connection.createCollection(collectionName4Events, function (err) {
         done(err);
       });
     });
 
     it('should create the collection for the aggregated data', function (done) {
-      sthDatabase.connection.db.createCollection(collectionName4Aggregated, function (err) {
+      sthDatabase.connection.createCollection(collectionName4Aggregated, function (err) {
         done(err);
       });
     });

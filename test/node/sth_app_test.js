@@ -1,15 +1,5 @@
 /* globals console, describe, it, require */
 
-/*
- Currently there is an issue (https://github.com/Automattic/mongoose/issues/2073) about a possible memory leak
-  when using #connection.useDB() which makes the following warning to be shown during the tests: "(node) warning:
-  possible EventEmitter memory leak detected. 11 error listeners added. Use emitter.setMaxListeners() to increase limit."
- Another issue in Node.js related to this issue can be located at https://github.com/joyent/node/issues/5108
- There are also some StackOverflow questions about this issue at:
-  - http://stackoverflow.com/questions/26018752/warning-when-connecting-to-mongodb-warning-possible-eventemitter-memory-leak
-  - http://stackoverflow.com/questions/15581978/nodejs-how-to-debug-eventemitter-memory-leak-detected-11-listeners-added
- */
-
 (function() {
   'use strict';
 
@@ -23,13 +13,6 @@
   var hapi = require('hapi');
   var request = require('request');
   var expect = require('expect.js');
-
-  console.log();
-  console.log('*** IMPORTANT NOTE: Currently there is an issue (https://github.com/Automattic/mongoose/issues/2073) ' +
-  'about a possible memory leak when using #connection.useDB() which makes the following warning to be shown ' +
-  'during the tests: "(node) warning: possible EventEmitter memory leak detected. 11 error listeners added. ' +
-  'Use emitter.setMaxListeners() to increase limit." It does not affect the result of the execution of the tests.');
-  console.log();
 
   console.log('*** Running the server tests with the following environment variables:');
   console.log('\n***** STH app environment variables:');
