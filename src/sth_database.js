@@ -3,12 +3,12 @@
 (function() {
   "use strict";
 
-  var mongoose = require('mongoose');
+  var mongoClient = require('mongodb').MongoClient;
   var boom = require('boom');
   var crypto = require('crypto');
   var bytesCounter = require('bytes-counter');
 
-  var sthConfig, sthLogger, sthHelper, connectionURL, eventSchema, aggregatedSchema;
+  var db, sthConfig, sthLogger, sthHelper, connectionURL;
 
   /**
    * The maximumum namespace size in bytes has to be decreased to 113 bytes
@@ -39,13 +39,14 @@
     connectionURL = 'mongodb://' + authentication + '@' + dbURI + '/' + database +
       (replicaSet ? '/?replicaSet=' + replicaSet : '');
 
-    mongoose.connect(connectionURL,
+    mongoClient.connect(connectionURL,
       {
         server: {
           poolSize: poolSize
         }
       },
-      function (err) {
+      function (err, theDB) {
+        db = theDB;
         return callback(err);
       }
     );
@@ -60,14 +61,13 @@
     sthLogger.info('Closing the connection to the database...', {
       operationType: sthConfig.OPERATION_TYPE.DB_CONN_CLOSE
     });
-    if (mongoose.connection &&
-      (mongoose.connection.readyState === 1 || mongoose.connection.readyState === 2)) {
-      mongoose.connection.close(function() {
+    if (db) {
+      db.close(function() {
         // Connection to database closed
         sthLogger.info('Connection to MongoDb succesfully closed', {
           operationType: sthConfig.OPERATION_TYPE.DB_CONN_CLOSE
         });
-        return callback();
+        return process.nextTick(callback);
       });
     } else {
       sthLogger.info('No connection to the database available', {
@@ -227,7 +227,7 @@
     }
 
     // Switch to the right database
-    var connection = mongoose.connection.useDb(databaseName);
+    var connection = db.db(databaseName);
 
     // Get the connection and notify it via the callback.
     sthLogger.debug('Getting access to the collection \'' + collectionName + '\' in database \'' + databaseName + '\'', {
@@ -299,7 +299,7 @@
       } else if (err && err.message === 'collection already exists') {
         // We have observed that although leaving the strict option to the default value, sometimes
         //  we get a 'collection already exists' error when executing connection.db#createCollection()
-        connection.db.collection(collectionName, {strict: true},
+        connection.collection(collectionName, {strict: true},
           function (err, collection) {
             return callback(err, collection);
           }
@@ -312,7 +312,7 @@
       }
     };
 
-    connection.db.collection(collectionName, {strict: true},
+    connection.collection(collectionName, {strict: true},
       function (err, collection) {
         if (err &&
           (err.message === 'Collection ' + collectionName + ' does not exist. Currently in strict mode.') &&
@@ -325,13 +325,13 @@
                 size: parseInt(sthConfig.TRUNCATION_SIZE),
                 max: parseInt(sthConfig.TRUNCATION_MAX) || null
               };
-              return connection.db.createCollection(collectionName,
+              return connection.createCollection(collectionName,
                 collectionCreationOptions,
                 createCollectionCB
               );
             }
           }
-          connection.db.createCollection(collectionName,
+          connection.createCollection(collectionName,
             createCollectionCB
           );
         } else {
@@ -1135,13 +1135,13 @@
     sthHelper = theSthHelper;
     return {
       get driver() {
-        return mongoose;
+        return mongoClient;
       },
       get connectionURL() {
         return connectionURL;
       },
       get connection() {
-        return mongoose.connection;
+        return db;
       },
       DATA_MODELS: DATA_MODELS,
       DATA_MODEL: DATA_MODEL,

@@ -1,2 +1,1 @@
-- [TASK] Several fixes in the documentation for better clarity
-- [FEATURE] Filtering the results by date (dateFrom and dateTo) to the level set by the resolution
+- [TASK] Removing the usage of Mongoose and its substitution by the official Node.js MongoDB Driver
