@@ -206,6 +206,8 @@
     });
   }
 
+  module.exports.TEMPORAL_DIR = ENV.TEMPORAL_DIR || config.server.temporalDir || 'temp';
+
   if (ENV.FILTER_OUT_EMPTY) {
     module.exports.FILTER_OUT_EMPTY = ENV.FILTER_OUT_EMPTY !== 'false';
   } else if (config.server.filterOutEmpty) {

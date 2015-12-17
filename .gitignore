@@ -2,7 +2,10 @@
 /node_modules
 
 # Logs #
-/logs
+/log
+
+# Temporal directory #
+/temp
 
 # Database #
 /data
