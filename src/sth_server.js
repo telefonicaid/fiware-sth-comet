@@ -523,8 +523,9 @@
                 attributes = contextElement.attributes;
                 for (var l2 = 0; l2 < attributes.length; l2++) {
                   if (!attributes[l2].value ||
-                    (isNaN(attributes[l2].value) && typeof(attributes[l2].value) !== 'string')) {
-                    // The attribute value is not a number and consequently not able to be aggregated.
+                    (typeof(attributes[l2].value) !== 'string' && typeof(attributes[l2].value) !== 'number') ||
+                    (sthConfig.IGNORE_BLANK_SPACES && typeof(attributes[l2].value) === 'string' &&
+                      attributes[l2].value.trim() === '')) {
                     continue;
                   }
                   totalAttributes++;
@@ -565,8 +566,9 @@
                   attributes = contextElement.attributes;
                   for (var j = 0; j < attributes.length; j++) {
                     if (!attributes[j].value ||
-                      (isNaN(attributes[j].value) && typeof(attributes[j].value) !== 'string')) {
-                      // The attribute value is not a number and consequently not able to be aggregated.
+                      (typeof(attributes[j].value) !== 'string' && typeof(attributes[j].value) !== 'number') ||
+                      (sthConfig.IGNORE_BLANK_SPACES && typeof(attributes[j].value) === 'string' &&
+                        attributes[j].value.trim() === '')) {
                       sthLogger.warn('Attribute value not aggregatable', {
                         operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
                       });

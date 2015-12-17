@@ -157,6 +157,14 @@
     module.exports.TRUNCATION_MAX = '0'
   }
 
+  if (ENV.IGNORE_BLANK_SPACES) {
+    module.exports.IGNORE_BLANK_SPACES = ENV.IGNORE_BLANK_SPACES !== 'false';
+  } else if (config.database.ignoreBlankSpaces) {
+    module.exports.IGNORE_BLANK_SPACES = config.database.ignoreBlankSpaces !== 'false';
+  } else {
+    module.exports.IGNORE_BLANK_SPACES = false;
+  }
+
   module.exports.DB_USERNAME = dbUsername;
 
   module.exports.DB_PASSWORD = dbPassword;

@@ -775,6 +775,108 @@
    * @param done The test case callback function
    */
   function invalidAttributeValuesTest(service, servicePath, done) {
+    var body = {
+      "subscriptionId": "1234567890ABCDF123456789",
+      "originator": "orion.contextBroker.instance",
+      "contextResponses": [
+        {
+          "contextElement": {
+            "attributes": [
+              {
+                "name" : sthTestConfig.ATTRIBUTE_NAME,
+                "type" : sthTestConfig.ATTRIBUTE_TYPE,
+                "value" : ''
+              }
+            ],
+            "type": sthTestConfig.ENTITY_TYPE,
+            "isPattern": "false",
+            "id": sthTestConfig.ENTITY_ID
+          },
+          "statusCode": {
+            "code": "200",
+            "reasonPhrase": "OK"
+          }
+        },
+        {
+          "contextElement": {
+            "attributes": [
+              {
+                "name" : sthTestConfig.ATTRIBUTE_NAME,
+                "type" : sthTestConfig.ATTRIBUTE_TYPE,
+                "value" : ['just', 'an', 'array']
+              }
+            ],
+            "type": sthTestConfig.ENTITY_TYPE,
+            "isPattern": "false",
+            "id": sthTestConfig.ENTITY_ID
+          },
+          "statusCode": {
+            "code": "200",
+            "reasonPhrase": "OK"
+          }
+        },
+        {
+          "contextElement": {
+            "attributes": [
+              {
+                "name" : sthTestConfig.ATTRIBUTE_NAME,
+                "type" : sthTestConfig.ATTRIBUTE_TYPE,
+                "value" : {
+                  just: 'an object'
+                }
+              }
+            ],
+            "type": sthTestConfig.ENTITY_TYPE,
+            "isPattern": "false",
+            "id": sthTestConfig.ENTITY_ID
+          },
+          "statusCode": {
+            "code": "200",
+            "reasonPhrase": "OK"
+          }
+        }
+      ]
+    };
+    if (sthConfig.IGNORE_BLANK_SPACES) {
+      body.contextResponses.push(
+        {
+          "contextElement": {
+            "attributes": [
+              {
+                "name" : sthTestConfig.ATTRIBUTE_NAME,
+                "type" : sthTestConfig.ATTRIBUTE_TYPE,
+                "value" : ' ' // Blank space
+              }
+            ],
+            "type": sthTestConfig.ENTITY_TYPE,
+            "isPattern": "false",
+            "id": sthTestConfig.ENTITY_ID
+          },
+          "statusCode": {
+            "code": "200",
+            "reasonPhrase": "OK"
+          }
+        },
+        {
+          "contextElement": {
+            "attributes": [
+              {
+                "name" : sthTestConfig.ATTRIBUTE_NAME,
+                "type" : sthTestConfig.ATTRIBUTE_TYPE,
+                "value" : '   ' // Several blank space
+              }
+            ],
+            "type": sthTestConfig.ENTITY_TYPE,
+            "isPattern": "false",
+            "id": sthTestConfig.ENTITY_ID
+          },
+          "statusCode": {
+            "code": "200",
+            "reasonPhrase": "OK"
+          }
+        }
+      );
+    }
     request({
       uri: getURL(sthTestConfig.API_OPERATION.NOTIFY),
       method: 'POST',
@@ -785,50 +887,7 @@
         'Fiware-ServicePath': servicePath || sthConfig.SERVICE_PATH
       },
       json: true,
-      body: {
-        "subscriptionId": "1234567890ABCDF123456789",
-        "originator": "orion.contextBroker.instance",
-        "contextResponses": [
-          {
-            "contextElement": {
-              "attributes": [
-                {
-                  "name" : sthTestConfig.ATTRIBUTE_NAME,
-                  "type" : sthTestConfig.ATTRIBUTE_TYPE,
-                  "value" : ['just', 'an', 'array']
-                }
-              ],
-              "type": sthTestConfig.ENTITY_TYPE,
-              "isPattern": "false",
-              "id": sthTestConfig.ENTITY_ID
-            },
-            "statusCode": {
-              "code": "200",
-              "reasonPhrase": "OK"
-            }
-          },
-          {
-            "contextElement": {
-              "attributes": [
-                {
-                  "name" : sthTestConfig.ATTRIBUTE_NAME,
-                  "type" : sthTestConfig.ATTRIBUTE_TYPE,
-                  "value" : {
-                    just: 'an object'
-                  }
-                }
-              ],
-              "type": sthTestConfig.ENTITY_TYPE,
-              "isPattern": "false",
-              "id": sthTestConfig.ENTITY_ID
-            },
-            "statusCode": {
-              "code": "200",
-              "reasonPhrase": "OK"
-            }
-          }
-        ]
-      }
+      body: body
     }, function (err, response, body) {
       expect(err).to.equal(null);
       expect(response.statusCode).to.equal(400);

@@ -786,7 +786,8 @@
         break;
     }
 
-    if (!isNaN(attrValue)) {
+    // isNaN(' ') is false so an additional check is needed to deal with attributes values to one or more blank spaces
+    if (!isNaN(attrValue) && !(typeof(attrValue) === 'string' && attrValue.trim() === '')) {
       for (var i = offsetOrigin; i < totalValues; i++) {
         points.push({
           offset: i,
@@ -840,7 +841,8 @@
     var aggregateUpdate4Update,
         attrValueAsNumber,
         escapedAttrValue;
-    if (!isNaN(attrValue)) {
+    // isNaN(' ') is false so an additional check is needed to deal with attributes values to one or more blank spaces
+    if (!isNaN(attrValue) && !(typeof(attrValue) === 'string' && attrValue.trim() === '')) {
       attrValueAsNumber = parseFloat(attrValue);
       aggregateUpdate4Update = {
         '$set': {
