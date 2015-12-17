@@ -76,8 +76,10 @@ config.database = {
     // Notice that this configuration parameter does not affect the aggregated data collections since MongoDB does not
     //  currently support updating documents in capped collections which increase the size of the documents.
     max: '0'
-  }
-
+  },
+  // Attribute values to one or more blank spaces should be ignored and not processed either as raw data or for
+  //  the aggregated computations. Default value: "true".
+  ignoreBlankSpaces: 'true'
 };
 
 // Logging configuration
