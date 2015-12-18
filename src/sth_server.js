@@ -6,6 +6,9 @@
   var hapi = require('hapi');
   var joi = require('joi');
   var boom = require('boom');
+  var stream = require('stream');
+  var fs = require('fs');
+  var path = require('path');
 
   var server, sthDatabase, sthConfig, sthLogger, sthHelper;
 
@@ -109,6 +112,7 @@
               request.query.hOffset,
               request.query.dateFrom,
               request.query.dateTo,
+              request.query.filetype,
               function (err, result) {
                 if (err) {
                   // Error when getting the aggregated data
@@ -117,7 +121,7 @@
                   sthLogger.debug(
                     'Responding with 500 - Internal Error', request.info.sth);
                   response = reply(err);
-                } else if (!result || !result.length) {
+                } else if (!result || !(result.length || result instanceof stream)) {
                   // No aggregated data available for the request
                   sthLogger.debug(
                     'No aggregated data available for the request: ' + request.url.path,
@@ -134,14 +138,39 @@
                     )
                   );
                 } else {
-                  sthLogger.debug(
-                    'Responding with %s docs', result.length, request.info.sth);
-                  response = reply(
-                    sthHelper.getNGSIPayload(
-                      request.params.entityId,
-                      request.params.entityType,
-                      request.params.attrName,
-                      result));
+                  if (result instanceof stream) {
+                    sthLogger.debug(
+                      'Responding with a stream of docs', request.info.sth);
+                    response = reply(new stream.Readable().wrap(result));
+                  } else if (typeof(result) === 'string') {
+                    sthLogger.debug(
+                      'Responding with file \'' + result + '\'', request.info.sth);
+                    response = reply.file(result);
+                    var fileName = result.substring(result.lastIndexOf(path.sep) + 1);
+                    response.header('Content-Disposition', 'attachment; filename=' + fileName);
+                    response.once('finish', function() {
+                      sthLogger.debug(
+                        'Removing file \'' + result + '\'', request.info.sth);
+                      fs.unlink(result, function(err) {
+                        if (!err) {
+                          sthLogger.debug(
+                            'File \'' + result + '\' successfully removed', request.info.sth);
+                        } else {
+                          sthLogger.warn(
+                            'Error when removing file \'' + result + '\': ' + err, request.info.sth);
+                        }
+                      });
+                    });
+                  } else {
+                    sthLogger.debug(
+                      'Responding with %s docs', result.length, request.info.sth);
+                    response = reply(
+                      sthHelper.getNGSIPayload(
+                        request.params.entityId,
+                        request.params.entityType,
+                        request.params.attrName,
+                        result));
+                  }
                 }
                 if (unicaCorrelatorPassed) {
                   response.header('Unica-Correlator', unicaCorrelatorPassed);
@@ -423,18 +452,19 @@
           // Compose the collection name for the required data
           var databaseName = sthDatabase.getDatabase(
             request.headers['fiware-service']);
-
+          
           if ((request.query.lastN || request.query.lastN === 0)  ||
             ((request.query.hLimit || request.query.hLimit === 0) &&
-            (request.query.hOffset || request.query.hOffset === 0))) {
+            (request.query.hOffset || request.query.hOffset === 0)) ||
+            (request.query.filetype && request.query.filetype.toLowerCase() === 'csv')) {
             // Raw data is requested
             getRawData(request, reply, unicaCorrelatorPassed);
           } else if (request.query.aggrMethod && request.query.aggrPeriod) {
             // Aggregated data is requested
             getAggregatedData(request, reply, unicaCorrelatorPassed);
           } else {
-            var message = 'A combination of the following query params is required: lastN, hLimit and hOffset ' +
-              ', or aggrMethod and aggrPeriod';
+            var message = 'A combination of the following query params is required: lastN, hLimit and hOffset, ' +
+              'filetype, or aggrMethod and aggrPeriod';
             sthLogger.warn(
               request.method.toUpperCase() + ' ' + request.url.path +
               ', error=' + message,
@@ -445,7 +475,7 @@
             var error = boom.badRequest(message);
             error.output.payload.validation = {
               source: 'query',
-              keys: ['lastN', 'hLimit', 'hOffset', 'aggrMethod', 'aggrPeriod']
+              keys: ['lastN', 'hLimit', 'hOffset', 'filetype', 'aggrMethod', 'aggrPeriod']
             };
             return reply(error);
           }
@@ -489,7 +519,8 @@
               aggrMethod: joi.string().valid('max', 'min', 'sum', 'sum2', 'occur').optional(),
               aggrPeriod: joi.string().required().valid('month', 'day', 'hour', 'minute', 'second').optional(),
               dateFrom: joi.date().optional(),
-              dateTo: joi.date().optional()
+              dateTo: joi.date().optional(),
+              filetype: joi.string().optional()
             }
           }
         }
@@ -523,8 +554,9 @@
                 attributes = contextElement.attributes;
                 for (var l2 = 0; l2 < attributes.length; l2++) {
                   if (!attributes[l2].value ||
-                    (isNaN(attributes[l2].value) && typeof(attributes[l2].value) !== 'string')) {
-                    // The attribute value is not a number and consequently not able to be aggregated.
+                    (typeof(attributes[l2].value) !== 'string' && typeof(attributes[l2].value) !== 'number') ||
+                    (sthConfig.IGNORE_BLANK_SPACES && typeof(attributes[l2].value) === 'string' &&
+                      attributes[l2].value.trim() === '')) {
                     continue;
                   }
                   totalAttributes++;
@@ -565,8 +597,9 @@
                   attributes = contextElement.attributes;
                   for (var j = 0; j < attributes.length; j++) {
                     if (!attributes[j].value ||
-                      (isNaN(attributes[j].value) && typeof(attributes[j].value) !== 'string')) {
-                      // The attribute value is not a number and consequently not able to be aggregated.
+                      (typeof(attributes[j].value) !== 'string' && typeof(attributes[j].value) !== 'number') ||
+                      (sthConfig.IGNORE_BLANK_SPACES && typeof(attributes[j].value) === 'string' &&
+                        attributes[j].value.trim() === '')) {
                       sthLogger.warn('Attribute value not aggregatable', {
                         operationType: sthConfig.OPERATION_TYPE.SERVER_LOG
                       });

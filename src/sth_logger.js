@@ -69,14 +69,8 @@
     sthConfig = theSthConfig;
 
     // Create the directory for the logging files if it does not exist
-    if (fs.existsSync(sthConfig.LOG_DIR)) {
-      // The path exists
-      if (!fs.statSync(sthConfig.LOG_DIR).isDirectory()) {
-        // The paths exists but it is not a directory
-        mkdirp.sync(sthConfig.LOG_DIR);
-      }
-    } else {
-      // The path does not exist
+    if (!fs.existsSync(sthConfig.LOG_DIR) ||
+      (fs.existsSync(sthConfig.LOG_DIR) && !fs.statSync(sthConfig.LOG_DIR).isDirectory())) {
       mkdirp.sync(sthConfig.LOG_DIR);
     }
 

@@ -1,1 +1,4 @@
-- [TASK] Removing the usage of Mongoose and its substitution by the official Node.js MongoDB Driver
+- [BUG] Dealing with blank space attribute values
+- [BUG] Removing spaces from exports
+- [BUG] Using # for comments in exports
+- [FEATURE] Providing raw data as CSV files

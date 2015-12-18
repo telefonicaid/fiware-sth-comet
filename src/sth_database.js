@@ -7,6 +7,10 @@
   var boom = require('boom');
   var crypto = require('crypto');
   var bytesCounter = require('bytes-counter');
+  var jsoncsv = require('json-csv');
+  var fs = require('fs');
+  var path = require('path');
+  var mkdirp = require('mkdirp');
 
   var db, sthConfig, sthLogger, sthHelper, connectionURL;
 
@@ -25,6 +29,34 @@
     COLLECTIONS_PER_ATTRIBUTE: 'collection-per-attribute'
   };
   var DATA_MODEL = DATA_MODELS.COLLECTIONS_PER_ENTITY;
+
+  function getJSONCSVOptions(attrName) {
+    var jsonCSVOptions = {
+      fields : [
+        {
+          name : 'attrName',
+          label : 'attrName'
+        },
+        {
+          name: 'attrType',
+          label: 'attrType'
+        },
+        {
+          name: 'attrValue',
+          label: 'attrValue'
+        },
+        {
+          name: 'recvTime',
+          label: 'recvTime'
+        }
+      ],
+      fieldSeparator : ','
+    };
+    jsonCSVOptions.fields[0].filter = function(value) {
+      return attrName;
+    };
+    return jsonCSVOptions;
+  }
 
   /**
    * Connects to a (MongoDB) database endpoint asynchronously
@@ -342,6 +374,35 @@
   }
 
   /**
+   * Saves the contents of a readable stream into a file in the local file system
+   * @param {string} attrName The name of the attribute the stream contents refers to
+   * @param {object} stream The stream
+   * @param {string} fileName The file name where the stream contents should be stored
+   * @param {function} callback THe callback
+   */
+  function save2File(attrName, stream, fileName, callback) {
+    if (!fs.existsSync(sthConfig.TEMPORAL_DIR) ||
+      (fs.existsSync(sthConfig.TEMPORAL_DIR) && !fs.statSync(sthConfig.TEMPORAL_DIR).isDirectory())) {
+      mkdirp.sync(sthConfig.TEMPORAL_DIR);
+    }
+
+    var outputFile = fs.createWriteStream(sthConfig.TEMPORAL_DIR + path.sep + fileName, {encoding: 'utf8'});
+    stream.pipe(jsoncsv.csv(getJSONCSVOptions(attrName))).pipe(outputFile).on('finish', callback);
+  }
+
+  /**
+   * Generates a CSV file from a stream containing raw data associated to certain attribute
+   * @param {string} attrName The attribute name
+   * @param {object} stream The stream
+   * @param {function} callback The callback
+   */
+  function generateCSV(attrName, stream, callback) {
+    var fileName = attrName + '-' + Date.now() + '.csv';
+    save2File(attrName, stream, fileName,
+      callback.bind(null, null, __dirname + path.sep + '..' + path.sep + sthConfig.TEMPORAL_DIR + path.sep + fileName));
+  }
+
+  /**
    * Returns the required raw data from the database asynchronously
    * @param {object} collection The collection from where the data should be extracted
    * @param {string} entityId The entity id related to the event
@@ -355,7 +416,7 @@
    * @param {Function} callback Callback to inform about any possible error or results
    */
   function getRawData(collection, entityId, entityType, attrName, lastN, hLimit, hOffset,
-                      from, to, callback) {
+                      from, to, filetype, callback) {
     var findCondition;
     switch (DATA_MODEL) {
       case DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
@@ -395,8 +456,7 @@
     }
 
     var cursor;
-
-    if (lastN) {
+    if (lastN || lastN === 0) {
       cursor = collection.find(
         findCondition,
         {
@@ -405,12 +465,32 @@
           attrValue: 1,
           recvTime: 1
         }
-      ).sort({'recvTime': -1}).limit(lastN).toArray(function(err, results) {
-        if (!err) {
-          results.reverse();
+      ).sort({'recvTime': -1}).limit(lastN);
+      if (filetype === 'csv') {
+        generateCSV(attrName, cursor.stream(), callback);
+      } else {
+        cursor.toArray(function (err, results) {
+          if (!err) {
+            results.reverse();
+          }
+          return process.nextTick(callback.bind(null, err, results));
+        });
+      }
+    } else if (hOffset || hLimit) {
+      cursor = collection.find(
+        findCondition,
+        {
+          _id: 0,
+          attrType: 1,
+          attrValue: 1,
+          recvTime: 1
         }
-        return process.nextTick(callback.bind(null, err, results));
-      });
+      ).sort({'recvTime': 1}).skip(hOffset || 0).limit(hLimit || 0);
+      if (filetype === 'cvs') {
+        generateCSV(attrName, cursor.stream(), callback);
+      } else {
+        cursor.toArray(callback);
+      }
     } else {
       cursor = collection.find(
         findCondition,
@@ -420,7 +500,12 @@
           attrValue: 1,
           recvTime: 1
         }
-      ).sort({'recvTime': 1}).skip(hOffset).limit(hLimit).toArray(callback);
+      );
+      if (filetype === 'csv') {
+        generateCSV(attrName, cursor.stream(), callback);
+      } else {
+        cursor.toArray(callback);
+      }
     }
   }
 
@@ -786,7 +871,8 @@
         break;
     }
 
-    if (!isNaN(attrValue)) {
+    // isNaN(' ') is false so an additional check is needed to deal with attributes values to one or more blank spaces
+    if (!isNaN(attrValue) && !(typeof(attrValue) === 'string' && attrValue.trim() === '')) {
       for (var i = offsetOrigin; i < totalValues; i++) {
         points.push({
           offset: i,
@@ -840,7 +926,8 @@
     var aggregateUpdate4Update,
         attrValueAsNumber,
         escapedAttrValue;
-    if (!isNaN(attrValue)) {
+    // isNaN(' ') is false so an additional check is needed to deal with attributes values to one or more blank spaces
+    if (!isNaN(attrValue) && !(typeof(attrValue) === 'string' && attrValue.trim() === '')) {
       attrValueAsNumber = parseFloat(attrValue);
       aggregateUpdate4Update = {
         '$set': {

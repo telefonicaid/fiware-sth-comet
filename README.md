@@ -416,6 +416,8 @@ if "size" is set, the value of "exporeAfterSeconds" is ignored for the raw data 
 collections goes beyond the specified value. Set the value to 0 not to apply this truncation policy.
 Default value: "0". Notice that this configuration parameter does not affect the aggregated data collections since MongoDB does not
 currently support updating documents in capped collections which increase the size of the documents.
+- IGNORE_BLANK_SPACES: Attribute values to one or more blank spaces should be ignored and not processed either as
+raw data or for the aggregated computations. Default value: "true".
 - DB_USERNAME: The username to use for the database connection. Optional. Default value: "".
 - DB_PASSWORD: The password to use for the database connection. Optional. Default value: "".
 - DB_URI: The URI to use for the database connection. This does not include the 'mongo://' protocol part (see a couple of examples below).
