@@ -211,6 +211,47 @@
     return message;
   }
 
+  /**
+   * Checks if the passed argument is an instantiable date
+   * @param date A date instance, string or number from which a new date can be instantiated
+   * @return {boolean} True if the passed argument is an instantiable date, false otherwise
+   */
+  function isDate(date) {
+    return (date instanceof Date) || !isNaN(Date.parse(date));
+  }
+
+  /**
+   * Returns the value of certain metadata included in an attribute
+   * @param {Array} metadatas The metadatas array to be searched in
+   * @param {string} name The name of the metadata to search
+   * @return {*} The metadata value, if any
+   */
+  function getMetadataValue(metadatas, name) {
+    if (metadatas) {
+      for (var i = 0; i < metadatas.length; i++) {
+        if (metadatas[i].name === name) {
+          return metadatas[i].value;
+        }
+      }
+    }
+  }
+
+  /**
+   * Returns an attribute timestamp. This timestamp is the 'TimeInstant' metadata of the attribute if passed or
+   *  the date and time when the notification of the new attribute value was received
+   * @param attribute The attribute
+   * @param recvTime The date and time the attribute notification was received
+   * @return {*} The atribute timestamp
+   */
+  function getAttributeTimestamp(attribute, recvTime) {
+    var timeInstant = getMetadataValue(attribute.metadatas, 'TimeInstant');
+    if (isDate(timeInstant)) {
+      return new Date(timeInstant);
+    } else {
+      return recvTime;
+    }
+  }
+
   module.exports = function(aSthConfig, aSthLogger) {
     sthConfig = aSthConfig;
     sthLogger = aSthLogger;
@@ -223,7 +264,8 @@
       getOperationType: getOperationType,
       getISODateString: getISODateString,
       getNGSIPayload: getNGSIPayload,
-      getVersion: getVersion
+      getVersion: getVersion,
+      getAttributeTimestamp: getAttributeTimestamp
     };
   };
 })();

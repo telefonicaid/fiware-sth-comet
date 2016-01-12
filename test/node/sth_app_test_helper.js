@@ -87,9 +87,10 @@
   /**
    * A mocha test which stores an event to the raw event data collection
    * @param {Object} anEvent The event to store
+   * @param {boolean} includeTimeInstantMetadata The test case should include a TimeInstant attribute metadata
    * @param {Function} done The mocha done() callback function
    */
-  function addEventTest(anEvent, done) {
+  function addEventTest(anEvent, includeTimeInstantMetadata, done) {
     // Check if the collection exists
     sthDatabase.getCollection(
       {
@@ -107,9 +108,32 @@
         if (err) {
           done(err);
         } else {
-          sthDatabase.storeRawData(collection, anEvent.recvTime, sthConfig.DEFAULT_SERVICE_PATH,
-            sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE, anEvent.attrName,
-            anEvent.attrType, anEvent.attrValue, done);
+          if (includeTimeInstantMetadata) {
+            sthDatabase.storeRawData(collection, null, sthConfig.DEFAULT_SERVICE_PATH,
+              sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+              {
+                name: anEvent.attrName,
+                type: anEvent.attrType,
+                value: anEvent.attrValue,
+                metadatas: [
+                  {
+                    name: 'TimeInstant',
+                    type: 'ISO8601',
+                    value: anEvent.recvTime
+                  }
+                ]
+              },
+              done);
+          } else {
+            sthDatabase.storeRawData(collection, anEvent.recvTime, sthConfig.DEFAULT_SERVICE_PATH,
+              sthTestConfig.ENTITY_ID, sthTestConfig.ENTITY_TYPE,
+              {
+                name: anEvent.attrName,
+                type: anEvent.attrType,
+                value: anEvent.attrValue
+              },
+              done);
+          }
         }
       }
     );
@@ -177,8 +201,9 @@
    * A mocha test suite to be run for each new raw event
    * @param {string} attrName The attribute name
    * @param {string} attrType The attribute type
+   * @param {boolean} includeTimeInstantMetadata The test case should include a TimeInstant metadata
    */
-  function eachEventTestSuite(attrName, attrType) {
+  function eachEventTestSuite(attrName, attrType, includeTimeInstantMetadata) {
     var anEvent;
 
     before(function () {
@@ -192,7 +217,7 @@
     });
 
     it('should store the single event', function(done) {
-      addEventTest(anEvent, done);
+      addEventTest(anEvent, includeTimeInstantMetadata, done);
     });
 
     it('should store aggregated data for each resolution',
@@ -582,12 +607,12 @@
           optionsWithFromAndToDate[prop] = options[prop];
         }
         if (sthTestConfig.COMPLEX_NOTIFICATION_STARTED && 'hLimit' in optionsWithNoDates) {
-          optionsWithNoDates.hOffset = sthTestConfig.SAMPLES;
+          optionsWithNoDates.hOffset = sthTestConfig.EVENT_NOTIFICATION_CONTEXT_ELEMENTS - 1;
         }
         optionsWithDateFrom.dateFrom = sthHelper.getISODateString(events[0].recvTime);
         optionsWithDateTo.dateTo = sthHelper.getISODateString(new Date());
         if (sthTestConfig.COMPLEX_NOTIFICATION_STARTED && 'hLimit' in optionsWithDateTo) {
-          optionsWithDateTo.hOffset = sthTestConfig.SAMPLES;
+          optionsWithDateTo.hOffset = sthTestConfig.EVENT_NOTIFICATION_CONTEXT_ELEMENTS - 1;
         }
         optionsWithFromAndToDate.dateFrom = sthHelper.getISODateString(events[0].recvTime);
         optionsWithFromAndToDate.dateTo = sthHelper.getISODateString(new Date());
@@ -905,8 +930,9 @@
    * A mocha test suite to check the reception of notifications by the Orion Context Broker
    * @param {string} attrName The attribute name
    * @param {string} attrType The attribute type
+   * @param {boolean} includeTimeInstantMetadata The attribute should include a TimeInstant metadata
    */
-  function eventNotificationSuite(attrName, attrType) {
+  function eventNotificationSuite(attrName, attrType, includeTimeInstantMetadata) {
     before(function() {
       cleanEvents();
     });
@@ -921,15 +947,16 @@
         null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH));
     });
 
-    describe('value changed of', complexNotificationSuite.bind(null, attrName, attrType));
+    describe('value changed of', complexNotificationSuite.bind(null, attrName, attrType, includeTimeInstantMetadata));
   }
 
   /**
    * Complex notification suite
    * @param {string} attrName The attribute name
    * @param {string} attrType The attribute type
+   * @param {boolean} includeTimeInstantMetadata The attribute should include a TimeInstant metadata
    */
-  function complexNotificationSuite(attrName, attrType) {
+  function complexNotificationSuite(attrName, attrType, includeTimeInstantMetadata) {
     describe('attribute of type ' + attrType, function() {
       before(function () {
         sthTestConfig.COMPLEX_NOTIFICATION_STARTED = true;
@@ -937,7 +964,8 @@
 
       describe('reception', function () {
         it('should attend the notification', complexNotificationTest.bind(
-          null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, attrName, attrType));
+          null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH, attrName, attrType,
+          includeTimeInstantMetadata));
       });
 
       describe('for each new notification', function () {
@@ -974,20 +1002,34 @@
    * @param {string} servicePath The service path
    * @param {string} attrName The attribute name
    * @param {string} attrType The attribute type
+   * @param {boolean} includeTimeInstantMetadata The attribute should include a TimeInstant metadata
    * @param {Function} done The mocha done() callback function
    */
-  function complexNotificationTest(service, servicePath, attrName, attrType, done) {
-    var anEvent = createEvent(attrName, attrType, new Date());
+  function complexNotificationTest(service, servicePath, attrName, attrType, includeTimeInstantMetadata, done) {
+    var now = new Date();
+    var anEvent = createEvent(attrName, attrType, now);
     var contextResponses = [];
+    var attribute = {
+      "name" : anEvent.attrName,
+      "type" : anEvent.attrType,
+      "value" : anEvent.attrValue
+    };
+
+    if (includeTimeInstantMetadata) {
+      attribute.metadatas = [
+        {
+          name: 'TimeInstant',
+          type: 'ISO8601',
+          value: now
+        }
+      ]
+    }
+
     for (var i = 0; i < sthTestConfig.EVENT_NOTIFICATION_CONTEXT_ELEMENTS; i++) {
       contextResponses.push({
         "contextElement" : {
           "attributes" : [
-            {
-              "name" : anEvent.attrName,
-              "type" : anEvent.attrType,
-              "value" : anEvent.attrValue
-            }
+            attribute
           ],
           "type" : sthTestConfig.ENTITY_TYPE,
           "isPattern" : "false",

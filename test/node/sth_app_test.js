@@ -170,14 +170,14 @@
     );
   });
 
-  function eachEventTestSuiteContainer(attrName, attrType) {
+  function eachEventTestSuiteContainer(attrName, attrType, includeTimeInstantMetadata) {
     describe('for each new event with attribute of type ' + attrType,
-      sthTestHelper.eachEventTestSuite.bind(null, attrName, attrType));
+      sthTestHelper.eachEventTestSuite.bind(null, attrName, attrType, includeTimeInstantMetadata));
   }
 
   for(var i = 0; i < sthTestConfig.SAMPLES; i ++) {
     describe('data storage', eachEventTestSuiteContainer.bind(
-      null, 'attribute-float', 'float'));
+      null, 'attribute-float', 'float', !!(i % 2)));
 
     describe('raw data retrieval',
       sthTestHelper.rawDataRetrievalSuite.bind(null, {lastN: i+1}, 'attribute-float', 'float', true));
@@ -200,7 +200,7 @@
 
   for(var i = 0; i < sthTestConfig.SAMPLES; i ++) {
     describe('data storage', eachEventTestSuiteContainer.bind(
-     null, 'attribute-string', 'string'));
+     null, 'attribute-string', 'string', !!(i % 2)));
 
     describe('raw data retrieval',
       sthTestHelper.rawDataRetrievalSuite.bind(null, {lastN: i+1}, 'attribute-string', 'string', true));
@@ -212,11 +212,17 @@
       sthTestHelper.aggregatedDataRetrievalSuite.bind(null, 'attribute-string', 'string', 'occur'));
   }
 
-  describe('notification by the Orion Context Broker of',
-    sthTestHelper.eventNotificationSuite.bind(null, 'attribute-float', 'float'));
+  describe('notification without TimeInstant metadata by the Orion Context Broker of',
+    sthTestHelper.eventNotificationSuite.bind(null, 'attribute-float-1', 'float', false));
 
-  describe('notification by the Orion Context Broker of',
-    sthTestHelper.eventNotificationSuite.bind(null, 'attribute-string', 'string'));
+  describe('notification without TimeInstant metadata by the Orion Context Broker of',
+    sthTestHelper.eventNotificationSuite.bind(null, 'attribute-string-1', 'string', false));
+
+  describe('notification with TimeInstant metadata by the Orion Context Broker of',
+    sthTestHelper.eventNotificationSuite.bind(null, 'attribute-float-2', 'float', true));
+
+  describe('notification with TimeInstant metadata by the Orion Context Broker of',
+    sthTestHelper.eventNotificationSuite.bind(null, 'attribute-string-2', 'string', true));
 
   describe('GET /version', function() {
     it('should provide version information', function(done){
