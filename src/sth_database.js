@@ -381,12 +381,13 @@
    * @param {function} callback THe callback
    */
   function save2File(attrName, stream, fileName, callback) {
-    if (!fs.existsSync(sthConfig.TEMPORAL_DIR) ||
-      (fs.existsSync(sthConfig.TEMPORAL_DIR) && !fs.statSync(sthConfig.TEMPORAL_DIR).isDirectory())) {
-      mkdirp.sync(sthConfig.TEMPORAL_DIR);
+    var tempDir = __dirname + path.sep + '..' + path.sep + sthConfig.TEMPORAL_DIR;
+    if (!fs.existsSync(tempDir) ||
+      (fs.existsSync(tempDir) && !fs.statSync(tempDir).isDirectory())) {
+      mkdirp.sync(tempDir);
     }
 
-    var outputFile = fs.createWriteStream(sthConfig.TEMPORAL_DIR + path.sep + fileName, {encoding: 'utf8'});
+    var outputFile = fs.createWriteStream(tempDir + path.sep + fileName, {encoding: 'utf8'});
     stream.pipe(jsoncsv.csv(getJSONCSVOptions(attrName))).pipe(outputFile).on('finish', callback);
   }
 
