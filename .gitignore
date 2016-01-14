@@ -1,18 +1,18 @@
-# Node modules #
-/node_modules
+/node_modules/
+/.idea/
+/doc/
+/coverage/
+/site
+/report/
+/.c9revisions/
+/.settings/
 
-# Logs #
-/log
-
-# Temporal directory #
-/temp
-
-# Database #
-/data
-
-# Specific files #
+.settings
+.classpath
+.project
+.metadata
 npm-debug.log
 
-# JetBrains IDEs #
-## Directory-based project format:
-.idea/
+/data/
+/log/
+/temp/

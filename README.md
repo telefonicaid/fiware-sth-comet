@@ -1,5 +1,7 @@
 #<a id="section0"></a> Short Time Historic (aka. Comet)
 
+[![Join the chat at https://gitter.im/telefonicaid/fiware-sth-comet](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/telefonicaid/fiware-sth-comet?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 * [Introduction] (#section1)
     * [Why Comet?] (#section1.1)
     * [Consuming raw data] (#section1.2)
