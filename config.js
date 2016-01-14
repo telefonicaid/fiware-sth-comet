@@ -103,7 +103,7 @@ config.logging = {
   //  Default value: "./log".
   directoryPath: '.' + path.sep + 'log',
   // The name of the file where the logs will be stored. Default value: "sth_app.log".
-  fileName: 'sth_app.log',
+  fileName: 'sth.log',
   // The time in seconds between proof of life logging messages informing that the server is up and running normally.
   //  Default value: "60"
   proofOfLifeInterval: '60'

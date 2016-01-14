@@ -1,9 +1,0 @@
-/var/log/sth/*.log
-{
-      daily
-      rotate 7
-      copytruncate
-      compress
-      notifempty
-      missingok
-}
