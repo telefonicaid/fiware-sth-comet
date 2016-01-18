@@ -1,15 +1,49 @@
 {
   "name": "fiware-sth-comet",
-  "description": "Node.js app exposing the Short Time Historic (STH) FIWARE component REST API for reading",
-  "version": "0.4.2",
+  "description": "The Short Time Historic (STH, aka. Comet) is a component of the FIWARE ecosystem in charge of providing aggregated time series information about the evolution in time of entity attribute values registered using the Orion Context Broker, an implementation of the publish/subscribe context management system exposing NGSI9 and NGSI10 interfaces.",
+  "version": "0.5.0",
+  "homepage": "https://github.com/telefonicaid/fiware-sth-comet",
+  "author": {
+    "name": "Germán Toro del Valle",
+    "email": "german.torodelvalle@telefonica.com",
+    "url": "https://www.linkedin.com/in/gtorodelvalle"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/telefonicaid/fiware-sth-comet.git"
   },
+  "bugs": {
+    "url": "https://github.com/telefonicaid/fiware-sth-comet/issues"
+  },
+  "main": "lib/sth",
+  "engines": {
+    "node": ">=0.10.22"
+  },
+  "scripts": {
+    "start": "node ./lib/sth",
+    "test": "grunt test"
+  },
   "devDependencies": {
     "expect.js": "^0.3.1",
-    "mocha": "^2.2.5",
-    "request": "^2.55.0"
+    "request": "^2.55.0",
+    "grunt-contrib-jshint": "~0.6.4",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-gjslint": "~0.1.0",
+    "grunt": "~0.4.1",
+    "mocha": "~1.13.0",
+    "grunt-mocha-test": "~0.7.0",
+    "chai": "~1.8.0",
+    "sinon": "~1.7.3",
+    "istanbul": "~0.3.2",
+    "grunt-exec": "~0.4.0",
+    "grunt-dox": "~0.5.0",
+    "grunt-github-pages": "~0.0.3",
+    "grunt-plato": "~0.2.0",
+    "sinon-chai": "2.4.0",
+    "proxyquire": "0.5.1",
+    "grunt-mkdir": "~0.1.1",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-githooks": "~0.3.1"
   },
   "dependencies": {
     "boom": "^2.7.2",
@@ -21,8 +55,5 @@
     "mongodb": "^2.0.49",
     "winston": "^0.9.0"
   },
-  "scripts": {
-    "start": "node ./src/sth_app",
-    "test": "././node_modules/mocha/bin/mocha --reporter list --ui bdd test/node/sth_app_test.js"
-  }
+  "keywords": []
 }
