@@ -27,11 +27,8 @@
 
 var sthTestConfig = require('./sth_test_configuration');
 var sthConfig = require('../../lib/sth_configuration');
-var sthLogger = require('../../lib/sth_logger')(sthConfig);
-var sthHelper = require('../../lib/sth_helper')(sthConfig, sthLogger);
-var sthDatabase = require('../../lib/sth_database')(sthConfig, sthLogger, sthHelper);
-var sthTestHelper = require('./sth_test_helper')
-(sthTestConfig, sthConfig, sthDatabase, sthHelper);
+var sthDatabase = require('../../lib/sth_database');
+var sthTestHelper = require('./sth_test_helper');
 
 console.log('*** Running the database tests with the following environment variables:');
 console.log('\n***** STH app environment variables:');

@@ -25,13 +25,11 @@
 
 'use strict';
 
-var sthApp = require('../../lib/sth');
+var sth = require('../../lib/sth');
 var sthTestConfig = require('./sth_test_configuration');
 var sthConfig = require('../../lib/sth_configuration');
-var sthLogger = require('../../lib/sth_logger')(sthConfig);
-var sthHelper = require('../../lib/sth_helper.js')(sthConfig, sthLogger);
-var sthTestHelper = require('./sth_test_helper.js')
-(sthTestConfig, sthConfig, sthApp.sthDatabase, sthHelper);
+var sthTestHelper = require('./sth_test_helper.js');
+
 var hapi = require('hapi');
 var request = require('request');
 var expect = require('expect.js');
@@ -44,12 +42,12 @@ console.log(sthTestConfig);
 
 describe('database connection', function () {
   it('should be a database available', function (done) {
-    sthApp.sthDatabase.connect(
+    sth.sthDatabase.connect(
       {
         authentication: sthConfig.DB_AUTHENTICATION,
         dbURI: sthConfig.DB_URI,
         replicaSet: sthConfig.REPLICA_SET,
-        database: sthApp.sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE),
+        database: sth.sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE),
         poolSize: sthConfig.POOL_SIZE
       },
       function (err) {
@@ -73,10 +71,10 @@ describe('database clean up', function () {
 
 describe('server start', function () {
   it('should start gracefully', function (done) {
-    sthApp.sthServer.startServer(
+    sth.sthServer.startServer(
       sthConfig.STH_HOST,
       sthConfig.STH_PORT,
-      sthApp.sthDatabase,
+      sth.sthDatabase,
       function (err, server) {
         expect(err).to.equal(undefined);
         expect(server).to.be.a(hapi.Server);
@@ -271,6 +269,6 @@ describe('should clean the data if requested', sthTestHelper.cleanDatabaseSuite)
 
 describe('server stop', function () {
   it('should stop gracefully', function (done) {
-    sthApp.exitGracefully(null, done);
+    sth.exitGracefully(null, done);
   });
 });

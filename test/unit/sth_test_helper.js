@@ -25,13 +25,13 @@
 
 'use strict';
 
+var sthTestConfig = require('./sth_test_configuration');
+var sthConfig = require('../../lib/sth_configuration');
+var sthHelper = require('../../lib/sth_helper');
+var sthDatabase = require('../../lib/sth_database');
+
 var request = require('request');
 var expect = require('expect.js');
-
-var sthTestConfig;
-var sthConfig;
-var sthDatabase;
-var sthHelper;
 
 var events = [];
 
@@ -1270,23 +1270,17 @@ function status200Test(options, done) {
   });
 }
 
-module.exports = function (theSthTestConfiguration, theSthConfiguration, theSthDatabase, theSthHelper) {
-  sthTestConfig = theSthTestConfiguration;
-  sthConfig = theSthConfiguration;
-  sthDatabase = theSthDatabase;
-  sthHelper = theSthHelper;
-  return {
-    getDayOfYear: getDayOfYear,
-    addEventTest: addEventTest,
-    eachEventTestSuite: eachEventTestSuite,
-    dropRawEventCollectionTest: dropRawEventCollectionTest,
-    dropAggregatedDataCollectionTest: dropAggregatedDataCollectionTest,
-    dropCollectionNamesCollectionTest: dropCollectionNamesCollectionTest,
-    getURL: getURL,
-    rawDataRetrievalSuite: rawDataRetrievalSuite,
-    aggregatedDataRetrievalSuite: aggregatedDataRetrievalSuite,
-    cleanDatabaseSuite: cleanDatabaseSuite,
-    eventNotificationSuite: eventNotificationSuite,
-    status200Test: status200Test
-  };
+module.exports = {
+  getDayOfYear: getDayOfYear,
+  addEventTest: addEventTest,
+  eachEventTestSuite: eachEventTestSuite,
+  dropRawEventCollectionTest: dropRawEventCollectionTest,
+  dropAggregatedDataCollectionTest: dropAggregatedDataCollectionTest,
+  dropCollectionNamesCollectionTest: dropCollectionNamesCollectionTest,
+  getURL: getURL,
+  rawDataRetrievalSuite: rawDataRetrievalSuite,
+  aggregatedDataRetrievalSuite: aggregatedDataRetrievalSuite,
+  cleanDatabaseSuite: cleanDatabaseSuite,
+  eventNotificationSuite: eventNotificationSuite,
+  status200Test: status200Test
 };
