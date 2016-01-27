@@ -200,6 +200,7 @@ function addAggregatedDataTest(anEvent, done) {
     },
     {
       isAggregated: true,
+      aggregationType: sthHelper.getAggregationTypeFromValue(anEvent.attrValue),
       shouldCreate: true,
       shouldStoreHash: true,
       shouldTruncate: true
@@ -335,7 +336,7 @@ function dropRawEventCollectionTest(done) {
  * A mocha test to drop the aggregated data collection from the database
  * @param {Function} done The mocha done() callback function
  */
-function dropAggregatedDataCollectionTest(done) {
+function dropAggregatedDataCollectionTest(aggregationType, done) {
   var databaseName = sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE);
   var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
     {
@@ -343,7 +344,8 @@ function dropAggregatedDataCollectionTest(done) {
       servicePath: sthConfig.DEFAULT_SERVICE_PATH,
       entityId: sthTestConfig.ENTITY_ID,
       entityType: sthTestConfig.ENTITY_TYPE,
-      attrName: sthTestConfig.ATTRIBUTE_NAME
+      attrName: sthTestConfig.ATTRIBUTE_NAME,
+      aggregationType: aggregationType
     }
   );
   sthDatabase.connection.dropCollection(collectionName4Aggregated, function (err) {
@@ -785,7 +787,7 @@ function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
         servicePath: sthConfig.DEFAULT_SERVICE_PATH,
         attrName: attrName,
         aggrMethod: aggrMethod,
-        resolution: sthConfig.AGGREGATION[index]
+        resolution: sthConfig.AGGREGATE_BY[index]
       }
     )
   );
@@ -799,7 +801,7 @@ function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
         attrName: attrName,
         attrType: attrType,
         aggrMethod: aggrMethod,
-        resolution: sthConfig.AGGREGATION[index]
+        resolution: sthConfig.AGGREGATE_BY[index]
       }
     )
   );
@@ -814,8 +816,8 @@ function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
  */
 function aggregatedDataRetrievalSuite(attrName, attrType, aggrMethod) {
   describe('with aggrMethod as ' + aggrMethod, function () {
-    for (var i = 0; i < sthConfig.AGGREGATION.length; i++) {
-      describe('and aggrPeriod as ' + sthConfig.AGGREGATION[i],
+    for (var i = 0; i < sthConfig.AGGREGATE_BY.length; i++) {
+      describe('and aggrPeriod as ' + sthConfig.AGGREGATE_BY[i],
         aggregatedDataRetrievalTests.bind(null, i, attrName, attrType, aggrMethod));
     }
   });
@@ -853,7 +855,7 @@ function cleanDatabaseSuite() {
       );
     });
 
-    it('should drop the collection created for the aggregated data', function (done) {
+    it('should drop the collection created for the numeric aggregated data', function (done) {
       sthDatabase.getCollection(
         {
           service: sthConfig.DEFAULT_SERVICE,
@@ -864,6 +866,34 @@ function cleanDatabaseSuite() {
         },
         {
           isAggregated: true,
+          aggregationType: sthConfig.AGGREGATION.TYPES.NUMERIC,
+          shouldCreate: false,
+          shouldStoreHash: false,
+          shouldTruncate: false
+        },
+        function (err, collection) {
+          if (err) {
+            return done(err);
+          }
+          collection.drop(function (err) {
+            done(err);
+          });
+        }
+      );
+    });
+
+    it('should drop the collection created for the textual aggregated data', function (done) {
+      sthDatabase.getCollection(
+        {
+          service: sthConfig.DEFAULT_SERVICE,
+          servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+          entityId: sthTestConfig.ENTITY_ID,
+          entityType: sthTestConfig.ENTITY_TYPE,
+          attrName: sthTestConfig.ATTRIBUTE_NAME
+        },
+        {
+          isAggregated: true,
+          aggregationType: sthConfig.AGGREGATION.TYPES.TEXTUAL,
           shouldCreate: false,
           shouldStoreHash: false,
           shouldTruncate: false

@@ -62,8 +62,11 @@ describe('database clean up', function () {
   it('should drop the event raw data collection if it exists',
     sthTestHelper.dropRawEventCollectionTest);
 
-  it('should drop the aggregated data collection if it exists',
-    sthTestHelper.dropAggregatedDataCollectionTest);
+  it('should drop the numeric aggregated data collection if it exists',
+    sthTestHelper.dropAggregatedDataCollectionTest.bind(null, sthConfig.AGGREGATION.TYPES.NUMERIC));
+
+  it('should drop the textual aggregated data collection if it exists',
+    sthTestHelper.dropAggregatedDataCollectionTest.bind(null, sthConfig.AGGREGATION.TYPES.TEXTUAL));
 
   it('should drop the collection names collection if it exists',
     sthTestHelper.dropCollectionNamesCollectionTest);

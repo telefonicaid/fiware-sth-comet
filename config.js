@@ -14,7 +14,7 @@ config.server = {
   filterOutEmpty: 'true',
   // Array of resolutions the STH component should aggregate values for.
   // Valid resolution values are: 'month', 'day', 'hour', 'minute' and 'second'
-  aggregation: ['day', 'hour', 'minute'],
+  aggregateBy: ['day', 'hour', 'minute'],
   // Directory where temporary files will be stored, such as the ones generated when CSV files
   //  are requested. Default value: "temp".
   temporalDir: 'temp'

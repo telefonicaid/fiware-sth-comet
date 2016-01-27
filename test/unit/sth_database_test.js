@@ -46,13 +46,24 @@ var collectionName4Events = sthDatabase.getCollectionName4Events(
     attrName: sthTestConfig.ATTRIBUTE_NAME
   }
 );
-var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
+var collectionName4NumericAggregation = sthDatabase.getCollectionName4Aggregated(
   {
     databaseName: databaseName,
     servicePath: sthConfig.DEFAULT_SERVICE_PATH,
     entityId: sthTestConfig.ENTITY_ID,
     entityType: sthTestConfig.ENTITY_TYPE,
-    attrName: sthTestConfig.ATTRIBUTE_NAME
+    attrName: sthTestConfig.ATTRIBUTE_NAME,
+    aggregationType: sthConfig.AGGREGATION.TYPES.NUMERIC
+  }
+);
+var collectionName4TextualAggregation = sthDatabase.getCollectionName4Aggregated(
+  {
+    databaseName: databaseName,
+    servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+    entityId: sthTestConfig.ENTITY_ID,
+    entityType: sthTestConfig.ENTITY_TYPE,
+    attrName: sthTestConfig.ATTRIBUTE_NAME,
+    aggregationType: sthConfig.AGGREGATION.TYPES.TEXTUAL
   }
 );
 
@@ -75,10 +86,13 @@ describe('Database operation', function () {
   it('should drop the event raw data collection if it exists',
     sthTestHelper.dropRawEventCollectionTest);
 
-  it('should drop the aggregated data collection if it exists',
-    sthTestHelper.dropAggregatedDataCollectionTest);
+  it('should drop the numeric aggregated data collection if it exists',
+    sthTestHelper.dropAggregatedDataCollectionTest.bind(null, sthConfig.AGGREGATION.TYPES.NUMERIC));
 
-  it('should check if the collection for the aggregated data exists', function (done) {
+  it('should drop the textual aggregated data collection if it exists',
+    sthTestHelper.dropAggregatedDataCollectionTest.bind(null, sthConfig.AGGREGATION.TYPES.TEXTUAL));
+
+  it('should check if the collection for the numeric aggregated data exists', function (done) {
     sthDatabase.getCollection(
       {
         service: sthConfig.DEFAULT_SERVICE,
@@ -89,6 +103,32 @@ describe('Database operation', function () {
       },
       {
         isAggregated: true,
+        aggregationType: sthConfig.AGGREGATION.TYPES.NUMERIC,
+        shouldCreate: false,
+        shouldStoreHash: false,
+        shouldTruncate: false
+      },
+      function (err, collection) {
+        if (err && !collection) {
+          // The collection does not exist
+          done();
+        }
+      }
+    );
+  });
+
+  it('should check if the collection for the textual aggregated data exists', function (done) {
+    sthDatabase.getCollection(
+      {
+        service: sthConfig.DEFAULT_SERVICE,
+        servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+        entityId: sthTestConfig.ENTITY_ID,
+        entityType: sthTestConfig.ENTITY_TYPE,
+        attrName: sthTestConfig.ATTRIBUTE_NAME
+      },
+      {
+        isAggregated: true,
+        aggregationType: sthConfig.AGGREGATION.TYPES.TEXTUAL,
         shouldCreate: false,
         shouldStoreHash: false,
         shouldTruncate: false
@@ -108,8 +148,14 @@ describe('Database operation', function () {
     });
   });
 
-  it('should create the collection for the aggregated data', function (done) {
-    sthDatabase.connection.createCollection(collectionName4Aggregated, function (err) {
+  it('should create the collection for the numeric aggregated data', function (done) {
+    sthDatabase.connection.createCollection(collectionName4NumericAggregation, function (err) {
+      done(err);
+    });
+  });
+
+  it('should create the collection for the textual aggregated data', function (done) {
+    sthDatabase.connection.createCollection(collectionName4TextualAggregation, function (err) {
       done(err);
     });
   });
