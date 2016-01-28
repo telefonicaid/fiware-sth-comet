@@ -785,7 +785,7 @@ function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
         servicePath: sthConfig.DEFAULT_SERVICE_PATH,
         attrName: attrName,
         aggrMethod: aggrMethod,
-        resolution: sthConfig.AGGREGATION[index]
+        resolution: sthConfig.AGGREGATED_BY[index]
       }
     )
   );
@@ -799,7 +799,7 @@ function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
         attrName: attrName,
         attrType: attrType,
         aggrMethod: aggrMethod,
-        resolution: sthConfig.AGGREGATION[index]
+        resolution: sthConfig.AGGREGATED_BY[index]
       }
     )
   );
@@ -814,8 +814,8 @@ function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
  */
 function aggregatedDataRetrievalSuite(attrName, attrType, aggrMethod) {
   describe('with aggrMethod as ' + aggrMethod, function () {
-    for (var i = 0; i < sthConfig.AGGREGATION.length; i++) {
-      describe('and aggrPeriod as ' + sthConfig.AGGREGATION[i],
+    for (var i = 0; i < sthConfig.AGGREGATED_BY.length; i++) {
+      describe('and aggrPeriod as ' + sthConfig.AGGREGATED_BY[i],
         aggregatedDataRetrievalTests.bind(null, i, attrName, attrType, aggrMethod));
     }
   });
