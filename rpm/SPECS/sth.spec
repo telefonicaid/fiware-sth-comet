@@ -71,7 +71,7 @@ if [ "$RET_VAL" != "0" ]; then
          exit $RET_VAL
       fi
 else
-      mv %{_install_dir}/config.js /tmp/config-ca-tmp.js
+      mv %{_install_dir}/config.js /tmp/config-sth-tmp.js
 
 fi
 
@@ -102,11 +102,11 @@ echo "[INFO] Configuring application"
     cd /etc/init.d
     chkconfig --add %{_service_name}
 
-    ls /tmp/config-ca-tmp.js
+    ls /tmp/config-sth-tmp.js
     RET_VAL=$?
 
     if [ "$RET_VAL" == "0" ]; then
-        mv /tmp/config-ca-tmp.js %{_install_dir}/config.js
+        mv /tmp/config-sth-tmp.js %{_install_dir}/config.js
     fi
 echo "Done"
 
