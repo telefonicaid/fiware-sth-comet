@@ -455,10 +455,10 @@ function getURL(type, options, attrName) {
  */
 function rawDataAvailableDateFilter(params, done) {
   var service = params.service,
-      servicePath = params.servicePath,
-      attrName = params.attrName,
-      options = params.options,
-      checkRecvTime = params.checkRecvTime;
+    servicePath = params.servicePath,
+    attrName = params.attrName,
+    options = params.options,
+    checkRecvTime = params.checkRecvTime;
 
   request({
     uri: getURL(sthTestConfig.API_OPERATION.READ, options, attrName),
@@ -505,10 +505,10 @@ function rawDataAvailableDateFilter(params, done) {
  */
 function noAggregatedDataSinceDateTest(params, done) {
   var service = params.service,
-      servicePath = params.servicePath,
-      attrName = params.attrName,
-      aggrMethod = params.aggrMethod,
-      resolution = params.resolution;
+    servicePath = params.servicePath,
+    attrName = params.attrName,
+    aggrMethod = params.aggrMethod,
+    resolution = params.resolution;
 
   var offset;
   switch (resolution) {
@@ -583,11 +583,11 @@ function noAggregatedDataSinceDateTest(params, done) {
  */
 function aggregatedDataAvailableSinceDateTest(params, done) {
   var service = params.service,
-      servicePath = params.servicePath,
-      attrName = params.attrName,
-      attrType = params.attrType,
-      aggrMethod = params.aggrMethod,
-      resolution = params.resolution;
+    servicePath = params.servicePath,
+    attrName = params.attrName,
+    attrType = params.attrType,
+    aggrMethod = params.aggrMethod,
+    resolution = params.resolution;
 
   request({
     uri: getURL(sthTestConfig.API_OPERATION.READ,
