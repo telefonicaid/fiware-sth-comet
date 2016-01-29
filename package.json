@@ -1,7 +1,7 @@
 {
   "name": "fiware-sth-comet",
   "description": "The Short Time Historic (STH, aka. Comet) is a component of the FIWARE ecosystem in charge of providing aggregated time series information about the evolution in time of entity attribute values registered using the Orion Context Broker, an implementation of the publish/subscribe context management system exposing NGSI9 and NGSI10 interfaces.",
-  "version": "0.5.1",
+  "version": "0.5.1-next",
   "homepage": "https://github.com/telefonicaid/fiware-sth-comet",
   "author": {
     "name": "Germán Toro del Valle",
