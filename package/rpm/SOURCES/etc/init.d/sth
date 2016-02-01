@@ -90,7 +90,7 @@ component_start()
             continue
         fi
 
-        su ${COMPONENT_USER} -p -c "${NODE_EXEC} ${COMPONENT_DIR}/src/sth_app.js & echo \$! > ${STH_PID_FILE}"
+        su ${COMPONENT_USER} -p -c "${NODE_EXEC} ${COMPONENT_DIR}/src/sth_app.js ${instance} & echo \$! > ${STH_PID_FILE}"
         sleep 2 # some cortesy time to process startup or die
         local PID=$(cat ${STH_PID_FILE})        
         local STH_PID=$(ps -ef | grep -v "grep" | grep "${PID:-not_found}")
