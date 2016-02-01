@@ -1,1 +1,1 @@
-- [BUG] Fixing wrong references in package generation
+- [FEATURE] Making the STH case sensitive regarding entity identifiers and types

@@ -371,8 +371,8 @@ function dropCollectionNamesCollectionTest(done) {
 /**
  * Returns an URL based on certain criteria passed as arguments
  * @param {string} type The type of operation
- * @param {Object} options The options to apply when generating the invalid
- *  URL (possible keys are 'invalidPath', and an entry for each one of the accepted
+ * @param {Object} options The options to apply when generating the
+ *  URL (possible keys are 'invalidPath', 'changeEntityCase', and an entry for each one of the accepted
  *  query params ('lastN', 'hLimit', 'hOffset', aggrMethod', 'aggrPeriod', 'dateFrom' and 'dateTo')
  *  @param {string} attrName The attribute name
  * @returns {string}
@@ -397,8 +397,11 @@ function getURL(type, options, attrName) {
       if (options && options.invalidPath) {
         url += '/this/is/an/invalid/path';
       } else {
-        url += '/STH/v1/contextEntities/type/' + sthTestConfig.ENTITY_TYPE + '/' +
-          'id/' + sthTestConfig.ENTITY_ID +
+        url += '/STH/v1/contextEntities/type/' +
+          ((options && options.changeEntityCase) ?
+            sthTestConfig.ENTITY_TYPE.toLowerCase() : sthTestConfig.ENTITY_TYPE) +
+          '/id/' + ((options && options.changeEntityCase) ?
+            sthTestConfig.ENTITY_ID.toLowerCase() : sthTestConfig.ENTITY_ID) +
           '/attributes/' + attrName || sthTestConfig.ATTRIBUTE_NAME;
       }
       if (options && (options.lastN || options.lastN === 0)) {
@@ -442,8 +445,47 @@ function getURL(type, options, attrName) {
 }
 
 /**
- * A mocha test forcing the server to retrieve aggregated data from the database
- *  for the passed aggregation method and resolution
+ * A mocha test forcing the server to not to retrieve raw data from the database
+ * @param {object} params It is an object including the following properties:
+ *  - {string} service The service
+ *  - {string} servicePath The service path
+ *  - {string} attrName The attribute name
+ *  - {string} attrType The attribute type
+ *  - {object} options To generate the URL
+ * @param {Function} done The mocha done() callback function
+ */
+function noRawDataIfEntityCaseChange(params, done) {
+  var service = params.service,
+      servicePath = params.servicePath,
+      attrName = params.attrName,
+      options = params.options;
+
+  options.changeEntityCase = true;
+
+  request({
+    uri: getURL(sthTestConfig.API_OPERATION.READ, options, attrName),
+    method: 'GET',
+    headers: {
+      'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
+      'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
+    }
+  }, function (err, response, body) {
+    var bodyJSON = JSON.parse(body);
+    expect(err).to.equal(null);
+    expect(response.statusCode).to.equal(200);
+    expect(response.statusMessage).to.equal('OK');
+    expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).to.equal(
+      attrName || sthTestConfig.ATTRIBUTE_NAME);
+    expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).to.be.an(Array);
+    expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(0);
+    expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
+    expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
+    done();
+  });
+}
+
+/**
+ * A mocha test forcing the server to retrieve raw data from the database
  * @param {object} params It is an object including the following properties:
  *  - {string} service The service
  *  - {string} servicePath The service path
@@ -485,6 +527,54 @@ function rawDataAvailableDateFilter(params, done) {
         values[options.lastN ? events.length - 1 : 0].recvTime).to.equal(
         sthHelper.getISODateString(events[events.length - 1].recvTime));
     }
+    expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
+    expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
+    done();
+  });
+}
+
+/**
+ * A mocha test forcing the server to retrieve no aggregated data from the database for
+ *  the passed aggregation method and resolution
+ * @param {object} params It is an object including the following properties:
+ *  - {string} service The service
+ *  - {string} servicePath The service path
+ *  - {string} attrName The attribute name
+ *  - {string} attrType The attribute type
+ *  - {string} aggrMethod The aggregation method
+ *  - {string} resolution The resolution
+ * @param {string} done The mocha done() callback function
+ */
+function noAggregatedDataIfEntityCaseChangeTest(params, done) {
+  var service = params.service,
+    servicePath = params.servicePath,
+    attrName = params.attrName,
+    aggrMethod = params.aggrMethod,
+    resolution = params.resolution;
+
+  request({
+    uri: getURL(sthTestConfig.API_OPERATION.READ,
+      {
+        aggrMethod: aggrMethod,
+        aggrPeriod: resolution,
+        changeEntityCase: true
+      },
+      attrName
+    ),
+    method: 'GET',
+    headers: {
+      'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
+      'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
+    }
+  }, function (err, response, body) {
+    var bodyJSON = JSON.parse(body);
+    expect(err).to.equal(null);
+    expect(response.statusCode).to.equal(200);
+    expect(response.statusMessage).to.equal('OK');
+    expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).to.equal(
+      attrName || sthTestConfig.ATTRIBUTE_NAME);
+    expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).to.be.an(Array);
+    expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(0);
     expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
     expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
     done();
@@ -691,13 +781,15 @@ function aggregatedDataAvailableSinceDateTest(params, done) {
  */
 function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
   describe('should respond', function () {
-    var optionsWithNoDates = {},
+    var optionsForCaseSensitivity = {},
+      optionsWithNoDates = {},
       optionsWithDateFrom = {},
       optionsWithDateTo = {},
       optionsWithFromAndToDate = {};
 
     before(function () {
       for (var prop in options) {
+        optionsForCaseSensitivity[prop] = options[prop];
         optionsWithNoDates[prop] = options[prop];
         optionsWithDateFrom[prop] = options[prop];
         optionsWithDateTo[prop] = options[prop];
@@ -714,6 +806,19 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
       optionsWithFromAndToDate.dateFrom = sthHelper.getISODateString(events[0].recvTime);
       optionsWithFromAndToDate.dateTo = sthHelper.getISODateString(new Date());
     });
+
+    it('without data if entity id and entity type case does not match',
+      noRawDataIfEntityCaseChange.bind(
+        null,
+        {
+          service: sthConfig.DEFAULT_SERVICE,
+          servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+          attrName: attrName,
+          options: optionsForCaseSensitivity,
+          checkRecvTime: checkRecvTime
+        }
+      )
+    );
 
     it('with raw data if data and no dateFrom or dateTo',
       rawDataAvailableDateFilter.bind(
@@ -777,6 +882,19 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
  * @param aggrMethod The aggregation method
  */
 function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
+  it('should respond with empty aggregated data if entity id and entity type case does not match',
+    noAggregatedDataIfEntityCaseChangeTest.bind(
+      null,
+      {
+        service: sthConfig.DEFAULT_SERVICE,
+        servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+        attrName: attrName,
+        aggrMethod: aggrMethod,
+        resolution: sthConfig.AGGREGATION[index]
+      }
+    )
+  );
+
   it('should respond with empty aggregated data if no data since dateFrom',
     noAggregatedDataSinceDateTest.bind(
       null,
