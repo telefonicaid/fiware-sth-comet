@@ -11,11 +11,10 @@
 * [Installation](#section3)
 * [Automatic deployment using Docker](#section4)
 * [Running the STH server](#section5)
-* [Inserting data (random single events and its aggregated data) into the database](#section6)
-* [STH component complete test coverage](#section7)
+* [STH component test coverage](#section7)
 * [Performance tests](#section8)
 * [Additional resources] (#section9)
-* [How to contribute] (#section10)
+* [Contribution guidelines] (#section10)
 * [Contact](#section11)
 
 ##<a id="section1"></a> Introduction
@@ -359,8 +358,10 @@ including all the information needed to try and to deploy the STH component via 
 [Top](#section0)
 
 ##<a id="section5"></a>Running the STH server
-1. To run the STH server, just execute:
-<pre> npm start </pre>
+1. To run the STH server, just execute from the STH directory:
+```bash
+./bin/sth
+```
 
 The STH component provides the user with 2 mechanisms to configure the component to the concrete needs of the user:
 
@@ -428,12 +429,16 @@ Optional. Default value: "localhost:27017".
 For example, to start the STH server listening on port 7777, connecting to a MongoDB instance listening on mymongo.com:27777 and
 without filtering out the empty results, use:
 
-<pre> STH_PORT=7777 DB_URI=mymongo.com:27777 FILTER_OUT_EMPTY=false npm start</pre>
+```bash
+STH_PORT=7777 DB_URI=mymongo.com:27777 FILTER_OUT_EMPTY=false ./bin/sth
+```
 
 On the other hand, in case of connecting to a MongoDB replica set composed of 3 machines with IPs addresses 1.1.1.1, 1.1.1.2, 1.1.1.3
 listening on ports 27771, 27772 and 27773, respectively, use:
 
-<pre> DB_URI=1.1.1.1:27771,1.1.1.2:27772,1.1.1.3:27773 npm start</pre>
+```bash
+DB_URI=1.1.1.1:27771,1.1.1.2:27772,1.1.1.3:27773 ./bin/sth
+```
 
 The STH component creates a new database for each <a href="https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Multi_service_tenancy" target="_blank">service</a>.
 The name of these databases will be the concatenation of the DB_PREFIX environment variable and the service, using an underscore ("_") as the separator.
@@ -464,49 +469,7 @@ of the collection names and the combination of concrete services, service paths,
 
 [Top](#section0)
 
-##<a id="section6"></a> Inserting data (random single events and its aggregated data) into the database
-The STH component source code includes a set of tests to validate the correct functioning of the component. Amongst these
-tests, there is a suite to validate the insertion of aggregated time series information into the MongoDB instance.
-
-### Preconditions
-A running instance of a MongoDB database.
-
-### Running the tests
-1. To run the tests, just execute:
-<pre> make test-database </pre>
-
-The script accepts the following parameters as environment variables:
-
-- SAMPLES: The number of random events which will be generated and inserted into the database. Optional. Default value: "5".
-- ENTITY_ID: The id of the entity for which the random event will be generated. Optional. Default value: "entityId".
-- ENTITY_TYPE: The type of the entity for which the random event will be generated. Optional. Default value: "entityType".
-- ATTRIBUTE_NAME: The id of the attribute for which the random event will be generated. Optional. Default value: "attrName".
-- ATTRIBUTE_TYPE: The type of the attribute for which the random event will be generated. Optional. Default value: "attrType".
-- START_DATE: The date from which the random events will be generated. Optional. Default value: the beginning of the previous
-year to avoid collisions with the testing of the Orion Context Broker notifications which use the current time.
-For example if in 2015, the start date is set to "2015-01-01T00:00:00", UTC time. Be very careful if setting the start date,
-since these collisions may arise.
-- END_DATE: The date before which the random events will be generated. Optional. Default value: the end of the previous
-year to avoid collisions with the testing of the Orion Context Broker notifications which use the current time.
-For example if in 2015, the end date is set to "2014-12-31T23:59:59", UTC time. Be very careful if setting the start date,
-since these collisions may arise.
-- MIN_VALUE: The minimum value associated to the random events. Optional. Default value: "0".
-- MAX_VALUE: The maximum value associated to the random events. Optional. Default value: "100".
-- DB_USERNAME: The username to use for the database connection. Optional. Default value: "".
-- DB_PASSWORD: The password to use for the database connection. Optional. Default value: "".
-- DB_URI: The URI to use for the database connection. This does not include the 'mongo://' protocol part. Optional. Default value: "localhost:27017".
-- DB_NAME: The name of the database to use. Optional. Default value: "test".
-- CLEAN: A flag indicating if the generated collections should be removed after the tests. Optional. Default value: "true".
-
-For example, to insert 100 samples on a certain date without cleaning up the database after running the tests, use:
-<pre>SAMPLES=100 START_DATE=2015-02-14T00:00:00 END_DATE=2015-02-14T23:59:59 CLEAN=false make test-database</pre>
-
-In case of executing the tests with the CLEAN option set to false, the contents of the database can be inspected using the MongoDB
-(```mongo```) shell.
-
-[Top](#section0)
-
-##<a id="section7"></a> STH component complete test coverage
+##<a id="section7"></a> STH component test coverage
 The STH component source code includes a set of tests to validate the correct functioning of the whole set of capabilities
 exposed by the component. This set includes:
 
@@ -523,12 +486,25 @@ into the database
 A running instance of a MongoDB database.
 
 ### Running the tests
-1. To run the tests, just execute:
-<pre> make test </pre>
+In order to execute the test suite you must have the Grunt client installed. You can install it using the following command
+(you will need root permissions):
+```bash
+npm install -g grunt-cli
+```
 
-The script accepts the following parameters as environment variables:
+Once the client is installed and the dependencies are downloaded, you can execute the tests using:
+```
+grunt test
+```
 
+This will execute the functional tests and the syntax checking as well.
+
+The test suite accepts the following parameters as environment variables which can be used to personalise them:
+
+- DB_NAME: The name of the database where the data will be stored. Optional. Default value: "test".
 - SAMPLES: The number of random events which will be generated and inserted into the database. Optional. Default value: "5".
+- EVENT_NOTIFICATION_CONTEXT_ELEMENTS: The number of context elements included in the simulated notifications sent to
+the STH component. Optional. Default value: 3.
 - ENTITY_ID: The id of the entity for which the random event will be generated. Optional. Default value: "entityId".
 - ENTITY_TYPE: The type of the entity for which the random event will be generated. Optional. Default value: "entityType".
 - ATTRIBUTE_NAME: The id of the attribute for which the random event will be generated. Optional. Default value: "attrName"
@@ -543,15 +519,13 @@ For example if in 2015, the end date is set to "2014-12-31T23:59:59", UTC time. 
 since these collisions may arise.
 - MIN_VALUE: The minimum value associated to the random events. Optional. Default value: "0".
 - MAX_VALUE: The maximum value associated to the random events. Optional. Default value: "100".
-- DB_USERNAME: The username to use for the database connection. Optional. Default value: "".
-- DB_PASSWORD: The password to use for the database connection. Optional. Default value: "".
-- DB_URI: The URI to use for the database connection. This does not include the 'mongo://' protocol part. Optional. Default value: "localhost:27017".
-- DB_NAME: The name of the database to use. Optional. Default value: "test".
 - CLEAN: A flag indicating if the generated collections should be removed after the tests. Optional. Default value: "true".
 
 For example, to run the tests using 100 samples, certain start and end data without cleaning up the database after running
 the tests, use:
-<pre>SAMPLES=100 START_DATE=2014-02-14T00:00:00 END_DATE=2014-02-14T23:59:59 CLEAN=false make test</pre>
+```bash
+SAMPLES=100 START_DATE=2014-02-14T00:00:00 END_DATE=2014-02-14T23:59:59 CLEAN=false grunt test
+```
 
 In case of executing the tests with the CLEAN option set to false, the contents of the database can be inspected using the MongoDB
 (```mongo```) shell.
@@ -571,32 +545,167 @@ If you are interested on them, please navigate to that section of the repository
 
 [Top](#section0)
 
-##<a id="section10"></a>How to contribute
+##<a id="section10"></a>Contribution guidelines
 
-Would you like to contribute to the project? This is how you can do it:
+### <a id="section10.1"></a> Overview
+Being an open source project, everyone can contribute, provided that it respects the following points:
+* Before contributing any code, the author must make sure all the tests work (see below how to run the tests).
+* Developed code must adhere to the syntax guidelines enforced by the linters.
+* Code must be developed following the branching model and changelog policies defined below.
+* For any new feature added, unit tests must be provided, following the example of the ones already created.
 
+In order to start contributing:
 1. Fork this repository clicking on the "Fork" button on the upper-right area of the page.
 2. Clone your just forked repository:
-<pre>git clone https://github.com/your-github-username/fiware-sth-comet.git</pre>
-3. Add the main fiware-sth-comet repository as a remote to your forked repository (use any name for your remote repository,
-it does not have to be fiware-sth-comet, although we will use it in the next steps):
-<pre>git remote add fiware-sth-comet https://github.com/telefonicaid/fiware-sth-comet.git</pre>
-4. Synchronize the ```develop``` branch in your forked repository with the ```develop``` branch in the main fiware-sth-comet repository:
-<br/><br/>(step 4.1, just in case you were not in the ```develop``` branch yet) <pre>git checkout develop</pre>
-(step 4.2)<pre>git fetch fiware-sth-comet</pre>
-(step 4.3)<pre>git rebase fiware-sth-comet/develop</pre>
-5. Create a new local branch for your new code (currently we use the prefixes: ```feature/``` for new features, ```task/``` for maintenance and documentation issues and ```bug/``` for bugs):
-<pre>git checkout -b feature/some-new-feature</pre>
-6. Include your changes and create the corresponding commits.
-7. To assure that your code will land nicely, repeat steps 4.2 and 4.3 from your ```feature/some-new-feature``` branch to synchronize it with the latest code which may have landed in the ```develop``` branch of the main fiware-sth-comet repository during your implementation.
-8. Push your code to your forked repository hosted in Github:
-<pre>git push origin feature/some-new-feature</pre>
-9. Launch a new pull request from your forked repository to the ```develop``` branch of the main fiware-sth-comet repository.
-You may find some active pull requests available at <a href="https://github.com/telefonicaid/fiware-sth-comet/pulls" target="_blank">https://github.com/telefonicaid/fiware-sth-comet/pulls</a>.
-10. Assign the pull request to any of the main fiware-sth-comet developers (currently, [@gtorodelvalle](https://github.com/gtorodelvalle) or [@frbattid](https://github.com/frbattid)) for review.
-11. After the review process is successfully completed, your code will land into the ```develop``` branch of the main fiware-sth-comet repository. Congratulations!!!
+```
+git clone https://github.com/your-github-username/fiware-sth-comet.git
+```
+3. Add the main fiware-sth-comet repository as a remote to your forked repository (use any name for your remote
+repository, it does not have to be fiware-sth-comet, although we will use it in the next steps):
+```
+git remote add fiware-sth-comet https://github.com/telefonicaid/fiware-sth-comet.git
+```
 
-For additional contributions, just repeat these steps from step 4 on.
+Before starting your contribution, remember to synchronize the `develop` branch in your forked repository with the `develop`
+branch in the main lfiware-sth-comet repository following the next steps:
+
+1. Change to your local `develop` branch (in case you are not in it already):
+```
+  git checkout develop
+```
+2. Fetch the remote changes:
+```
+  git fetch fiware-sth-comet
+```
+3. Merge them:
+```
+  git rebase fiware-sth-comet/develop
+```
+
+Contributions following these guidelines will be added to the `develop` branch, and released in the next version. The
+release process is explained in the [Releasing](#section10.9) section below.
+
+
+###<a id="section10.2"></a> Branching model
+There are two special branches in the repository:
+
+* `master`: holds the code for the last stable version of the project. It is only updated when a new version is released.
+* `develop`: contains the last stable development code. New features and bug fixes are always merged to `develop`.
+
+In order to start developing a new feature or refactoring, a new branch should be created with name `task/<taskName>`
+in the newly forked repository.
+This new branch must be created from the current version of the `develop` branch (remember to fetch the latest changes from
+the remote `develop` branch before creating this new branch).
+Once the new functionality has been completed, a pull request should be created from the
+new branch to the `develop` branch in the main remote repository.
+Remember to check both the linters and the tests before creating the pull request.
+
+Fixing bugs follow the same branching guidelines as in the case of adding a new feature or refactoring code with the
+exception of the branch name. In the case of bug fixes, the new branch should be called `bug/<bugName>`.
+
+There are another set of branches called `release/<versionNumber>`, one for each version of the product. These branches
+point to each one of the released versions of the project. They are permanent and they are created with each release.
+
+###<a id="section10.3"></a> Changelog
+The project contains a version changelog file, called `CHANGES_NEXT_RELEASE`, that can be found in the root of the project.
+Whenever a new feature or bug fix is going to be merged with `develop`, a new entry should be added to this changelog.
+The new entry should contain the reference number of the issue it is solving (if any).
+
+When a new version is released, the changelog is cleared, and remains fixed in the last commit of that version. The
+content of the changelog is also moved to the release description in the Github release.
+
+###<a id="section10.4"> Coding guidelines
+Coding guidelines are defined via the provided `.jshintrc` and `.gjslintrc` flag files. The latter requires Python and
+its use can be disabled while creating the project skeleton with grunt-init.
+To check source code style, type:
+```bash
+grunt lint
+```
+
+Checkstyle reports can be used together with Jenkins to monitor project quality metrics by means of Checkstyle
+and Violations plugins.
+To generate Checkstyle and JSLint reports under `report/lint/`, type:
+```bash
+grunt lint-report
+```
+
+###<a id="section10.5"></a> Testing
+The test environment is preconfigured to run the [Mocha](http://visionmedia.github.io/mocha/) Test Runner with support
+for the [Chai](http://chaijs.com/) assertion library as well as for [Sinon](http://sinonjs.org/) spies, stubs, etc.,
+following a [BDD](http://chaijs.com/api/bdd/) testing style with `chai.expect` and `chai.should()` available globally
+while executing tests, as well as the [Sinon-Chai](http://chaijs.com/plugins/sinon-chai) plugin.
+
+Module mocking during testing can be done with [proxyquire](https://github.com/thlorenz/proxyquire).
+
+To run tests, type:
+```bash
+grunt test
+```
+
+Tests reports can be used together with Jenkins to monitor project quality metrics by means of TAP or XUnit plugins.
+To generate TAP report in `report/test/unit_tests.tap`, type
+```bash
+grunt test-report
+```
+
+###<a id="section10.6"></a> Continuous testing
+Support for continuous testing is provided so that tests are run when any source file or test is modified.
+For continuous testing, type:
+```bash
+grunt watch
+```
+
+###<a id="section10.7"></a> Source code documentation
+HTML code documentation can be generated under the `site/doc/` path. It can be used together with Jenkins by means of
+DocLinks plugin.
+For compiling source code documentation, type:
+```bash
+grunt doc
+```
+
+###<a id="section10.8"></a> Code coverage
+A very good practice is to measure the code coverage of your tests.
+
+To generate an HTML coverage report under the `site/coverage/` path and to print out a summary, type:
+```bash
+# Use git-bash on Windows
+grunt coverage
+```
+
+To generate a Cobertura report in `report/coverage/cobertura-coverage.xml` that can be used together with Jenkins to
+monitor project quality metrics by means of Cobertura plugin, type
+```bash
+# Use git-bash on Windows
+grunt coverage-report
+```
+
+###<a id="section10.8"></a> Code complexity
+Another very good practice is to analise code complexity.
+
+Support for using Plato and storing the generated report in the `site/report/` path is provided. This capability can be
+used together with Jenkins by means of DocLinks plugin.
+
+To generate a code complexity report, type:
+```bash
+grunt complexity
+```
+
+###<a id="section10.9"></a> Releasing
+The process of making a release consists of the following steps and should be made by any of the owners or administrators
+of the main repository:
+
+1. Create a new task branch changing the development version number in the `package.json` file (with a suffix `-next`)
+to the new target version (without any suffix), and create a pull request of this new task branch into `develop`. Remember
+to delete the temporary created task branch.
+2. Create a release branch named `release/<versionNumber>` from the last version of `develop` using the corresponding
+version number.
+3. Create a new release in Github setting the tag version as `release-<versionNumber>` from the new release branch
+`release/<versionNumber>` and publish it.
+5. Create a pull request from the new release branch `release/<versionNumber>` to `master`.
+6. Create a new task branch to prepare the `develop` branch for the next release, adding the `-next` suffix to the
+current version number in the `package.json` file (to signal this as the development version) and removing the contents
+of the `CHANGES_NEXT_RELEASE` changelog file. Create a pull request from this new task branch to `develop`.
+Remember to delete the temporary created task branch.
 
 To further guide you through your first contributions, we have created the label [```mentored```](https://github.com/telefonicaid/fiware-sth-comet/labels/mentored)
 which are assigned to those bugs and issues simple and interesting enough to be solved by people new to the project.
