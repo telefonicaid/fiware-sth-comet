@@ -51,7 +51,6 @@ describe('database connection', function () {
         poolSize: sthConfig.POOL_SIZE
       },
       function (err) {
-        console.log(err);
         done(err);
       }
     );
@@ -239,17 +238,449 @@ for (var i = 0; i < sthTestConfig.SAMPLES; i++) {
     sthTestHelper.aggregatedDataRetrievalSuite.bind(null, 'attribute-string', 'string', 'occur'));
 }
 
-describe('notification without TimeInstant metadata by the Orion Context Broker of',
+describe('notification of numeric data without TimeInstant metadata by the Orion Context Broker of',
   sthTestHelper.eventNotificationSuite.bind(null, 'attribute-float-1', 'float', false));
 
-describe('notification without TimeInstant metadata by the Orion Context Broker of',
+describe('notification of textual data without TimeInstant metadata by the Orion Context Broker of',
   sthTestHelper.eventNotificationSuite.bind(null, 'attribute-string-1', 'string', false));
 
-describe('notification with TimeInstant metadata by the Orion Context Broker of',
+describe('notification of numeric data with TimeInstant metadata by the Orion Context Broker of',
   sthTestHelper.eventNotificationSuite.bind(null, 'attribute-float-2', 'float', true));
 
-describe('notification with TimeInstant metadata by the Orion Context Broker of',
+describe('notification of numeric data with TimeInstant metadata by the Orion Context Broker of',
   sthTestHelper.eventNotificationSuite.bind(null, 'attribute-string-2', 'string', true));
+
+describe('notification of already existent numeric data should register it only once', function() {
+  var contextResponseNumericWithFixedTimeInstant;
+
+  before(function() {
+   contextResponseNumericWithFixedTimeInstant =
+      require('./contextResponses/contextResponseNumericWithFixedTimeInstant');
+  });
+
+  it('should store the raw and aggregated data for the first time', function (done) {
+    request({
+      uri: sthTestHelper.getURL(sthTestConfig.API_OPERATION.NOTIFY),
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+      },
+      json: true,
+      body: {
+        'subscriptionId' : '1234567890ABCDF123456789',
+        'originator' : 'orion.contextBroker.instance',
+        'contextResponses' : contextResponseNumericWithFixedTimeInstant.contextResponses
+      }
+    }, function (err, response, body) {
+      expect(body).to.be(undefined);
+      done(err);
+    });
+  });
+
+  it('should try to store the raw and aggregated data for second time', function (done) {
+    request({
+      uri: sthTestHelper.getURL(sthTestConfig.API_OPERATION.NOTIFY),
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+      },
+      json: true,
+      body: {
+        'subscriptionId' : '1234567890ABCDF123456789',
+        'originator' : 'orion.contextBroker.instance',
+        'contextResponses' : contextResponseNumericWithFixedTimeInstant.contextResponses
+      }
+    }, function (err, response, body) {
+      expect(body).to.be(undefined);
+      done(err);
+    });
+  });
+
+  it('should only retrieve the raw data as stored once', function(done) {
+    request({
+      uri: sthTestHelper.getURL(
+        sthTestConfig.API_OPERATION.READ,
+        {
+          lastN: 0,
+          dateFrom: contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].
+            metadatas[0].value,
+          dateTo: contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].
+            metadatas[0].value
+        },
+        contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
+      ),
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+      }
+    }, function (err, response, body) {
+      var bodyJSON = JSON.parse(body);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(1);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).to.equal(
+        contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].value);
+      expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
+      expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
+      done(err);
+    });
+  });
+
+  for (var i = 0; i < sthConfig.AGGREGATION_BY.length; i++) {
+    it('should have only accumulated the sum aggregated data once',
+      sthTestHelper.numericRawDataUpdatedTest.bind(
+        null,
+        'contextResponseNumericWithFixedTimeInstant',
+        'sum',
+        sthConfig.AGGREGATION_BY[i]
+      )
+    );
+
+    it('should have only accumulated the sum2 aggregated data once',
+      sthTestHelper.numericRawDataUpdatedTest.bind(
+        null,
+        'contextResponseNumericWithFixedTimeInstant',
+        'sum2',
+        sthConfig.AGGREGATION_BY[i]
+      )
+    );
+
+    it('should have only accumulated the max aggregated data once',
+      sthTestHelper.numericRawDataUpdatedTest.bind(
+        null,
+        'contextResponseNumericWithFixedTimeInstant',
+        'max',
+        sthConfig.AGGREGATION_BY[i]
+      )
+    );
+
+    it('should have only accumulated the min aggregated data once',
+      sthTestHelper.numericRawDataUpdatedTest.bind(
+        null,
+        'contextResponseNumericWithFixedTimeInstant',
+        'min',
+        sthConfig.AGGREGATION_BY[i]
+      )
+    );
+  }
+});
+
+describe('notification of already existent textual data should register it only once', function() {
+  var contextResponseTextualWithFixedTimeInstant;
+
+  before(function() {
+    contextResponseTextualWithFixedTimeInstant =
+      require('./contextResponses/contextResponseTextualWithFixedTimeInstant');
+  });
+
+  it('should store the raw and aggregated data for the first time', function (done) {
+    request({
+      uri: sthTestHelper.getURL(sthTestConfig.API_OPERATION.NOTIFY),
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+      },
+      json: true,
+      body: {
+        'subscriptionId' : '1234567890ABCDF123456789',
+        'originator' : 'orion.contextBroker.instance',
+        'contextResponses' : contextResponseTextualWithFixedTimeInstant.contextResponses
+      }
+    }, function (err, response, body) {
+      expect(body).to.be(undefined);
+      done(err);
+    });
+  });
+
+  it('should try to store the raw and aggregated data for second time', function (done) {
+    request({
+      uri: sthTestHelper.getURL(sthTestConfig.API_OPERATION.NOTIFY),
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+      },
+      json: true,
+      body: {
+        'subscriptionId' : '1234567890ABCDF123456789',
+        'originator' : 'orion.contextBroker.instance',
+        'contextResponses' : contextResponseTextualWithFixedTimeInstant.contextResponses
+      }
+    }, function (err, response, body) {
+      expect(body).to.be(undefined);
+      done(err);
+    });
+  });
+
+  it('should only retrieve the raw data as stored once', function(done) {
+    request({
+      uri: sthTestHelper.getURL(
+        sthTestConfig.API_OPERATION.READ,
+        {
+          lastN: 0,
+          dateFrom: contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].
+            metadatas[0].value,
+          dateTo: contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].
+            metadatas[0].value
+        },
+        contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
+      ),
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+      }
+    }, function (err, response, body) {
+      var bodyJSON = JSON.parse(body);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(1);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).to.equal(
+        contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].value);
+      expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
+      expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
+      done(err);
+    });
+  });
+
+  for (var i = 0; i < sthConfig.AGGREGATION_BY.length; i++) {
+    it('should have only accumulated the aggregated data once',
+      sthTestHelper.textualRawDataUpdatedTest.bind(
+        null,
+        'contextResponseTextualWithFixedTimeInstant',
+        sthConfig.AGGREGATION_BY[i]
+      )
+    );
+  }
+});
+
+describe('notification of an update to already existent numeric data should update the original value', function() {
+  var contextResponseNumericWithFixedTimeInstantUpdate;
+
+  before(function() {
+    contextResponseNumericWithFixedTimeInstantUpdate =
+      require('./contextResponses/contextResponseNumericWithFixedTimeInstantUpdate');
+  });
+
+  it('should store the raw and aggregated data for the first time', function (done) {
+    request({
+      uri: sthTestHelper.getURL(sthTestConfig.API_OPERATION.NOTIFY),
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+      },
+      json: true,
+      body: {
+        'subscriptionId' : '1234567890ABCDF123456789',
+        'originator' : 'orion.contextBroker.instance',
+        'contextResponses' : contextResponseNumericWithFixedTimeInstantUpdate.contextResponses
+      }
+    }, function (err, response, body) {
+      expect(body).to.be(undefined);
+      done(err);
+    });
+  });
+
+  it('should update the already existent data', function (done) {
+    request({
+      uri: sthTestHelper.getURL(sthTestConfig.API_OPERATION.NOTIFY),
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+      },
+      json: true,
+      body: {
+        'subscriptionId' : '1234567890ABCDF123456789',
+        'originator' : 'orion.contextBroker.instance',
+        'contextResponses' : contextResponseNumericWithFixedTimeInstantUpdate.contextResponses
+      }
+    }, function (err, response, body) {
+      expect(body).to.be(undefined);
+      done(err);
+    });
+  });
+
+  it('should retrieve the updated raw data', function(done) {
+    request({
+      uri: sthTestHelper.getURL(
+        sthTestConfig.API_OPERATION.READ,
+        {
+          lastN: 0,
+          dateFrom: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.attributes[0].
+            metadatas[0].value,
+          dateTo: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.attributes[0].
+            metadatas[0].value
+        },
+        contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.attributes[0].name
+      ),
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+      }
+    }, function (err, response, body) {
+      var bodyJSON = JSON.parse(body);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(1);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).to.equal(
+        contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.attributes[0].value);
+      expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
+      expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
+      done(err);
+    });
+  });
+
+  for (var i = 0; i < sthConfig.AGGREGATION_BY.length; i++) {
+    it('should have only accumulated the sum updated aggregated data',
+      sthTestHelper.numericRawDataUpdatedTest.bind(
+        null,
+        'contextResponseNumericWithFixedTimeInstantUpdate',
+        'sum',
+        sthConfig.AGGREGATION_BY[i]
+      )
+    );
+
+    it('should have only accumulated the sum2 aggregated data once',
+      sthTestHelper.numericRawDataUpdatedTest.bind(
+        null,
+        'contextResponseNumericWithFixedTimeInstantUpdate',
+        'sum2',
+        sthConfig.AGGREGATION_BY[i]
+      )
+    );
+
+    it('should have only accumulated the max aggregated data once',
+      sthTestHelper.numericRawDataUpdatedTest.bind(
+        null,
+        'contextResponseNumericWithFixedTimeInstantUpdate',
+        'max',
+        sthConfig.AGGREGATION_BY[i]
+      )
+    );
+
+    it('should have only accumulated the min aggregated data once',
+      sthTestHelper.numericRawDataUpdatedTest.bind(
+        null,
+        'contextResponseNumericWithFixedTimeInstantUpdate',
+        'min',
+        sthConfig.AGGREGATION_BY[i]
+      )
+    );
+  }
+});
+
+describe('notification of already existent textual data should update the original value', function() {
+  var contextResponseNumericWithFixedTimeInstantUpdate;
+
+  before(function() {
+    contextResponseNumericWithFixedTimeInstantUpdate =
+      require('./contextResponses/contextResponseNumericWithFixedTimeInstantUpdate');
+  });
+
+  it('should store the raw and aggregated data for the first time', function (done) {
+    request({
+      uri: sthTestHelper.getURL(sthTestConfig.API_OPERATION.NOTIFY),
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+      },
+      json: true,
+      body: {
+        'subscriptionId' : '1234567890ABCDF123456789',
+        'originator' : 'orion.contextBroker.instance',
+        'contextResponses' : contextResponseNumericWithFixedTimeInstantUpdate.contextResponses
+      }
+    }, function (err, response, body) {
+      expect(body).to.be(undefined);
+      done(err);
+    });
+  });
+
+  it('should update the stored raw and aggregated data', function (done) {
+    request({
+      uri: sthTestHelper.getURL(sthTestConfig.API_OPERATION.NOTIFY),
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+      },
+      json: true,
+      body: {
+        'subscriptionId' : '1234567890ABCDF123456789',
+        'originator' : 'orion.contextBroker.instance',
+        'contextResponses' : contextResponseNumericWithFixedTimeInstantUpdate.contextResponses
+      }
+    }, function (err, response, body) {
+      expect(body).to.be(undefined);
+      done(err);
+    });
+  });
+
+  it('should retrieve the updated raw data', function(done) {
+    request({
+      uri: sthTestHelper.getURL(
+        sthTestConfig.API_OPERATION.READ,
+        {
+          lastN: 0,
+          dateFrom: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.attributes[0].
+            metadatas[0].value,
+          dateTo: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.attributes[0].
+            metadatas[0].value
+        },
+        contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.attributes[0].name
+      ),
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+      }
+    }, function (err, response, body) {
+      var bodyJSON = JSON.parse(body);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(1);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).to.equal(
+        contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.attributes[0].value);
+      expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
+      expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
+      done(err);
+    });
+  });
+
+  for (var i = 0; i < sthConfig.AGGREGATION_BY.length; i++) {
+    it('should retrieve the updated aggregated data',
+      sthTestHelper.textualRawDataUpdatedTest.bind(
+        null,
+        'contextResponseNumericWithFixedTimeInstantUpdate',
+        sthConfig.AGGREGATION_BY[i]
+      )
+    );
+  }
+});
 
 describe('GET /version', function () {
   it('should provide version information', function (done) {

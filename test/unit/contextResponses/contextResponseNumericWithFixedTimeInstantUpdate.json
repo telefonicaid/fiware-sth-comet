@@ -1,0 +1,29 @@
+{
+  "contextResponses": [
+    {
+      "contextElement": {
+        "attributes": [
+          {
+            "name": "attrNameNumeric",
+            "type": "attrType",
+            "value": "222",
+            "metadatas": [
+              {
+                "name": "TimeInstant",
+                "type": "ISO8601",
+                "value": "1970-01-01T00:00:00.000"
+              }
+            ]
+          }
+        ],
+        "type": "entityType",
+        "isPattern": "false",
+        "id": "entityId"
+      },
+      "statusCode": {
+        "code": "200",
+        "reasonPhrase": "OK"
+      }
+    }
+  ]
+}
