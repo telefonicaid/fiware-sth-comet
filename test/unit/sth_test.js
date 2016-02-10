@@ -589,11 +589,11 @@ describe('notification of an update to already existent numeric data should upda
 });
 
 describe('notification of already existent textual data should update the original value', function() {
-  var contextResponseNumericWithFixedTimeInstantUpdate;
+  var contextResponseTextualWithFixedTimeInstantUpdate;
 
   before(function() {
-    contextResponseNumericWithFixedTimeInstantUpdate =
-      require('./contextResponses/contextResponseNumericWithFixedTimeInstantUpdate');
+    contextResponseTextualWithFixedTimeInstantUpdate =
+      require('./contextResponses/contextResponseTextualWithFixedTimeInstantUpdate');
   });
 
   it('should store the raw and aggregated data for the first time', function (done) {
@@ -610,7 +610,7 @@ describe('notification of already existent textual data should update the origin
       body: {
         'subscriptionId' : '1234567890ABCDF123456789',
         'originator' : 'orion.contextBroker.instance',
-        'contextResponses' : contextResponseNumericWithFixedTimeInstantUpdate.contextResponses
+        'contextResponses' : contextResponseTextualWithFixedTimeInstantUpdate.contextResponses
       }
     }, function (err, response, body) {
       expect(body).to.be(undefined);
@@ -632,7 +632,7 @@ describe('notification of already existent textual data should update the origin
       body: {
         'subscriptionId' : '1234567890ABCDF123456789',
         'originator' : 'orion.contextBroker.instance',
-        'contextResponses' : contextResponseNumericWithFixedTimeInstantUpdate.contextResponses
+        'contextResponses' : contextResponseTextualWithFixedTimeInstantUpdate.contextResponses
       }
     }, function (err, response, body) {
       expect(body).to.be(undefined);
@@ -646,12 +646,12 @@ describe('notification of already existent textual data should update the origin
         sthTestConfig.API_OPERATION.READ,
         {
           lastN: 0,
-          dateFrom: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.attributes[0].
+          dateFrom: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement.attributes[0].
             metadatas[0].value,
-          dateTo: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.attributes[0].
+          dateTo: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement.attributes[0].
             metadatas[0].value
         },
-        contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.attributes[0].name
+        contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement.attributes[0].name
       ),
       method: 'GET',
       headers: {
@@ -664,7 +664,7 @@ describe('notification of already existent textual data should update the origin
       var bodyJSON = JSON.parse(body);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(1);
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).to.equal(
-        contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.attributes[0].value);
+        contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement.attributes[0].value);
       expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
       expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
       done(err);
@@ -675,7 +675,7 @@ describe('notification of already existent textual data should update the origin
     it('should retrieve the updated aggregated data',
       sthTestHelper.textualRawDataUpdatedTest.bind(
         null,
-        'contextResponseNumericWithFixedTimeInstantUpdate',
+        'contextResponseTextualWithFixedTimeInstantUpdate',
         sthConfig.AGGREGATION_BY[i]
       )
     );
