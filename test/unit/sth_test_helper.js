@@ -150,6 +150,9 @@ function addEventTest(anEvent, includeTimeInstantMetadata, done) {
                     value: anEvent.recvTime
                   }
                 ]
+              },
+              notificationInfo: {
+                inserts: true
               }
             },
             done);
@@ -164,6 +167,9 @@ function addEventTest(anEvent, includeTimeInstantMetadata, done) {
                 name: anEvent.attrName,
                 type: anEvent.attrType,
                 value: anEvent.attrValue
+              },
+              notificationInfo: {
+                inserts: true
               }
             },
             done);
@@ -217,7 +223,10 @@ function addAggregatedDataTest(anEvent, done) {
             attrType: anEvent.attrType,
             attrValue: anEvent.attrValue,
             resolution: sthConfig.RESOLUTION.SECOND,
-            timestamp: anEvent.recvTime
+            timestamp: anEvent.recvTime,
+            notificationInfo: {
+              inserts: true
+            }
           },
           callback
         );
@@ -230,7 +239,10 @@ function addAggregatedDataTest(anEvent, done) {
             attrType: anEvent.attrType,
             attrValue: anEvent.attrValue,
             resolution: sthConfig.RESOLUTION.MINUTE,
-            timestamp: anEvent.recvTime
+            timestamp: anEvent.recvTime,
+            notificationInfo: {
+              inserts: true
+            }
           },
           callback
         );
@@ -243,7 +255,10 @@ function addAggregatedDataTest(anEvent, done) {
             attrType: anEvent.attrType,
             attrValue: anEvent.attrValue,
             resolution: sthConfig.RESOLUTION.HOUR,
-            timestamp: anEvent.recvTime
+            timestamp: anEvent.recvTime,
+            notificationInfo: {
+              inserts: true
+            }
           },
           callback
         );
@@ -256,7 +271,10 @@ function addAggregatedDataTest(anEvent, done) {
             attrType: anEvent.attrType,
             attrValue: anEvent.attrValue,
             resolution: sthConfig.RESOLUTION.DAY,
-            timestamp: anEvent.recvTime
+            timestamp: anEvent.recvTime,
+            notificationInfo: {
+              inserts: true
+            }
           },
           callback
         );
@@ -269,7 +287,10 @@ function addAggregatedDataTest(anEvent, done) {
             attrType: anEvent.attrType,
             attrValue: anEvent.attrValue,
             resolution: sthConfig.RESOLUTION.MONTH,
-            timestamp: anEvent.recvTime
+            timestamp: anEvent.recvTime,
+            notificationInfo: {
+              inserts: true
+            }
           },
           callback
         );
@@ -890,7 +911,7 @@ function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
         servicePath: sthConfig.DEFAULT_SERVICE_PATH,
         attrName: attrName,
         aggrMethod: aggrMethod,
-        resolution: sthConfig.AGGREGATION[index]
+        resolution: sthConfig.AGGREGATION_BY[index]
       }
     )
   );
@@ -903,7 +924,7 @@ function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
         servicePath: sthConfig.DEFAULT_SERVICE_PATH,
         attrName: attrName,
         aggrMethod: aggrMethod,
-        resolution: sthConfig.AGGREGATION[index]
+        resolution: sthConfig.AGGREGATION_BY[index]
       }
     )
   );
@@ -917,7 +938,7 @@ function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
         attrName: attrName,
         attrType: attrType,
         aggrMethod: aggrMethod,
-        resolution: sthConfig.AGGREGATION[index]
+        resolution: sthConfig.AGGREGATION_BY[index]
       }
     )
   );
@@ -932,8 +953,8 @@ function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
  */
 function aggregatedDataRetrievalSuite(attrName, attrType, aggrMethod) {
   describe('with aggrMethod as ' + aggrMethod, function () {
-    for (var i = 0; i < sthConfig.AGGREGATION.length; i++) {
-      describe('and aggrPeriod as ' + sthConfig.AGGREGATION[i],
+    for (var i = 0; i < sthConfig.AGGREGATION_BY.length; i++) {
+      describe('and aggrPeriod as ' + sthConfig.AGGREGATION_BY[i],
         aggregatedDataRetrievalTests.bind(null, i, attrName, attrType, aggrMethod));
     }
   });
@@ -1388,6 +1409,108 @@ function status200Test(options, done) {
   });
 }
 
+/**
+ * Test to check that in case of updating a numeric attribute value raw data:
+ *  - If the value of the attribute is the same, it is only aggregated once
+ *  - If the value of the attribute changes, the aggregated data is properly updated
+ * @param contextResponseFile The context response used for the notification of the update
+ * @param aggrMethod The aggregation method
+ * @param resolution The resolution
+ */
+function numericRawDataUpdatedTest(contextResponseFile, aggrMethod, resolution) {
+  it('should have only accumulated the aggregated data once', function(done) {
+    var contextResponseNumericWithFixedTimeInstant =
+      require('./contextResponses/' + contextResponseFile);
+
+    request({
+      uri: getURL(
+        sthTestConfig.API_OPERATION.READ,
+        {
+          aggrMethod: aggrMethod,
+          aggrPeriod: resolution,
+          dateFrom: contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].
+            metadatas[0].value,
+          dateTo: contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].
+            metadatas[0].value
+        },
+        contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
+      ),
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+      }
+    }, function (err, response, body) {
+      var bodyJSON = JSON.parse(body);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points.length).to.equal(1);
+      expect(parseInt(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].offset, 10)).
+      to.equal(sthHelper.getOffset(resolution, contextResponseNumericWithFixedTimeInstant.contextResponses[0].
+        contextElement.attributes[0].metadatas[0].value));
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].samples).to.equal(1);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0][aggrMethod]).to.equal(
+        aggrMethod === 'sum2' ?
+          Math.pow(parseInt(
+            contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].value, 10), 2) :
+          parseInt(contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].value,
+            10));
+      expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
+      expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
+      done(err);
+    });
+  });
+}
+
+/**
+ * Test to check that in case of updating a textual attribute value raw data:
+ *  - If the value of the attribute is the same, it is only aggregated once
+ *  - If the value of the attribute changes, the aggregated data is properly updated
+ * @param contextResponseFile The context response used for the notification of the update
+ * @param resolution The resolution
+ */
+function textualRawDataUpdatedTest(contextResponseFile, resolution) {
+  it('should have only accumulated the aggregated data once', function(done) {
+    var contextResponseTextualWithFixedTimeInstant =
+      require('./contextResponses/' + contextResponseFile);
+
+    request({
+      uri: getURL(
+        sthTestConfig.API_OPERATION.READ,
+        {
+          aggrMethod: 'occur',
+          aggrPeriod: resolution,
+          dateFrom: contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].
+            metadatas[0].value,
+          dateTo: contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].
+            metadatas[0].value
+        },
+        contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
+      ),
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+      }
+    }, function (err, response, body) {
+      var bodyJSON = JSON.parse(body);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points.length).to.equal(1);
+      expect(parseInt(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].offset, 10)).
+      to.equal(sthHelper.getOffset(resolution, contextResponseTextualWithFixedTimeInstant.contextResponses[0].
+        contextElement.attributes[0].metadatas[0].value));
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].samples).to.equal(1);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].
+        occur[contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].value]).
+      to.equal(1);
+      expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
+      expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
+      done(err);
+    });
+  });
+}
+
 module.exports = {
   getDayOfYear: getDayOfYear,
   addEventTest: addEventTest,
@@ -1400,5 +1523,7 @@ module.exports = {
   aggregatedDataRetrievalSuite: aggregatedDataRetrievalSuite,
   cleanDatabaseSuite: cleanDatabaseSuite,
   eventNotificationSuite: eventNotificationSuite,
-  status200Test: status200Test
+  status200Test: status200Test,
+  numericRawDataUpdatedTest: numericRawDataUpdatedTest,
+  textualRawDataUpdatedTest: textualRawDataUpdatedTest
 };

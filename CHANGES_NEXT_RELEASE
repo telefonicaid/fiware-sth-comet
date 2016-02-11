@@ -1,1 +1,3 @@
-- [FEATURE] Making the STH case sensitive regarding entity identifiers and types
+- [FEATURE] Always enable the proof of life message no matter the way the app is started
+- [TASK] Better contribution guidelines aligned with other Telefónica's Github Node.js projects
+- [FEATURE] Update of already registered data (#242)
