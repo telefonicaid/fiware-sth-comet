@@ -37,7 +37,7 @@
    */
   function connect(authentication, dbURI, replicaSet, database, poolSize, callback) {
     connectionURL = 'mongodb://' + authentication + '@' + dbURI + '/' + database +
-      (replicaSet ? '/?replicaSet=' + replicaSet : '');
+      (replicaSet ? '?replicaSet=' + replicaSet : '');
 
     mongoClient.connect(connectionURL,
       {

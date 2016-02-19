@@ -1,1 +1,1 @@
-- [TASK] Removing the usage of Mongoose and its substitution by the official Node.js MongoDB Driver
+- [BUG] Slash (/) not allowed in MongoDB connection URLs after the database name when replica set
