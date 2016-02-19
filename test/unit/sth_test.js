@@ -335,7 +335,7 @@ describe('notification of already existent numeric data should register it only 
 
   for (var i = 0; i < sthConfig.AGGREGATION_BY.length; i++) {
     it('should have only accumulated the sum aggregated data once',
-      sthTestHelper.numericRawDataUpdatedTest.bind(
+      sthTestHelper.numericAggregatedDataUpdatedTest.bind(
         null,
         'contextResponseNumericWithFixedTimeInstant',
         'sum',
@@ -344,7 +344,7 @@ describe('notification of already existent numeric data should register it only 
     );
 
     it('should have only accumulated the sum2 aggregated data once',
-      sthTestHelper.numericRawDataUpdatedTest.bind(
+      sthTestHelper.numericAggregatedDataUpdatedTest.bind(
         null,
         'contextResponseNumericWithFixedTimeInstant',
         'sum2',
@@ -353,7 +353,7 @@ describe('notification of already existent numeric data should register it only 
     );
 
     it('should have only accumulated the max aggregated data once',
-      sthTestHelper.numericRawDataUpdatedTest.bind(
+      sthTestHelper.numericAggregatedDataUpdatedTest.bind(
         null,
         'contextResponseNumericWithFixedTimeInstant',
         'max',
@@ -362,7 +362,7 @@ describe('notification of already existent numeric data should register it only 
     );
 
     it('should have only accumulated the min aggregated data once',
-      sthTestHelper.numericRawDataUpdatedTest.bind(
+      sthTestHelper.numericAggregatedDataUpdatedTest.bind(
         null,
         'contextResponseNumericWithFixedTimeInstant',
         'min',
@@ -457,7 +457,7 @@ describe('notification of already existent textual data should register it only 
 
   for (var i = 0; i < sthConfig.AGGREGATION_BY.length; i++) {
     it('should have only accumulated the aggregated data once',
-      sthTestHelper.textualRawDataUpdatedTest.bind(
+      sthTestHelper.textualAggregatedDataUpdatedTest.bind(
         null,
         'contextResponseTextualWithFixedTimeInstant',
         sthConfig.AGGREGATION_BY[i]
@@ -551,7 +551,7 @@ describe('notification of an update to already existent numeric data should upda
 
   for (var i = 0; i < sthConfig.AGGREGATION_BY.length; i++) {
     it('should have only accumulated the sum updated aggregated data',
-      sthTestHelper.numericRawDataUpdatedTest.bind(
+      sthTestHelper.numericAggregatedDataUpdatedTest.bind(
         null,
         'contextResponseNumericWithFixedTimeInstantUpdate',
         'sum',
@@ -560,7 +560,7 @@ describe('notification of an update to already existent numeric data should upda
     );
 
     it('should have only accumulated the sum2 aggregated data once',
-      sthTestHelper.numericRawDataUpdatedTest.bind(
+      sthTestHelper.numericAggregatedDataUpdatedTest.bind(
         null,
         'contextResponseNumericWithFixedTimeInstantUpdate',
         'sum2',
@@ -569,7 +569,7 @@ describe('notification of an update to already existent numeric data should upda
     );
 
     it('should have only accumulated the max aggregated data once',
-      sthTestHelper.numericRawDataUpdatedTest.bind(
+      sthTestHelper.numericAggregatedDataUpdatedTest.bind(
         null,
         'contextResponseNumericWithFixedTimeInstantUpdate',
         'max',
@@ -578,7 +578,7 @@ describe('notification of an update to already existent numeric data should upda
     );
 
     it('should have only accumulated the min aggregated data once',
-      sthTestHelper.numericRawDataUpdatedTest.bind(
+      sthTestHelper.numericAggregatedDataUpdatedTest.bind(
         null,
         'contextResponseNumericWithFixedTimeInstantUpdate',
         'min',
@@ -673,13 +673,82 @@ describe('notification of already existent textual data should update the origin
 
   for (var i = 0; i < sthConfig.AGGREGATION_BY.length; i++) {
     it('should retrieve the updated aggregated data',
-      sthTestHelper.textualRawDataUpdatedTest.bind(
+      sthTestHelper.textualAggregatedDataUpdatedTest.bind(
         null,
         'contextResponseTextualWithFixedTimeInstantUpdate',
         sthConfig.AGGREGATION_BY[i]
       )
     );
   }
+});
+
+var contextResponseNumericWithFixedTimeInstantUpdate =
+  require('./contextResponses/contextResponseNumericWithFixedTimeInstantUpdate');
+var contextResponseTextualWithFixedTimeInstantUpdate =
+  require('./contextResponses/contextResponseTextualWithFixedTimeInstantUpdate');
+
+describe('Data removal', function() {
+  describe('Removal of concrete attributes of entities including numeric data',
+    sthTestHelper.dataRemovalSuite.bind(
+      null,
+      sthConfig.AGGREGATION.TYPES.NUMERIC,
+      {
+        entityId: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.id,
+        entityType: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.type,
+        attrName: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.
+          attributes[0].name
+      }
+    )
+  );
+
+  describe('Removal of concrete entities including numeric data',
+    sthTestHelper.dataRemovalSuite.bind(
+      null,
+      sthConfig.AGGREGATION.TYPES.NUMERIC,
+      {
+        entityId: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.id,
+        entityType: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.type
+      }
+    )
+  );
+
+  describe('Removal of all the entities for certain service and service path including numeric data',
+    sthTestHelper.dataRemovalSuite.bind(
+      null,
+      sthConfig.AGGREGATION.TYPES.NUMERIC
+    )
+  );
+
+  describe('Removal of concrete attributes of entities including textual data',
+    sthTestHelper.dataRemovalSuite.bind(
+      null,
+      sthConfig.AGGREGATION.TYPES.TEXTUAL,
+      {
+        entityId: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement.id,
+        entityType: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement.type,
+        attrName: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement.
+          attributes[0].name
+      }
+    )
+  );
+
+  describe('Removal of concrete entities including textual data',
+    sthTestHelper.dataRemovalSuite.bind(
+      null,
+      sthConfig.AGGREGATION.TYPES.TEXTUAL,
+      {
+        entityId: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.id,
+        entityType: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement.type
+      }
+    )
+  );
+
+  describe('Removal of all the entities for certain service and service path including textual data',
+    sthTestHelper.dataRemovalSuite.bind(
+      null,
+      sthConfig.AGGREGATION.TYPES.TEXTUAL
+    )
+  );
 });
 
 describe('GET /version', function () {
