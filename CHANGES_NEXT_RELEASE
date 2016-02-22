@@ -1,2 +1,1 @@
-- [BUG] Slash (/) not allowed in MongoDB connection URLs after the database name when replica set
-- [BUG] 2 (or more) equal notifications provoke storing the same raw and aggregated data several times (#252)
+- [FEATURE] Support the deletion of all the entities, concrete entities or concrete entity attributes associated to certain service and service path
