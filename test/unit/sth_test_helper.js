@@ -817,12 +817,12 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
         optionsWithFromAndToDate[prop] = options[prop];
       }
       if (sthTestConfig.COMPLEX_NOTIFICATION_STARTED && 'hLimit' in optionsWithNoDates) {
-        optionsWithNoDates.hOffset = sthTestConfig.EVENT_NOTIFICATION_CONTEXT_ELEMENTS - 1;
+        optionsWithNoDates.hOffset = 0;
       }
       optionsWithDateFrom.dateFrom = sthHelper.getISODateString(events[0].recvTime);
       optionsWithDateTo.dateTo = sthHelper.getISODateString(new Date());
       if (sthTestConfig.COMPLEX_NOTIFICATION_STARTED && 'hLimit' in optionsWithDateTo) {
-        optionsWithDateTo.hOffset = sthTestConfig.EVENT_NOTIFICATION_CONTEXT_ELEMENTS - 1;
+        optionsWithDateTo.hOffset = 0;
       }
       optionsWithFromAndToDate.dateFrom = sthHelper.getISODateString(events[0].recvTime);
       optionsWithFromAndToDate.dateTo = sthHelper.getISODateString(new Date());
@@ -1376,7 +1376,9 @@ complexNotificationTest = function complexNotificationTest(params, done) {
     }
   }, function (err, response, body) {
     for (var i = 0; i < 3; i++) {
-      events.push(anEvent);
+      if (events.indexOf(anEvent) < 0) {
+        events.push(anEvent);
+      }
     }
     expect(body).to.be(undefined);
     done(err);
