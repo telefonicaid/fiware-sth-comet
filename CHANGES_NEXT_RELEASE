@@ -1,1 +1,2 @@
 - [BUG] Slash (/) not allowed in MongoDB connection URLs after the database name when replica set
+- [BUG] 2 (or more) equal notifications provoke storing the same raw and aggregated data several times (#252)
