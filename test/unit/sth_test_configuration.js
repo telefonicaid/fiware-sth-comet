@@ -51,6 +51,7 @@ module.exports = {
   API_OPERATION: {
     READ: 'read',
     NOTIFY: 'notify',
-    VERSION: 'version'
+    VERSION: 'version',
+    DELETE: 'delete'
   }
 };

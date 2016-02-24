@@ -7,6 +7,7 @@
     * [Consuming raw data] (#section1.2)
     * [Consuming aggregated time series information] (#section1.3)
     * [Updating aggregated time series information] (#section1.4)
+    * [Removing raw and aggregated time series information] (#section1.5)
 * [Dependencies](#section2)
 * [Installation](#section3)
 * [Automatic deployment using Docker](#section4)
@@ -324,6 +325,29 @@ Last but not least, the `throttling` makes it possible to control the frequency 
 this concrete example, the Orion Context Broker will send notifications separated 1 second in time the least. This is, the
 time between notifications will be at least 1 second. Depending on the resolution of the aggregated data you are interested
 in, the `throttling` should be fine-tuned accordingly.
+
+[Top](#section0)
+
+###<a id="section1.5"></a> Removing raw and aggregated time series information
+
+Last, but not least, the STH component exposes through its REST API the possibility to remove previously registered
+raw and aggregated data. Due to the sensible nature of these operations, they should be used with caution since their
+effects cannot be undone.
+
+The STH component exposes 3 main URLs for data removal, all of them invoked using `DELETE`
+as the HTTP method and including the service and service path information as headers (`Fiware-Service` and
+`Fiware-ServicePath` headers, respectively) such as in the `curl` examples included in the previous sections. The
+provided URLs are the following ones:
+
+1. Removing all the data associated to certain service and service path:
+<pre>http://localhost:8666/STH/v1/contextEntities</pre>
+2. Removing all the data associated to certain entity, service and service path:
+<pre>http://localhost:8666/STH/v1/contextEntities/type/{entityType}/id/{entityId}</pre>
+3. Removing all the data associated to certain attribute of certain entity, service and service path:
+<pre>http://localhost:8666/STH/v1/contextEntities/type/{entityType}/id/{entityId}/attributes/{attrName}</pre>
+
+It is important to note that the data removal accomplished depends on the value of the `SHOULD_STORE` configuration
+parameter. This means that depending on its value, only the associated data (raw, aggregated or both) will be removed.
 
 [Top](#section0)
 
