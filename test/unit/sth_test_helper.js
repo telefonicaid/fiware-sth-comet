@@ -461,6 +461,17 @@ function getURL(type, options, attrName) {
         url += '/version';
       }
       break;
+    case sthTestConfig.API_OPERATION.DELETE:
+      url += '/STH/v1/contextEntities';
+      if (options && options.entityType) {
+        url += '/type/' + options.entityType;
+      }
+      if (options && options.entityId) {
+        url += '/id/' + options.entityId;
+      }
+      if (options && options.attrName) {
+        url += '/attributes/' + options.attrName;
+      }
   }
   return url;
 }
@@ -977,7 +988,7 @@ function cleanDatabaseSuite() {
         },
         {
           isAggregated: false,
-          shouldCreate: false,
+          shouldCreate: true,
           shouldStoreHash: false,
           shouldTruncate: false
         },
@@ -1003,7 +1014,7 @@ function cleanDatabaseSuite() {
         },
         {
           isAggregated: true,
-          shouldCreate: false,
+          shouldCreate: true,
           shouldStoreHash: false,
           shouldTruncate: false
         },
@@ -1386,7 +1397,7 @@ complexNotificationTest = function complexNotificationTest(params, done) {
 };
 
 /**
- * Successfull 200 status test case
+ * Successful 200 status test case
  * @param {Object} options Options to generate the URL
  * @param {Function} done Callback
  */
@@ -1412,82 +1423,197 @@ function status200Test(options, done) {
 }
 
 /**
- * Test to check that in case of updating a numeric attribute value raw data:
+ * Test to check that in case of updating a numeric attribute value aggregated data:
  *  - If the value of the attribute is the same, it is only aggregated once
  *  - If the value of the attribute changes, the aggregated data is properly updated
  * @param contextResponseFile The context response used for the notification of the update
  * @param aggrMethod The aggregation method
  * @param resolution The resolution
+ * @param done The done() function
  */
-function numericRawDataUpdatedTest(contextResponseFile, aggrMethod, resolution) {
-  it('should have only accumulated the aggregated data once', function(done) {
-    var contextResponseNumericWithFixedTimeInstant =
-      require('./contextResponses/' + contextResponseFile);
+function numericAggregatedDataUpdatedTest(contextResponseFile, aggrMethod, resolution, done) {
+  var contextResponseNumericWithFixedTimeInstant =
+    require('./contextResponses/' + contextResponseFile);
 
-    request({
-      uri: getURL(
-        sthTestConfig.API_OPERATION.READ,
-        {
-          aggrMethod: aggrMethod,
-          aggrPeriod: resolution,
-          dateFrom: contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].
-            metadatas[0].value,
-          dateTo: contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].
-            metadatas[0].value
-        },
-        contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
-      ),
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
-      }
-    }, function (err, response, body) {
-      var bodyJSON = JSON.parse(body);
-      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points.length).to.equal(1);
-      expect(parseInt(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].offset, 10)).
-      to.equal(sthHelper.getOffset(resolution, contextResponseNumericWithFixedTimeInstant.contextResponses[0].
-        contextElement.attributes[0].metadatas[0].value));
-      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].samples).to.equal(1);
-      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0][aggrMethod]).to.equal(
-        aggrMethod === 'sum2' ?
-          Math.pow(parseInt(
-            contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].value, 10), 2) :
-          parseInt(contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].value,
-            10));
-      expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
-      expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
-      done(err);
-    });
+  request({
+    uri: getURL(
+      sthTestConfig.API_OPERATION.READ,
+      {
+        aggrMethod: aggrMethod,
+        aggrPeriod: resolution,
+        dateFrom: contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].
+          metadatas[0].value,
+        dateTo: contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].
+          metadatas[0].value
+      },
+      contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
+    ),
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+      'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+    }
+  }, function (err, response, body) {
+    var bodyJSON = JSON.parse(body);
+    expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points.length).to.equal(1);
+    expect(parseInt(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].offset, 10)).
+    to.equal(sthHelper.getOffset(resolution, new Date(contextResponseNumericWithFixedTimeInstant.contextResponses[0].
+      contextElement.attributes[0].metadatas[0].value)));
+    expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].samples).to.equal(1);
+    expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0][aggrMethod]).to.equal(
+      aggrMethod === 'sum2' ?
+        Math.pow(parseInt(
+          contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].value, 10), 2) :
+        parseInt(contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].value,
+          10));
+    expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
+    expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
+    done(err);
   });
 }
 
 /**
- * Test to check that in case of updating a textual attribute value raw data:
+ * Test to check that in case of updating a textual attribute value aggregated data:
  *  - If the value of the attribute is the same, it is only aggregated once
  *  - If the value of the attribute changes, the aggregated data is properly updated
  * @param contextResponseFile The context response used for the notification of the update
  * @param resolution The resolution
+ * @param done The done() function
  */
-function textualRawDataUpdatedTest(contextResponseFile, resolution) {
-  it('should have only accumulated the aggregated data once', function(done) {
-    var contextResponseTextualWithFixedTimeInstant =
-      require('./contextResponses/' + contextResponseFile);
+function textualAggregatedDataUpdatedTest(contextResponseFile, resolution, done) {
+  var contextResponseTextualWithFixedTimeInstant =
+    require('./contextResponses/' + contextResponseFile);
 
+  request({
+    uri: getURL(
+      sthTestConfig.API_OPERATION.READ,
+      {
+        aggrMethod: 'occur',
+        aggrPeriod: resolution,
+        dateFrom: contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].
+          metadatas[0].value,
+        dateTo: contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].
+          metadatas[0].value
+      },
+      contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
+    ),
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+      'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+    }
+  }, function (err, response, body) {
+    var bodyJSON = JSON.parse(body);
+    expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points.length).to.equal(1);
+    expect(parseInt(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].offset, 10)).
+    to.equal(sthHelper.getOffset(resolution, new Date(contextResponseTextualWithFixedTimeInstant.contextResponses[0].
+      contextElement.attributes[0].metadatas[0].value)));
+    expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].samples).to.equal(1);
+    expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].
+      occur[contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].value]).
+    to.equal(1);
+    expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
+    expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
+    done(err);
+  });
+}
+
+/**
+ * Test to check that in case of updating a numeric attribute value aggregated data:
+ *  - If the value of the attribute is the same, it is only aggregated once
+ *  - If the value of the attribute changes, the aggregated data is properly updated
+ * @param contextResponseFile The context response used for the notification of the update
+ * @param aggrMethod The aggregation method
+ * @param resolution The resolution
+ * @param done The done() function
+ */
+function aggregatedDataNonExistentTest(contextResponseFile, aggrMethod, resolution, done) {
+  var contextResponseNumericWithFixedTimeInstant =
+    require('./contextResponses/' + contextResponseFile);
+
+  request({
+    uri: getURL(
+      sthTestConfig.API_OPERATION.READ,
+      {
+        aggrMethod: aggrMethod,
+        aggrPeriod: resolution,
+        dateFrom: contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].
+          metadatas[0].value,
+        dateTo: contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].
+          metadatas[0].value
+      },
+      contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
+    ),
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+      'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+    }
+  }, function (err, response, body) {
+    var bodyJSON = JSON.parse(body);
+    expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(0);
+    expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
+    expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
+    done(err);
+  });
+}
+
+/**
+ * Suite of tests to verify the removal of data from the databse
+ * @param aggregationType The aggregation type
+ * @param removalOptions The removal options
+ */
+function dataRemovalSuite(aggregationType, removalOptions) {
+  var contextResponsesObj;
+
+  before(function() {
+    var contextResponseFile = './contextResponses/contextResponse' +
+      (aggregationType === sthConfig.AGGREGATION.TYPES.NUMERIC ? 'Numeric' : 'Textual') +
+      'WithFixedTimeInstant';
+    contextResponsesObj =
+      require(contextResponseFile);
+  });
+
+  it('should store the raw and aggregated data for some ' + aggregationType + ' entity attribute', function (done) {
+    request({
+      uri: getURL(sthTestConfig.API_OPERATION.NOTIFY),
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+      },
+      json: true,
+      body: {
+        'subscriptionId' : '1234567890ABCDF123456789',
+        'originator' : 'orion.contextBroker.instance',
+        'contextResponses' : contextResponsesObj.contextResponses
+      }
+    }, function (err, response, body) {
+      expect(body).to.be(undefined);
+      done(err);
+    });
+  });
+
+  it('should retrieve the raw data', function(done) {
     request({
       uri: getURL(
         sthTestConfig.API_OPERATION.READ,
         {
-          aggrMethod: 'occur',
-          aggrPeriod: resolution,
-          dateFrom: contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].
+          lastN: 0,
+          dateFrom: contextResponsesObj.contextResponses[0].contextElement.attributes[0].
             metadatas[0].value,
-          dateTo: contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].
+          dateTo: contextResponsesObj.contextResponses[0].contextElement.attributes[0].
             metadatas[0].value
         },
-        contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
+        contextResponsesObj.contextResponses[0].contextElement.attributes[0].name
       ),
       method: 'GET',
       headers: {
@@ -1498,19 +1624,166 @@ function textualRawDataUpdatedTest(contextResponseFile, resolution) {
       }
     }, function (err, response, body) {
       var bodyJSON = JSON.parse(body);
-      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points.length).to.equal(1);
-      expect(parseInt(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].offset, 10)).
-      to.equal(sthHelper.getOffset(resolution, contextResponseTextualWithFixedTimeInstant.contextResponses[0].
-        contextElement.attributes[0].metadatas[0].value));
-      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].samples).to.equal(1);
-      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].
-        occur[contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].value]).
-      to.equal(1);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(1);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).to.equal(
+        contextResponsesObj.contextResponses[0].contextElement.attributes[0].value);
       expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
       expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
       done(err);
     });
   });
+
+  for (var i = 0; i < sthConfig.AGGREGATION_BY.length; i++) {
+    if (aggregationType === sthConfig.AGGREGATION.TYPES.NUMERIC) {
+      it('should retrieve the sum updated aggregated data',
+        numericAggregatedDataUpdatedTest.bind(
+          null,
+          'contextResponseNumericWithFixedTimeInstant',
+          'sum',
+          sthConfig.AGGREGATION_BY[i]
+        )
+      );
+
+      it('should retrieve the sum2 aggregated data',
+        numericAggregatedDataUpdatedTest.bind(
+          null,
+          'contextResponseNumericWithFixedTimeInstant',
+          'sum2',
+          sthConfig.AGGREGATION_BY[i]
+        )
+      );
+
+      it('should retrieve the max aggregated data',
+        numericAggregatedDataUpdatedTest.bind(
+          null,
+          'contextResponseNumericWithFixedTimeInstant',
+          'max',
+          sthConfig.AGGREGATION_BY[i]
+        )
+      );
+
+      it('should retrieve the min aggregated data',
+        numericAggregatedDataUpdatedTest.bind(
+          null,
+          'contextResponseNumericWithFixedTimeInstant',
+          'min',
+          sthConfig.AGGREGATION_BY[i]
+        )
+      );
+    } else {
+      it('should retrieve the occur aggregated data',
+        textualAggregatedDataUpdatedTest.bind(
+          null,
+          'contextResponseTextualWithFixedTimeInstant',
+          sthConfig.AGGREGATION_BY[i]
+        )
+      );
+    }
+  }
+
+  it('should delete the raw and aggregated data for the same ' + aggregationType + ' entity attribute',
+    function (done) {
+    request({
+      uri: getURL(
+        sthTestConfig.API_OPERATION.DELETE,
+        removalOptions
+      ),
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+      },
+      json: true,
+      body: {
+        'subscriptionId' : '1234567890ABCDF123456789',
+        'originator' : 'orion.contextBroker.instance',
+        'contextResponses' : contextResponsesObj.contextResponses
+      }
+    }, function (err, response, body) {
+      expect(body).to.be(undefined);
+      done(err);
+    });
+  });
+
+  it('should not retrieve the deleted raw data', function(done) {
+    request({
+      uri: getURL(
+        sthTestConfig.API_OPERATION.READ,
+        {
+          lastN: 0,
+          dateFrom: contextResponsesObj.contextResponses[0].contextElement.attributes[0].
+            metadatas[0].value,
+          dateTo: contextResponsesObj.contextResponses[0].contextElement.attributes[0].
+            metadatas[0].value
+        },
+        contextResponsesObj.contextResponses[0].contextElement.attributes[0].name
+      ),
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+      }
+    }, function (err, response, body) {
+      var bodyJSON = JSON.parse(body);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(0);
+      expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
+      expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
+      done(err);
+    });
+  });
+
+  for (var j = 0; j < sthConfig.AGGREGATION_BY.length; j++) {
+    if (aggregationType === sthConfig.AGGREGATION.TYPES.NUMERIC) {
+      it('should not retrieve the deleted sum updated aggregated data',
+        aggregatedDataNonExistentTest.bind(
+          null,
+          'contextResponseNumericWithFixedTimeInstant',
+          'sum',
+          sthConfig.AGGREGATION_BY[j]
+        )
+      );
+
+      it('should not retrieve the deleted sum2 aggregated data',
+        aggregatedDataNonExistentTest.bind(
+          null,
+          'contextResponseNumericWithFixedTimeInstant',
+          'sum2',
+          sthConfig.AGGREGATION_BY[j]
+        )
+      );
+
+      it('should not retrieve the deleted max aggregated data',
+        aggregatedDataNonExistentTest.bind(
+          null,
+          'contextResponseNumericWithFixedTimeInstant',
+          'max',
+          sthConfig.AGGREGATION_BY[j]
+        )
+      );
+
+      it('should not retrieve the deleted min aggregated data',
+        aggregatedDataNonExistentTest.bind(
+          null,
+          'contextResponseNumericWithFixedTimeInstant',
+          'min',
+          sthConfig.AGGREGATION_BY[j]
+        )
+      );
+    } else {
+      it('should not retrieve the deleted occur aggregated data',
+        aggregatedDataNonExistentTest.bind(
+          null,
+          'contextResponseTextualWithFixedTimeInstant',
+          'occur',
+          sthConfig.AGGREGATION_BY[j]
+        )
+      );
+    }
+  }
 }
 
 module.exports = {
@@ -1526,6 +1799,8 @@ module.exports = {
   cleanDatabaseSuite: cleanDatabaseSuite,
   eventNotificationSuite: eventNotificationSuite,
   status200Test: status200Test,
-  numericRawDataUpdatedTest: numericRawDataUpdatedTest,
-  textualRawDataUpdatedTest: textualRawDataUpdatedTest
+  numericAggregatedDataUpdatedTest: numericAggregatedDataUpdatedTest,
+  textualAggregatedDataUpdatedTest: textualAggregatedDataUpdatedTest,
+  aggregatedDataNonExistentTest: aggregatedDataNonExistentTest,
+  dataRemovalSuite: dataRemovalSuite
 };
