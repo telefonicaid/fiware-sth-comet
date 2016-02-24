@@ -1,1 +1,1 @@
-- [FEATURE] Support the deletion of all the entities, concrete entities or concrete entity attributes associated to certain service and service path
+- [FEATURE] Support the deletion of raw and aggregated data (#247)
