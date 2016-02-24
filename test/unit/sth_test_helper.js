@@ -1104,12 +1104,12 @@ function noAttributesTest(service, servicePath, done) {
 }
 
 /**
- * Notification including invalid attribute values test case
+ * Notification including non-aggregatable attribute values test case
  * @param service The Fiware-Service header
  * @param servicePath The Fiware-ServicePath header
  * @param done The test case callback function
  */
-function invalidAttributeValuesTest(service, servicePath, done) {
+function nonAggregatableAttributeValuesTest(service, servicePath, done) {
   var body = {
     'subscriptionId': '1234567890ABCDF123456789',
     'originator': 'orion.contextBroker.instance',
@@ -1223,15 +1223,10 @@ function invalidAttributeValuesTest(service, servicePath, done) {
     },
     json: true,
     body: body
-  }, function (err, response, body) {
+  }, function (err, response) {
     expect(err).to.equal(null);
-    expect(response.statusCode).to.equal(400);
-    expect(body.statusCode).to.equal(400);
-    expect(response.statusMessage).to.equal('Bad Request');
-    expect(body.error).to.equal('Bad Request');
-    expect(body.validation.source).to.equal('payload');
-    expect(body.validation.keys).to.be.an(Array);
-    expect(body.validation.keys.indexOf('attributes')).to.not.equal(-1);
+    expect(response.statusCode).to.equal(200);
+    expect(response.statusMessage).to.equal('OK');
     done();
   });
 }
@@ -1311,8 +1306,8 @@ function eventNotificationSuite(attrName, attrType, includeTimeInstantMetadata) 
       null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH));
   });
 
-  describe('invalid attribute values notification', function () {
-    it('should respond with 400 - Bad Request', invalidAttributeValuesTest.bind(
+  describe('non-aggretabable values notification', function () {
+    it('should respond with 200 - OK', nonAggregatableAttributeValuesTest.bind(
       null, sthConfig.DEFAULT_SERVICE, sthConfig.DEFAULT_SERVICE_PATH));
   });
 
