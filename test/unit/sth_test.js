@@ -682,6 +682,224 @@ describe('notification of already existent textual data should update the origin
   }
 });
 
+describe('notification of an array attribute value should register it only as raw data', function() {
+  var contextResponseArrayWithFixedTimeInstant;
+
+  before(function() {
+    contextResponseArrayWithFixedTimeInstant =
+      require('./contextResponses/contextResponseArrayWithFixedTimeInstant');
+  });
+
+  it('should store the raw data but not the aggregated data', function (done) {
+    request({
+      uri: sthTestHelper.getURL(sthTestConfig.API_OPERATION.NOTIFY),
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+      },
+      json: true,
+      body: {
+        'subscriptionId' : '1234567890ABCDF123456789',
+        'originator' : 'orion.contextBroker.instance',
+        'contextResponses' : contextResponseArrayWithFixedTimeInstant.contextResponses
+      }
+    }, function (err, response, body) {
+      expect(body).to.be(undefined);
+      done(err);
+    });
+  });
+
+  it('should retrieve the raw data', function(done) {
+    request({
+      uri: sthTestHelper.getURL(
+        sthTestConfig.API_OPERATION.READ,
+        {
+          lastN: 0,
+          dateFrom: contextResponseArrayWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].
+            metadatas[0].value,
+          dateTo: contextResponseArrayWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].
+            metadatas[0].value
+        },
+        contextResponseArrayWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
+      ),
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+      }
+    }, function (err, response, body) {
+      var bodyJSON = JSON.parse(body);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(1);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).to.eql(
+        contextResponseArrayWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].value);
+      expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
+      expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
+      done(err);
+    });
+  });
+
+  for (var j = 0; j < sthConfig.AGGREGATION_BY.length; j++) {
+    it('should not retrieve the non-registered aggregated data if sum is requested',
+      sthTestHelper.aggregatedDataNonExistentTest.bind(
+        null,
+        'contextResponseArrayWithFixedTimeInstant',
+        'sum',
+        sthConfig.AGGREGATION_BY[j]
+      )
+    );
+
+    it('should not retrieve the non-registered aggregated data if sum2 is requested',
+      sthTestHelper.aggregatedDataNonExistentTest.bind(
+        null,
+        'contextResponseArrayWithFixedTimeInstant',
+        'sum2',
+        sthConfig.AGGREGATION_BY[j]
+      )
+    );
+
+    it('should not retrieve the non-registered aggregated data if max is requested',
+      sthTestHelper.aggregatedDataNonExistentTest.bind(
+        null,
+        'contextResponseArrayWithFixedTimeInstant',
+        'max',
+        sthConfig.AGGREGATION_BY[j]
+      )
+    );
+
+    it('should not retrieve the non-registered aggregated data if min is requested',
+      sthTestHelper.aggregatedDataNonExistentTest.bind(
+        null,
+        'contextResponseArrayWithFixedTimeInstant',
+        'min',
+        sthConfig.AGGREGATION_BY[j]
+      )
+    );
+
+    it('should not retrieve the non-registered aggregated data if occur is requested',
+      sthTestHelper.aggregatedDataNonExistentTest.bind(
+        null,
+        'contextResponseArrayWithFixedTimeInstant',
+        'occur',
+        sthConfig.AGGREGATION_BY[j]
+      )
+    );
+  }
+});
+
+describe('notification of an object attribute value should register it only as raw data', function() {
+  var contextResponseObjectWithFixedTimeInstant;
+
+  before(function() {
+    contextResponseObjectWithFixedTimeInstant =
+      require('./contextResponses/contextResponseObjectWithFixedTimeInstant');
+  });
+
+  it('should store the raw data but not the aggregated data', function (done) {
+    request({
+      uri: sthTestHelper.getURL(sthTestConfig.API_OPERATION.NOTIFY),
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+      },
+      json: true,
+      body: {
+        'subscriptionId' : '1234567890ABCDF123456789',
+        'originator' : 'orion.contextBroker.instance',
+        'contextResponses' : contextResponseObjectWithFixedTimeInstant.contextResponses
+      }
+    }, function (err, response, body) {
+      expect(body).to.be(undefined);
+      done(err);
+    });
+  });
+
+  it('should retrieve the raw data', function(done) {
+    request({
+      uri: sthTestHelper.getURL(
+        sthTestConfig.API_OPERATION.READ,
+        {
+          lastN: 0,
+          dateFrom: contextResponseObjectWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].
+            metadatas[0].value,
+          dateTo: contextResponseObjectWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].
+            metadatas[0].value
+        },
+        contextResponseObjectWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
+      ),
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+      }
+    }, function (err, response, body) {
+      var bodyJSON = JSON.parse(body);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(1);
+      expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).to.eql(
+        contextResponseObjectWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].value);
+      expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
+      expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
+      done(err);
+    });
+  });
+
+  for (var j = 0; j < sthConfig.AGGREGATION_BY.length; j++) {
+    it('should not retrieve the non-registered aggregated data if sum is requested',
+      sthTestHelper.aggregatedDataNonExistentTest.bind(
+        null,
+        'contextResponseObjectWithFixedTimeInstant',
+        'sum',
+        sthConfig.AGGREGATION_BY[j]
+      )
+    );
+
+    it('should not retrieve the non-registered aggregated data if sum2 is requested',
+      sthTestHelper.aggregatedDataNonExistentTest.bind(
+        null,
+        'contextResponseObjectWithFixedTimeInstant',
+        'sum2',
+        sthConfig.AGGREGATION_BY[j]
+      )
+    );
+
+    it('should not retrieve the non-registered aggregated data if max is requested',
+      sthTestHelper.aggregatedDataNonExistentTest.bind(
+        null,
+        'contextResponseObjectWithFixedTimeInstant',
+        'max',
+        sthConfig.AGGREGATION_BY[j]
+      )
+    );
+
+    it('should not retrieve the non-registered aggregated data if min is requested',
+      sthTestHelper.aggregatedDataNonExistentTest.bind(
+        null,
+        'contextResponseObjectWithFixedTimeInstant',
+        'min',
+        sthConfig.AGGREGATION_BY[j]
+      )
+    );
+
+    it('should not retrieve the non-registered aggregated data if occur is requested',
+      sthTestHelper.aggregatedDataNonExistentTest.bind(
+        null,
+        'contextResponseObjectWithFixedTimeInstant',
+        'occur',
+        sthConfig.AGGREGATION_BY[j]
+      )
+    );
+  }
+});
+
 var contextResponseNumericWithFixedTimeInstantUpdate =
   require('./contextResponses/contextResponseNumericWithFixedTimeInstantUpdate');
 var contextResponseTextualWithFixedTimeInstantUpdate =
