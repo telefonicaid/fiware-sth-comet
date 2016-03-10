@@ -1787,6 +1787,28 @@ function dataRemovalSuite(aggregationType, removalOptions) {
   }
 }
 
+/**
+ * Valid log level test
+ * @param level The log level
+ * @param done The done() function
+ */
+function validLogLevelChangeTest(level, done) {
+  request({
+    uri: getURL(
+      sthTestConfig.API_OPERATION.ADMIN.SET_LOG_LEVEL,
+      {
+        level: level
+      }
+    ),
+    method: 'POST'
+  }, function (err, response) {
+    expect(err).to.equal(null);
+    expect(response.statusCode).to.equal(200);
+    expect(response.statusMessage).to.equal('OK');
+    done();
+  });
+}
+
 module.exports = {
   getDayOfYear: getDayOfYear,
   addEventTest: addEventTest,
@@ -1803,5 +1825,6 @@ module.exports = {
   numericAggregatedDataUpdatedTest: numericAggregatedDataUpdatedTest,
   textualAggregatedDataUpdatedTest: textualAggregatedDataUpdatedTest,
   aggregatedDataNonExistentTest: aggregatedDataNonExistentTest,
-  dataRemovalSuite: dataRemovalSuite
+  dataRemovalSuite: dataRemovalSuite,
+  validLogLevelChangeTest: validLogLevelChangeTest
 };

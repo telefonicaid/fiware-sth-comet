@@ -970,90 +970,25 @@ describe('Data removal', function() {
 });
 
 describe('POST /admin/log', function() {
-  it('should accept FATAL as a valid logging level', function(done) {
-    request({
-      uri: sthTestHelper.getURL(
-        sthTestConfig.API_OPERATION.ADMIN.SET_LOG_LEVEL,
-        {
-          level: 'FATAL'
-        }
-      ),
-      method: 'POST'
-    }, function (err, response) {
-      expect(err).to.equal(null);
-      expect(response.statusCode).to.equal(200);
-      expect(response.statusMessage).to.equal('OK');
-      done();
-    });
-  });
+  it('should accept FATAL as a valid logging level',
+    sthTestHelper.validLogLevelChangeTest.bind(null, 'FATAL')
+  );
 
-  it('should accept ERROR as a valid logging level', function(done) {
-    request({
-      uri: sthTestHelper.getURL(
-        sthTestConfig.API_OPERATION.ADMIN.SET_LOG_LEVEL,
-        {
-          level: 'ERROR'
-        }
-      ),
-      method: 'POST'
-    }, function (err, response) {
-      expect(err).to.equal(null);
-      expect(response.statusCode).to.equal(200);
-      expect(response.statusMessage).to.equal('OK');
-      done();
-    });
-  });
+  it('should accept ERROR as a valid logging level',
+    sthTestHelper.validLogLevelChangeTest.bind(null, 'ERROR')
+  );
 
-  it('should accept WARNING as a valid logging level', function(done) {
-    request({
-      uri: sthTestHelper.getURL(
-        sthTestConfig.API_OPERATION.ADMIN.SET_LOG_LEVEL,
-        {
-          level: 'WARNING'
-        }
-      ),
-      method: 'POST'
-    }, function (err, response) {
-      expect(err).to.equal(null);
-      expect(response.statusCode).to.equal(200);
-      expect(response.statusMessage).to.equal('OK');
-      done();
-    });
-  });
+  it('should accept WARNING as a valid logging level',
+    sthTestHelper.validLogLevelChangeTest.bind(null, 'WARNING')
+  );
 
-  it('should accept INFO as a valid logging level', function(done) {
-    request({
-      uri: sthTestHelper.getURL(
-        sthTestConfig.API_OPERATION.ADMIN.SET_LOG_LEVEL,
-        {
-          level: 'INFO'
-        }
-      ),
-      method: 'POST'
-    }, function (err, response) {
-      expect(err).to.equal(null);
-      expect(response.statusCode).to.equal(200);
-      expect(response.statusMessage).to.equal('OK');
-      done();
-    });
-  });
+  it('should accept INFO as a valid logging level',
+    sthTestHelper.validLogLevelChangeTest.bind(null, 'INFO')
+  );
 
-  it('should accept DEBUG as a valid logging level', function(done) {
-    request({
-      uri: sthTestHelper.getURL(
-        sthTestConfig.API_OPERATION.ADMIN.SET_LOG_LEVEL,
-        {
-          level: 'DEBUG'
-        }
-      ),
-      method: 'POST'
-    }, function (err, response) {
-      expect(err).to.equal(null);
-      expect(response.statusCode).to.equal(200);
-      expect(response.statusMessage).to.equal('OK');
-      done();
-    });
-  });
+  it('should accept DEBUG as a valid logging level',
+    sthTestHelper.validLogLevelChangeTest.bind(null, 'DEBUG')
+  );
 
   it('should ignore case sensitivity in the logging levels', function(done) {
     request({
