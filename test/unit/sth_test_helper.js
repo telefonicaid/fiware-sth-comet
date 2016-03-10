@@ -454,6 +454,12 @@ function getURL(type, options, attrName) {
         url += '/notify';
       }
       break;
+    case sthTestConfig.API_OPERATION.ADMIN.SET_LOG_LEVEL:
+      url += '/admin/log';
+      if (options && options.level) {
+        url += '?level=' + options.level;
+      }
+      break;
     case sthTestConfig.API_OPERATION.VERSION:
       if (options && options.invalidPath) {
         url += '/invalidVersionPath';
