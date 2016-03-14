@@ -1,0 +1,11 @@
+fiware-sth-comet:
+  build: .
+  ports:
+    - "8666:8666"
+  environment:
+    - STH_HOST=0.0.0.0
+    - DB_URI=db:27017
+  links:
+    - db
+db:
+  image: mongo:3.2
