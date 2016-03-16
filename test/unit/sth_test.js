@@ -969,6 +969,45 @@ describe('Data removal', function() {
   );
 });
 
+describe('POST /admin/log', function() {
+  it('should accept FATAL as a valid logging level',
+    sthTestHelper.validLogLevelChangeTest.bind(null, 'FATAL')
+  );
+
+  it('should accept ERROR as a valid logging level',
+    sthTestHelper.validLogLevelChangeTest.bind(null, 'ERROR')
+  );
+
+  it('should accept WARNING as a valid logging level',
+    sthTestHelper.validLogLevelChangeTest.bind(null, 'WARNING')
+  );
+
+  it('should accept INFO as a valid logging level',
+    sthTestHelper.validLogLevelChangeTest.bind(null, 'INFO')
+  );
+
+  it('should accept DEBUG as a valid logging level',
+    sthTestHelper.validLogLevelChangeTest.bind(null, 'DEBUG')
+  );
+
+  it('should ignore case sensitivity in the logging levels', function(done) {
+    request({
+      uri: sthTestHelper.getURL(
+        sthTestConfig.API_OPERATION.ADMIN.SET_LOG_LEVEL,
+        {
+          level: 'deBug'
+        }
+      ),
+      method: 'POST'
+    }, function (err, response) {
+      expect(err).to.equal(null);
+      expect(response.statusCode).to.equal(200);
+      expect(response.statusMessage).to.equal('OK');
+      done();
+    });
+  });
+});
+
 describe('GET /version', function () {
   it('should provide version information', function (done) {
     request({

@@ -379,6 +379,20 @@ To ease the testing and deployment of the STH component we have prepared a Docke
 [https://registry.hub.docker.com/u/fiwareiotplatform/iot-sth/](https://registry.hub.docker.com/u/fiwareiotplatform/iot-sth/),
 including all the information needed to try and to deploy the STH component via the execution of a simple Docker command.
 
+On the other hand a [`Dockerfile`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/Dockerfile) and a
+[`docker-compose.yml`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/docker-compose.yml) files have also been
+included in this very repository to quickly and easily start your own instance of the STH component, even including the
+associated MongoDB instance where all the data will be stored.
+
+To do it, follow the next steps once you have installed Docker in your machine:
+
+1. Navigate to the path where this repository was cloned.
+
+2. Compose and run the new STH component image:
+```bash
+docker-compose up
+```
+
 [Top](#section0)
 
 ##<a id="section5"></a>Running the STH server

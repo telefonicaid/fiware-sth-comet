@@ -51,6 +51,9 @@ module.exports = {
   API_OPERATION: {
     READ: 'read',
     NOTIFY: 'notify',
+    ADMIN: {
+      SET_LOG_LEVEL: 'setLogLevel'
+    },
     VERSION: 'version',
     DELETE: 'delete'
   }

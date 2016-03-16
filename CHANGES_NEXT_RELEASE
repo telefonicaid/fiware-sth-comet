@@ -1,1 +1,2 @@
-- [FEATURE] Non-aggregatable attribute values should be registered as raw data (#261)
+- [FEATURE] Expose the possibility to change the log level through the API
+- [TASK] Update the automatic Docker deployment to generate image from master
