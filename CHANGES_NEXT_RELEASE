@@ -1,2 +1,0 @@
-- [FEATURE] Expose the possibility to change the log level through the API
-- [TASK] Update the automatic Docker deployment to generate image from master
