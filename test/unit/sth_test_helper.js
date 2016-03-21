@@ -1800,7 +1800,7 @@ function validLogLevelChangeTest(level, done) {
         level: level
       }
     ),
-    method: 'POST'
+    method: 'PUT'
   }, function (err, response) {
     expect(err).to.equal(null);
     expect(response.statusCode).to.equal(200);

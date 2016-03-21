@@ -1,0 +1,1 @@
+- Log level should be exposed as a PUT operation via the admin API
