@@ -1,0 +1,108 @@
+#!/bin/bash
+#
+# sth         Start/Stop the Short Time Historic (STH) component
+#
+# chkconfig: 2345 99 60
+# description: Short Time Historic (STH) component for Telefonica's IoT Platform
+### BEGIN INIT INFO
+# Provides: sth
+# Required-Start: $local_fs $syslog
+# Required-Stop: $local_fs $syslog
+# Default-Start:  345
+# Default-Stop: 90
+# Short-Description: run sth
+# Description: The Short Time Historic (STH, aka. Comet) is a component of the
+#   FIWARE ecosystem in charge of providing aggregated time series information
+#   about the evolution in time of entity attribute values registered using the
+#   Orion Context Broker, an implementation of the publish/subscribe context
+#   management system exposing NGSI9 and NGSI10 interfaces.
+### END INIT INFO
+
+# HISTORY CHANGES
+# CJMM-DevOps 2016/03/21
+
+# Copyright 2015 Telefónica Investigación y Desarrollo, S.A.U
+#
+# This file is part of the Short Time Historic (STH) component
+#
+# STH is free software: you can redistribute it and/or
+# modify it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the License,
+# or (at your option) any later version.
+#
+# STH is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public
+# License along with STH.
+# If not, seehttp://www.gnu.org/licenses/.
+#
+# For those usages not covered by the GNU Affero General Public License
+# please contact with: [german.torodelvalle@telefonica.com]
+
+. /etc/rc.d/init.d/functions
+
+PARAM=$1
+NAME=fiware-sth-come
+EXECUTABLE=bin/sth
+STH_PATH=/opt/sth
+PIDFILE=$STH_PATH/$NAME.pid
+LOG_PATH=/var/log/sth/sth.log
+
+sth_start()
+{
+    printf "%-50s" "Starting ${NAME}..."
+    cd $STH_PATH
+    if [[ -x ${EXECUTABLE} ]]; then
+        cd $STH_PATH
+        su $STH_USER -c "cd $STH_PATH; nohup ${EXECUTABLE} &>> $LOG_PATH & echo \$! > $PIDFILE"
+        echo "Success"
+    else
+        printf "%s\n" "Fail - missing ${EXECUTABLE} executable"
+        exit 1
+    fi
+}
+
+sth_stop()
+{
+    printf "%-50s" "Stopping $NAME..."
+    if [ -f "${PIDFILE}" ]; then
+        kill -9 $(cat ${PIDFILE})
+        rm -f ${PIDFILE}
+        printf "%s\n" "$(success)"
+    else
+        printf "%s\n" "$(failure)"
+    fi
+}
+
+sth_status()
+{
+    status -p ${PIDFILE} ${EXECUTABLE}
+}
+
+case ${PARAM} in
+
+    'start')
+        echo "Starting..."
+        status -p ${PIDFILE} ${EXECUTABLE} && exit 0
+        sth_start
+        ;;
+
+    'stop')
+        echo "Stopping..."
+        status -p ${PIDFILE} ${EXECUTABLE} || exit 0
+        sth_stop
+        ;;
+
+    'restart')
+        sth_stop
+        sth_start
+        ;;
+
+    'status')
+        sth_status
+        ;;
+
+esac
