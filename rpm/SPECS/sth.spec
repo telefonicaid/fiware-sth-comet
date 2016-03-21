@@ -47,6 +47,12 @@ cp -R %{_srcdir}/lib \
       %{_build_root_project}
 
 cp -R %{_topdir}/SOURCES/etc %{buildroot}
+# Remove not used files
+rm -rf %{buildroot}/etc/sysconfig
+rm -f %{buildroot}/etc/logrotate.d/logrotate-sth.conf
+rm -rf %{buildroot}/etc/cron.d
+rm -f %{buildroot}/etc/init.d/sth-orig-2016-03-21
+
 
 # -------------------------------------------------------------------------------------------- #
 # Build section:
