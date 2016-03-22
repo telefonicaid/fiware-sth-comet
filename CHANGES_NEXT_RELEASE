@@ -1,1 +1,2 @@
-- Log level should be exposed as a PUT operation via the admin API
+- [FEATURE] Expose the possibility to change the log level through the API (#266)
+- [TASK] Make the unit tests compatible with Node v0.10

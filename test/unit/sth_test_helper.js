@@ -511,7 +511,6 @@ function noRawDataIfEntityCaseChange(params, done) {
     var bodyJSON = JSON.parse(body);
     expect(err).to.equal(null);
     expect(response.statusCode).to.equal(200);
-    expect(response.statusMessage).to.equal('OK');
     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).to.equal(
       attrName || sthTestConfig.ATTRIBUTE_NAME);
     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).to.be.an(Array);
@@ -551,7 +550,6 @@ function rawDataAvailableDateFilter(params, done) {
     var bodyJSON = JSON.parse(body);
     expect(err).to.equal(null);
     expect(response.statusCode).to.equal(200);
-    expect(response.statusMessage).to.equal('OK');
     expect(bodyJSON.contextResponses[0].contextElement.id).to.equal(sthTestConfig.ENTITY_ID);
     expect(bodyJSON.contextResponses[0].contextElement.isPattern).to.equal(false);
     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).to.equal(
@@ -608,7 +606,6 @@ function noAggregatedDataIfEntityCaseChangeTest(params, done) {
     var bodyJSON = JSON.parse(body);
     expect(err).to.equal(null);
     expect(response.statusCode).to.equal(200);
-    expect(response.statusMessage).to.equal('OK');
     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).to.equal(
       attrName || sthTestConfig.ATTRIBUTE_NAME);
     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).to.be.an(Array);
@@ -684,7 +681,6 @@ function noAggregatedDataSinceDateTest(params, done) {
     var bodyJSON = JSON.parse(body);
     expect(err).to.equal(null);
     expect(response.statusCode).to.equal(200);
-    expect(response.statusMessage).to.equal('OK');
     expect(bodyJSON.contextResponses[0].contextElement.id).to.equal(sthTestConfig.ENTITY_ID);
     expect(bodyJSON.contextResponses[0].contextElement.isPattern).to.equal(false);
     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).to.equal(
@@ -762,7 +758,6 @@ function aggregatedDataAvailableSinceDateTest(params, done) {
     var bodyJSON = JSON.parse(body);
     expect(err).to.equal(null);
     expect(response.statusCode).to.equal(200);
-    expect(response.statusMessage).to.equal('OK');
     expect(bodyJSON.contextResponses[0].contextElement.id).to.equal(sthTestConfig.ENTITY_ID);
     expect(bodyJSON.contextResponses[0].contextElement.isPattern).to.equal(false);
     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).to.equal(
@@ -1100,7 +1095,6 @@ function noAttributesTest(service, servicePath, done) {
     expect(err).to.equal(null);
     expect(response.statusCode).to.equal(400);
     expect(body.statusCode).to.equal(400);
-    expect(response.statusMessage).to.equal('Bad Request');
     expect(body.error).to.equal('Bad Request');
     expect(body.validation.source).to.equal('payload');
     expect(body.validation.keys).to.be.an(Array);
@@ -1232,7 +1226,6 @@ function nonAggregatableAttributeValuesTest(service, servicePath, done) {
   }, function (err, response) {
     expect(err).to.equal(null);
     expect(response.statusCode).to.equal(200);
-    expect(response.statusMessage).to.equal('OK');
     done();
   });
 }
@@ -1414,7 +1407,6 @@ function status200Test(options, done) {
     var bodyJSON = JSON.parse(body);
     expect(err).to.equal(null);
     expect(response.statusCode).to.equal(200);
-    expect(response.statusMessage).to.equal('OK');
     expect(bodyJSON.contextResponses[0].contextElement.id).to.equal(sthTestConfig.ENTITY_ID);
     expect(bodyJSON.contextResponses[0].contextElement.type).to.equal(sthTestConfig.ENTITY_TYPE);
     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).to.be.an(Array);
@@ -1804,7 +1796,6 @@ function validLogLevelChangeTest(level, done) {
   }, function (err, response) {
     expect(err).to.equal(null);
     expect(response.statusCode).to.equal(200);
-    expect(response.statusMessage).to.equal('OK');
     done();
   });
 }

@@ -122,7 +122,6 @@ describe('invalid routes', function () {
       expect(err).to.equal(null);
       expect(response.statusCode).to.equal(400);
       expect(bodyJSON.statusCode).to.equal(400);
-      expect(response.statusMessage).to.equal('Bad Request');
       expect(bodyJSON.error).to.equal('Bad Request');
       done();
     });
@@ -140,7 +139,6 @@ describe('invalid routes', function () {
       expect(err).to.equal(null);
       expect(response.statusCode).to.equal(400);
       expect(bodyJSON.statusCode).to.equal(400);
-      expect(response.statusMessage).to.equal('Bad Request');
       expect(bodyJSON.error).to.equal('Bad Request');
       done();
     });
@@ -1002,7 +1000,6 @@ describe('POST /admin/log', function() {
     }, function (err, response) {
       expect(err).to.equal(null);
       expect(response.statusCode).to.equal(200);
-      expect(response.statusMessage).to.equal('OK');
       done();
     });
   });
