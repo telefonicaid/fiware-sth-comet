@@ -5,7 +5,7 @@ Release: %{_product_release}
 License: AGPLv3
 BuildRoot: %{_topdir}/BUILDROOT/
 BuildArch: x86_64
-Requires: nodejs >= 0.10.24
+Requires: nodejs >= 0.10.42
 Requires: logrotate
 Requires(post): /sbin/chkconfig, /usr/sbin/useradd, npm
 Requires(preun): /sbin/chkconfig, /sbin/service
