@@ -50,6 +50,7 @@ STH_INSTANCE=${2}
 
 COMPONENT_NAME=fiware-sth-comet
 PREFIX=/opt
+LOG_DIR=/var/log/sth
 COMPONENT_DIR=${PREFIX}/${COMPONENT_NAME}
 CONFIG_FILE=${PREFIX}/${COMPONENT_NAME}/conf/sth.conf
 COMPONENT_USER=sth
@@ -102,7 +103,7 @@ component_start()
             continue
         fi
 
-        su ${COMPONENT_USER} -p -c "${NODE_EXEC} ${COMPONENT_DIR}/src/sth_app.js ${instance} 2>&1 | tee -a /var/log/${NAME}.log & echo \$! > ${STH_PID_FILE}"
+        su ${COMPONENT_USER} -p -c "${NODE_EXEC} ${COMPONENT_DIR}/src/sth_app.js ${instance} 2>&1 | tee -a ${LOG_DIR}/${NAME}.log & echo \$! > ${STH_PID_FILE}"
         sleep 2 # some cortesy time to process startup or die
         local PID=$(cat ${STH_PID_FILE})        
         local STH_PID=$(ps -ef | grep -v "grep" | grep "${PID:-not_found}")
