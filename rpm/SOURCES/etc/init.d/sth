@@ -48,11 +48,11 @@ PARAM=$1
 
 STH_INSTANCE=${2}
 
-COMPONENT_NAME=fiware-sth-comet
+COMPONENT_NAME=sth
 PREFIX=/opt
 LOG_DIR=/var/log/sth
 COMPONENT_DIR=${PREFIX}/${COMPONENT_NAME}
-CONFIG_FILE=${PREFIX}/${COMPONENT_NAME}/conf/sth.conf
+# CONFIG_FILE=${PREFIX}/${COMPONENT_NAME}/conf/sth.conf
 COMPONENT_USER=sth
 
 NODE_EXEC="/usr/bin/node"
@@ -62,8 +62,8 @@ component_start()
     local result=0
     local sth_instance=${1}
 
-    if [[ ! -f ${COMPONENT_DIR}/src/sth_app.js ]]; then
-        printf "%s\n" "Fail - ${COMPONENT_DIR}/src/sth_app.js application file not exists."
+    if [[ ! -f ${COMPONENT_DIR}/bin/sth ]]; then
+        printf "%s\n" "Fail - ${COMPONENT_DIR}/bin/sth application file not exists."
         exit 1
     fi
 
@@ -75,9 +75,9 @@ component_start()
 
     if [[ $(ls -l ${list_instances} 2> /dev/null | wc -l) -eq 0 ]]; then
         if [[ ${sth_instance} == "" ]]; then
-            printf "%s\n" "There aren't any instance of STH configured. Refer to file /usr/sth/conf/README.md for further information."
+            printf "%s\n" "There aren't any instance of STH configured"
         else
-            printf "%s\n" "There aren't any instance of STH configured with the name ${sth_instance}. Refer to file /usr/sth/conf/README.md for further information."
+            printf "%s\n" "There aren't any instance of STH configured with the name ${sth_instance}"
         fi
         return 1
     fi
@@ -103,7 +103,7 @@ component_start()
             continue
         fi
 
-        su ${COMPONENT_USER} -p -c "${NODE_EXEC} ${COMPONENT_DIR}/src/sth_app.js ${instance} 2>&1 | tee -a ${LOG_DIR}/${NAME}.log & echo \$! > ${STH_PID_FILE}"
+        su ${COMPONENT_USER} -p -c "${NODE_EXEC} ${COMPONENT_DIR}/bin/sth ${instance} 2>&1 | tee -a ${LOG_DIR}/${NAME}.log & echo \$! > ${STH_PID_FILE}"
         sleep 2 # some cortesy time to process startup or die
         local PID=$(cat ${STH_PID_FILE})        
         local STH_PID=$(ps -ef | grep -v "grep" | grep "${PID:-not_found}")
