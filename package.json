@@ -17,7 +17,7 @@
   },
   "main": "lib/sth",
   "engines": {
-    "node": ">=0.10.22"
+    "node": ">=0.10.42"
   },
   "scripts": {
     "start": "node ./lib/sth",

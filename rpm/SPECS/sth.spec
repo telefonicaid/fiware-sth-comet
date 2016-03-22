@@ -1,24 +1,28 @@
 Summary: Short Time Historic (STH)
-Name: fiware-sth-come
+Name: fiware-sth-comet
 Version: %{_product_version}
 Release: %{_product_release}
 License: AGPLv3
 BuildRoot: %{_topdir}/BUILDROOT/
 BuildArch: x86_64
-# Requires: nodejs >= 0.10.24
+Requires: nodejs >= 0.10.42
 Requires: logrotate
-Requires(post): /sbin/chkconfig, /usr/sbin/useradd npm
+Requires(post): /sbin/chkconfig, /usr/sbin/useradd, npm
 Requires(preun): /sbin/chkconfig, /sbin/service
 Requires(postun): /sbin/service
 Group: Applications/Engineering
 Vendor: Telefonica I+D
 BuildRequires: npm
 
+# HISTORY CHANGES
+# CJMM-DevOps 2016/03/21
+
 %description
 The Short Time Historic (STH, aka. Comet) is a component of the FIWARE ecosystem in charge of providing aggregated time series information about the evolution in time of entity attribute values registered using the Orion Context Broker, an implementation of the publish/subscribe context management system exposing NGSI9 and NGSI10 interfaces.
 
 # System folders
 %define _srcdir $RPM_BUILD_ROOT/../../..
+%define _project_user sth
 %define _service_name sth
 %define _install_dir /opt/sth
 %define _sth_log_dir /var/log/sth
@@ -43,6 +47,7 @@ cp -R %{_srcdir}/lib \
       %{_build_root_project}
 
 cp -R %{_topdir}/SOURCES/etc %{buildroot}
+
 
 # -------------------------------------------------------------------------------------------- #
 # Build section:
@@ -155,9 +160,8 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(755,%{_project_user},%{_project_user},755)
 %config /etc/init.d/%{_service_name}
-%config /etc/sysconfig/logrotate-sth-size
-%config /etc/logrotate.d/logrotate-sth.conf
-%config /etc/cron.d/cron-logrotate-sth-size
+%config /etc/logrotate.d/logrotate-sth-daily.conf
 %{_install_dir}
 
 %changelog
+

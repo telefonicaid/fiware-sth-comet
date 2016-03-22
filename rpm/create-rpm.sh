@@ -82,3 +82,4 @@ rpmbuild -ba ${RPM_BASE_DIR}/SPECS/sth.spec \
     --define "_project_user ${PROXY_USER}" \
     --define "_product_version ${PRODUCT_VERSION}" \
     --define "_product_release ${PRODUCT_RELEASE}"
+
