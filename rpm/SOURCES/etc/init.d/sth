@@ -42,7 +42,7 @@
 . /etc/rc.d/init.d/functions
 
 PARAM=$1
-NAME=fiware-sth-come
+NAME=sth
 EXECUTABLE=bin/sth
 STH_PATH=/opt/sth
 PIDFILE=$STH_PATH/$NAME.pid
