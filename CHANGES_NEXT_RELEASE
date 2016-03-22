@@ -1,2 +1,3 @@
-- [FEATURE] Expose the possibility to change the log level through the API
-- [TASK] Update the automatic Docker deployment to generate image from master
+- [FEATURE] Expose the possibility to change the log level through the API (#266)
+- [TASK] Make the unit tests compatible with Node v0.10
+- [TASK] Include documentation for the TEMPORAL_DIR environment variable (#277)
