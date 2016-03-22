@@ -47,11 +47,6 @@ cp -R %{_srcdir}/lib \
       %{_build_root_project}
 
 cp -R %{_topdir}/SOURCES/etc %{buildroot}
-# Remove not used files
-rm -rf %{buildroot}/etc/sysconfig
-rm -f %{buildroot}/etc/logrotate.d/logrotate-sth.conf
-rm -rf %{buildroot}/etc/cron.d
-rm -f %{buildroot}/etc/init.d/sth-orig-2016-03-21
 
 
 # -------------------------------------------------------------------------------------------- #
@@ -166,10 +161,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(755,%{_project_user},%{_project_user},755)
 %config /etc/init.d/%{_service_name}
 %config /etc/logrotate.d/logrotate-sth-daily.conf
-# Not apply
-# %config /etc/sysconfig/logrotate-sth-size
-# %config /etc/logrotate.d/logrotate-sth.conf
-# %config /etc/cron.d/cron-logrotate-sth-size
 %{_install_dir}
 
 %changelog
