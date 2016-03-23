@@ -103,7 +103,7 @@ component_start()
             continue
         fi
 
-        su ${COMPONENT_USER} -p -c "${NODE_EXEC} ${COMPONENT_DIR}/bin/sth ${instance} 2>&1 | tee -a ${LOG_DIR}/${NAME}.log & echo \$! > ${STH_PID_FILE}"
+        su ${COMPONENT_USER} -p -c "${NODE_EXEC} ${COMPONENT_DIR}/bin/sth ${instance} 2>&1 >> ${LOG_DIR}/${NAME}.log & echo \$! > ${STH_PID_FILE}"
         sleep 2 # some cortesy time to process startup or die
         local PID=$(cat ${STH_PID_FILE})        
         local STH_PID=$(ps -ef | grep -v "grep" | grep "${PID:-not_found}")
