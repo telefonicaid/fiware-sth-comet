@@ -11,9 +11,6 @@
 # 2 - Execute any of the functions on the script
 #   - It will be use the command 'read ver rel < <(get_rpm_version_string)' in order to get version and release on different vars
 
-# HISTORY CHANGES
-# CJMM-DevOps 2016/03/21
-
 shopt -s extglob
 
 get_branch()
