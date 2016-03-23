@@ -461,9 +461,11 @@ currently support updating documents in capped collections which increase the si
 Default value: "0".
 - IGNORE_BLANK_SPACES: Attribute values to one or more blank spaces should be ignored and not processed either as
 raw data or for the aggregated computations. Default value: "true".
-- LOGOPS_LEVEL: The log level to use. Possible values are: "DEBUG", "INFO", "WARN", "ERROR" and "FATAL". Default value: "INFO".
+- LOGOPS_LEVEL: The log level to use. Possible values are: "DEBUG", "INFO", "WARN", "ERROR" and "FATAL". Since the STH component uses the logops package for logging,
+for further information check out the [logops](https://www.npmjs.com/package/logops) npm package information online. Default value: "INFO".
 - LOGOPS_FORMAT: The log format to use. Possible values are: "json" (writes logs as JSON), "dev" (for development, used when the NODE_ENV variable is set to
-'development'). Default value: "json".
+'development'). Since the STH component uses the logops package for logging, for further information please check out the
+[logops](https://www.npmjs.com/package/logops) npm package information online. Default value: "json".
 - PROOF_OF_LIFE_INTERVAL: The time in seconds between proof of life logging messages informing that the server is up and running normally. Default value: "60".
 
 For example, to start the STH server listening on port 7777, connecting to a MongoDB instance listening on mymongo.com:27777 and
