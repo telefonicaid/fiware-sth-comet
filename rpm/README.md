@@ -6,8 +6,8 @@ Fedora Linux distributions.
 Within the RPM is included:
 - STH software
 - Node.js modules that are needed by STH
-- [sth](rpm/SOURCES/etc/init.d/sth "sth") init.d script with standard operations
-- Daily log rotation [logrotate-sth-daily](rpm/SOURCES/etc/logrotate.d/logrotate-sth-daily "logrotate")
+- [sth](SOURCES/etc/init.d/sth "sth") init.d script with standard operations
+- Daily log rotation [logrotate-sth-daily](SOURCES/etc/logrotate.d/logrotate-sth-daily "logrotate")
 - Creation of directories: `/var/log/sth` and `/var/run/sth`
 - User `sth` is created and is the propietary of the installed files and running STH process
 
@@ -49,30 +49,31 @@ This is the detailed tree structure created once RPM is installed:
 
 /opt/sth
 ├── conf
-│   └── <empty> Here we configure instances (see documentation [Running the STH server](README.md#running-the-sth-server))
+│   └── <empty> Here we configure instances
 ├── node_modules
 │   └── <node modules directory structure and files>
 ├── package.json
 └── src
     └── <STH SW files>
 ```
+To configure instances, see [Running the STH server](../README.md#running-the-sth-server)
 
 # Short Term History configuration procedure
 
 STH is able to start multiple instances by adding and configuring certain files of this directory
-using [sth](rpm/SOURCES/etc/init.d/sth "sth") service script
+using [sth](SOURCES/etc/init.d/sth "sth") service script
 
 To start multiple instances is needed to place in `/opt/sth/conf` one configuration file for 
 each instance that is wanted to run. RPM cames without preconfigured instances.
 
-The [init.d](rpm/SOURCES/etc/init.d/sth "sth") service script to start looks for files in 
+The [init.d](SOURCES/etc/init.d/sth "sth") service script to start looks for files in 
 `/opt/sth/conf` that begins with `sth_` prefix and has `.conf` extension and start one 
 process for file found.
 
 It is important to change `STH_PORT` to one not used by other STH intances/services. And it is
 good practice change `LOG_FILE_NAME` to avoid logs mixed by serveral instances.
 
-[sth](rpm/SOURCES/etc/init.d/sth "sth") init.d is packaged into the RPM and is needed to execute STH
+[sth](SOURCES/etc/init.d/sth "sth") init.d is packaged into the RPM and is needed to execute STH
 in multiinstace explained above. It has the next operations:
 - **start**: `sudo /sbin/service sth start [<instance>]` if `<instance>` is not provided, script try to
 start as many instances as files that match with `sth_*.conf` template othewise only starts one 
