@@ -10,6 +10,8 @@
     * [Removing raw and aggregated time series information] (#section1.5)
 * [Dependencies](#section2)
 * [Installation](#section3)
+    * [Cloning the Github repository](#section3.1)
+    * [Using a RPM package](#section3.2)
 * [Automatic deployment using Docker](#section4)
 * [Running the STH server](#section5)
 * [STH component test coverage](#section7)
@@ -366,13 +368,95 @@ Consequently, a MongoDB instance version &gt;= 2.6 is needed to store the aggreg
 [Top](#section0)
 
 ##<a id="section3"></a> Installation
+
+### <a id="section3.1"></a> Cloning the GIthub repository
+
 1. Clone the repository:
 <pre> git clone https://github.com/telefonicaid/fiware-sth-comet.git </pre>
 2. Get into the directory where the STH repository has been cloned:
 <pre> cd fiware-sth-comet/ </pre>
 3. Install the Node.js modules and dependencies:
 <pre> npm install </pre>
-The STH component server is ready to be started.
+The STH component server is ready to be started as a Node application.
+
+[Top](#section0)
+
+### <a id="section3.2"></a> Using a RPM package
+
+#### Package generation
+
+**Prerequisites:** To generate the RPM package from the STH component sources
+it is needed to have the rpm build tools (rpmbuild executable), Node and the
+npm utilities, as well as an Internet connection to download the required Node modules.
+
+To generate the RPM package for the STH component, execute the following
+command from the root of the STH component:
+
+`./rpm/create-rpm.sh -v <version> -r <release>`
+
+If everything goes fine, a new RPM package such as `./rpm/RPMS/x86_64/fiware-sth-comet-<version>-<release>.x86_64.rpm`
+will be created.
+
+Execute `./rpm/create-rpm.sh -h` for more information about the RPM package creation script.
+
+#### Installation, upgrade and removal
+
+**Prerequisites:** Node is needed to install the generated STH component RPM package.
+
+To install or upgrade the STH component, execute: `sudo rpm -Uvh fiware-sth-comet-<version>-<release>.x86_64.rpm`
+
+After the installation, the following files and directories are created:
+```
+/etc/init.d
+└── sth
+
+/etc/logrotate.d
+└── logrotate-sth-daily
+
+/var/log/sth
+
+/var/run/sth
+
+/opt/sth
+├── conf
+│   └── <empty> Here we configure instances
+├── node_modules
+│   └── <node modules directory structure and files>
+├── package.json
+└── src
+    └── <STH SW files>
+```
+
+To remove a previous STH component installation, execute: `sudo rpm -e fiware-sth-comet`
+
+#### Configuration
+
+STH is able to start multiple instances using the [sth](rpm/SOURCES/etc/init.d/sth "sth") service script
+by adding and configuring certain files as detailed next.
+
+To start multiple instances, one configuration file per instance has to be included in
+the `/opt/sth/conf` directory. It is important to note that the default installation includes
+preconfigured instances.
+
+It is important to change the `STH_PORT` value included in the configuration files 
+to a value not used by other STH instances/services. It is also a good practice to change
+the `LOG_FILE_NAME` value to avoid getting the logs from several instances mixed.
+
+The [init.d](rpm/SOURCES/etc/init.d/sth "sth") service script includes the following operations:
+ 
+* **start** (`sudo /sbin/service sth start [<instance>]`): if `<instance>` is not provided, the script starts
+an instance per configuration file found in the `/opt/sth/conf` directory matching the `sth_*.conf` template.
+If `<instance>` is provided, a configuration file named `sth_<instance>.conf` is searched in the `/opt/sth/conf` directory
+and the corresponding instance is started. 
+* **stop** (`sudo /sbin/service sth stop [<instance>]`): if `<instance>` is not provided, the script stops
+all the instances by listing all pid files under `/var/run/sth` matching the pattern `sth_*.pid`.
+If `<instance>` is provided, the scripts stops the instance with the associated pid file `/var/run/sth/sth_<instance>.pid`
+* **status** (`sudo /sbin/service sth status [<instance>]`): The status operation shows information about one or more running instances
+following the same procedure detailed in the `stop` operation.
+* **restart** (`sudo /sbin/service sth stop [<instance>]`): The restart operation executes a `stop` operation followed by a `start` operation
+according to the procedure detailed in those operations.
+
+Last but not least, the STH process (a `node` process) runs the as `sth` user.
 
 [Top](#section0)
 

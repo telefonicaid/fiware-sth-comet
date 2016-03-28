@@ -1,2 +1,3 @@
 - [TASK] Better documentation about the logging configuration options
 - [TASK] Include service and subservice in log traces (#276)
+- [TASK] Update the package and configuration documentation for 0.9.0 (#304)
