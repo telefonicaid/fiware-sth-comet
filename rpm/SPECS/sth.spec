@@ -48,6 +48,8 @@ cp -R %{_srcdir}/lib \
 
 cp -R %{_topdir}/SOURCES/etc %{buildroot}
 
+# Create conf dir
+mkdir -p %{_build_root_project}/conf
 
 # -------------------------------------------------------------------------------------------- #
 # Build section:
