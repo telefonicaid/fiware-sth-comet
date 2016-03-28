@@ -7,7 +7,7 @@ Within the RPM is included:
 - STH software
 - Node.js modules that are needed by STH
 - [sth](SOURCES/etc/init.d/sth "sth") init.d script with standard operations
-- Daily log rotation [logrotate-sth-daily](SOURCES/etc/logrotate.d/logrotate-sth-daily "logrotate")
+- Daily log rotation [logrotate-sth-daily](SOURCES/etc/logrotate.d/logrotate-sth-daily.conf "logrotate")
 - Creation of directories: `/var/log/sth` and `/var/run/sth`
 - User `sth` is created and is the propietary of the installed files and running STH process
 
