@@ -419,7 +419,7 @@ After the installation, the following files and directories are created:
 
 /opt/sth
 ├── conf
-│   └── <empty> Here we configure instances
+│   └── <empty> Here is where instances are configured
 ├── node_modules
 │   └── <node modules directory structure and files>
 ├── package.json
@@ -455,6 +455,9 @@ If `<instance>` is provided, the scripts stops the instance with the associated 
 following the same procedure detailed in the `stop` operation.
 * **restart** (`sudo /sbin/service sth stop [<instance>]`): The restart operation executes a `stop` operation followed by a `start` operation
 according to the procedure detailed in those operations.
+
+An example [`sth_default.conf`](rpm/EXAMPLES/sth_default.conf) file has been included in this Github repository to guide the STH instance
+configuration.
 
 Last but not least, the STH process (a `node` process) runs the as `sth` user.
 
