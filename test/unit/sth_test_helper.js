@@ -17,7 +17,7 @@
  *
  * You should have received a copy of the GNU Affero General Public
  * License along with STH.
- * If not, seehttp://www.gnu.org/licenses/.
+ * If not, see http://www.gnu.org/licenses/.
  *
  * For those usages not covered by the GNU Affero General Public License
  * please contact with: [german.torodelvalle@telefonica.com]
@@ -57,8 +57,8 @@ function createEvent(attrName, attrType, recvTime) {
   var attrValue = attrType !== 'string' ? (Math.random() *
   (parseFloat(sthTestConfig.MAX_VALUE) - parseFloat(sthTestConfig.MIN_VALUE)) -
   Math.abs(parseFloat(sthTestConfig.MIN_VALUE))).toFixed(2) : 'just a string';
-  switch (sthDatabase.DATA_MODEL) {
-    case sthDatabase.DATA_MODELS.COLLECTIONS_PER_SERVICE_PATH:
+  switch (sthConfig.DATA_MODEL) {
+    case sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH:
       theEvent = {
         recvTime: recvTime,
         entityId: sthTestConfig.ENTITY_ID,
@@ -68,7 +68,7 @@ function createEvent(attrName, attrType, recvTime) {
         attrValue: attrValue
       };
       break;
-    case sthDatabase.DATA_MODELS.COLLECTIONS_PER_ENTITY:
+    case sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY:
       theEvent = {
         recvTime: recvTime,
         attrName: attrName,
@@ -76,7 +76,7 @@ function createEvent(attrName, attrType, recvTime) {
         attrValue: attrValue
       };
       break;
-    case sthDatabase.DATA_MODELS.COLLECTIONS_PER_ATTRIBUTE:
+    case sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE:
       theEvent = {
         recvTime: recvTime,
         // This property is not really stored for the collections per attribute model.
@@ -334,7 +334,7 @@ function eachEventTestSuite(attrName, attrType, includeTimeInstantMetadata) {
  * @param {Function} done The mocha done() callback function
  */
 function dropRawEventCollectionTest(done) {
-  var databaseName = sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE);
+  var databaseName = sthDatabase.getDatabaseName(sthConfig.DEFAULT_SERVICE);
   var collectionName4Events = sthDatabase.getCollectionName4Events(
     {
       databaseName: databaseName,
@@ -357,7 +357,7 @@ function dropRawEventCollectionTest(done) {
  * @param {Function} done The mocha done() callback function
  */
 function dropAggregatedDataCollectionTest(done) {
-  var databaseName = sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE);
+  var databaseName = sthDatabase.getDatabaseName(sthConfig.DEFAULT_SERVICE);
   var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
     {
       databaseName: databaseName,

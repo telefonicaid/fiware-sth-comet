@@ -8,6 +8,7 @@
     * [Consuming aggregated time series information] (#section1.3)
     * [Updating aggregated time series information] (#section1.4)
     * [Removing raw and aggregated time series information] (#section1.5)
+    * [Data migration between data models] (#section1.6)
 * [Dependencies](#section2)
 * [Installation](#section3)
     * [Cloning the Github repository](#section3.1)
@@ -253,7 +254,7 @@ for the specified time frame), a response with code `200` is returned including 
 query.
 
 Another very important aspect is that since the strings are used as properties in the generated aggregated data, the [limitations
-to this regard imposed by MongoDB](https://docs.mongodb.org/manual/faq/developers/#dollar-sign-operator-escaping) must be followed. More concretely: "In some cases, you may wish to build a BSON object with a user-provided key. 
+to this regard imposed by MongoDB](https://docs.mongodb.org/manual/faq/developers/#dollar-sign-operator-escaping) must be followed. More concretely: "In some cases, you may wish to build a BSON object with a user-provided key.
 In these situations, keys will need to substitute the reserved $ and . characters. Any character is sufficient, but consider
 using the Unicode full width equivalents: U+FF04 (i.e. “＄”) and U+FF0E (i.e. “．”).". Consequently, take into consideration
 that if the textual values stored in the attributes for which aggregated data is being generated contain the `$` or the `.` characters,
@@ -355,6 +356,56 @@ parameter. This means that depending on its value, only the associated data (raw
 
 [Top](#section0)
 
+###<a id="section1.6"></a> Data migration between data models
+
+The STH component supports 3 alternative data models when storing the raw and aggregated data into the database:
+
+1. One collection per service path.
+2. One collection per entity.
+3. One collection per attribute.
+
+As their names reflect, each one of the supported data models stores the raw and aggregated data into one collection per service path, entity or attribute respectively.
+
+The default data model is the collection per entity one, but sometimes to get the best performance out of the MongoDB
+database where the raw and aggregated data is stored, alternative data models are needed. This is the reason why we
+introduced the data model migration tools.
+
+To set the desired data model to be used, please take a look at [Running the STH server](#section5) below.
+
+To run the data migration tool, please execute the following command:
+```
+./bin/sth_database_model
+```
+which will present the command help information:
+```
+Usage: sth_database_model [options]
+
+  Options:
+
+    -h, --help                         output usage information
+    -V, --version                      output the version number
+    -a, --analysis                     prints the results of the data model analysis including the databases and collections which need to be migrated to the currently configured data model (mandatory if not -m or --migrate)
+    -m, --migrate                      migrates to the currently configured data model all the databases and collections which has been created using a distinct data model (mandatory if not -a or --analysis)
+    -r, --remove-collection            the original data model collection will be removed to avoid conflict if migrating back to that data model in the future
+    -u, --update-collection            the migration will take place even if the target collections already exist combining the data of the original and target collections (use this option with special care since the migration operation is not idempotent for the aggregated data collections)
+    -d, --database <databaseName>      only this database will be taken into consideration for the analysis and/or migration process
+    -c, --collection <collectionName>  only this collection will be taken info consideration, a database is mandatory if a collection is set
+```
+
+Special care should be taken when requesting a data model migration since the migration of aggregated data is not an idempotent operation if the target data model collections already exist. In this case, the already existent data stored in these collections is combined with the one stored in the original data model collections pending migration. Based on this fact, we suggest the next procedure when considering a data model migration:
+
+1. Check the current configured data model used by the STH component based on the options detailed in [Running the STH server](#section5) below. Typically it will be the default collection per entity data model.
+2. Get a data model analysis report about the databases and collections which need to be migrated to the new desired data model running the following command: `LOGOPS_FORMAT=dev DATA_MODEL=collection-per-service-path ./bin/sth_database_model -a`. Use the desired data model instead of the one included in the previous example.
+3. Request the desired data model migration without forcing the update of the target data model collections using the following command: `LOGOPS_FORMAT=dev DATA_MODEL=collection-per-service-path ./bin/sth_database_model -a -m`. Use the desired data model instead of the one included in the previous example. If any of the target collections already exist, the data model migration will stop and it will not be made for the first already existent target data model collection, either for any subsequent collection. If none of the target collections already exist, the data model migration will successfully complete.
+4. If the data model migration completes successfully, you should remove the original data model collections to avoid problems if in the future you decide to go back to the original data model. Information about the successfully migrated collections is provided in the logs. The `-r` option will make this removal automatically for you.
+5. If the data model migration does not complete successfully because any of the target data model collections already exist, you have to decide if the target data model collection causing the conflict contains valuable data. If they does, just keep it. If it does not, just remove it. Remember to remove the original data model collections which were successfully migrated (see the requested data model migration logs) so they are not migrated again in the future. The `-r` option will make this removal automatically for you. As already mentioned in point 2, we can request a new status report at any moment running the following command: `LOGOPS_FORMAT=dev DATA_MODEL=collection-per-service-path ./bin/sth_database_model -a`
+6. If you decided to keep the target data model collection causing the conflict since it contains valuable data, force its data model migration using the following command: `LOGOPS_FORMAT=dev DATA_MODEL=collection-per-service-path ./bin/sth_database_model -a -m -d <database_name> -c <original_data_model_collection_to_be_migrated> -u`. The original data model collection will be combined with the already existent data stored in the target data model collection. Remove the original data model collection so it causes no conflict if you decide to migrate back to the original data model in the figure. The `-r` option will make this removal automatically for you.
+7. Get back and repeat from point 3.
+
+Currently the only data model migration supported is the default collection per entity data model to the collection per service path data model.
+
+[Top](#section0)
+
 ##<a id="section2"></a> Dependencies
 The STH component is a Node.js application which depends on certain Node.js modules as stated in the ```project.json``` file.
 
@@ -438,16 +489,16 @@ To start multiple instances, one configuration file per instance has to be inclu
 the `/opt/sth/conf` directory. It is important to note that the default installation includes
 preconfigured instances.
 
-It is important to change the `STH_PORT` value included in the configuration files 
+It is important to change the `STH_PORT` value included in the configuration files
 to a value not used by other STH instances/services. It is also a good practice to change
 the `LOG_FILE_NAME` value to avoid getting the logs from several instances mixed.
 
 The [init.d](rpm/SOURCES/etc/init.d/sth "sth") service script includes the following operations:
- 
+
 * **start** (`sudo /sbin/service sth start [<instance>]`): if `<instance>` is not provided, the script starts
 an instance per configuration file found in the `/opt/sth/conf` directory matching the `sth_*.conf` template.
 If `<instance>` is provided, a configuration file named `sth_<instance>.conf` is searched in the `/opt/sth/conf` directory
-and the corresponding instance is started. 
+and the corresponding instance is started.
 * **stop** (`sudo /sbin/service sth stop [<instance>]`): if `<instance>` is not provided, the script stops
 all the instances by listing all pid files under `/var/run/sth` matching the pattern `sth_*.pid`.
 If `<instance>` is provided, the scripts stops the instance with the associated pid file `/var/run/sth/sth_<instance>.pid`
@@ -513,8 +564,10 @@ In case of preferring using environment variables, the script accepts the follow
 - TEMPORAL_DIR: A relative path from the STH home directory to a directory where the temporary files generated by the STH component are stored.
 These files are generated before returning them when the `filetype` is included in any data retrieval request.
 Default value: "temp".
-- DEFAULT_SERVICE: The service to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "orion".
-- DEFAULT_SERVICE_PATH: The service path to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "/".
+- DEFAULT_SERVICE: The service to be used if not sent in the Orion Context Broker notifications. Optional. Default value: "testService".
+- DEFAULT_SERVICE_PATH: The service path to be used if not sent in the Orion Context Broker notifications. Optional. Default value: "/testServicePath".
+- DATA_MODEL: The STH component supports 3 alternative data models when storing the raw and aggregated data into the database:
+1) one collection per attribute, 2) one collection per entity and 3) one collection per service path. The possible values are: "collection-per-attribute", "collection-per-entity" and "collection-per-service-path" respectively. Default value: "collection-per-entity".
 - DB_USERNAME: The username to use for the database connection. Optional. Default value: "".
 - DB_PASSWORD: The password to use for the database connection. Optional. Default value: "".
 - DB_URI: The URI to use for the database connection. This does not include the 'mongo://' protocol part (see a couple of examples below).
@@ -605,7 +658,7 @@ exposed by the component. This set includes:
 - Tests to check the connection to the database
 - Tests to check the correct starting of the STH component
 - Tests to check the STH component correctly deals with all the possible requests it may receive (including invalid URL paths (routes)
-as well as all the combinations of possible query parameters) 
+as well as all the combinations of possible query parameters)
 - Tests to check the correct aggregate time series information querying after inserting random events (attribute values)
 into the database
 - Tests to check the correct aggregate time series information generation when receiving (simulated) notifications by a
@@ -630,7 +683,6 @@ This will execute the functional tests and the syntax checking as well.
 
 The test suite accepts the following parameters as environment variables which can be used to personalise them:
 
-- DB_NAME: The name of the database where the data will be stored. Optional. Default value: "test".
 - SAMPLES: The number of random events which will be generated and inserted into the database. Optional. Default value: "5".
 - EVENT_NOTIFICATION_CONTEXT_ELEMENTS: The number of context elements included in the simulated notifications sent to
 the STH component. Optional. Default value: 3.
@@ -840,7 +892,7 @@ To further guide you through your first contributions, we have created the label
 which are assigned to those bugs and issues simple and interesting enough to be solved by people new to the project.
 Feel free to assign any of them to yourself and do not hesitate to mention any of the main developers
 (this is, [@gtorodelvalle](https://github.com/gtorodelvalle) or [@frbattid](https://github.com/frbattid))
-in the issue's comments to get help from them during its resolution. They will be glad to help you. 
+in the issue's comments to get help from them during its resolution. They will be glad to help you.
 
 [Top](#section0)
 

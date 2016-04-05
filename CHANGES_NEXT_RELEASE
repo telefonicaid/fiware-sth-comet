@@ -2,3 +2,4 @@
 - [TASK] Include service and subservice in log traces (#276)
 - [TASK] Update the package and configuration documentation for 0.9.0 (#304)
 - [FEATURE] Use common Fiware-Correlator header in all the platform components (#275)
+- [FEATURE] Migration from the collection per entity to the collection per service path data model (#311)
