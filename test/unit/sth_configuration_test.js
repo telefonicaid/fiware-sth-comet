@@ -29,7 +29,7 @@ var sthConfig = require(STH_CONFIGURATION_PATH);
 var expect = require('expect.js');
 var clearRequire = require('clear-require');
 
-describe('sth_configuration', function() {
+describe('sth_configuration tests', function() {
   describe('default values', function() {
     it('should set the logging level configuration parameter to its default value', function() {
       expect(sthConfig.LOGOPS_LEVEL).to.equal('INFO');
@@ -83,6 +83,10 @@ describe('sth_configuration', function() {
 
     it('should set the default service path configuration parameter to its default value', function() {
       expect(sthConfig.DEFAULT_SERVICE_PATH).to.equal('/testServicePath');
+    });
+
+    it('should set the data model configuration parameter to its default value', function() {
+      expect(sthConfig.DATA_MODEL).to.equal('collection-per-entity');
     });
 
     it('should set the database pool size configuration parameter to its default value', function() {
@@ -368,6 +372,29 @@ describe('sth_configuration', function() {
         process.env.DEFAULT_SERVICE_PATH = 'testServicePath'; // Not starting with '/'.
         sthConfig = require(STH_CONFIGURATION_PATH);
         expect(sthConfig.DEFAULT_SERVICE_PATH).to.equal('/testServicePath');
+      }
+    );
+
+    it('should set the data model configuration parameter to \'collection-per-service-path\'', function() {
+      process.env.DATA_MODEL = 'collection-per-service-path';
+      sthConfig = require(STH_CONFIGURATION_PATH);
+      expect(sthConfig.DATA_MODEL).to.equal('collection-per-service-path');
+    });
+
+    it('should set the data model configuration parameter to the default value if not set via ' +
+      'DATA_MODEL',
+      function() {
+        delete process.env.DATA_MODEL;
+        sthConfig = require(STH_CONFIGURATION_PATH);
+        expect(sthConfig.DATA_MODEL).to.equal('collection-per-entity');
+      }
+    );
+
+    it('should set the data model configuration parameter to the default value if set to an invalid value',
+      function() {
+        process.env.DATA_MODEL = 'collection-per-invalid-value'; // Not starting with '/'.
+        sthConfig = require(STH_CONFIGURATION_PATH);
+        expect(sthConfig.DATA_MODEL).to.equal('collection-per-entity');
       }
     );
 

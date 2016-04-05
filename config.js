@@ -32,6 +32,12 @@ config.server = {
   // The port where the STH server will be listening.
   // Default value: "8666".
   port: '8666',
+  // The service to be used if not sent in the Orion Context Broker notifications. Optional.
+  // Default value: "testService".
+  defaultService: 'testService',
+  // The service path to be used if not sent in the Orion Context Broker notifications. Optional.
+  // Default value: "/testServicePath".
+  defaultServicePath: '/testServicePath',
   // A flag indicating if the empty results should be removed from the response.
   // Default value: "true".
   filterOutEmpty: 'true',
@@ -50,8 +56,14 @@ config.database = {
   // Default value: "testService".
   defaultService: 'testService',
   // The service path to be used if not sent by the Orion Context Broker in the notifications.
-  // Default value: "/".
+  // Default value: "/testServicePath".
   defaultServicePath: '/testServicePath',
+  // The STH component supports 3 alternative models when storing the raw and aggregated data
+  // into the database: 1) one collection per attribute, 2) one collection per entity and
+  // 3) one collection per service path. The possible values are: "collection-per-attribute",
+  // "collection-per-entity" and "collection-per-service-path" respectively. Default value:
+  // "collection-per-entity".
+  dataModel: 'collection-per-entity',
   // The username to use for the database connection. Default value: "".
   user: '',
   // The password to use for the database connection. Default value: "".
@@ -64,7 +76,7 @@ config.database = {
   // The prefix to be added to the service for the creation of the databases. Default value: "sth".
   prefix: 'sth_',
   // The prefix to be added to the collections in the databases. More information below.
-  // Default value: "sth".
+  //  Default value: "sth_".
   collectionPrefix: 'sth_',
   // The default MongoDB pool size of database connections. Optional. Default value: "5".
   poolSize: '5',

@@ -5,3 +5,4 @@
 - [FEATURE] Validate configuration parameters in start-up and show informative messages if invalid values provided (#161)
 - [TASK] Add required files for integration with Sonar (#315)
 - [FEATURE] Include the Fiware-Correlator header in all responses even if not included in the request
+- [FEATURE] Migration from the collection per entity to the collection per service path data model (#311)

@@ -17,7 +17,7 @@
  *
  * You should have received a copy of the GNU Affero General Public
  * License along with STH.
- * If not, seehttp://www.gnu.org/licenses/.
+ * If not, see http://www.gnu.org/licenses/.
  *
  * For those usages not covered by the GNU Affero General Public License
  * please contact with: [german.torodelvalle@telefonica.com]
@@ -28,7 +28,6 @@
 var ENV = process.env;
 
 module.exports = {
-  DB_NAME: ENV.DB_NAME || 'test',
   SAMPLES: ENV.SAMPLES || 1,
   EVENT_NOTIFICATION_CONTEXT_ELEMENTS: ENV.EVENT_NOTIFICATION_CONTEXT_ELEMENTS || 3,
   ENTITY_ID: ENV.ENTITY_ID || 'entityId',
@@ -56,5 +55,9 @@ module.exports = {
     },
     VERSION: 'version',
     DELETE: 'delete'
+  },
+  DATA_TYPES: {
+    RAW: 'raw',
+    AGGREGATED: 'aggregated'
   }
 };
