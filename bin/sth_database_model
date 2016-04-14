@@ -175,26 +175,23 @@ function onMigration(err) {
  */
 function migrateCollection(databaseName, collectionInfo, callback) {
   var collectionMigrationProgress, progress;
-  if (collectionInfo.dataModel === sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY){
-    sthLogger.info(
-      sthConfig.LOGGING_CONTEXT.DB_LOG,
-      'Migration of the collection \'' + collectionInfo.collectionName + '\' of the database \'' +
-      databaseName + '\' to the \'' + sthConfig.DATA_MODEL + '\' data model...'
-    );
-    collectionMigrationProgress = sthDatabaseModel.migrateCollection(
-      databaseName, collectionInfo.collectionName,
-      { removeCollection: commander.removeCollection, updateCollection: commander.updateCollection},
-      callback);
-    collectionMigrationProgress.on('progress', function(progressData) {
-      progress = progress || new Progress('Processing: [:bar] :percent (migrated :current documents of :total), ' +
-          'Elapsed: :elapsed, Pending: :eta', { total: progressData.total, width: 100 });
-      progress.tick();
-    });
-  } else {
-    process.nextTick(callback.bind(null,
-      new sthError.NotSupportedMigration(databaseName, collectionInfo.collectionName, collectionInfo.dataModel,
-        sthConfig.DATA_MODEL)));
-  }
+
+  sthLogger.info(
+    sthConfig.LOGGING_CONTEXT.DB_LOG,
+    'Migration of the collection \'' + collectionInfo.collectionName + '\' of the database \'' +
+    databaseName + '\' to the \'' + sthConfig.DATA_MODEL + '\' data model...'
+  );
+
+  collectionMigrationProgress = sthDatabaseModel.migrateCollection(
+    databaseName, collectionInfo.collectionName,
+    { removeCollection: commander.removeCollection, updateCollection: commander.updateCollection},
+    callback);
+
+  collectionMigrationProgress.on('progress', function(progressData) {
+    progress = progress || new Progress('Processing: [:bar] :percent (migrated :current documents of :total), ' +
+        'Elapsed: :elapsed, Pending: :eta', { total: progressData.total, width: 100 });
+    progress.tick();
+  });
 }
 
 /**
