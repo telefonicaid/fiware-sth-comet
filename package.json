@@ -47,7 +47,7 @@
     "sinon-chai": "2.4.0"
   },
   "dependencies": {
-    "async": "^1.5.2",
+    "async": "^2.0.0",
     "boom": "^2.7.2",
     "bytes-counter": "^1.0.0",
     "commander": "^2.9.0",
