@@ -4,3 +4,4 @@
 - [FEATURE] Use common Fiware-Correlator header in all the platform components (#275)
 - [FEATURE] Validate configuration parameters in start-up and show informative messages if invalid values provided (#161)
 - [TASK] Add required files for integration with Sonar (#315)
+- [FEATURE] Include the Fiware-Correlator header in all responses even if not included in the request
