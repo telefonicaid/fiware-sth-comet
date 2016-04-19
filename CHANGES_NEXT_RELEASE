@@ -3,3 +3,4 @@
 - [TASK] Update the package and configuration documentation for 0.9.0 (#304)
 - [FEATURE] Use common Fiware-Correlator header in all the platform components (#275)
 - [FEATURE] Validate configuration parameters in start-up and show informative messages if invalid values provided (#161)
+- [TASK] Add required files for integration with Sonar (#315)
