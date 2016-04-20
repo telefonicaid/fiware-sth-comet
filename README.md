@@ -271,10 +271,11 @@ The so-called minimalist option and the formal one.
 Regarding the formal option (based on using the Cygnus component for the updating), please refer to the documentation available at the
 <a href="https://github.com/telefonicaid/fiware-cygnus" target="_blank">Cygnus component repository</a>, and more concretely at the following links:
 
-* <a href="https://github.com/telefonicaid/fiware-cygnus/tree/master/flume" href="_blank">Cygnus connector documentation</a>
-* <a href="https://github.com/telefonicaid/fiware-cygnus/tree/master/flume#orion-subscription" href="_blank">Orion subscription</a>
+* <a href="https://github.com/telefonicaid/fiware-cygnus/blob/master/doc/user_and_programmer_guide/connecting_orion.md" href="_blank">Connecting Orion Context Broker and Cygnus</a>
+* <a href="https://github.com/telefonicaid/fiware-cygnus/blob/master/doc/flume_extensions_catalogue/orion_mongo_sink.md" href="_blank">OrionMongoSink</a>
+* <a href="https://github.com/telefonicaid/fiware-cygnus/blob/master/doc/flume_extensions_catalogue/orion_sth_sink.md" href="_blank">OrionSTHSink</a>
 
-The another option to update the aggregated time series information consists on directly subscribing the STH component
+The other option to update the aggregated time series information consists on directly subscribing the STH component
 to the Orion Context Broker to receive the corresponding notifications and generate and update the aggregated data.
 
 In the minimalist option, the STH component calculates aggregated data grouped at certain resolutions whenever it receives
