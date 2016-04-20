@@ -17,7 +17,7 @@
  *
  * You should have received a copy of the GNU Affero General Public
  * License along with STH.
- * If not, seehttp://www.gnu.org/licenses/.
+ * If not, see http://www.gnu.org/licenses/.
  *
  * For those usages not covered by the GNU Affero General Public License
  * please contact with: [german.torodelvalle@telefonica.com]
@@ -36,7 +36,7 @@ console.log(sthConfig);
 console.log('\n***** Unit tests environment variables:');
 console.log(sthTestConfig);
 
-var databaseName = sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE);
+var databaseName = sthDatabase.getDatabaseName(sthConfig.DEFAULT_SERVICE);
 var collectionName4Events = sthDatabase.getCollectionName4Events(
   {
     databaseName: databaseName,
@@ -56,14 +56,14 @@ var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
   }
 );
 
-describe('Database operation', function () {
+describe('database operation', function () {
   it('should establish a connection to the database', function (done) {
     sthDatabase.connect(
       {
         authentication: sthConfig.DB_AUTHENTICATION,
         dbURI: sthConfig.DB_URI,
         replicaSet: sthConfig.REPLICA_SET,
-        database: sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE),
+        database: sthDatabase.getDatabaseName(sthConfig.DEFAULT_SERVICE),
         poolSize: sthConfig.POOL_SIZE
       },
       function (err) {
