@@ -120,7 +120,6 @@ function print2Target(target, analysis, callback) {
         output += '    - Collection \'' + collectionInfo.collectionName + '\'\n';
         output += '      - Data model: ' + collectionInfo.dataModel + '\n';
       });
-      // output += '\n';
     });
   } else {
     output += '  - No collection needs migration\n';
@@ -277,20 +276,20 @@ function validateCollection(collectionName) {
 }
 
 commander.
-version(require('../package.json').version).
-option('-a, --analysis', 'prints the results of the data model analysis including the databases and collections ' +
-  'which need to be migrated to the currently configured data model (mandatory if not -m or --migrate)').
-option('-m, --migrate', 'migrates to the currently configured data model all the databases and collections which ' +
-  'has been created using a distinct data model (mandatory if not -a or --analysis)').
-option('-r, --remove-collection', 'the original data model collection will be removed to avoid conflict if ' +
-  'migrating back to that data model in the future').
-option('-u, --update-collection', 'the migration will take place even if the target collections already exist ' +
-  'combining the data of the original and target collections (use this option with special care since ' +
-  'the migration operation is not idempotent for the aggregated data collections)').
-option('-d, --database <databaseName>', 'only this database will be taken into consideration for the analysis ' +
-  'and/or migration process').
-option('-c, --collection <collectionName>', 'only this collection will be taken info consideration, a database is ' +
-  'mandatory if a collection is set', validateCollection).
-parse(process.argv);
+  version(require('../package.json').version).
+  option('-a, --analysis', 'prints the results of the data model analysis including the databases and collections ' +
+    'which need to be migrated to the currently configured data model (mandatory if not -m or --migrate)').
+  option('-m, --migrate', 'migrates to the currently configured data model all the databases and collections which ' +
+    'has been created using a distinct data model (mandatory if not -a or --analysis)').
+  option('-r, --remove-collection', 'the original data model collection will be removed to avoid conflict if ' +
+    'migrating back to that data model in the future').
+  option('-u, --update-collection', 'the migration will take place even if the target collections already exist ' +
+    'combining the data of the original and target collections (use this option with special care since ' +
+    'the migration operation is not idempotent for the aggregated data collections)').
+  option('-d, --database <databaseName>', 'only this database will be taken into consideration for the analysis ' +
+    'and/or migration process').
+  option('-c, --collection <collectionName>', 'only this collection will be taken info consideration, a database is ' +
+    'mandatory if a collection is set', validateCollection).
+  parse(process.argv);
 
 executeCommand();

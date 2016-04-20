@@ -784,6 +784,8 @@ describe('sth_database_model tests', function() {
           describe('data model analysis', function() {
             before(connectToDatabase);
 
+            cleanDatabaseTests(dataType);
+
             collectionPerAttributeAnalysisTests(sthTestConfig.DATA_TYPES[dataType], aggregationType);
 
             collectionPerEntityAnalysisTests(sthTestConfig.DATA_TYPES[dataType], aggregationType);
@@ -793,6 +795,8 @@ describe('sth_database_model tests', function() {
 
           describe('data model migration', function() {
             before(connectToDatabase);
+
+            cleanDatabaseTests(dataType);
 
             collectionPerEntityNotUpdatableMigrationTests(sthTestConfig.DATA_TYPES[dataType], aggregationType);
 
