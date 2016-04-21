@@ -53,11 +53,11 @@ config.server = {
 //------------------------
 config.database = {
   // The service to be used if not sent by the Orion Context Broker in the notifications.
-  // Default value: "testService".
-  defaultService: 'testService',
+  // Default value: "testservice".
+  defaultService: 'testservice',
   // The service path to be used if not sent by the Orion Context Broker in the notifications.
-  // Default value: "/testServicePath".
-  defaultServicePath: '/testServicePath',
+  // Default value: "/testservicepath".
+  defaultServicePath: '/testservicesath',
   // The STH component supports 3 alternative models when storing the raw and aggregated data
   // into the database: 1) one collection per attribute, 2) one collection per entity and
   // 3) one collection per service path. The possible values are: "collection-per-attribute",
