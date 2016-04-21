@@ -334,10 +334,9 @@ function eachEventTestSuite(attrName, attrType, includeTimeInstantMetadata) {
  * @param {Function} done The mocha done() callback function
  */
 function dropRawEventCollectionTest(done) {
-  var databaseName = sthDatabase.getDatabaseName(sthConfig.DEFAULT_SERVICE);
   var collectionName4Events = sthDatabase.getCollectionName4Events(
     {
-      databaseName: databaseName,
+      service: sthConfig.DEFAULT_SERVICE,
       servicePath: sthConfig.DEFAULT_SERVICE_PATH,
       entityId: sthTestConfig.ENTITY_ID,
       entityType: sthTestConfig.ENTITY_TYPE,
@@ -357,10 +356,9 @@ function dropRawEventCollectionTest(done) {
  * @param {Function} done The mocha done() callback function
  */
 function dropAggregatedDataCollectionTest(done) {
-  var databaseName = sthDatabase.getDatabaseName(sthConfig.DEFAULT_SERVICE);
   var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
     {
-      databaseName: databaseName,
+      service: sthConfig.DEFAULT_SERVICE,
       servicePath: sthConfig.DEFAULT_SERVICE_PATH,
       entityId: sthTestConfig.ENTITY_ID,
       entityType: sthTestConfig.ENTITY_TYPE,
@@ -1567,7 +1565,7 @@ function dataRemovalSuite(aggregationType, removalOptions) {
 
   before(function() {
     var contextResponseFile = './contextResponses/contextResponse' +
-      (aggregationType === sthConfig.AGGREGATION.TYPES.NUMERIC ? 'Numeric' : 'Textual') +
+      (aggregationType === sthConfig.AGGREGATIONS.NUMERIC ? 'Numeric' : 'Textual') +
       'WithFixedTimeInstant';
     contextResponsesObj =
       require(contextResponseFile);
@@ -1627,7 +1625,7 @@ function dataRemovalSuite(aggregationType, removalOptions) {
   });
 
   for (var i = 0; i < sthConfig.AGGREGATION_BY.length; i++) {
-    if (aggregationType === sthConfig.AGGREGATION.TYPES.NUMERIC) {
+    if (aggregationType === sthConfig.AGGREGATIONS.NUMERIC) {
       it('should retrieve the sum updated aggregated data',
         numericAggregatedDataUpdatedTest.bind(
           null,
@@ -1730,7 +1728,7 @@ function dataRemovalSuite(aggregationType, removalOptions) {
   });
 
   for (var j = 0; j < sthConfig.AGGREGATION_BY.length; j++) {
-    if (aggregationType === sthConfig.AGGREGATION.TYPES.NUMERIC) {
+    if (aggregationType === sthConfig.AGGREGATIONS.NUMERIC) {
       it('should not retrieve the deleted sum updated aggregated data',
         aggregatedDataNonExistentTest.bind(
           null,
