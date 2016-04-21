@@ -638,19 +638,18 @@ describe('sth_configuration tests', function() {
       }
     );
 
-    it('should set the database ignore blank spaces configuration parameter to the default value ' +
-      'if not set via DB_URI',
+    it('should set the database URI configuration parameter to \'mongodb1:27017,mongodb2:27017,mongodb3:27017\'',
       function() {
-        delete process.env.DB_URI;
+        process.env.DB_URI = 'mongodb1:27017,mongodb2:27017,mongodb3:27017';
         sthConfig = require(STH_CONFIGURATION_PATH);
-        expect(sthConfig.DB_URI).to.equal('localhost:27017');
+        expect(sthConfig.DB_URI).to.equal('mongodb1:27017,mongodb2:27017,mongodb3:27017');
       }
     );
 
     it('should set the database ignore blank spaces configuration parameter to the default value ' +
-      'if set to an invalid value',
+      'if not set via DB_URI',
       function() {
-        process.env.DB_URI = 'a.host:invalid-port';
+        delete process.env.DB_URI;
         sthConfig = require(STH_CONFIGURATION_PATH);
         expect(sthConfig.DB_URI).to.equal('localhost:27017');
       }
