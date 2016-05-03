@@ -44,7 +44,6 @@ var DATABASE_CONNECTION_PARAMS = {
   poolSize: sthConfig.POOL_SIZE
 };
 var COLLECTION_NAME_PARAMS = {
-  databaseName: DATABASE_NAME,
   service: sthConfig.DEFAULT_SERVICE,
   servicePath: sthConfig.DEFAULT_SERVICE_PATH,
   entityId: sthTestConfig.ENTITY_ID,
@@ -140,7 +139,7 @@ function insertData(dataType, aggregationType, dataModel, callback) {
 
   attribute.name = ATTRIBUTE.NAME;
   attribute.type = ATTRIBUTE.TYPE;
-  attribute.value = (aggregationType === sthConfig.AGGREGATION.TYPES.NUMERIC ?
+  attribute.value = (aggregationType === sthConfig.AGGREGATIONS.NUMERIC ?
     ATTRIBUTE.VALUE.NUMERIC : dataModel);
 
   sthConfig.DATA_MODEL = dataModel;
@@ -445,7 +444,7 @@ function expectRawDataMigration(params, options, done) {
         }
         expect(results.length).to.equal(1);
         expect(results[0].attrValue).to.equal(
-          params.aggregationType === sthConfig.AGGREGATION.TYPES.NUMERIC ?
+          params.aggregationType === sthConfig.AGGREGATIONS.NUMERIC ?
             ATTRIBUTE.VALUE.NUMERIC : params.originDataModel);
         targetCollection.find(getQuery4RawDataMigrationTest(params.targetDataModel, params.targetDataModel)).
           toArray(function(err, results) {
@@ -455,7 +454,7 @@ function expectRawDataMigration(params, options, done) {
             if (options.updateCollection) {
                 expect(results.length).to.equal(1);
                 expect(results[0].attrValue).to.equal(
-                  params.aggregationType === sthConfig.AGGREGATION.TYPES.NUMERIC ?
+                  params.aggregationType === sthConfig.AGGREGATIONS.NUMERIC ?
                     ATTRIBUTE.VALUE.NUMERIC : params.targetDataModel);
             } else {
               expect(results.length).to.equal(0);
@@ -776,7 +775,7 @@ function collectionPerEntityUpdateMigrationTests(dataType, aggregationType, opti
 }
 
 describe('sth_database_model tests', function() {
-  [sthConfig.AGGREGATION.TYPES.NUMERIC, sthConfig.AGGREGATION.TYPES.TEXTUAL].forEach(function(aggregationType) {
+  [sthConfig.AGGREGATIONS.NUMERIC, sthConfig.AGGREGATIONS.TEXTUAL].forEach(function(aggregationType) {
     describe(aggregationType + ' aggregation type', function() {
       var dataTypes = Object.keys(sthTestConfig.DATA_TYPES);
       dataTypes.forEach(function(dataType) {

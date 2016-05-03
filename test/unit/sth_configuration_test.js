@@ -50,7 +50,7 @@ var DEFAULT_VALUES = {
   WRITE_CONCERN: '1',
   SHOULD_STORE: 'both',
   SHOULD_HASH: false,
-  TRUNCATION_EXPIREAFTERSECONDS: 0,
+  TRUNCATION_EXPIRE_AFTER_SECONDS: 0,
   TRUNCATION_SIZE: 0,
   TRUNCATION_MAX: 0,
   IGNORE_BLANK_SPACES: true,
@@ -155,7 +155,7 @@ describe('sth_configuration tests', function() {
 
     it('should set the database truncation expiration after seconds configuration parameter to its default value',
       function() {
-        expect(sthConfig.TRUNCATION_EXPIREAFTERSECONDS).to.equal(DEFAULT_VALUES.TRUNCATION_EXPIREAFTERSECONDS);
+        expect(sthConfig.TRUNCATION_EXPIRE_AFTER_SECONDS).to.equal(DEFAULT_VALUES.TRUNCATION_EXPIRE_AFTER_SECONDS);
       }
     );
 
@@ -579,27 +579,27 @@ describe('sth_configuration tests', function() {
 
     it('should set the database truncation expiration time configuration parameter to \'123456789\'',
       function() {
-        process.env.TRUNCATION_EXPIREAFTERSECONDS = '123456789';
+        process.env.TRUNCATION_EXPIRE_AFTER_SECONDS = '123456789';
         sthConfig = require(STH_CONFIGURATION_PATH);
-        expect(sthConfig.TRUNCATION_EXPIREAFTERSECONDS).to.equal(123456789);
+        expect(sthConfig.TRUNCATION_EXPIRE_AFTER_SECONDS).to.equal(123456789);
       }
     );
 
     it('should set the database truncation expiration time configuration parameter to the default value ' +
-      'if not set via TRUNCATION_EXPIREAFTERSECONDS',
+      'if not set via TRUNCATION_EXPIRE_AFTER_SECONDS',
       function() {
-        delete process.env.TRUNCATION_EXPIREAFTERSECONDS;
+        delete process.env.TRUNCATION_EXPIRE_AFTER_SECONDS;
         sthConfig = require(STH_CONFIGURATION_PATH);
-        expect(sthConfig.TRUNCATION_EXPIREAFTERSECONDS).to.equal(DEFAULT_VALUES.TRUNCATION_EXPIREAFTERSECONDS);
+        expect(sthConfig.TRUNCATION_EXPIRE_AFTER_SECONDS).to.equal(DEFAULT_VALUES.TRUNCATION_EXPIRE_AFTER_SECONDS);
       }
     );
 
     it('should set the database truncation expiration time configuration parameter to the default value ' +
       'if set to an invalid value',
       function() {
-        process.env.TRUNCATION_EXPIREAFTERSECONDS = 'not-a-number';
+        process.env.TRUNCATION_EXPIRE_AFTER_SECONDS = 'not-a-number';
         sthConfig = require(STH_CONFIGURATION_PATH);
-        expect(sthConfig.TRUNCATION_EXPIREAFTERSECONDS).to.equal(DEFAULT_VALUES.TRUNCATION_EXPIREAFTERSECONDS);
+        expect(sthConfig.TRUNCATION_EXPIRE_AFTER_SECONDS).to.equal(DEFAULT_VALUES.TRUNCATION_EXPIRE_AFTER_SECONDS);
       }
     );
 
