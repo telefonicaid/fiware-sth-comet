@@ -32,3 +32,5 @@ WORKDIR /opt/sth
 RUN npm install
 
 ENTRYPOINT bin/sth
+
+EXPOSE 8666
