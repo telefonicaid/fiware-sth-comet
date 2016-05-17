@@ -274,6 +274,44 @@ function analysisExclusionTest(dataType, originDataModel, targetDataModel, done)
 }
 
 /**
+ * Test to check that the collection names collection is not included in the analysis
+ * @param  {String}   targetDataModel The target data model
+ * @param  {Function} done            Mocha done() funtion
+ */
+function collectionNamesNotIncludedTest(targetDataModel, done) {
+  sthConfig.DATA_MODEL = targetDataModel;
+  sthDatabaseModel.getDataModelAnalysis(function(err, analysis) {
+    if (err) {
+      return done(err);
+    }
+    expect(!isCollectionIncluded(analysis, DATABASE_NAME, sthConfig.COLLECTION_PREFIX + 'collection_names'));
+    done();
+  });
+}
+
+/**
+ * Test to check that no system.* collections are included in the analysis
+ * @param  {String}   targetDataModel The target data model
+ * @param  {Function} done            Mocha done() funtion
+ */
+function systemCollectionNotIncludedTest(targetDataModel, done) {
+  sthConfig.DATA_MODEL = targetDataModel;
+  sthDatabaseModel.getDataModelAnalysis(function(err, analysis) {
+    if (err) {
+      return done(err);
+    }
+    for (var index1 = 0; index1 < analysis.result.length; index1++) {
+      if (analysis.result[index1].databaseName === DATABASE_NAME) {
+        for (var index2 = 0; index2 < analysis.result[index1].collections2Migrate.length; index2++) {
+          expect(analysis.result[index1].collections2Migrate[index2].collectionName.indexOf('system.')).not.to.equal(0);
+        }
+      }
+    }
+    done();
+  });
+}
+
+/**
  * Set of tests to check that the analysis works fine for the collection-per-attribute collections
  * @param  {String}  dataType        The data type
  * @param  {String}  aggregationType The aggregation type
@@ -284,6 +322,30 @@ function collectionPerAttributeAnalysisTests(dataType, aggregationType) {
       dataType + ' data collection',
       insertData.bind(null, dataType, aggregationType,
         sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
+
+    it('should not detect the ' + sthConfig.COLLECTION_PREFIX + 'collection_names collection needs migration to the ' +
+      sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
+      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
+
+    it('should not detect the ' + sthConfig.COLLECTION_PREFIX + 'collection_names collection needs migration to the ' +
+      sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
+      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
+
+    it('should not detect the ' + sthConfig.COLLECTION_PREFIX + 'collection_names collection needs migration to the ' +
+      sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
+      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
+
+    it('should not detect the any system.* collection needs migration to the ' +
+      sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
+      systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
+
+    it('should not detect the any system.* collection needs migration to the ' +
+      sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
+      systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
+
+    it('should not detect the any system.* collection needs migration to the ' +
+      sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
+      systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
 
     it('should not detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' ' +
       dataType + ' data collection needs ' +
@@ -321,6 +383,30 @@ function collectionPerEntityAnalysisTests(dataType, aggregationType) {
       dataType + ' data collection',
       insertData.bind(null, dataType, aggregationType, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
 
+    it('should not detect the ' + sthConfig.COLLECTION_PREFIX + 'collection_names collection needs migration to the ' +
+      sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
+      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
+
+    it('should not detect the ' + sthConfig.COLLECTION_PREFIX + 'collection_names collection needs migration to the ' +
+      sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
+      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
+
+    it('should not detect the ' + sthConfig.COLLECTION_PREFIX + 'collection_names collection needs migration to the ' +
+      sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
+      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
+
+    it('should not detect the any system.* collection needs migration to the ' +
+      sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
+      systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
+
+    it('should not detect the any system.* collection needs migration to the ' +
+      sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
+      systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
+
+    it('should not detect the any system.* collection needs migration to the ' +
+      sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
+      systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
+
     it('should not detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' +
       dataType + ' data collection needs ' +
       'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
@@ -357,6 +443,30 @@ function collectionPerServicePathAnalysisTests(dataType, aggregationType) {
       dataType + ' data collection',
       insertData.bind(null, dataType, aggregationType,
         sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
+
+    it('should not detect the ' + sthConfig.COLLECTION_PREFIX + 'collection_names collection needs migration to the ' +
+      sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
+      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
+
+    it('should not detect the ' + sthConfig.COLLECTION_PREFIX + 'collection_names collection needs migration to the ' +
+      sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
+      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
+
+    it('should not detect the ' + sthConfig.COLLECTION_PREFIX + 'collection_names collection needs migration to the ' +
+      sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
+      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
+
+    it('should not detect the any system.* collection needs migration to the ' +
+      sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
+      systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
+
+    it('should not detect the any system.* collection needs migration to the ' +
+      sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
+      systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
+
+    it('should not detect the any system.* collection needs migration to the ' +
+      sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
+      systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
 
     it('should not detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' +
       dataType + ' data collection needs ' +
