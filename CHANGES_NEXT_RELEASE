@@ -10,3 +10,4 @@
 - [TASK] Using lower case in the default service and service path configuration parameters
 - [TASK] Same order of the configuration parameters in all the configuration related files
 - [BUG] Show migration progress for aggregated data collections
+- [BUG] Avoid filtering all the databases and collections if filtered out
