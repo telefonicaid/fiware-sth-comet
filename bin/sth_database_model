@@ -224,7 +224,8 @@ function executeCommand() {
     // Only analysis printing requested
     async.waterfall(
       [
-        sthDatabaseModel.getDataModelAnalysis,
+        async.apply(sthDatabaseModel.getDataModelAnalysis,
+          {database: commander.database, collection: commander.collection}),
         filterAnalysis
       ],
       onAnalysis
