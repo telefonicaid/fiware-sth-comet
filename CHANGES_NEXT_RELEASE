@@ -11,3 +11,4 @@
 - [TASK] Same order of the configuration parameters in all the configuration related files
 - [BUG] Show migration progress for aggregated data collections
 - [BUG] Avoid filtering all the databases and collections if filtered out
+- [FEATURE] Show informational log messages when a collection migration finishes
