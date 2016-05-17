@@ -112,14 +112,18 @@ function print2Target(target, analysis, callback) {
   }
 
   output += '- Current configured data model: ' + sthConfig.DATA_MODEL + '\n\n' +
-    '- The following databases and collection need to be migrated:\n';
+    '- The following databases and collections need to be migrated:\n';
   if (analysis.result.length) {
     analysis.result.forEach(function (databaseInfo) {
       output += '  - Database: \'' + databaseInfo.databaseName + '\'\n';
-      databaseInfo.collections2Migrate.forEach(function (collectionInfo) {
-        output += '    - Collection \'' + collectionInfo.collectionName + '\'\n';
-        output += '      - Data model: ' + collectionInfo.dataModel + '\n';
-      });
+      if (databaseInfo.collections2Migrate.length === 0) {
+        output += '    - No collection needs migration\n';
+      } else {
+        databaseInfo.collections2Migrate.forEach(function (collectionInfo) {
+          output += '    - Collection \'' + collectionInfo.collectionName + '\'\n';
+          output += '      - Data model: ' + collectionInfo.dataModel + '\n';
+        });
+      }
     });
   } else {
     output += '  - No collection needs migration\n';
@@ -183,7 +187,23 @@ function migrateCollection(databaseName, collectionInfo, callback) {
     collectionMigrationProgress = sthDatabaseModel.migrateCollection(
       databaseName, collectionInfo.collectionName,
       {removeCollection: commander.removeCollection, updateCollection: commander.updateCollection},
-      callback);
+      function(err) {
+        if (!err) {
+          sthLogger.info(
+            sthConfig.LOGGING_CONTEXT.DB_LOG,
+            'Collection \'' + collectionInfo.collectionName + '\' of the database \'' +
+              databaseName + '\' successfully migrated to the \'' + sthConfig.DATA_MODEL + '\' data model'
+          );
+          if (commander.removeCollection) {
+            sthLogger.info(
+              sthConfig.LOGGING_CONTEXT.DB_LOG,
+              'Collection \'' + collectionInfo.collectionName + '\' of the database \'' +
+                databaseName + '\' successfully removed as requested'
+            );
+          }
+        }
+        return process.nextTick(callback.bind(null, err));
+      });
     collectionMigrationProgress.on('progress', function(progressData) {
       progress = progress || new Progress('Processing: [:bar] :percent (migrated :current documents of :total), ' +
           'Elapsed: :elapsed, Pending: :eta', { total: progressData.total, width: 100 });
