@@ -9,3 +9,4 @@
 - [BUG] Fixing the configuration of the database URI to allow multi-instance connections
 - [TASK] Using lower case in the default service and service path configuration parameters
 - [TASK] Same order of the configuration parameters in all the configuration related files
+- [BUG] Show migration progress for aggregated data collections

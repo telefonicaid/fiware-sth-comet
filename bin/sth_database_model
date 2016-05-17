@@ -182,7 +182,7 @@ function migrateCollection(databaseName, collectionInfo, callback) {
     );
     collectionMigrationProgress = sthDatabaseModel.migrateCollection(
       databaseName, collectionInfo.collectionName,
-      { removeCollection: commander.removeCollection, updateCollection: commander.updateCollection},
+      {removeCollection: commander.removeCollection, updateCollection: commander.updateCollection},
       callback);
     collectionMigrationProgress.on('progress', function(progressData) {
       progress = progress || new Progress('Processing: [:bar] :percent (migrated :current documents of :total), ' +
