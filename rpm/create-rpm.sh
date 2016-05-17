@@ -77,6 +77,10 @@ fi
 
 PROXY_USER="sth"
 
+# Clean previous builds of rpm
+echo "INFO: Clean previous builds of rpm <${RPM_BASE_DIR}/{RPMS,BUILDROOT,BUILD,SRPMS}>"
+rm -rf ${RPM_BASE_DIR}/{RPMS,BUILDROOT,BUILD,SRPMS}
+
 rpmbuild -ba ${RPM_BASE_DIR}/SPECS/sth.spec \
     --define "_topdir ${RPM_BASE_DIR}" \
     --define "_project_user ${PROXY_USER}" \
