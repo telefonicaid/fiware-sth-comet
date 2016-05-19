@@ -12,3 +12,4 @@
 - [BUG] Show migration progress for aggregated data collections
 - [BUG] Avoid filtering all the databases and collections if filtered out
 - [FEATURE] Show informational log messages when a collection migration finishes
+- [FEATURE] Allow the option to migrate the pending collections in case a previous collection migration throws an error

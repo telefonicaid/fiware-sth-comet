@@ -188,7 +188,18 @@ function migrateCollection(databaseName, collectionInfo, callback) {
       databaseName, collectionInfo.collectionName,
       {removeCollection: commander.removeCollection, updateCollection: commander.updateCollection},
       function(err) {
-        if (!err) {
+        if (err) {
+          if (commander.full) {
+            sthLogger.error(
+              sthConfig.LOGGING_CONTEXT.DB_LOG,
+              'Collection \'' + collectionInfo.collectionName + '\' of the database \'' +
+                databaseName + '\' could not be migrated to the \'' + sthConfig.DATA_MODEL + '\' data model due to ' +
+                'error: ',
+              err
+            );
+            return process.nextTick(callback);
+          }
+        } else {
           sthLogger.info(
             sthConfig.LOGGING_CONTEXT.DB_LOG,
             'Collection \'' + collectionInfo.collectionName + '\' of the database \'' +
@@ -203,7 +214,8 @@ function migrateCollection(databaseName, collectionInfo, callback) {
           }
         }
         return process.nextTick(callback.bind(null, err));
-      });
+      }
+    );
     collectionMigrationProgress.on('progress', function(progressData) {
       progress = progress || new Progress('Processing: [:bar] :percent (migrated :current documents of :total), ' +
           'Elapsed: :elapsed, Pending: :eta', { total: progressData.total, width: 100 });
@@ -307,6 +319,9 @@ commander.
   option('-u, --update-collection', 'the migration will take place even if the target collections already exist ' +
     'combining the data of the original and target collections (use this option with special care since ' +
     'the migration operation is not idempotent for the aggregated data collections)').
+  option('-f, --full', 'the migration will continue with the pending collections in case a previous collection ' +
+    'throws an error and cannot be migrated (it is recommended to be used with the -r option to avoid subsequent ' +
+    ' migrations of the same aggregated data collections)').
   option('-d, --database <databaseName>', 'only this database will be taken into consideration for the analysis ' +
     'and/or migration process').
   option('-c, --collection <collectionName>', 'only this collection will be taken info consideration, a database is ' +
