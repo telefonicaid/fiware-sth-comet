@@ -33,6 +33,8 @@ var async = require('async');
 var commander = require('commander');
 var Progress = require('progress');
 
+var migrationSummary = {};
+
 /**
  * Exits the process releasing any used resources
  * @param err Error if something happens
@@ -167,6 +169,16 @@ var onAnalysis = function(err, analysis) {
  * @param err The error if something happened
  */
 function onMigration(err) {
+  var migrationSummaryText = 'Result of the migration process to the \'' + sthConfig.DATA_MODEL + '\' data model:';
+  for (var databaseName in migrationSummary) {
+    migrationSummaryText += '\n  - Database \'' + databaseName + '\': ' + migrationSummary[databaseName].success +
+      ' collections successfully migrated, ' + migrationSummary[databaseName].error + ' collections not migrated ' +
+      'due to errors';
+  }
+  sthLogger.info(
+    sthConfig.LOGGING_CONTEXT.DB_LOG,
+    migrationSummaryText
+  );
   exitGracefully(err);
 }
 
@@ -190,6 +202,7 @@ function migrateCollection(databaseName, collectionInfo, callback) {
         dictionary: commander.dictionary},
       function(err) {
         if (err) {
+          migrationSummary[databaseName].error += 1;
           if (commander.full) {
             sthLogger.error(
               sthConfig.LOGGING_CONTEXT.DB_LOG,
@@ -201,6 +214,7 @@ function migrateCollection(databaseName, collectionInfo, callback) {
             return process.nextTick(callback);
           }
         } else {
+          migrationSummary[databaseName].success += 1;
           sthLogger.info(
             sthConfig.LOGGING_CONTEXT.DB_LOG,
             'Collection \'' + collectionInfo.collectionName + '\' of the database \'' +
@@ -235,6 +249,10 @@ function migrateCollection(databaseName, collectionInfo, callback) {
  * @param callback The callback
  */
 function migrateDatabase(databaseInfo, callback) {
+  migrationSummary[databaseInfo.databaseName] = {
+    error: 0,
+    success: 0
+  };
   async.eachSeries(
     databaseInfo.collections2Migrate, async.apply(migrateCollection, databaseInfo.databaseName), callback);
 }
