@@ -347,9 +347,9 @@ commander.
     'mandatory if a collection is set', validateCollection).
   option('-x, --dictionary <dictionary>', 'the path to a file including a dictionary to resolve the names of the ' +
     'collections to be migrated to their associated data (i.e., service path, entity id, entity type, attribute name ' +
-    'and attribute type) (it is expected as a CSV file with lines including the following info: <service-path>,' +
-    '<entity-id>,<entity-type>,<attribute-name>,<attribute-type>, some of which may not apply and can be left as ' +
-    'blank)').
+    'and attribute type) (it is expected as a CSV file with lines including the following info: <collection-name>,' +
+    '<service-path>,<entity-id>,<entity-type>,<attribute-name>,<attribute-type>, some of which may not apply and can ' +
+    'be left as blank)').
   parse(process.argv);
 
 executeCommand();
