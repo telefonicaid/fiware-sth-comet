@@ -212,6 +212,8 @@ function migrateCollection(databaseName, collectionInfo, callback) {
               err
             );
             return process.nextTick(callback);
+          } else {
+            return process.nextTick(callback.bind(null, err));
           }
         } else {
           migrationSummary[databaseName].success += 1;
@@ -227,8 +229,8 @@ function migrateCollection(databaseName, collectionInfo, callback) {
                 databaseName + '\' successfully removed as requested'
             );
           }
+          return process.nextTick(callback);
         }
-        return process.nextTick(callback.bind(null, err));
       }
     );
     collectionMigrationProgress.on('progress', function(progressData) {
@@ -246,9 +248,21 @@ function migrateCollection(databaseName, collectionInfo, callback) {
       }
     });
   } else {
-    process.nextTick(callback.bind(null,
-      new sthError.NotSupportedMigration(databaseName, collectionInfo.collectionName, collectionInfo.dataModel,
-        sthConfig.DATA_MODEL)));
+    var err = new sthError.NotSupportedMigration(databaseName, collectionInfo.collectionName, collectionInfo.dataModel,
+      sthConfig.DATA_MODEL);
+    migrationSummary[databaseName].error += 1;
+    if (commander.full) {
+      sthLogger.error(
+        sthConfig.LOGGING_CONTEXT.DB_LOG,
+        'Collection \'' + collectionInfo.collectionName + '\' of the database \'' +
+          databaseName + '\' could not be migrated to the \'' + sthConfig.DATA_MODEL + '\' data model due to ' +
+          'error: ',
+        err
+      );
+      return process.nextTick(callback);
+    } else {
+      return process.nextTick(callback.bind(null, err));
+    }
   }
 }
 

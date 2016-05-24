@@ -15,3 +15,4 @@
 - [FEATURE] Allow the option to migrate the pending collections in case a previous collection migration throws an error
 - [FEATURE] Include the possibility to provide a dictionary to map collection names to collection associated data
 - [FEATURE] Include the option to set the number of documents in collections to show the progress of the migration
+- [BUG] Continue the migration process if -f and a not supported migration collection is found
