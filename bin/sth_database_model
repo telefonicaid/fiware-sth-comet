@@ -189,7 +189,7 @@ function onMigration(err) {
  * @param callback The callback
  */
 function migrateCollection(databaseName, collectionInfo, callback) {
-  var collectionMigrationProgress, progress;
+  var collectionMigrationProgress, progress, showProgress = false, showProgressChecked = false;
   if (collectionInfo.dataModel === sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY){
     sthLogger.info(
       sthConfig.LOGGING_CONTEXT.DB_LOG,
@@ -232,9 +232,18 @@ function migrateCollection(databaseName, collectionInfo, callback) {
       }
     );
     collectionMigrationProgress.on('progress', function(progressData) {
-      progress = progress || new Progress('Processing: [:bar] :percent (migrated :current documents of :total), ' +
-          'Elapsed: :elapsed, Pending: :eta', { total: progressData.total, width: 100 });
-      progress.tick();
+      if (!showProgressChecked && !showProgress && commander.verbose) {
+        showProgressChecked = true;
+        if (progressData.total >=
+          (commander.verbose === true || isNaN(commander.verbose) ? 1 : parseInt(commander.verbose))) {
+          showProgress = true;
+        }
+      }
+      if (showProgress) {
+        progress = progress || new Progress('Processing: [:bar] :percent (migrated :current documents of :total), ' +
+            'Elapsed: :elapsed, Pending: :eta', { total: progressData.total, width: 100 });
+        progress.tick();
+      }
     });
   } else {
     process.nextTick(callback.bind(null,
@@ -333,6 +342,8 @@ commander.
     'which need to be migrated to the currently configured data model (mandatory if not -m or --migrate)').
   option('-m, --migrate', 'migrates to the currently configured data model all the databases and collections which ' +
     'has been created using a distinct data model (mandatory if not -a or --analysis)').
+  option('-v, --verbose [documents]', 'shows migration progress information if the number of documents to ' +
+    'migrate in the collection is bigger or equal to the optional value passed (1 if no value passed)').
   option('-r, --remove-collection', 'the original data model collection will be removed to avoid conflict if ' +
     'migrating back to that data model in the future').
   option('-u, --update-collection', 'the migration will take place even if the target collections already exist ' +

@@ -387,6 +387,7 @@ Usage: sth_database_model [options]
     -V, --version                      output the version number
     -a, --analysis                     prints the results of the data model analysis including the databases and collections which need to be migrated to the currently configured data model (mandatory if not -m or --migrate)
     -m, --migrate                      migrates to the currently configured data model all the databases and collections which has been created using a distinct data model (mandatory if not -a or --analysis)
+    -v, --verbose [documents]          shows migration progress information if the number of documents to migrate in the collection is bigger or equal to the optional value passed (1 if no value passed)
     -r, --remove-collection            the original data model collection will be removed to avoid conflict if migrating back to that data model in the future
     -u, --update-collection            the migration will take place even if the target collections already exist combining the data of the original and target collections (use this option with special care since the migration operation is not idempotent for the aggregated data collections)
     -f, --full                         the migration will continue with the pending collections in case a previous collection throws an error and cannot be migrated (it is recommended to be used with the -r option to avoid subsequent  migrations of the same aggregated data collections)
