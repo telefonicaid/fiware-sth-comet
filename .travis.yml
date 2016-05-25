@@ -1,0 +1,28 @@
+language: node_js
+
+node_js:
+ - "0.10"
+ - "4"
+
+branches:
+  only:
+    - develop
+    - master
+
+sudo: false
+
+services:
+- mongodb
+
+addons:
+  apt:
+    sources:
+    - mongodb-3.2-precise
+    packages:
+    - mongodb-org-server
+
+before_install:
+ - npm install -g grunt-cli
+
+install:
+ - npm install
