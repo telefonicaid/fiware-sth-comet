@@ -1327,7 +1327,7 @@ describe('sth_database tests', function() {
       sthDatabase.connect(INVALID_DATABASE_CONNECTION_PARAMS, function(err, connection) {
         expect(err).to.exist;
         expect(err.name).to.equal('MongoError');
-        expect(err.message).to.equal('getaddrinfo ENOTFOUND');
+        expect(err.message.indexOf('getaddrinfo ENOTFOUND')).to.equal(0);
         expect(connection).to.equal(null);
         done();
       });
@@ -1339,7 +1339,7 @@ describe('sth_database tests', function() {
       sthDatabase.connect(INVALID_DATABASE_CONNECTION_PARAMS, function(err, connection) {
         expect(err).to.exist;
         expect(err.name).to.equal('MongoError');
-        expect(err.message).to.equal('connect ECONNREFUSED');
+        expect(err.message.indexOf('connect ECONNREFUSED')).to.equal(0);
         expect(connection).to.equal(null);
         done();
       });

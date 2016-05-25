@@ -16,3 +16,4 @@
 - [FEATURE] Include the possibility to provide a dictionary to map collection names to collection associated data
 - [FEATURE] Include the option to set the number of documents in collections to show the progress of the migration
 - [BUG] Continue the migration process if -f and a not supported migration collection is found
+- [FEATURE] Make the unit tests compatible with v4.* of Node.js (also backward compatible with v0.10.42)
