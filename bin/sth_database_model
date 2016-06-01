@@ -1,0 +1,380 @@
+#!/usr/bin/env node
+
+/*
+ * Copyright 2015 Telefónica Investigación y Desarrollo, S.A.U
+ *
+ * This file is part of the Short Time Historic (STH) component
+ *
+ * STH is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the License,
+ * or (at your option) any later version.
+ *
+ * STH is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public
+ * License along with STH.
+ * If not, see http://www.gnu.org/licenses/.
+ *
+ * For those usages not covered by the GNU Affero General Public License
+ * please contact with: [german.torodelvalle@telefonica.com]
+ */
+
+'use strict';
+
+var sthConfig = require('../lib/sth_configuration');
+var sthLogger = require('logops');
+var sthError = require('../lib/sth_error');
+var sthDatabaseModel = require('../lib/sth_database_model');
+var async = require('async');
+var commander = require('commander');
+var Progress = require('progress');
+
+var migrationSummary = {};
+
+/**
+ * Exits the process releasing any used resources
+ * @param err Error if something happens
+ */
+function exitGracefully(err) {
+  if (err) {
+    sthLogger.error(
+      sthConfig.LOGGING_CONTEXT.DB_LOG,
+      'Exiting gracefully due to error: ',
+      err
+    );
+  }
+  sthDatabaseModel.cleanResources(function() {
+    process.exit(err ? 1 : 0);
+  });
+}
+
+// In case Control+C is clicked, exit gracefully
+process.on('SIGINT', function () {
+  return exitGracefully();
+});
+
+// In case of an uncaught exception exists gracefully
+process.on('uncaughtException', function (exception) {
+  return exitGracefully(exception);
+});
+
+/**
+ * Filters the collections not requested to be migrated
+ * @param  {Object} databaseEntry An analysis report databaes entry
+ */
+function filterCollections(databaseEntry) {
+  for (var j = 0; j < databaseEntry.collections2Migrate.length; j++) {
+    if (databaseEntry.collections2Migrate[j].collectionName !== commander.collection) {
+      databaseEntry.collections2Migrate.splice(j, 1);
+      j--;
+    }
+  }
+}
+
+/**
+ * Filters a data model analysis in case a concrete database has been set to be migrated
+ * @param analysis The analysis results to filter
+ * @param callback The callback
+ */
+function filterAnalysis(analysis, callback) {
+  if (commander.database) {
+    for (var i = 0; i < analysis.result.length; i++) {
+      if (analysis.result[i].databaseName !== commander.database) {
+        analysis.result.splice(i, 1);
+        i--;
+      } else if (commander.collection) {
+        filterCollections(analysis.result[i]);
+        if (!analysis.result[i].collections2Migrate.length) {
+          analysis.result.splice(i, 1);
+          i--;
+        }
+      }
+    }
+  }
+  process.nextTick(callback.bind(null, null, analysis));
+}
+
+/**
+ * Prints the result of a data model analysis into the desired target
+ * @param target The target where to write the results of the data model analysis
+ * @param analysis The result of the data model analysis
+ * @param callback The callback
+ */
+function print2Target(target, analysis, callback) {
+  var output = '========== DATA MODEL ANALYSIS (' + new Date() + ' ==========\n\n';
+
+  if (commander.database) {
+    output += '- Analisys delimited to ';
+    output += commander.collection ? 'collection \'' + commander.collection + '\' of ' : '';
+    output += 'database \'' + commander.database + '\'\n\n';
+  }
+
+  output += '- Current configured data model: ' + sthConfig.DATA_MODEL + '\n\n' +
+    '- The following databases and collections need to be migrated:\n';
+  if (analysis.result.length) {
+    analysis.result.forEach(function (databaseInfo) {
+      output += '  - Database: \'' + databaseInfo.databaseName + '\'\n';
+      if (databaseInfo.collections2Migrate.length === 0) {
+        output += '    - No collection needs migration\n';
+      } else {
+        databaseInfo.collections2Migrate.forEach(function (collectionInfo) {
+          output += '    - Collection \'' + collectionInfo.collectionName + '\'\n';
+          output += '      - Data model: ' + collectionInfo.dataModel + '\n';
+        });
+      }
+    });
+  } else {
+    output += '  - No collection needs migration\n';
+  }
+
+  switch (target) {
+    case 'console':
+      console.log('\n' + output);
+      break;
+  }
+
+  process.nextTick(callback.bind(null, null, analysis));
+}
+
+/**
+ * Analysis result handler
+ * @param err The error if anything happened
+ * @param analysis The result of the analysis if available
+ */
+var onAnalysis = function(err, analysis) {
+  if (err) {
+    sthLogger.error(
+      sthConfig.LOGGING_CONTEXT.DB_LOG,
+      'Some error ocurred: ',
+      err
+    );
+  } else {
+    sthLogger.info(
+      sthConfig.LOGGING_CONTEXT.DB_LOG,
+      'Analysis finished successfully with result: ',
+      JSON.stringify(analysis)
+    );
+    print2Target('console', analysis, function () {
+      exitGracefully(err);
+    });
+  }
+};
+
+/**
+ * Migration result handler
+ * @param err The error if something happened
+ */
+function onMigration(err) {
+  var migrationSummaryText = 'Result of the migration process to the \'' + sthConfig.DATA_MODEL + '\' data model:';
+  for (var databaseName in migrationSummary) {
+    migrationSummaryText += '\n  - Database \'' + databaseName + '\': ' + migrationSummary[databaseName].success +
+      ' collections successfully migrated, ' + migrationSummary[databaseName].error + ' collections not migrated ' +
+      'due to errors';
+  }
+  sthLogger.info(
+    sthConfig.LOGGING_CONTEXT.DB_LOG,
+    migrationSummaryText
+  );
+  exitGracefully(err);
+}
+
+/**
+ * Migrates a collection from its current data model implementation to the currently configured one
+ * @param databaseName The database name
+ * @param collectionInfo The collection info
+ * @param callback The callback
+ */
+function migrateCollection(databaseName, collectionInfo, callback) {
+  var collectionMigrationProgress, progress, showProgress = false, showProgressChecked = false;
+  if (collectionInfo.dataModel === sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY){
+    sthLogger.info(
+      sthConfig.LOGGING_CONTEXT.DB_LOG,
+      'Migration of the collection \'' + collectionInfo.collectionName + '\' of the database \'' +
+      databaseName + '\' to the \'' + sthConfig.DATA_MODEL + '\' data model...'
+    );
+    collectionMigrationProgress = sthDatabaseModel.migrateCollection(
+      databaseName, collectionInfo.collectionName,
+      {removeCollection: commander.removeCollection, updateCollection: commander.updateCollection,
+        dictionary: commander.dictionary},
+      function(err) {
+        if (err) {
+          migrationSummary[databaseName].error += 1;
+          if (commander.full) {
+            sthLogger.error(
+              sthConfig.LOGGING_CONTEXT.DB_LOG,
+              'Collection \'' + collectionInfo.collectionName + '\' of the database \'' +
+                databaseName + '\' could not be migrated to the \'' + sthConfig.DATA_MODEL + '\' data model due to ' +
+                'error: ',
+              err
+            );
+            return process.nextTick(callback);
+          } else {
+            return process.nextTick(callback.bind(null, err));
+          }
+        } else {
+          migrationSummary[databaseName].success += 1;
+          sthLogger.info(
+            sthConfig.LOGGING_CONTEXT.DB_LOG,
+            'Collection \'' + collectionInfo.collectionName + '\' of the database \'' +
+              databaseName + '\' successfully migrated to the \'' + sthConfig.DATA_MODEL + '\' data model'
+          );
+          if (commander.removeCollection) {
+            sthLogger.info(
+              sthConfig.LOGGING_CONTEXT.DB_LOG,
+              'Collection \'' + collectionInfo.collectionName + '\' of the database \'' +
+                databaseName + '\' successfully removed as requested'
+            );
+          }
+          return process.nextTick(callback);
+        }
+      }
+    );
+    collectionMigrationProgress.on('progress', function(progressData) {
+      if (!showProgressChecked && !showProgress && commander.verbose) {
+        showProgressChecked = true;
+        if (progressData.total >=
+          (commander.verbose === true || isNaN(commander.verbose) ? 1 : parseInt(commander.verbose))) {
+          showProgress = true;
+        }
+      }
+      if (showProgress) {
+        progress = progress || new Progress('Processing: [:bar] :percent (migrated :current documents of :total), ' +
+            'Elapsed: :elapsed, Pending: :eta', { total: progressData.total, width: 100 });
+        progress.tick();
+      }
+    });
+  } else {
+    var err = new sthError.NotSupportedMigration(databaseName, collectionInfo.collectionName, collectionInfo.dataModel,
+      sthConfig.DATA_MODEL);
+    migrationSummary[databaseName].error += 1;
+    if (commander.full) {
+      sthLogger.error(
+        sthConfig.LOGGING_CONTEXT.DB_LOG,
+        'Collection \'' + collectionInfo.collectionName + '\' of the database \'' +
+          databaseName + '\' could not be migrated to the \'' + sthConfig.DATA_MODEL + '\' data model due to ' +
+          'error: ',
+        err
+      );
+      return process.nextTick(callback);
+    } else {
+      return process.nextTick(callback.bind(null, err));
+    }
+  }
+}
+
+/**
+ * Migrates the collection of certain database to its data model implementation to the currently configured one
+ * @param databaseInfo The database information
+ * @param callback The callback
+ */
+function migrateDatabase(databaseInfo, callback) {
+  migrationSummary[databaseInfo.databaseName] = {
+    error: 0,
+    success: 0
+  };
+  async.eachSeries(
+    databaseInfo.collections2Migrate, async.apply(migrateCollection, databaseInfo.databaseName), callback);
+}
+
+/**
+ * Migrates the collection of those databases needing migration from their current data model implementation to the
+ *  currently configured one
+ * @param analysis The result of the analysis of all the collections of all the databases
+ * @param callback The callback
+ */
+function migrateDatabases(analysis, callback) {
+  async.eachSeries(analysis.result, migrateDatabase, callback);
+}
+
+/**
+ * Executes the commander command
+ */
+function executeCommand() {
+  if (commander.analysis && !commander.migrate) {
+    // Only analysis printing requested
+    async.waterfall(
+      [
+        async.apply(sthDatabaseModel.getDataModelAnalysis,
+          {database: commander.database, collection: commander.collection}),
+        filterAnalysis
+      ],
+      onAnalysis
+    );
+  }
+
+  if (!commander.analysis && commander.migrate) {
+    // Only migration requested
+    async.waterfall(
+      [
+        sthDatabaseModel.getDataModelAnalysis,
+        filterAnalysis,
+        migrateDatabases
+      ],
+      onMigration
+    );
+  }
+
+  if (commander.analysis && commander.migrate) {
+    // Analysis printing and migration requested
+    async.waterfall(
+      [
+        sthDatabaseModel.getDataModelAnalysis,
+        filterAnalysis,
+        async.apply(print2Target, 'console'),
+        migrateDatabases
+      ],
+      onMigration
+    );
+  }
+
+  if (!commander.analysis && !commander.migrate) {
+    // Neither analysis printing or migration requested
+    commander.help();
+  }
+}
+
+/**
+ * Validates the collection name
+ * @param collectionName The collection name
+ */
+function validateCollection(collectionName) {
+  if (!collectionName || !commander.database) {
+    console.log('error: option \'-d, --database <databaseName>\' argument missing ' +
+      'if \'-c, --collection <collectionName>\' is set');
+  } else {
+    return collectionName;
+  }
+}
+
+commander.
+  version(require('../package.json').version).
+  option('-a, --analysis', 'prints the results of the data model analysis including the databases and collections ' +
+    'which need to be migrated to the currently configured data model (mandatory if not -m or --migrate)').
+  option('-m, --migrate', 'migrates to the currently configured data model all the databases and collections which ' +
+    'has been created using a distinct data model (mandatory if not -a or --analysis)').
+  option('-v, --verbose [documents]', 'shows migration progress information if the number of documents to ' +
+    'migrate in the collection is bigger or equal to the optional value passed (1 if no value passed)').
+  option('-r, --remove-collection', 'the original data model collection will be removed to avoid conflict if ' +
+    'migrating back to that data model in the future').
+  option('-u, --update-collection', 'the migration will take place even if the target collections already exist ' +
+    'combining the data of the original and target collections (use this option with special care since ' +
+    'the migration operation is not idempotent for the aggregated data collections)').
+  option('-f, --full', 'the migration will continue with the pending collections in case a previous collection ' +
+    'throws an error and cannot be migrated (it is recommended to be used with the -r option to avoid subsequent ' +
+    ' migrations of the same aggregated data collections)').
+  option('-d, --database <databaseName>', 'only this database will be taken into consideration for the analysis ' +
+    'and/or migration process').
+  option('-c, --collection <collectionName>', 'only this collection will be taken info consideration, a database is ' +
+    'mandatory if a collection is set', validateCollection).
+  option('-x, --dictionary <dictionary>', 'the path to a file including a dictionary to resolve the names of the ' +
+    'collections to be migrated to their associated data (i.e., service path, entity id, entity type, attribute name ' +
+    'and attribute type) (it is expected as a CSV file with lines including the following info: <collection-name>,' +
+    '<service-path>,<entity-id>,<entity-type>,<attribute-name>,<attribute-type>, some of which may not apply and can ' +
+    'be left as blank)').
+  parse(process.argv);
+
+executeCommand();

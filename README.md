@@ -8,8 +8,11 @@
     * [Consuming aggregated time series information] (#section1.3)
     * [Updating aggregated time series information] (#section1.4)
     * [Removing raw and aggregated time series information] (#section1.5)
+    * [Data migration between data models] (#section1.6)
 * [Dependencies](#section2)
 * [Installation](#section3)
+    * [Cloning the Github repository](#section3.1)
+    * [Using a RPM package](#section3.2)
 * [Automatic deployment using Docker](#section4)
 * [Running the STH server](#section5)
 * [STH component test coverage](#section7)
@@ -251,7 +254,7 @@ for the specified time frame), a response with code `200` is returned including 
 query.
 
 Another very important aspect is that since the strings are used as properties in the generated aggregated data, the [limitations
-to this regard imposed by MongoDB](https://docs.mongodb.org/manual/faq/developers/#dollar-sign-operator-escaping) must be followed. More concretely: "In some cases, you may wish to build a BSON object with a user-provided key. 
+to this regard imposed by MongoDB](https://docs.mongodb.org/manual/faq/developers/#dollar-sign-operator-escaping) must be followed. More concretely: "In some cases, you may wish to build a BSON object with a user-provided key.
 In these situations, keys will need to substitute the reserved $ and . characters. Any character is sufficient, but consider
 using the Unicode full width equivalents: U+FF04 (i.e. “＄”) and U+FF0E (i.e. “．”).". Consequently, take into consideration
 that if the textual values stored in the attributes for which aggregated data is being generated contain the `$` or the `.` characters,
@@ -268,10 +271,11 @@ The so-called minimalist option and the formal one.
 Regarding the formal option (based on using the Cygnus component for the updating), please refer to the documentation available at the
 <a href="https://github.com/telefonicaid/fiware-cygnus" target="_blank">Cygnus component repository</a>, and more concretely at the following links:
 
-* <a href="https://github.com/telefonicaid/fiware-cygnus/tree/master/flume" href="_blank">Cygnus connector documentation</a>
-* <a href="https://github.com/telefonicaid/fiware-cygnus/tree/master/flume#orion-subscription" href="_blank">Orion subscription</a>
+* <a href="https://github.com/telefonicaid/fiware-cygnus/blob/master/doc/user_and_programmer_guide/connecting_orion.md" href="_blank">Connecting Orion Context Broker and Cygnus</a>
+* <a href="https://github.com/telefonicaid/fiware-cygnus/blob/master/doc/flume_extensions_catalogue/orion_mongo_sink.md" href="_blank">OrionMongoSink</a>
+* <a href="https://github.com/telefonicaid/fiware-cygnus/blob/master/doc/flume_extensions_catalogue/orion_sth_sink.md" href="_blank">OrionSTHSink</a>
 
-The another option to update the aggregated time series information consists on directly subscribing the STH component
+The other option to update the aggregated time series information consists on directly subscribing the STH component
 to the Orion Context Broker to receive the corresponding notifications and generate and update the aggregated data.
 
 In the minimalist option, the STH component calculates aggregated data grouped at certain resolutions whenever it receives
@@ -353,6 +357,75 @@ parameter. This means that depending on its value, only the associated data (raw
 
 [Top](#section0)
 
+###<a id="section1.6"></a> Data migration between data models
+
+The STH component supports 3 alternative data models when storing the raw and aggregated data into the database:
+
+1. One collection per service path.
+2. One collection per entity.
+3. One collection per attribute.
+
+As their names reflect, each one of the supported data models stores the raw and aggregated data into one collection per service path, entity or attribute respectively.
+
+The default data model is the collection per entity one, but sometimes to get the best performance out of the MongoDB
+database where the raw and aggregated data is stored, alternative data models are needed. This is the reason why we
+introduced the data model migration tools.
+
+To set the desired data model to be used, please take a look at [Running the STH server](#section5) below.
+
+To run the data migration tool, please execute the following command:
+```
+./bin/sth_database_model
+```
+which will present the command help information:
+```
+Usage: sth_database_model [options]
+
+  Options:
+
+    -h, --help                         output usage information
+    -V, --version                      output the version number
+    -a, --analysis                     prints the results of the data model analysis including the databases and collections which need to be migrated to the currently configured data model (mandatory if not -m or --migrate)
+    -m, --migrate                      migrates to the currently configured data model all the databases and collections which has been created using a distinct data model (mandatory if not -a or --analysis)
+    -v, --verbose [documents]          shows migration progress information if the number of documents to migrate in the collection is bigger or equal to the optional value passed (1 if no value passed)
+    -r, --remove-collection            the original data model collection will be removed to avoid conflict if migrating back to that data model in the future
+    -u, --update-collection            the migration will take place even if the target collections already exist combining the data of the original and target collections (use this option with special care since the migration operation is not idempotent for the aggregated data collections)
+    -f, --full                         the migration will continue with the pending collections in case a previous collection throws an error and cannot be migrated (it is recommended to be used with the -r option to avoid subsequent  migrations of the same aggregated data collections)
+    -d, --database <databaseName>      only this database will be taken into consideration for the analysis and/or migration process
+    -c, --collection <collectionName>  only this collection will be taken info consideration, a database is mandatory if a collection is set
+    -x, --dictionary <dictionary>      the path to a file including a dictionary to resolve the names of the collections to be migrated to their associated data (i.e., service path, entity id, entity type, attribute name and attribute type) (it is expected as a CSV file with lines including the following info: <collection-name>,<service-path>,<entity-id>,<entity-type>,<attribute-name>,<attribute-type>, some of which may not apply and can be left as blank)
+```
+
+Special care should be taken when requesting a data model migration since the migration of aggregated data is not an idempotent operation if the target data model collections already exist. In this case, the already existent data stored in these collections is combined with the one stored in the original data model collections pending migration. Based on this fact, we suggest the next procedure when considering a data model migration:
+
+1. Check the current configured data model used by the STH component based on the options detailed in [Running the STH server](#section5) below. Typically it will be the default collection per entity data model.
+
+2. Get a data model analysis report about the databases and collections which need to be migrated to the new desired data model (set in the `DATA_MODEL` environment variable) running the following command:
+<pre>LOGOPS_FORMAT=dev DATA_MODEL=collection-per-service-path ./bin/sth_database_model -a</pre>
+
+3. Request the desired data model migration (set in the `DATA_MODEL` environment variable) without forcing the update of the target data model collections running the following command:
+<pre>LOGOPS_FORMAT=dev DATA_MODEL=collection-per-service-path ./bin/sth_database_model -a -m</pre>
+If any of the target collections already exist, the data model migration will stop and it will not be made for the first already existent target data model collection, either for any subsequent collection. If none of the target collections already exist, the data model migration will successfully complete.
+
+  3.1. If the data model migration completed successfully, remove the original data model collections already migrated to avoid problems if in the future you decide to go back to the original data model. Information about the successfully migrated collections is provided in the logs. Setting the `-r` option when running the command mentioned in point 3 will make this removal automatically for you. The data model migration has successfully finished.
+
+  3.2. If the data model migration did not complete successfully because any of the target data model collections already exist:
+
+    3.2.1. Remove the original data model collections which were successfully migrated, if any, so they are not migrated again in the future (details about the successfully migrated collections is provided in the logs). The `-r` option will make this removal automatically for you when running the command mentioned in point 3.
+
+    3.2.2. You have to decide if the target data model collection causing the conflict contains valuable data. If they does, just keep it. If it does not, just remove it.
+
+    3.2.3. If you decided to keep the target data model collection causing the conflict since it contains valuable data, force its data model migration using the following command:
+  <pre>LOGOPS_FORMAT=dev DATA_MODEL=collection-per-service-path ./bin/sth_database_model -a -m -d &lt;database_name&gt; -c &lt;original_data_model_collection_to_be_migrated&gt; -u</pre> The original data model collection will be combined with the already existent data stored in the target data model collection.
+
+  3.2.4. Remove the `<original_data_model_collection_to_be_migrated>` collection whose migration you just forced so it is not migrated again in the future.
+
+4. Get back and repeat from point 3.
+
+Currently the only data model migration supported is the default collection per entity data model to the collection per service path data model.
+
+[Top](#section0)
+
 ##<a id="section2"></a> Dependencies
 The STH component is a Node.js application which depends on certain Node.js modules as stated in the ```project.json``` file.
 
@@ -366,13 +439,98 @@ Consequently, a MongoDB instance version &gt;= 2.6 is needed to store the aggreg
 [Top](#section0)
 
 ##<a id="section3"></a> Installation
+
+### <a id="section3.1"></a> Cloning the GIthub repository
+
 1. Clone the repository:
 <pre> git clone https://github.com/telefonicaid/fiware-sth-comet.git </pre>
 2. Get into the directory where the STH repository has been cloned:
 <pre> cd fiware-sth-comet/ </pre>
 3. Install the Node.js modules and dependencies:
 <pre> npm install </pre>
-The STH component server is ready to be started.
+The STH component server is ready to be started as a Node application.
+
+[Top](#section0)
+
+### <a id="section3.2"></a> Using a RPM package
+
+#### Package generation
+
+**Prerequisites:** To generate the RPM package from the STH component sources
+it is needed to have the rpm build tools (rpmbuild executable), Node and the
+npm utilities, as well as an Internet connection to download the required Node modules.
+
+To generate the RPM package for the STH component, execute the following
+command from the root of the STH component:
+
+`./rpm/create-rpm.sh -v <version> -r <release>`
+
+If everything goes fine, a new RPM package such as `./rpm/RPMS/x86_64/fiware-sth-comet-<version>-<release>.x86_64.rpm`
+will be created.
+
+Execute `./rpm/create-rpm.sh -h` for more information about the RPM package creation script.
+
+#### Installation, upgrade and removal
+
+**Prerequisites:** Node is needed to install the generated STH component RPM package.
+
+To install or upgrade the STH component, execute: `sudo rpm -Uvh fiware-sth-comet-<version>-<release>.x86_64.rpm`
+
+After the installation, the following files and directories are created:
+```
+/etc/init.d
+└── sth
+
+/etc/logrotate.d
+└── logrotate-sth-daily
+
+/var/log/sth
+
+/var/run/sth
+
+/opt/sth
+├── conf
+│   └── <empty> Here is where instances are configured
+├── node_modules
+│   └── <node modules directory structure and files>
+├── package.json
+└── src
+    └── <STH SW files>
+```
+
+To remove a previous STH component installation, execute: `sudo rpm -e fiware-sth-comet`
+
+#### Configuration
+
+STH is able to start multiple instances using the [sth](rpm/SOURCES/etc/init.d/sth "sth") service script
+by adding and configuring certain files as detailed next.
+
+To start multiple instances, one configuration file per instance has to be included in
+the `/opt/sth/conf` directory. It is important to note that the default installation includes
+preconfigured instances.
+
+It is important to change the `STH_PORT` value included in the configuration files
+to a value not used by other STH instances/services. It is also a good practice to change
+the `LOG_FILE_NAME` value to avoid getting the logs from several instances mixed.
+
+The [init.d](rpm/SOURCES/etc/init.d/sth "sth") service script includes the following operations:
+
+* **start** (`sudo /sbin/service sth start [<instance>]`): if `<instance>` is not provided, the script starts
+an instance per configuration file found in the `/opt/sth/conf` directory matching the `sth_*.conf` template.
+If `<instance>` is provided, a configuration file named `sth_<instance>.conf` is searched in the `/opt/sth/conf` directory
+and the corresponding instance is started.
+* **stop** (`sudo /sbin/service sth stop [<instance>]`): if `<instance>` is not provided, the script stops
+all the instances by listing all pid files under `/var/run/sth` matching the pattern `sth_*.pid`.
+If `<instance>` is provided, the scripts stops the instance with the associated pid file `/var/run/sth/sth_<instance>.pid`
+* **status** (`sudo /sbin/service sth status [<instance>]`): The status operation shows information about one or more running instances
+following the same procedure detailed in the `stop` operation.
+* **restart** (`sudo /sbin/service sth stop [<instance>]`): The restart operation executes a `stop` operation followed by a `start` operation
+according to the procedure detailed in those operations.
+
+An example [`sth_default.conf`](rpm/EXAMPLES/sth_default.conf) file has been included in this Github repository to guide the STH instance
+configuration.
+
+Last but not least, the STH process (a `node` process) runs the as `sth` user.
 
 [Top](#section0)
 
@@ -426,8 +584,10 @@ In case of preferring using environment variables, the script accepts the follow
 - TEMPORAL_DIR: A relative path from the STH home directory to a directory where the temporary files generated by the STH component are stored.
 These files are generated before returning them when the `filetype` is included in any data retrieval request.
 Default value: "temp".
-- DEFAULT_SERVICE: The service to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "orion".
-- DEFAULT_SERVICE_PATH: The service path to be used if not sent by the Orion Context Broker in the notifications. Optional. Default value: "/".
+- DEFAULT_SERVICE: The service to be used if not sent in the Orion Context Broker notifications. Optional. Default value: "testservice".
+- DEFAULT_SERVICE_PATH: The service path to be used if not sent in the Orion Context Broker notifications. Optional. Default value: "/testservicepath".
+- DATA_MODEL: The STH component supports 3 alternative data models when storing the raw and aggregated data into the database:
+1) one collection per attribute, 2) one collection per entity and 3) one collection per service path. The possible values are: "collection-per-attribute", "collection-per-entity" and "collection-per-service-path" respectively. Default value: "collection-per-entity".
 - DB_USERNAME: The username to use for the database connection. Optional. Default value: "".
 - DB_PASSWORD: The password to use for the database connection. Optional. Default value: "".
 - DB_URI: The URI to use for the database connection. This does not include the 'mongo://' protocol part (see a couple of examples below).
@@ -442,7 +602,7 @@ Optional. Default value: "localhost:27017".
 due to MongoDB's limitation regarding the number of bytes a namespace may have (currently limited to 120 bytes). In case of hashing,
 information about the final collection name and its correspondence to each concrete service path, entity and (if applicable) attribute
 is stored in a collection named `COLLECTION_PREFIX + "collection_names"`. Default value: "false".
-- TRUNCATION_EXPIREAFTERSECONDS: Data from the raw and aggregated data collections will be removed if older than the value specified in seconds.
+- TRUNCATION_EXPIRE_AFTER_SECONDS: Data from the raw and aggregated data collections will be removed if older than the value specified in seconds.
 In case of raw data the reference time is the one stored in the `recvTime` property whereas in the case of the aggregated data
 the reference of time is the one stored in the `_id.origin` property. Set the value to 0 not to apply this time-based truncation
 policy. Default value: "0".
@@ -461,9 +621,11 @@ currently support updating documents in capped collections which increase the si
 Default value: "0".
 - IGNORE_BLANK_SPACES: Attribute values to one or more blank spaces should be ignored and not processed either as
 raw data or for the aggregated computations. Default value: "true".
-- LOGOPS_LEVEL: The log level to use. Possible values are: "DEBUG", "INFO", "WARN", "ERROR" and "FATAL". Default value: "INFO".
+- LOGOPS_LEVEL: The log level to use. Possible values are: "DEBUG", "INFO", "WARN", "ERROR" and "FATAL". Since the STH component uses the logops package for logging,
+for further information check out the [logops](https://www.npmjs.com/package/logops) npm package information online. Default value: "INFO".
 - LOGOPS_FORMAT: The log format to use. Possible values are: "json" (writes logs as JSON), "dev" (for development, used when the NODE_ENV variable is set to
-'development'). Default value: "json".
+'development'). Since the STH component uses the logops package for logging, for further information please check out the
+[logops](https://www.npmjs.com/package/logops) npm package information online. Default value: "json".
 - PROOF_OF_LIFE_INTERVAL: The time in seconds between proof of life logging messages informing that the server is up and running normally. Default value: "60".
 
 For example, to start the STH server listening on port 7777, connecting to a MongoDB instance listening on mymongo.com:27777 and
@@ -516,7 +678,7 @@ exposed by the component. This set includes:
 - Tests to check the connection to the database
 - Tests to check the correct starting of the STH component
 - Tests to check the STH component correctly deals with all the possible requests it may receive (including invalid URL paths (routes)
-as well as all the combinations of possible query parameters) 
+as well as all the combinations of possible query parameters)
 - Tests to check the correct aggregate time series information querying after inserting random events (attribute values)
 into the database
 - Tests to check the correct aggregate time series information generation when receiving (simulated) notifications by a
@@ -541,7 +703,6 @@ This will execute the functional tests and the syntax checking as well.
 
 The test suite accepts the following parameters as environment variables which can be used to personalise them:
 
-- DB_NAME: The name of the database where the data will be stored. Optional. Default value: "test".
 - SAMPLES: The number of random events which will be generated and inserted into the database. Optional. Default value: "5".
 - EVENT_NOTIFICATION_CONTEXT_ELEMENTS: The number of context elements included in the simulated notifications sent to
 the STH component. Optional. Default value: 3.
@@ -751,7 +912,7 @@ To further guide you through your first contributions, we have created the label
 which are assigned to those bugs and issues simple and interesting enough to be solved by people new to the project.
 Feel free to assign any of them to yourself and do not hesitate to mention any of the main developers
 (this is, [@gtorodelvalle](https://github.com/gtorodelvalle) or [@frbattid](https://github.com/frbattid))
-in the issue's comments to get help from them during its resolution. They will be glad to help you. 
+in the issue's comments to get help from them during its resolution. They will be glad to help you.
 
 [Top](#section0)
 

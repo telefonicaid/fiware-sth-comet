@@ -17,7 +17,7 @@
  *
  * You should have received a copy of the GNU Affero General Public
  * License along with STH.
- * If not, seehttp://www.gnu.org/licenses/.
+ * If not, see http://www.gnu.org/licenses/.
  *
  * For those usages not covered by the GNU Affero General Public License
  * please contact with: [german.torodelvalle@telefonica.com]
@@ -47,7 +47,7 @@ describe('database connection', function () {
         authentication: sthConfig.DB_AUTHENTICATION,
         dbURI: sthConfig.DB_URI,
         replicaSet: sthConfig.REPLICA_SET,
-        database: sth.sthDatabase.getDatabase(sthConfig.DEFAULT_SERVICE),
+        database: sth.sthDatabase.getDatabaseName(sthConfig.DEFAULT_SERVICE),
         poolSize: sthConfig.POOL_SIZE
       },
       function (err) {
@@ -907,7 +907,7 @@ describe('Data removal', function() {
   describe('Removal of concrete attributes of entities including numeric data',
     sthTestHelper.dataRemovalSuite.bind(
       null,
-      sthConfig.AGGREGATION.TYPES.NUMERIC,
+      sthConfig.AGGREGATIONS.NUMERIC,
       {
         entityId: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.id,
         entityType: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.type,
@@ -920,7 +920,7 @@ describe('Data removal', function() {
   describe('Removal of concrete entities including numeric data',
     sthTestHelper.dataRemovalSuite.bind(
       null,
-      sthConfig.AGGREGATION.TYPES.NUMERIC,
+      sthConfig.AGGREGATIONS.NUMERIC,
       {
         entityId: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.id,
         entityType: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.type
@@ -931,14 +931,14 @@ describe('Data removal', function() {
   describe('Removal of all the entities for certain service and service path including numeric data',
     sthTestHelper.dataRemovalSuite.bind(
       null,
-      sthConfig.AGGREGATION.TYPES.NUMERIC
+      sthConfig.AGGREGATIONS.NUMERIC
     )
   );
 
   describe('Removal of concrete attributes of entities including textual data',
     sthTestHelper.dataRemovalSuite.bind(
       null,
-      sthConfig.AGGREGATION.TYPES.TEXTUAL,
+      sthConfig.AGGREGATIONS.TEXTUAL,
       {
         entityId: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement.id,
         entityType: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement.type,
@@ -951,7 +951,7 @@ describe('Data removal', function() {
   describe('Removal of concrete entities including textual data',
     sthTestHelper.dataRemovalSuite.bind(
       null,
-      sthConfig.AGGREGATION.TYPES.TEXTUAL,
+      sthConfig.AGGREGATIONS.TEXTUAL,
       {
         entityId: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.id,
         entityType: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement.type
@@ -962,7 +962,7 @@ describe('Data removal', function() {
   describe('Removal of all the entities for certain service and service path including textual data',
     sthTestHelper.dataRemovalSuite.bind(
       null,
-      sthConfig.AGGREGATION.TYPES.TEXTUAL
+      sthConfig.AGGREGATIONS.TEXTUAL
     )
   );
 });
