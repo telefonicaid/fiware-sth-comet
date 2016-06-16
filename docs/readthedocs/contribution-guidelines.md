@@ -6,11 +6,14 @@ Being an open source project, everyone can contribute, provided that you follow 
 * Before contributing any code, the author must make sure all the tests work (see below how to run the tests).
 * Developed code must adhere to the syntax guidelines enforced by the linters.
 * Code must be developed following the branching model and changelog policies defined below.
-* For any new feature added, unit tests must be provided, following the example of the ones already created.
+* For any new feature added, unit tests must be provided, taking as a reference the ones already created and included in the project.
+
+To further guide you through your first contributions, we have created the label [```mentored```](https://github.com/telefonicaid/fiware-sth-comet/labels/mentored) which are assigned to those bugs and issues simple and interesting enough to be solved by people new to the project. Feel free to assign any of them to yourself and do not hesitate to mention any of the main developers (this is, [@gtorodelvalle](https://github.com/gtorodelvalle) or [@frbattid](https://github.com/frbattid)) in the issue's comments to get help from them during its resolution. They will be glad to help you.
 
 ## How to contribute
 
 In order to start contributing:
+
 1. Fork this repository clicking on the "Fork" button on the upper-right area of the page.
 2. Clone your just forked repository:
     ```
@@ -22,6 +25,7 @@ In order to start contributing:
     ```
 
 Before starting your contribution, remember to synchronize the `develop` branch in your forked repository with the `develop` branch in the main fiware-sth-comet repository following the next steps:
+
 1. Change to your local `develop` branch (in case you are not in it already):
     ```
     git checkout develop
@@ -40,6 +44,7 @@ Contributions following these guidelines will be added to the `develop` branch, 
 ## Coding guidelines
 
 Coding guidelines are defined via the provided `.jshintrc` and `.gjslintrc` flag files. The latter requires Python and its use can be disabled while creating the project skeleton with grunt-init.
+
 To check source code style, type:
 ```bash
 grunt lint
@@ -53,20 +58,30 @@ grunt lint-report
 ## Branching model
 
 There are two special branches in the repository:
-* `master`: holds the code for the last stable version of the project. It is only updated when a new version is released.
-* `develop`: contains the last stable development code. New features and bug fixes are always merged to `develop`.
 
-In order to start developing a new feature or refactoring, a new branch should be created with name `task/<taskName>` in the newly forked repository. This new branch must be created from the current version of the `develop` branch (remember to fetch the latest changes from the remote `develop` branch before creating this new branch). Once the new functionality has been completed, a pull request should be created from the new branch to the `develop` branch in the main remote repository. Remember to check both the linters and the tests before creating the pull request.
+* `master`: it holds the code for the last stable version of the project. It is only updated when a new version is released.
+* `develop`: it contains the last stable development code. New features and bug fixes are always merged to `develop` until a new release is created and moved to `master`.
 
-Fixing bugs follow the same branching guidelines as in the case of adding a new feature or refactoring code with the exception of the branch name. In the case of bug fixes, the new branch should be called `bug/<bugName>`.
+Apart from the previous branches, there is another set of branches called `release/X.Y.Z` where the latest version of each release code can be found. To this regard, a release called `X.Y.Z` is created whenever a new version of the project is released pointing to the latest status of the corresponding `release/X.Y.Z` release branch.
 
-There are another set of branches called `release/<versionNumber>`, one for each version of the product. These branches point to each one of the released versions of the project. They are permanent and they are created with each release.
+In order to start developing a new feature or refactoring, a new branch should be created in your local forked repository following the next naming convention:
+
+* `bug/<description>`
+* `feature/<description>`
+* `hardening/<description>`
+* `task/<description>`
+
+depending on the type of work.
+
+Once the final code is available in the local forked repository branch, a Pull Request should be sent to the `develop` branch in the fiware-sth-comet remote repository when a review process will start before its final landing. Remember to check both the linters and the tests before creating the Pull Request.
 
 ## Changelog
 
-The project contains a version changelog file, called `CHANGES_NEXT_RELEASE`, that can be found in the root of the project. Whenever a new feature or bug fix is going to be merged with `develop`, a new entry should be added to this changelog. The new entry should contain the reference number of the issue it is solving (if any).
+The project contains a version changelog file, called `CHANGES_NEXT_RELEASE`, that can be found in the root of the project. Whenever a new feature or bug fix is going to be merged into `develop`, a new entry should be added to this changelog file. The new entry should contain the reference number of the issue it is solving (if any).
 
-When a new version is released, the changelog is cleared, and remains fixed in the last commit of that version. The content of the changelog is also moved to the release description in the Github release.
+When a new version is released, the changelog is cleared and remains fixed in the last commit of that version. The content of the changelog is also moved to the release description in the Github release.
+
+More on this in the **Releasing** section below.
 
 ## Testing
 
@@ -110,7 +125,7 @@ grunt coverage-report
 
 ## Code complexity
 
-Another very good practice is to analise code complexity.
+Another very good practice is to analyze code complexity.
 
 Support for using Plato and storing the generated report in the `site/report/` path is provided. This capability can be used together with Jenkins by means of DocLinks plugin.
 
@@ -130,11 +145,26 @@ grunt doc
 
 ## Releasing
 
-The process of making a release consists of the following steps and should be made by any of the owners or administrators of the main repository:
-1. Create a new task branch changing the development version number in the `package.json` file (with a suffix `-next`) to the new target version (without any suffix), and create a pull request of this new task branch into `develop`. Remember to delete the temporary created task branch.
-2. Create a release branch named `release/<versionNumber>` from the last version of `develop` using the corresponding version number.
-3. Create a new release in Github setting the tag version as `<versionNumber>` from the new release branch `release/<versionNumber>` and publish it.
-4. Create a pull request from the new release branch `release/<versionNumber>` to `master`.
-5. Create a new task branch to prepare the `develop` branch for the next release, adding the `-next` suffix to the current version number in the `package.json` file (to signal this as the development version) and removing the contents of the `CHANGES_NEXT_RELEASE` changelog file. Create a pull request from this new task branch to `develop`. Remember to delete the temporary created task branch.
+The process of making a release consists of the following steps and should only be made by any of the owners or administrators of the main repository:
 
-To further guide you through your first contributions, we have created the label [```mentored```](https://github.com/telefonicaid/fiware-sth-comet/labels/mentored) which are assigned to those bugs and issues simple and interesting enough to be solved by people new to the project. Feel free to assign any of them to yourself and do not hesitate to mention any of the main developers (this is, [@gtorodelvalle](https://github.com/gtorodelvalle) or [@frbattid](https://github.com/frbattid)) in the issue's comments to get help from them during its resolution. They will be glad to help you.
+1. Synchronize the `develop` branch in your local forked repository to the latest version of the `develop` branch of the remote fiware-sth-comet repository as indicated in the **How to contribute** section above.
+2. From the updated `develop` branch in your local forked repository, create a new task branch changing the development version number in the `package.json` file (currently it should include a `-next` suffix) to the new version to be released (`X.Y.Z`, for example, without any suffix).
+3. Create a pull request from this task branch to the `develop` branch in the fiware-sth-comet remote repository and ask any of the additional project administrators to review it and to land it.
+4. In the fiware-sth-comet main repository, create a release branch named `release/X.Y.Z` from the latest version of the `develop` branch using the corresponding version number.
+5. In the fiware-sth-comet main repository, create a new release setting the tag version to `X.Y.Z` from the new release branch `release/X.Y.Z` and publish it.
+6. In the fiware-sth-comet main repository, create a pull request from the new release branch `release/X.Y.Z` to the `master` branch (in this precise moment the `master`, `develop` and `release/X.Y.Z` branches are all synchronized).
+7. Synchronize the `develop` branch in your local forked repository to the latest version of the `develop` branch of the remote fiware-sth-comet repository as indicated in the **How to contribute** section above.
+8. From the updated `develop` branch in your local forked repository, create a new task branch and add the `-next` suffix to the current version number in the `package.json` file (to signal this as the development version) and remove the contents of the `CHANGES_NEXT_RELEASE` changelog file.
+9. Create a pull request from this new task branch to the `develop` branch in the remote fiware-sth-comet repository.
+
+## Version/release numbers
+
+The version numbers will change for each release according to the following rules:
+
+* All version numbers will always follow the common pattern: `X.Y.Z`
+* *X* will change only when there are changes in the release breaking backwards compatibility or when there are
+very important changes in the feature set of the component. If *X* changes, *Y* should be set to 0.
+* *Y* will change every time a new version is released. If only *Y* changes, it means some new features or bug fixes have been released, but the component is just an improved version of the current major (*X*) release.
+* *Z* will increment its value as new bug fixes are detected and fixed for each major (*X*) and minor (*Y*) release.
+
+Between releases, the version number in the `develop` branch will be `X.Y.Z-next` (where `X.Y.Z` is the latest stable release), indicating that it is a development version.
