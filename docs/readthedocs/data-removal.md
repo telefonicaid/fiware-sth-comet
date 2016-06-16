@@ -1,8 +1,6 @@
-# Removing raw and aggregated time series context information
+# Removing historical raw and aggregated time series context information
 
-Last, but not least, the STH component exposes through its REST API the possibility to remove previously registered
-raw and aggregated data. Due to the sensible nature of these operations, they should be used with caution since their
-effects cannot be undone.
+Last, but not least, the STH component exposes through its REST API the possibility to remove previously stored historical raw and aggregated data. Due to the sensible nature of these operations, they should be used with caution since their effects cannot be undone.
 
 The STH component exposes 3 main URLs for data removal, all of them invoked using `DELETE`
 as the HTTP method and including the service and service path information as headers (`Fiware-Service` and

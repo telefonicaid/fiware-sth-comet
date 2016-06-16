@@ -22,7 +22,7 @@ Contents:
    readthedocs/aggregated-data-retrieval
    readthedocs/data-removal
    readthedocs/data-migration
-   readthedocs/test-coverage
+   readthedocs/unit-test-coverage
    readthedocs/performance-test-coverage
    readthedocs/additional-resources
    readthedocs/contribution-guidelines
