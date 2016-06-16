@@ -1,6 +1,6 @@
-# Raw context information retrieval
+# Getting historical raw context information
 
-The STH component exposes an HTTP REST API to let external clients query the raw context information registered.
+The STH component exposes an HTTP REST API to let external clients query the historical raw context information registered.
 
 A typical URL querying for this information using a GET request is the following:
 ```

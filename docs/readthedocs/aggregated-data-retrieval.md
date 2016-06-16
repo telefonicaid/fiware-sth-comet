@@ -1,6 +1,6 @@
-# Consuming aggregated time series context information
+# Getting historical aggregated time series context information
 
-The STH component exposes an HTTP REST API to let external clients query the aggregated time series context information.
+The STH component exposes an HTTP REST API to let external clients query the stored historical aggregated time series context information.
 
 A typical URL querying for this information using a GET request is the following:
 

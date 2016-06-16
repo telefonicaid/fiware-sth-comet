@@ -1,6 +1,6 @@
-# Registering historical context information
+# Storing historical raw and aggregated time series context information
 
-There are 2 main ways to register raw and aggregated time series context information into the STH component:
+There are 2 main ways to store historical raw and aggregated time series context information into the STH component:
 1. The _formal_ option.
 2. The _minimalistic_ option.
 

@@ -6,6 +6,6 @@ The **Short Time Historic (STH, aka. Comet)** is a component of the [FIWARE](htt
 
 All the communications between the STH and the Orion Context Broker as well as between the STH and any third party (typically for data retrieval) use standardized NGSI9 and [NGSI10](http://technical.openmobilealliance.org/Technical/technical-information/release-program/current-releases/ngsi-v1-0) interfaces.
 
-For further information, please visit: http://fiware-sth-comet.readthedocs.io/en/latest/
+For further information, please visit the component documentation at: http://fiware-sth-comet.readthedocs.io/en/latest/
 
-<u>Note:</u> You can also navigate the `docs/readthedocs` directory in this very Github repository to access the STH component documentation.
+<u>Note:</u> You can also navigate the [`docs/readthedocs`](./docs/readthedocs) directory in this very Github repository to access the STH component documentation.

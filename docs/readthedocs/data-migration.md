@@ -1,6 +1,6 @@
-# Migrating raw and aggregated time series context information
+# Migrating historical raw and aggregated time series context information
 
-The STH component supports 3 alternative data models when storing the raw and aggregated time series context information into the database:
+The STH component supports 3 alternative data models when storing the historical raw and aggregated time series context information into the database:
 
 1. One collection per service path.
 2. One collection per entity.
