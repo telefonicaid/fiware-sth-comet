@@ -1,8 +1,9 @@
 # Getting Started
 
-Although the STH supports the storing and retrieval of raw context information, this is, the concrete entity attribute value changes which where registered in an Orion Context Broker instance over time, its main capability and responsibility is the generation of aggregated time series context information about the evolution in time of those entity attribute values.
+Although the STH supports the storing and retrieval of raw context information, this is, the concrete entity attribute value  which where registered in an Orion Context Broker instance over time, its main capability and responsibility is the generation of aggregated time series context information about the evolution in time of those entity attribute values.
 
 Regarding the generation of aggregated time series context information, the STH manages 4 main concepts:
+
 1. **_Resolution_** or **_aggregation period_**: The time period by which the aggregated time series information is grouped. Possible valid resolution values supported by the STH are: `month`, `day`, `hour`, `minute` and `second`.
 2. **_Origin_**: For certain resolution, it is the origin of time for which the aggregated time series
 context information applies. For example, for a resolution of `minutes`, a valid origin value could be: `2015-03-01T13:00:00.000Z`, meaning the 13th hour of March, the 3rd, 2015. The origin is stored using UTC time to avoid locale issues.

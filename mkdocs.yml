@@ -1,0 +1,28 @@
+site_name: Fiware-STH-Comet
+site_url: https://fiware-sth-comet.readthedocs.org
+repo_url: https://github.com/telefonicaid/fiware-sth-comet.git
+site_description: STH (Short Time Historic) - Comet Documentation
+docs_dir: doc/manuals
+site_dir: html
+markdown_extensions: [toc,fenced_code]
+use_directory_urls: false
+theme: readthedocs
+extra_css: ["https://fiware.org/style/fiware_readthedocs.css"]
+pages:
+  - 'Home': 'index.md'
+  - 'Getting Started': 'getting-started.md'
+  - 'Why Comet': 'why-comet.md'
+  - 'Users & Developers Manual':
+      - 'Storing historical raw and aggregated time series context information': 'data-storage.md'
+      - 'Getting historical raw context information': 'raw-data-retrieval.md'
+      - 'Getting historical aggregated time series context information': 'aggregated-data-retrieval.md'
+      - 'Removing historical raw and aggregated time series context information': 'data-removal.md'
+      - 'Unit tests coverage': 'unit-test-coverage.md'
+      - 'Performance tests coverage': 'performance-test-coverage.md'
+      - 'Additional resources': 'additional-resources.md'
+      - 'Contribution guidelines': 'contribution-guidelines.md'
+  - 'Installation & Administration Manual':
+      - 'Dependencies': 'dependencies.md'
+      - 'Installation': 'installation.md'
+      - 'Running the STH server': 'running.md'
+      - 'Migrating historical raw and aggregated time series context information': 'data-migration.md'

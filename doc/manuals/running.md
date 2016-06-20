@@ -1,19 +1,19 @@
 # Running the STH server
 
-To run the STH server, just execute from the STH directory the following command:
+To run the STH server, please execute the following command from the directory where the STH component was installed:
 ```bash
 ./bin/sth
 ```
 
 The STH component provides the user with 2 mechanisms to configure the component to the concrete needs of the user:
-- Environment variables, which can be set assigning values to them or using the `sth_default.conf` file if a packaged version of the STH component is used.
-- The `config.js` file located at the root of the STH component code, a JSON formatted file including the configuration properties.
 
-It is important to note that environment variables, if set, take precedence over the properties defined in the `config.js` file.
+- Environment variables, which can be set assigning values to them or using the [`sth_default.conf`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/rpm/EXAMPLES/sth_default.conf) file if a packaged version of the STH component is used.
+- The [`config.js`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/config.js) file located at the root of the STH component code, a JSON formatted file including the configuration properties.
 
-On the other hand, it is also important to note that the aggregation resolutions can only be configured using the `config.js` file and consequently this is the preferred way to configure the STH component behavior. The mentioned resolutions can be configured using the `config.server.aggregation` property in the `config.js` file including the desired resolution to be used when aggregating data. Accepted resolution values include: `month`, `day`, `hour`, `minute` and `second`.
+It is important to note that environment variables, if set, take precedence over the properties defined in the [`config.js`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/config.js) file.
 
-In case of preferring using environment variables, the script accepts the following parameters as environment variables:
+The environment variables accepted by the script (for which there exists counterpart entries in the already mentioned [`config.js`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/config.js) are the following ones:
+
 - `STH_HOST`: The host where the STH server will be started. Optional. Default value: "localhost".
 - `STH_PORT`: The port where the STH server will be listening. Optional. Default value: "8666".
 - `FILTER_OUT_EMPTY`: A flag indicating if the empty results should be removed from the response. Optional. Default value: "true".
@@ -50,12 +50,13 @@ On the other hand, in case of connecting to a MongoDB replica set composed of 3 
 DB_URI=1.1.1.1:27771,1.1.1.2:27772,1.1.1.3:27773 ./bin/sth
 ```
 
-The STH component creates a new database for each [service](http://fiware-orion.readthedocs.io/en/develop/user/multitenancy/index.html). The name of these databases will be the concatenation of the DB\_PREFIX environment variable and the service, using an underscore (`_`) as the separator.
+The STH component creates a new database for each [service](http://fiware-orion.readthedocs.io/en/develop/user/multitenancy/index.html). The name of these databases will be the concatenation of the `DB_PREFIX` environment variable and the service name, using an underscore (`_`) as the separator.
 
-As already mentioned, all this configuration parameters can also be adjusted using the `config.js` file whose contents are self-explanatory.
+As already mentioned, all these configuration parameters can also be adjusted using the `config.js` file whose contents are self-explanatory.
 
 It is important to note that there is a [limitation](http://docs.mongodb.org/manual/reference/limits/#namespaces) of 120 bytes for the namespaces (concatenation of the database name and collection names) in MongoDB. Related to this, the STH generates the collection names using 2 possible mechanisms:
-1. **<u>Plain text</u>**: In case the `SHOULD_HASH` configuration parameter is set to `false` (the default option), the collection names are generated as a concatenation of the `COLLECTION_PREFIX` plus the service path plus the entity id plus the entity type plus '.aggr' for the collections storing the aggregated data. The length of the collection name plus the `DB_PREFIX` plus the database name (or service) should not be more than 120 bytes using UTF-8 format or MongoDB will complain and will not create the collection, and consequently no data would be stored by the STH. A warning message is logged in case this happens.
-2. **<u>Hash based</u>**: In case the `SHOULD_HASH` option is set to something distinct from `false`, the collection names are generated as a concatenation of the `COLLECTION_PREFIX` plus a generated hash plus '.aggr' for the collections of the aggregated data. To avoid collisions in the generation of these hashes, they are forced to be 20 bytes long at least. Once again, the length of the collection name plus the `DB_PREFIX` plus the database name (or service) should not be more than 120 bytes using UTF-8 or MongoDB will complain and will not create the collection, and consequently no data would be stored by the STH. The hash function used is SHA-512. A warning message is logged in case this happens.
 
-In case of using hashes as part of the collection names and to let the user or developer easily recover this information, a collection named ```DB_COLLECTION_PREFIX + _collection_names``` is created and fed with information regarding the mapping of the collection names and the combination of concrete services, service paths, entities and attributes.
+1. **<u>Plain text</u>**: In case the `SHOULD_HASH` configuration parameter is set to `false` (the default option), the collection names are generated as a concatenation of the `COLLECTION_PREFIX` configuration parameter, the service path, the entity id, the entity type and the suffix ".aggr" for the collections storing the aggregated data. The length of the collection name plus the `DB_PREFIX` plus the database name (or service) should not be more than 120 bytes using UTF-8 format or MongoDB will complain and will not create the collection, and consequently no data would be stored by the STH. A warning message is logged in case this happens.
+2. **<u>Hash based</u>**: In case the `SHOULD_HASH` option is set to something distinct from `false`, the collection names are generated as a concatenation of the `COLLECTION_PREFIX` configuration parameter, a generated hash and the suffix ".aggr" for the collections storing the aggregated data. To avoid collisions in the generation of these hashes, they are forced to be 20 bytes long at least. Once again, the length of the collection name plus the `DB_PREFIX` plus the database name (or service) should not be more than 120 bytes using UTF-8 or MongoDB will complain and will not create the collection, and consequently no data would be stored by the STH. The STH component adapts the hash size to the available characters. The hash function used is SHA-512. A warning message is logged in case there are not enough available characters for the hash.
+
+In case of using hashes as part of the collection names and as a way to let the user or developer easily recover this information, a collection named by concatenating the `DB_COLLECTION_PREFIX` configuration parameter and the text "_collection_names" is created and fed with information regarding the mapping of the collection names and the combination of related services, service paths, entities and attributes.
