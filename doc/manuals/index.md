@@ -1,4 +1,4 @@
-# Introduction
+# Welcome to the FIWARE Short Time Historic (STH) - Comet documentation.
 
 The Short Time Historic (STH, aka. Comet) is a component of the [FIWARE](https://www.fiware.org/) ecosystem
 in charge of managing (storing and retrieving) historical raw and aggregated time series information about the evolution in time of context data (i.e., entity attribute values) registered in an [Orion Context Broker](https://github.com/telefonicaid/fiware-orion) instance.

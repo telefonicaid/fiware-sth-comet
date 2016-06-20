@@ -10,6 +10,8 @@ http://<sth-host>:<sth-port>/STH/v1/contextEntities/type/<entityType>/id/<entity
 
 Notice that in the previous URL we have used some templates between `<` and `>` which should be substituted by the corresponding real values.
 
+Also notice how in the previous request `sum` aggregated context information is requested with a resolution of `second` from `2016-02101T00:00:00.000Z` until `2016-01-01T23:59:59.999Z`.
+
 The requests for aggregated time series context information can use the following query parameters:
 
 * **aggrMethod**: The aggregation method. The STH component supports the following aggregation methods: `max` (maximum value), `min` (minimum value), `sum` (sum of all the samples) and `sum2` (sum of the square value of all the samples) for numeric attribute values and `occur` for attributes values of type string. Combining the information provided by these aggregated methods with the number of samples, it is possible to calculate probabilistic values such as the average value, the variance as well as the standard deviation. It is a mandatory parameter.

@@ -1,13 +1,15 @@
 # Getting historical raw context information
 
-The STH component exposes an HTTP REST API to let external clients query the historical raw context information registered.
+The STH component exposes an HTTP REST API to let external clients query the available historical raw context information.
 
-A typical URL querying for this information using a GET request is the following:
+A typical URL querying for this information using a `GET` request is the following:
 ```
 http://<sth-host>:<sth-port>/STH/v1/contextEntities/type/<entityType>/id/<entityId>/attributes/<attrName>?hLimit=3&hOffset=0&dateFrom=2016-01-01T00:00:00.000Z&dateTo=2016-01-31T23:59:59.999Z
 ```
 
 Notice that in the previous URL we have used some templates between `<` and `>` which should be substituted by the corresponding real values.
+
+Also notice that in the previous request a paginated response has been requested with a limit of 3 entries and an offset of 0 entries (first page).
 
 The requests for raw context information can use the following query parameters:
 
@@ -54,7 +56,5 @@ An example response provided by the STH component to a request such as the previ
     ]
 }
 ```
-
-Notice that in the previous request a paginated response has been requested with a limit of 3 entries and an offset of 0 entries (first page).
 
 It is important to note that if a valid query is made but it returns no data (for example because there is no raw context information for the specified time frame), a response with code `200` is returned including an empty `values` property array, since it is a valid query.
