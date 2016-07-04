@@ -1,19 +1,5 @@
-- [TASK] Better documentation about the logging configuration options
-- [TASK] Include service and subservice in log traces (#276)
-- [TASK] Update the package and configuration documentation for 0.9.0 (#304)
-- [FEATURE] Use common Fiware-Correlator header in all the platform components (#275)
-- [FEATURE] Validate configuration parameters in start-up and show informative messages if invalid values provided (#161)
-- [TASK] Add required files for integration with Sonar (#315)
-- [FEATURE] Include the Fiware-Correlator header in all responses even if not included in the request
-- [FEATURE] Migration from the collection per entity to the collection per service path data model (#311)
-- [BUG] Fixing the configuration of the database URI to allow multi-instance connections
-- [TASK] Using lower case in the default service and service path configuration parameters
-- [TASK] Same order of the configuration parameters in all the configuration related files
-- [BUG] Show migration progress for aggregated data collections
-- [BUG] Avoid filtering all the databases and collections if filtered out
-- [FEATURE] Show informational log messages when a collection migration finishes
-- [FEATURE] Allow the option to migrate the pending collections in case a previous collection migration throws an error
-- [FEATURE] Include the possibility to provide a dictionary to map collection names to collection associated data
-- [FEATURE] Include the option to set the number of documents in collections to show the progress of the migration
-- [BUG] Continue the migration process if -f and a not supported migration collection is found
-- [FEATURE] Make the unit tests compatible with v4.* of Node.js (also backward compatible with v0.10.42)
+- [TASK] Include the component documentation in readthedocs.io
+- [TASK] Add the FIWARE look & feel to the ReadTheDocs documentation (#357)
+- [TASK] Include FIWARE badges in the repo main page (#356)
+- [TASK] Include structured documentation following the FIWARE guidelines (#358)
+- [TASK] Add the GNU Affero General Public License version 3 to the project (#362)
