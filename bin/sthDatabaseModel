@@ -25,10 +25,11 @@
 
 'use strict';
 
-var sthConfig = require('../lib/sth_configuration');
+var ROOT_PATH = require('app-root-path');
+var sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
 var sthLogger = require('logops');
-var sthError = require('../lib/sth_error');
-var sthDatabaseModel = require('../lib/sth_database_model');
+var sthError = require(ROOT_PATH + '/lib/utils/sthError');
+var sthDatabaseModel = require(ROOT_PATH + '/lib/database/sthDatabaseModel');
 var async = require('async');
 var commander = require('commander');
 var Progress = require('progress');

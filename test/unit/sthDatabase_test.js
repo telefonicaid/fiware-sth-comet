@@ -23,10 +23,11 @@
 
 'use strict';
 
-var sthDatabase = require('../../lib/sth_database');
-var sthConfig = require('../../lib/sth_configuration');
-var sthHelper = require('../../lib/sth_helper');
-var sthTestConfig = require('./sth_test_configuration');
+var ROOT_PATH = require('app-root-path');
+var sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
+var sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
+var sthUtils = require(ROOT_PATH + '/lib/utils/sthUtils');
+var sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
 var expect = require('expect.js');
 var _ = require('lodash');
 
@@ -596,9 +597,9 @@ function expectResult(params, count, result, callback) {
           /* falls through */
           case sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE:
             expect(result[j]._id.origin.getTime()).to.equal(
-              sthHelper.getOrigin(STORE_DATA_PARAMS.recvTime, result[j]._id.resolution).getTime());
+              sthUtils.getOrigin(STORE_DATA_PARAMS.recvTime, result[j]._id.resolution).getTime());
             var point = getAggregatedEntry4Offset(result[j].points,
-            sthHelper.getOffset(result[j]._id.resolution, STORE_DATA_PARAMS.recvTime));
+            sthUtils.getOffset(result[j]._id.resolution, STORE_DATA_PARAMS.recvTime));
             expect(point.samples).to.equal(count);
             switch (params.aggregatedFunction) {
               case 'sum':
@@ -1303,7 +1304,7 @@ function retrievalTests(shouldHash) {
   });
 }
 
-describe('sth_database tests', function() {
+describe('sthDatabase tests', function() {
   describe('database connection', function() {
     it('should connect to the database', function(done) {
       sthDatabase.connect(DATABASE_CONNECTION_PARAMS, function(err, connection) {
