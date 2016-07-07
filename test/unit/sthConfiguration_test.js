@@ -23,8 +23,8 @@
 
 'use strict';
 
-var STH_CONFIGURATION_PATH = '../../lib/sth_configuration';
-
+var ROOT_PATH = require('app-root-path');
+var STH_CONFIGURATION_PATH = ROOT_PATH + '/lib/configuration/sthConfiguration';
 var sthConfig = require(STH_CONFIGURATION_PATH);
 var expect = require('expect.js');
 var clearRequire = require('clear-require');
@@ -57,7 +57,7 @@ var DEFAULT_VALUES = {
   PROOF_OF_LIFE_INTERVAL: 60
 };
 
-describe('sth_configuration tests', function() {
+describe('sthConfiguration tests', function() {
   describe('default values', function() {
     it('should set the logging level configuration parameter to its default value', function() {
       expect(sthConfig.LOGOPS_LEVEL).to.equal(DEFAULT_VALUES.LOGOPS_LEVEL);

@@ -10,7 +10,7 @@ test:
 test-database:
 	clear
 	echo STARTING DATABASE TESTS ********************
-	./node_modules/mocha/bin/mocha --reporter $(REPORTER) $(MOCHA_OPTIONS) test/node/sth_database_test.js
+	./node_modules/mocha/bin/mocha --reporter $(REPORTER) $(MOCHA_OPTIONS) test/node/sthDatabase_test.js
 	echo TESTS DATABASE ENDED ***********************
 
 test-watch:

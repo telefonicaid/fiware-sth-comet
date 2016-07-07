@@ -1,5 +1,3 @@
-/* globals before, console, describe, it, module, require */
-
 /*
  * Copyright 2015 Telefónica Investigación y Desarrollo, S.A.U
  *
@@ -25,11 +23,11 @@
 
 'use strict';
 
-var sthTestConfig = require('./sth_test_configuration');
-var sthConfig = require('../../lib/sth_configuration');
-var sthHelper = require('../../lib/sth_helper');
-var sthDatabase = require('../../lib/sth_database');
-
+var ROOT_PATH = require('app-root-path');
+var sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
+var sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
+var sthUtils = require(ROOT_PATH + '/lib/utils/sthUtils');
+var sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
 var request = require('request');
 var expect = require('expect.js');
 
@@ -559,7 +557,7 @@ function rawDataAvailableDateFilter(params, done) {
     if (checkRecvTime) {
       expect(bodyJSON.contextResponses[0].contextElement.attributes[0].
         values[options.lastN ? events.length - 1 : 0].recvTime).to.equal(
-        sthHelper.getISODateString(events[events.length - 1].recvTime));
+        sthUtils.getISODateString(events[events.length - 1].recvTime));
     }
     expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
     expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
@@ -662,8 +660,8 @@ function noAggregatedDataSinceDateTest(params, done) {
       {
         aggrMethod: aggrMethod,
         aggrPeriod: resolution,
-        dateFrom: sthHelper.getISODateString(
-          sthHelper.getOrigin(
+        dateFrom: sthUtils.getISODateString(
+          sthUtils.getOrigin(
             new Date(
               events[events.length - 1].recvTime.getTime() + offset),
             resolution))
@@ -716,8 +714,8 @@ function aggregatedDataAvailableSinceDateTest(params, done) {
       {
         aggrMethod: aggrMethod,
         aggrPeriod: resolution,
-        dateFrom: sthHelper.getISODateString(
-          sthHelper.getOrigin(
+        dateFrom: sthUtils.getISODateString(
+          sthUtils.getOrigin(
             events[events.length - 1].recvTime,
             resolution))
       },
@@ -762,8 +760,8 @@ function aggregatedDataAvailableSinceDateTest(params, done) {
       attrName || sthTestConfig.ATTRIBUTE_NAME);
     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0]._id.resolution).to.equal(resolution);
     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0]._id.origin).to.be(
-      sthHelper.getISODateString(
-        sthHelper.getOrigin(
+      sthUtils.getISODateString(
+        sthUtils.getOrigin(
           theEvent.recvTime,
           resolution
         )
@@ -829,13 +827,13 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
       if (sthTestConfig.COMPLEX_NOTIFICATION_STARTED && 'hLimit' in optionsWithNoDates) {
         optionsWithNoDates.hOffset = 0;
       }
-      optionsWithDateFrom.dateFrom = sthHelper.getISODateString(events[0].recvTime);
-      optionsWithDateTo.dateTo = sthHelper.getISODateString(new Date());
+      optionsWithDateFrom.dateFrom = sthUtils.getISODateString(events[0].recvTime);
+      optionsWithDateTo.dateTo = sthUtils.getISODateString(new Date());
       if (sthTestConfig.COMPLEX_NOTIFICATION_STARTED && 'hLimit' in optionsWithDateTo) {
         optionsWithDateTo.hOffset = 0;
       }
-      optionsWithFromAndToDate.dateFrom = sthHelper.getISODateString(events[0].recvTime);
-      optionsWithFromAndToDate.dateTo = sthHelper.getISODateString(new Date());
+      optionsWithFromAndToDate.dateFrom = sthUtils.getISODateString(events[0].recvTime);
+      optionsWithFromAndToDate.dateTo = sthUtils.getISODateString(new Date());
     });
 
     it('without data if entity id and entity type case does not match',
@@ -1450,7 +1448,7 @@ function numericAggregatedDataUpdatedTest(contextResponseFile, aggrMethod, resol
     var bodyJSON = JSON.parse(body);
     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points.length).to.equal(1);
     expect(parseInt(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].offset, 10)).
-    to.equal(sthHelper.getOffset(resolution, new Date(contextResponseNumericWithFixedTimeInstant.contextResponses[0].
+    to.equal(sthUtils.getOffset(resolution, new Date(contextResponseNumericWithFixedTimeInstant.contextResponses[0].
       contextElement.attributes[0].metadatas[0].value)));
     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].samples).to.equal(1);
     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0][aggrMethod]).to.equal(
@@ -1501,7 +1499,7 @@ function textualAggregatedDataUpdatedTest(contextResponseFile, resolution, done)
     var bodyJSON = JSON.parse(body);
     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points.length).to.equal(1);
     expect(parseInt(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].offset, 10)).
-    to.equal(sthHelper.getOffset(resolution, new Date(contextResponseTextualWithFixedTimeInstant.contextResponses[0].
+    to.equal(sthUtils.getOffset(resolution, new Date(contextResponseTextualWithFixedTimeInstant.contextResponses[0].
       contextElement.attributes[0].metadatas[0].value)));
     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].samples).to.equal(1);
     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].

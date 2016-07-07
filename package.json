@@ -47,6 +47,7 @@
     "sinon-chai": "2.4.0"
   },
   "dependencies": {
+    "app-root-path": "^1.2.1",
     "async": "^2.0.0-rc.5",
     "boom": "^2.7.2",
     "bytes-counter": "^1.0.0",

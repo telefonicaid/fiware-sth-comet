@@ -23,11 +23,12 @@
 
 'use strict';
 
-var sthDatabaseModel = require('../../lib/sth_database_model');
-var sthConfig = require('../../lib/sth_configuration');
-var sthHelper = require('../../lib/sth_helper');
-var sthDatabase = require('../../lib/sth_database');
-var sthTestConfig = require('./sth_test_configuration');
+var ROOT_PATH = require('app-root-path');
+var sthDatabaseModel = require(ROOT_PATH + '/lib/database/sthDatabaseModel');
+var sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
+var sthUtils = require(ROOT_PATH + '/lib/utils/sthUtils');
+var sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
+var sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
 var expect = require('expect.js');
 var async = require('async');
 
@@ -593,7 +594,7 @@ function getQuery4AggregatedDataMigrationTest(originDataModel, targetDataModel, 
       query['_id.entityId'] = sthTestConfig.ENTITY_ID;
       query['_id.entityType'] = sthTestConfig.ENTITY_TYPE;
       query['_id.attrName'] = ATTRIBUTE.NAME;
-      query['_id.origin'] = sthHelper.getOrigin(ATTRIBUTE.RECV_TIME[originDataModel], resolution);
+      query['_id.origin'] = sthUtils.getOrigin(ATTRIBUTE.RECV_TIME[originDataModel], resolution);
       query['_id.resolution'] = resolution;
       return query;
     default:
@@ -643,7 +644,7 @@ function expectAggregatedDataMigration4Resolution(params, options, callback) {
     }
     expect(results.length).to.equal(1);
     var point = getAggregatedEntry4Offset(results[0].points,
-      sthHelper.getOffset(params.resolution, ATTRIBUTE.RECV_TIME[params.originDataModel]));
+      sthUtils.getOffset(params.resolution, ATTRIBUTE.RECV_TIME[params.originDataModel]));
     if (options.updateCollection) {
       if (point.sum) {
         expect(point.samples).to.equal(2);
@@ -884,7 +885,7 @@ function collectionPerEntityUpdateMigrationTests(dataType, aggregationType, opti
   });
 }
 
-describe('sth_database_model tests', function() {
+describe('sthDatabaseModel tests', function() {
   [sthConfig.AGGREGATIONS.NUMERIC, sthConfig.AGGREGATIONS.TEXTUAL].forEach(function(aggregationType) {
     describe(aggregationType + ' aggregation type', function() {
       var dataTypes = Object.keys(sthTestConfig.DATA_TYPES);

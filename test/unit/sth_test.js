@@ -1,5 +1,3 @@
-/* globals console, describe, it, require */
-
 /*
  * Copyright 2015 Telefónica Investigación y Desarrollo, S.A.U
  *
@@ -25,11 +23,11 @@
 
 'use strict';
 
-var sth = require('../../lib/sth');
-var sthTestConfig = require('./sth_test_configuration');
-var sthConfig = require('../../lib/sth_configuration');
-var sthTestHelper = require('./sth_test_helper.js');
-
+var ROOT_PATH = require('app-root-path');
+var sth = require(ROOT_PATH + '/lib/sth');
+var sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
+var sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
+var sthTestHelper = require(ROOT_PATH + '/test/unit/sthTestUtils.js');
 var hapi = require('hapi');
 var request = require('request');
 var expect = require('expect.js');
@@ -73,7 +71,6 @@ describe('server start', function () {
     sth.sthServer.startServer(
       sthConfig.STH_HOST,
       sthConfig.STH_PORT,
-      sth.sthDatabase,
       function (err, server) {
         expect(err).to.equal(undefined);
         expect(server).to.be.a(hapi.Server);
