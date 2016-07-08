@@ -23,13 +23,14 @@ FROM centos:6
 
 MAINTAINER Germán Toro del Valle <german.torodelvalle@telefonica.com>
 
-RUN yum update -y && yum install -y wget \
-  && wget http://ftp.rediris.es/mirror/fedora-epel/6/i386/epel-release-6-8.noarch.rpm && yum localinstall -y --nogpgcheck epel-release-6-8.noarch.rpm \
-  && yum install -y npm git
-
 COPY . /opt/sth
 WORKDIR /opt/sth
-RUN npm install
+
+RUN yum update -y && yum install -y wget \
+  && yum install -y epel-release && yum update -y epel-release \
+  && yum install -y npm && yum clean all \
+  && npm install --production \
+  && npm cache clean
 
 ENTRYPOINT bin/sth
 
