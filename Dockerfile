@@ -29,7 +29,7 @@ RUN yum update -y && yum install -y wget \
 
 COPY . /opt/sth
 WORKDIR /opt/sth
-RUN npm install --production
+RUN npm install
 
 ENTRYPOINT bin/sth
 
