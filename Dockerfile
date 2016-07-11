@@ -30,8 +30,7 @@ RUN yum update -y && yum install -y curl \
   && yum install -y epel-release && yum update -y epel-release \
   && yum install -y npm \
   && npm install --production \
-  # Cleaning unused files...
-  && rpm -e --nodeps redhat-logos && yum -y erase libss \
+  && rpm -e --nodeps redhat-logos || true && yum -y erase libss \
   && yum clean all && rm -rf /var/lib/yum/yumdb \
   && rm -rf /var/lib/yum/history && find /usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en' ! -name 'es' ! -name 'es_ES' | xargs rm -r \
   && rm -f /var/log/*log && npm cache clean
