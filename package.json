@@ -58,7 +58,8 @@
     "lodash": "^4.8.2",
     "logops": "^1.0.0-alpha.5",
     "mkdirp": "^0.5.1",
-    "mongodb": "^2.1.20",
+    "mongodb": "^2.2.0",
+    "object-assign": "^4.1.0",
     "progress": "^1.1.8",
     "uuid": "^2.0.1"
   },
