@@ -3,3 +3,4 @@
 - [TASK] Include FIWARE badges in the repo main page (#356)
 - [TASK] Include structured documentation following the FIWARE guidelines (#358)
 - [TASK] Add the GNU Affero General Public License version 3 to the project (#362)
+- [BUG] Fix to the Object.assign() issue introduced by the MongoDB Native Driver
