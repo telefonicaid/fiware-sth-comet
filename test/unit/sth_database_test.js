@@ -1304,6 +1304,7 @@ function retrievalTests(shouldHash) {
 }
 
 describe('sth_database tests', function() {
+  this.timeout(3000);
   describe('database connection', function() {
     it('should connect to the database', function(done) {
       sthDatabase.connect(DATABASE_CONNECTION_PARAMS, function(err, connection) {
@@ -1327,7 +1328,8 @@ describe('sth_database tests', function() {
       sthDatabase.connect(INVALID_DATABASE_CONNECTION_PARAMS, function(err, connection) {
         expect(err).to.exist;
         expect(err.name).to.equal('MongoError');
-        expect(err.message.indexOf('getaddrinfo ENOTFOUND')).to.equal(0);
+        expect(err.message.indexOf('failed to connect to server [' + INVALID_DATABASE_CONNECTION_PARAMS.dbURI + ']')).
+          to.equal(0);
         expect(connection).to.equal(null);
         done();
       });
@@ -1339,7 +1341,8 @@ describe('sth_database tests', function() {
       sthDatabase.connect(INVALID_DATABASE_CONNECTION_PARAMS, function(err, connection) {
         expect(err).to.exist;
         expect(err.name).to.equal('MongoError');
-        expect(err.message.indexOf('connect ECONNREFUSED')).to.equal(0);
+        expect(err.message.indexOf('failed to connect to server [' + INVALID_DATABASE_CONNECTION_PARAMS.dbURI + ']')).
+          to.equal(0);
         expect(connection).to.equal(null);
         done();
       });

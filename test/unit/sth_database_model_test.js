@@ -885,6 +885,7 @@ function collectionPerEntityUpdateMigrationTests(dataType, aggregationType, opti
 }
 
 describe('sth_database_model tests', function() {
+  this.timeout(3000);
   [sthConfig.AGGREGATIONS.NUMERIC, sthConfig.AGGREGATIONS.TEXTUAL].forEach(function(aggregationType) {
     describe(aggregationType + ' aggregation type', function() {
       var dataTypes = Object.keys(sthTestConfig.DATA_TYPES);
