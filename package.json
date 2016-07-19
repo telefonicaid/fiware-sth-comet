@@ -57,7 +57,7 @@
     "joi": "^5.1.0",
     "json-csv": "^1.2.0",
     "lodash": "^4.8.2",
-    "logops": "^1.0.0-alpha.5",
+    "logops": "^1.0.0",
     "mkdirp": "^0.5.1",
     "mongodb": "^2.2.0",
     "object-assign": "^4.1.0",
