@@ -456,6 +456,9 @@ function getURL(type, options, attrName) {
         url += '?level=' + options.level;
       }
       break;
+    case sthTestConfig.API_OPERATION.ADMIN.GET_LOG_LEVEL:
+      url += '/admin/log';
+      break;
     case sthTestConfig.API_OPERATION.VERSION:
       if (options && options.invalidPath) {
         url += '/invalidVersionPath';
