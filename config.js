@@ -113,7 +113,19 @@ config.database = {
   },
   // Attribute values to one or more blank spaces should be ignored and not processed either as raw data or for
   // the aggregated computations. Default value: "true".
-  ignoreBlankSpaces: 'true'
+  ignoreBlankSpaces: 'true',
+  // Database and collection names should be encoded to avoid the restrictions imposed by MongoDB and stated at
+  // https://docs.mongodb.com/manual/reference/limits/
+  // The encoding criteria is the following one:
+  // 1. Encode the forbidden characters using an escaping character (x) and a numerical Unicode code for each character.
+  //    For instance, the / character will be encoded as x002f.
+  // 2. Database and collection names already using the above encoding must be escaped prepending another x,
+  //    for instance, the text x002a will be encoded as xx002a.
+  // 3. The uppercase characters included in database names will be encoded using the mechanism stated in 1.
+  // 4. Collection names starting with 'system.' will be encoded as 'xsystem.'. For instance, system.myData will be
+  //    encoded as xsystem.myData.
+  // Default value: "true" (although we will set it to false until the Cygnus counterpart is ready and landed)
+  nameEncoding: 'false'
 };
 
 // Logging configuration

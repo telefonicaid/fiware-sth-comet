@@ -25,14 +25,18 @@
 
 var ROOT_PATH = require('app-root-path');
 var sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
+var sthDatabaseNameCodec = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameCodec');
+var sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
 var sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
 var sthUtils = require(ROOT_PATH + '/lib/utils/sthUtils');
 var sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
 var expect = require('expect.js');
 var _ = require('lodash');
 
-var COLLECTION_NAMES = sthConfig.COLLECTION_PREFIX + 'collection_names';
-var DATABASE_NAME = sthDatabase.getDatabaseName(sthConfig.DEFAULT_SERVICE);
+var COLLECTION_NAMES = sthConfig.NAME_ENCODING ?
+                         sthDatabaseNameCodec.encodeCollectionName(sthConfig.COLLECTION_PREFIX + 'collection_names') :
+                         sthConfig.COLLECTION_PREFIX + 'collection_names';
+var DATABASE_NAME = sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE);
 var DATABASE_CONNECTION_PARAMS = {
   authentication: sthConfig.DB_AUTHENTICATION,
   dbURI: sthConfig.DB_URI,
@@ -119,8 +123,8 @@ function connectToDatabase(callback) {
 function dropCollection(collectionNameParams, dataType, dataModel, callback) {
   sthConfig.DATA_MODEL = dataModel;
   var collectionName = (dataType === sthTestConfig.DATA_TYPES.RAW) ?
-    sthDatabase.getCollectionName4Events(collectionNameParams) :
-    sthDatabase.getCollectionName4Aggregated(collectionNameParams);
+    sthDatabaseNaming.getRawCollectionName(collectionNameParams) :
+    sthDatabaseNaming.getAggregatedCollectionName(collectionNameParams);
 
   if (collectionName) {
     sthDatabase.connection.dropCollection(collectionName, function (err) {
@@ -197,45 +201,6 @@ function cleanDatabaseTests(shouldHash) {
 }
 
 /**
- * Expectations for the collection name generation
- * @param  {string} collectionNameParams The collection name params
- * @param  {string} collectionName       The collection name
- * @param  {string} dataType             The data type
- * @param  {string} dataModel            The data model
- */
-function expectCollectionName(collectionNameParams, collectionName, dataType, dataModel) {
-  var concatRawCollectionName, finalCollectionName;
-  switch (dataModel) {
-    case sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE:
-      concatRawCollectionName = collectionNameParams.servicePath + '_' +
-        collectionNameParams.entityId + '_' + collectionNameParams.entityType + '_' +
-        collectionNameParams.attrName;
-      break;
-    case sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY:
-      concatRawCollectionName = collectionNameParams.servicePath + '_' +
-        collectionNameParams.entityId + '_' + collectionNameParams.entityType;
-      break;
-    case sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH:
-      concatRawCollectionName = collectionNameParams.servicePath;
-      break;
-    default:
-    throw new Error(dataModel + ' is not a valid data model value');
-  }
-
-  if (sthConfig.SHOULD_HASH) {
-    finalCollectionName =
-      sthConfig.COLLECTION_PREFIX +
-      sthDatabase.generateHash(concatRawCollectionName, sthDatabase.getHashSizeInBytes(DATABASE_NAME)) +
-      (dataType === sthTestConfig.DATA_TYPES.AGGREGATED ? '.aggr' : '');
-    expect(collectionName).to.equal(finalCollectionName);
-  } else {
-    finalCollectionName = sthConfig.COLLECTION_PREFIX +
-      concatRawCollectionName + (dataType === sthTestConfig.DATA_TYPES.AGGREGATED ? '.aggr' : '');
-    expect(collectionName).to.equal(finalCollectionName);
-  }
-}
-
-/**
  * Expectations for the collection name storage if hashing is requested
  * @param  {object}   params Params object including the following properties:
  *                             - {object} collectionNameParams The collection name params
@@ -277,68 +242,6 @@ function expectCollectionHashNameIsStored(params, callback) {
       });
     }
   );
-}
-
-/**
- * Battery of tests to check that the naming of the collections works as expected
- * @param  {boolean} shouldHash Flag indicating if hashing should be used in the collection names
- */
-function collectionNameTests(shouldHash) {
-  var ORIGINAL_DATA_MODEL = sthConfig.DATA_MODEL,
-      ORIGINAL_SHOULD_HASH = sthConfig.SHOULD_HASH,
-      dataTypes = Object.keys(sthTestConfig.DATA_TYPES),
-      dataModels = Object.keys(sthConfig.DATA_MODELS);
-
-  before(function() {
-    sthConfig.SHOULD_HASH = shouldHash;
-  });
-
-  dataModels.forEach(function(dataModel) {
-    describe(sthConfig.DATA_MODELS[dataModel] + ' data model', function() {
-      before(function() {
-        sthConfig.DATA_MODEL = sthConfig.DATA_MODELS[dataModel];
-      });
-
-      dataTypes.forEach(function(dataType) {
-        it('should compose the collection name for ' + sthTestConfig.DATA_TYPES[dataType] + ' data',
-          function(done) {
-            var collectionName = sthTestConfig.DATA_TYPES[dataType] === sthTestConfig.DATA_TYPES.RAW ?
-              sthDatabase.getCollectionName4Events(COLLECTION_NAME_PARAMS) :
-              sthDatabase.getCollectionName4Aggregated(COLLECTION_NAME_PARAMS);
-            expectCollectionName(
-              COLLECTION_NAME_PARAMS, collectionName, sthTestConfig.DATA_TYPES[dataType],
-              sthConfig.DATA_MODELS[dataModel]);
-            done();
-          }
-        );
-
-        it('should compose (or not) the collection name for ' +
-          sthTestConfig.DATA_TYPES[dataType] + ' data if very long service path and hashing is enabled (or disabled)',
-          function(done) {
-            var collectionName = sthTestConfig.DATA_TYPES[dataType] === sthTestConfig.DATA_TYPES.RAW ?
-              sthDatabase.getCollectionName4Events(VERY_LONG_COLLECTION_NAME_PARAMS) :
-              sthDatabase.getCollectionName4Aggregated(VERY_LONG_COLLECTION_NAME_PARAMS);
-            if (sthConfig.SHOULD_HASH) {
-              expectCollectionName(
-                VERY_LONG_COLLECTION_NAME_PARAMS, collectionName, sthTestConfig.DATA_TYPES[dataType],
-                sthConfig.DATA_MODELS[dataModel]);
-            } else {
-              expect(collectionName).to.be(null);
-            }
-            done();
-          }
-        );
-      });
-
-      after(function() {
-        sthConfig.DATA_MODEL = ORIGINAL_DATA_MODEL;
-      });
-    });
-  });
-
-  after(function() {
-    sthConfig.SHOULD_HASH = ORIGINAL_SHOULD_HASH;
-  });
 }
 
 /**
@@ -473,12 +376,11 @@ function collectionAccessTests(shouldHash) {
                     expect(err.message).to.equal('Collection name hash collision');
                     // In case of a hash collision, the created collection is returned
                     expect(collection).to.not.be(null);
-                    done();
                   } else {
                     expect(err).to.be(null);
                     expect(collection).to.be.ok();
-                    return done();
                   }
+                  return done();
                 }
               );
             }
@@ -1352,14 +1254,9 @@ describe('sthDatabase tests', function() {
 
   describe('helper functions', function() {
     it('should return the database name for a service', function() {
-      expect(sthDatabase.getDatabaseName(sthConfig.DEFAULT_SERVICE)).to.equal(
-        sthConfig.DB_PREFIX + sthConfig.DEFAULT_SERVICE);
-    });
-
-    describe('collection names', function() {
-      describe('hashing enabled', collectionNameTests.bind(null, true));
-
-      describe('hashing disabled', collectionNameTests.bind(null, false));
+      var databaseName = sthConfig.DB_PREFIX + sthConfig.DEFAULT_SERVICE;
+      expect(sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE)).to.equal(
+        sthConfig.NAME_ENCODING ? sthDatabaseNameCodec.encodeDatabaseName(databaseName) : databaseName);
     });
 
     describe('collection access', function() {
@@ -1401,74 +1298,3 @@ describe('sthDatabase tests', function() {
     });
   });
 });
-
-
-
-/*
-describe('database operation', function () {
-  it('should establish a connection to the database', function (done) {
-    sthDatabase.connect(
-      {
-        authentication: sthConfig.DB_AUTHENTICATION,
-        dbURI: sthConfig.DB_URI,
-        replicaSet: sthConfig.REPLICA_SET,
-        database: sthDatabase.getDatabaseName(sthConfig.DEFAULT_SERVICE),
-        poolSize: sthConfig.POOL_SIZE
-      },
-      function (err) {
-        done(err);
-      }
-    );
-  });
-
-  it('should drop the event raw data collection if it exists',
-    sthTestHelper.dropRawEventCollectionTest);
-
-  it('should drop the aggregated data collection if it exists',
-    sthTestHelper.dropAggregatedDataCollectionTest);
-
-  it('should check if the collection for the aggregated data exists', function (done) {
-    sthDatabase.getCollection(
-      {
-        service: sthConfig.DEFAULT_SERVICE,
-        servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-        entityId: sthTestConfig.ENTITY_ID,
-        entityType: sthTestConfig.ENTITY_TYPE,
-        attrName: sthTestConfig.ATTRIBUTE_NAME
-      },
-      {
-        isAggregated: true,
-        shouldCreate: false,
-        shouldStoreHash: false,
-        shouldTruncate: false
-      },
-      function (err, collection) {
-        if (err && !collection) {
-          // The collection does not exist
-          done();
-        }
-      }
-    );
-  });
-
-  it('should create the collection for the single events', function (done) {
-    sthDatabase.connection.createCollection(collectionName4Events, function (err) {
-      done(err);
-    });
-  });
-
-  it('should create the collection for the aggregated data', function (done) {
-    sthDatabase.connection.createCollection(collectionName4Aggregated, function (err) {
-      done(err);
-    });
-  });
-
-  describe('should store individual raw events and aggregated data', function () {
-    for (var i = 0; i < sthTestConfig.SAMPLES; i++) {
-      describe('for each new event', sthTestHelper.eachEventTestSuite);
-    }
-  });
-
-  describe('should clean the data if requested', sthTestHelper.cleanDatabaseSuite);
-});
-*/

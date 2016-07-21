@@ -28,6 +28,8 @@ var sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
 var sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
 var sthUtils = require(ROOT_PATH + '/lib/utils/sthUtils');
 var sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
+var sthDatabaseNameCodec = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameCodec');
+var sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
 var request = require('request');
 var expect = require('expect.js');
 
@@ -332,7 +334,7 @@ function eachEventTestSuite(attrName, attrType, includeTimeInstantMetadata) {
  * @param {Function} done The mocha done() callback function
  */
 function dropRawEventCollectionTest(done) {
-  var collectionName4Events = sthDatabase.getCollectionName4Events(
+  var collectionName4Events = sthDatabaseNaming.getRawCollectionName(
     {
       service: sthConfig.DEFAULT_SERVICE,
       servicePath: sthConfig.DEFAULT_SERVICE_PATH,
@@ -341,6 +343,7 @@ function dropRawEventCollectionTest(done) {
       attrName: sthTestConfig.ATTRIBUTE_NAME
     }
   );
+  console.log(collectionName4Events);
   sthDatabase.connection.dropCollection(collectionName4Events, function (err) {
     if (err && err.message === 'ns not found') {
       err = null;
@@ -354,7 +357,7 @@ function dropRawEventCollectionTest(done) {
  * @param {Function} done The mocha done() callback function
  */
 function dropAggregatedDataCollectionTest(done) {
-  var collectionName4Aggregated = sthDatabase.getCollectionName4Aggregated(
+  var collectionName4Aggregated = sthDatabaseNaming.getAggregatedCollectionName(
     {
       service: sthConfig.DEFAULT_SERVICE,
       servicePath: sthConfig.DEFAULT_SERVICE_PATH,
@@ -376,7 +379,10 @@ function dropAggregatedDataCollectionTest(done) {
  * @param {Function} done The mocha done() callback function
  */
 function dropCollectionNamesCollectionTest(done) {
-  var collectionName = sthConfig.COLLECTION_PREFIX + 'collection_names';
+  var collectionName =
+    sthConfig.NAME_ENCODING ?
+      sthDatabaseNameCodec.encodeCollectionName(sthConfig.COLLECTION_PREFIX + 'collection_names') :
+      sthConfig.COLLECTION_PREFIX + 'collection_names';
   sthDatabase.connection.dropCollection(collectionName, function (err) {
     if (err && err.message === 'ns not found') {
       err = null;
@@ -974,57 +980,14 @@ function aggregatedDataRetrievalSuite(attrName, attrType, aggrMethod) {
  */
 function cleanDatabaseSuite() {
   if (sthTestConfig.CLEAN) {
-    it('should drop the collection created for the events', function (done) {
-      sthDatabase.getCollection(
-        {
-          service: sthConfig.DEFAULT_SERVICE,
-          servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-          entityId: sthTestConfig.ENTITY_ID,
-          entityType: sthTestConfig.ENTITY_TYPE,
-          attrName: sthTestConfig.ATTRIBUTE_NAME
-        },
-        {
-          isAggregated: false,
-          shouldCreate: true,
-          shouldStoreHash: false,
-          shouldTruncate: false
-        },
-        function (err, collection) {
-          if (err) {
-            return done(err);
-          }
-          collection.drop(function (err) {
-            done(err);
-          });
-        }
-      );
-    });
+    it('should drop the event raw data collection if it exists',
+      dropRawEventCollectionTest);
 
-    it('should drop the collection created for the aggregated data', function (done) {
-      sthDatabase.getCollection(
-        {
-          service: sthConfig.DEFAULT_SERVICE,
-          servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-          entityId: sthTestConfig.ENTITY_ID,
-          entityType: sthTestConfig.ENTITY_TYPE,
-          attrName: sthTestConfig.ATTRIBUTE_NAME
-        },
-        {
-          isAggregated: true,
-          shouldCreate: true,
-          shouldStoreHash: false,
-          shouldTruncate: false
-        },
-        function (err, collection) {
-          if (err) {
-            return done(err);
-          }
-          collection.drop(function (err) {
-            done(err);
-          });
-        }
-      );
-    });
+    it('should drop the aggregated data collection if it exists',
+      dropAggregatedDataCollectionTest);
+
+    it('should drop the collection names collection if it exists',
+      dropCollectionNamesCollectionTest);
   }
 }
 

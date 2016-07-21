@@ -29,7 +29,7 @@ var ROOT_PATH = require('app-root-path');
 var sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
 var sthLogger = require('logops');
 var sthError = require(ROOT_PATH + '/lib/utils/sthError');
-var sthDatabaseModel = require(ROOT_PATH + '/lib/database/sthDatabaseModel');
+var sthDatabaseModelTool = require(ROOT_PATH + '/lib/database/model/sthDatabaseModelTool');
 var async = require('async');
 var commander = require('commander');
 var Progress = require('progress');
@@ -38,7 +38,7 @@ var migrationSummary = {};
 
 /**
  * Exits the process releasing any used resources
- * @param err Error if something happens
+ * @param err Error if any
  */
 function exitGracefully(err) {
   if (err) {
@@ -48,7 +48,7 @@ function exitGracefully(err) {
       err
     );
   }
-  sthDatabaseModel.cleanResources(function() {
+  sthDatabaseModelTool.cleanResources(function() {
     process.exit(err ? 1 : 0);
   });
 }
@@ -197,7 +197,7 @@ function migrateCollection(databaseName, collectionInfo, callback) {
       'Migration of the collection \'' + collectionInfo.collectionName + '\' of the database \'' +
       databaseName + '\' to the \'' + sthConfig.DATA_MODEL + '\' data model...'
     );
-    collectionMigrationProgress = sthDatabaseModel.migrateCollection(
+    collectionMigrationProgress = sthDatabaseModelTool.migrateCollection(
       databaseName, collectionInfo.collectionName,
       {removeCollection: commander.removeCollection, updateCollection: commander.updateCollection,
         dictionary: commander.dictionary},
@@ -299,7 +299,7 @@ function executeCommand() {
     // Only analysis printing requested
     async.waterfall(
       [
-        async.apply(sthDatabaseModel.getDataModelAnalysis,
+        async.apply(sthDatabaseModelTool.getDataModelAnalysis,
           {database: commander.database, collection: commander.collection}),
         filterAnalysis
       ],
@@ -311,7 +311,7 @@ function executeCommand() {
     // Only migration requested
     async.waterfall(
       [
-        sthDatabaseModel.getDataModelAnalysis,
+        sthDatabaseModelTool.getDataModelAnalysis,
         filterAnalysis,
         migrateDatabases
       ],
@@ -323,7 +323,7 @@ function executeCommand() {
     // Analysis printing and migration requested
     async.waterfall(
       [
-        sthDatabaseModel.getDataModelAnalysis,
+        sthDatabaseModelTool.getDataModelAnalysis,
         filterAnalysis,
         async.apply(print2Target, 'console'),
         migrateDatabases
