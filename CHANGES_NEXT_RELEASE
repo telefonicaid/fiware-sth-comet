@@ -1,3 +1,4 @@
 - [TASK] Reduce the Docker image size
 - [TASK] Refactoring of the file structure of the project
 - [FEATURE] Adhere the STH to the general encoding for historical related storages (#333)
+- [FEATURE] Common API operation across all IoTP components to retrieve log level

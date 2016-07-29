@@ -65,7 +65,7 @@ describe('sth tests', function() {
         sthConfig.STH_HOST,
         sthConfig.STH_PORT,
         function (err, server) {
-          expect(err).to.equal(undefined);
+          expect(err).to.equal(null);
           expect(server).to.be.a(hapi.Server);
           done();
         });
@@ -957,7 +957,7 @@ describe('sth tests', function() {
     );
   });
 
-  describe('POST /admin/log', function() {
+  describe('PUT /admin/log', function() {
     it('should accept FATAL as a valid logging level',
       sthTestUtils.validLogLevelChangeTest.bind(null, 'FATAL')
     );

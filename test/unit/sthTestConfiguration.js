@@ -49,6 +49,7 @@ module.exports = {
     READ: 'read',
     NOTIFY: 'notify',
     ADMIN: {
+      GET_LOG_LEVEL: 'getLogLevel',
       SET_LOG_LEVEL: 'setLogLevel'
     },
     VERSION: 'version',
