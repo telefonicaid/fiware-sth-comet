@@ -19,14 +19,6 @@
 # For those usages not covered by the GNU Affero General Public License
 # please contact with: [german.torodelvalle@telefonica.com]
 
-#
-# HOWTO BUILD
-#
-# Howto build with default nodejs v0.10.42
-# docker build -f Dockerfile .
-# Howto build with specific nodejs
-# docker build --build-arg NODEJS_VERSION=v0.10.46 -f Dockerfile .
-
 FROM centos:6
 
 MAINTAINER Germán Toro del Valle <german.torodelvalle@telefonica.com>
