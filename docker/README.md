@@ -1,4 +1,4 @@
-* HOWTO BUILD
+# HOWTO BUILD
 Launch docker commands inside git root repository directory
 
 - Howto build with default nodejs v0.10.42
@@ -7,7 +7,7 @@ Launch docker commands inside git root repository directory
 - Howto build with specific nodejs
   `sudo docker build --build-arg NODEJS_VERSION=v0.10.46 -f docker/Dockerfile .`
 
-* HOWTO USE INCLUDED DOCKER COMPOSE FILE
+# HOWTO USE INCLUDED DOCKER COMPOSE FILE
 Launch docker-compose commands inside git root repository directory
 
 - Launch this docker-compose command in foreground mode:
