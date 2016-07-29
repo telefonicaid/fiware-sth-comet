@@ -19,9 +19,19 @@
 # For those usages not covered by the GNU Affero General Public License
 # please contact with: [german.torodelvalle@telefonica.com]
 
+#
+# HOWTO BUILD
+#
+# Howto build with default nodejs v0.10.42
+# docker build -f Dockerfile .
+# Howto build with specific nodejs
+# docker build --build-arg NODEJS_VERSION=v0.10.46 -f Dockerfile .
+
 FROM centos:6
 
 MAINTAINER Germán Toro del Valle <german.torodelvalle@telefonica.com>
+
+ARG NODEJS_VERSION=v0.10.42
 
 COPY . /opt/sth
 WORKDIR /opt/sth
@@ -30,9 +40,12 @@ RUN yum update -y && yum install -y curl \
   && yum install -y epel-release && yum update -y epel-release \
   && echo "INFO: Building node and npm..." \
   && yum install -y gcc-c++ make \
-  && curl -s --fail http://nodejs.org/dist/v0.10.42/node-v0.10.42.tar.gz -o /opt/sth/node-v0.10.42.tar.gz \
-  && tar zxf node-v0.10.42.tar.gz \
-  && cd node-v0.10.42 \
+  && echo "***********************************************************" \
+  && echo "USING NODEJS VERSION <${NODEJS_VERSION}>" \
+  && echo "***********************************************************" \
+  && curl -s --fail http://nodejs.org/dist/${NODEJS_VERSION}/node-${NODEJS_VERSION}.tar.gz -o /opt/sth/node-${NODEJS_VERSION}.tar.gz \
+  && tar zxf node-${NODEJS_VERSION}.tar.gz \
+  && cd node-${NODEJS_VERSION} \
   && echo "INFO: Configure..." && ./configure \
   && echo "INFO: Make..." && make -s V= \
   && echo "INFO: Make install..." && make install \
@@ -43,7 +56,7 @@ RUN yum update -y && yum install -y curl \
 
   && echo "INFO: Cleaning unused software..." \
   && yum erase -y gcc-c++ gcc ppl cpp glibc-devel glibc-headers kernel-headers libgomp libstdc++-devel mpfr libss \
-  && rm -rf /opt/sth/node-v0.10.42.tar.gz /opt/sth/node-v0.10.42 \
+  && rm -rf /opt/sth/node-${NODEJS_VERSION}.tar.gz /opt/sth/node-${NODEJS_VERSION} \
   # Erase without dependencies of the document formatting system (man). This cannot be removed using yum 
   # as yum uses hard dependencies and doing so will uninstall essential packages
   && rpm -qa groff redhat-logos | xargs -r rpm -e --nodeps \
