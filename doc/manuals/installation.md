@@ -122,13 +122,13 @@ To do it, follow the next steps once you have installed Docker in your machine:
 1. Navigate to the path where the component repository was cloned.
 2. Compose and run the STH component image
     * In foreground mode:
-```bash
-sudo docker-compose -f docker/docker-compose.yml up
-```
+    ```bash
+    sudo docker-compose -f docker/docker-compose.yml up
+    ```
     * Or in detached mode:
-```bash
-sudo docker-compose -f docker/docker-compose.yml up -d
-```
+    ```bash
+    sudo docker-compose -f docker/docker-compose.yml up -d
+    ```
 
 There is also the possibility to build your own local Docker image of the STH component.
 
@@ -137,11 +137,11 @@ To do it, follow the next steps once you have installed Docker in your machine:
 1. Navigate to the path where the component repository was cloned.
 2. Launch a Docker build
     * With default nodejs v0.10.42 version:
-```bash
-sudo docker build -f docker/Dockerfile .
-```
+    ```bash
+    sudo docker build -f docker/Dockerfile .
+    ```
     * With specific nodejs version:
-```bash
-sudo docker build --build-arg NODEJS_VERSION=v0.10.46 -f docker/Dockerfile .
-```
+    ```bash
+    sudo docker build --build-arg NODEJS_VERSION=v0.10.46 -f docker/Dockerfile .
+    ```
 
