@@ -1,3 +1,5 @@
 - [TASK] Reduce the Docker image size
 - [TASK] Refactoring of the file structure of the project
 - [FEATURE] Adhere the STH to the general encoding for historical related storages (#333)
+- [TASK] Reducing the size of the component Docker image
+
