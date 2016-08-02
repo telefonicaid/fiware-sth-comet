@@ -125,6 +125,7 @@ To do it, follow the next steps once you have installed Docker in your machine:
 ```bash
 sudo docker-compose -f docker/docker-compose.yml up
 ```
+
 2.2. In detached mode
 ```bash
 sudo docker-compose -f docker/docker-compose.yml up -d
@@ -142,6 +143,7 @@ To do it, follow the next steps once you have installed Docker in your machine:
 ```bash
 sudo docker build -f docker/Dockerfile .
 ```
+
 2.2. With specific nodejs version
 ```bash
 sudo docker build --build-arg NODEJS_VERSION=v0.10.46 -f docker/Dockerfile .
