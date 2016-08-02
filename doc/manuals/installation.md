@@ -115,7 +115,7 @@ Last but not least, the STH process (a `node` process) runs the as `sth` user.
 
 To ease the testing and deployment of the STH component, there also exists Docker images hosted at the [FIWARE Docker Hub](https://hub.docker.com/r/fiware/sth-comet/), including all the information needed to deploy and to try the STH component via the execution of a simple Docker command.
 
-On the other hand a [`Dockerfile`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/docker/Dockerfile) and a [`docker-compose.yml`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/docker/docker-compose.yml) files have also been included in the component repository in Github to quickly and easily start your own instance of the STH component, even including the needed associated MongoDB instance where all the data will be stored.
+On the other hand a [`Dockerfile`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/Dockerfile) and a [`docker-compose.yml`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/docker-compose.yml) files have also been included in the component repository in Github to quickly and easily start your own instance of the STH component, even including the needed associated MongoDB instance where all the data will be stored.
 
 To do it, follow the next steps once you have installed Docker in your machine:
 
