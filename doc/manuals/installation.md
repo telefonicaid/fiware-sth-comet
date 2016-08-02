@@ -132,9 +132,7 @@ sudo docker-compose -f docker/docker-compose.yml up
 sudo docker-compose -f docker/docker-compose.yml up -d
 ```
 
-## Build a Docker image
-
-We can also build a local Docker image of the STH component.
+There is also the possibility to build your own local Docker image of the STH component.
 
 To do it, follow the next steps once you have installed Docker in your machine:
 
