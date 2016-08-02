@@ -115,13 +115,33 @@ Last but not least, the STH process (a `node` process) runs the as `sth` user.
 
 To ease the testing and deployment of the STH component, there also exists Docker images hosted at the [FIWARE Docker Hub](https://hub.docker.com/r/fiware/sth-comet/), including all the information needed to deploy and to try the STH component via the execution of a simple Docker command.
 
-On the other hand a [`Dockerfile`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/Dockerfile) and a [`docker-compose.yml`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/docker-compose.yml) files have also been included in the component repository in Github to quickly and easily start your own instance of the STH component, even including the needed associated MongoDB instance where all the data will be stored.
+On the other hand a [`Dockerfile`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/docker/Dockerfile) and a [`docker-compose.yml`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/docker/docker-compose.yml) files have also been included in the component repository in Github to quickly and easily start your own instance of the STH component, even including the needed associated MongoDB instance where all the data will be stored.
 
 To do it, follow the next steps once you have installed Docker in your machine:
 
 1. Navigate to the path where the component repository was cloned.
-2. Compose and run the STH component image:
-```bash
-cd fiware-sth-comet/
-docker-compose up
-```
+2. Compose and run the STH component image
+    * In foreground mode:
+    ```bash
+    sudo docker-compose -f docker/docker-compose.yml up
+    ```
+    * Or in detached mode:
+    ```bash
+    sudo docker-compose -f docker/docker-compose.yml up -d
+    ```
+
+There is also the possibility to build your own local Docker image of the STH component.
+
+To do it, follow the next steps once you have installed Docker in your machine:
+
+1. Navigate to the path where the component repository was cloned.
+2. Launch a Docker build
+    * Using the default NodeJS v0.10.42 version:
+    ```bash
+    sudo docker build -f docker/Dockerfile .
+    ```
+    * Using an alternative NodeJS version:
+    ```bash
+    sudo docker build --build-arg NODEJS_VERSION=v0.10.46 -f docker/Dockerfile .
+    ```
+
