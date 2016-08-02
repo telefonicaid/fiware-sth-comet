@@ -25,7 +25,7 @@ MAINTAINER Germán Toro del Valle <german.torodelvalle@telefonica.com>
 
 ARG NODEJS_VERSION=v0.10.42
 
-COPY . /opt/sth/
+COPY . /opt/sth
 WORKDIR /opt/sth
 
 RUN yum update -y && yum install -y curl \
