@@ -23,17 +23,59 @@ FROM centos:6
 
 MAINTAINER Germán Toro del Valle <german.torodelvalle@telefonica.com>
 
-COPY . /opt/sth
+ARG NODEJS_VERSION=v0.10.42
+
+COPY . /opt/sth/
 WORKDIR /opt/sth
 
 RUN yum update -y && yum install -y curl \
   && yum install -y epel-release && yum update -y epel-release \
-  && yum install -y npm \
-  && npm install --production \
-  && rpm -e --nodeps redhat-logos || true && yum -y erase libss \
-  && yum clean all && rm -rf /var/lib/yum/yumdb \
-  && rm -rf /var/lib/yum/history && find /usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en' ! -name 'es' ! -name 'es_ES' | xargs rm -r \
-  && rm -f /var/log/*log && npm cache clean
+  && echo "INFO: Building node and npm..." \
+  && yum install -y gcc-c++ make \
+  && echo "***********************************************************" \
+  && echo "USING NODEJS VERSION <${NODEJS_VERSION}>" \
+  && echo "***********************************************************" \
+  && curl -s --fail http://nodejs.org/dist/${NODEJS_VERSION}/node-${NODEJS_VERSION}.tar.gz -o /opt/sth/node-${NODEJS_VERSION}.tar.gz \
+  && tar zxf node-${NODEJS_VERSION}.tar.gz \
+  && cd node-${NODEJS_VERSION} \
+  && echo "INFO: Configure..." && ./configure \
+  && echo "INFO: Make..." && make -s V= \
+  && echo "INFO: Make install..." && make install \
+  && echo "INFO: node version <$(node -e "console.log(process.version)")>" \
+  && echo "INFO: npm version <$(npm --version)>" \
+  && cd /opt/sth \
+  && echo "INFO: npm install --production..." && npm install --production \
+
+  && echo "INFO: Cleaning unused software..." \
+  && yum erase -y gcc-c++ gcc ppl cpp glibc-devel glibc-headers kernel-headers libgomp libstdc++-devel mpfr libss \
+  && rm -rf /opt/sth/node-${NODEJS_VERSION}.tar.gz /opt/sth/node-${NODEJS_VERSION} \
+  # Erase without dependencies of the document formatting system (man). This cannot be removed using yum 
+  # as yum uses hard dependencies and doing so will uninstall essential packages
+  && rpm -qa groff redhat-logos | xargs -r rpm -e --nodeps \
+  # Clean yum data
+  && yum clean all && rm -rf /var/lib/yum/yumdb && rm -rf /var/lib/yum/history \
+  # Rebuild rpm data files
+  && rpm -vv --rebuilddb \
+  # Delete unused locales. Only preserve en_US and the locale aliases
+  && find /usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en_US' ! -name 'locale.alias' | xargs -r rm -r \
+  && bash -c 'localedef --list-archive | grep -v -e "en_US" | xargs localedef --delete-from-archive' \
+  # We use cp instead of mv as to refresh locale changes for ssh connections
+  # We use /bin/cp instead of cp to avoid any alias substitution, which in some cases has been problematic
+  && /bin/cp -f /usr/lib/locale/locale-archive /usr/lib/locale/locale-archive.tmpl \
+  && build-locale-archive \
+  # Clean npm cache
+  && npm cache clean \
+  # Don't need unused files inside docker images
+  && rm -rf /tmp/* /usr/local/lib/node_modules/npm/man /usr/local/lib/node_modules/npm/doc /usr/local/lib/node_modules/npm/html \
+  # We don't need to manage Linux account passwords requisites: lenght, mays/mins, etc
+  # This cannot be removed using yum as yum uses hard dependencies and doing so will uninstall essential packages
+  && rm -rf /usr/share/cracklib \
+  # We don't need glibc locale data
+  # This cannot be removed using yum as yum uses hard dependencies and doing so will uninstall essential packages
+  && rm -rf /usr/share/i18n /usr/{lib,lib64}/gconv \
+  # Don't need old log files inside docker images
+  && rm -f /var/log/*log
+
 
 ENTRYPOINT bin/sth
 
