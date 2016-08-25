@@ -3,3 +3,4 @@
 - [FEATURE] Adhere the STH to the general encoding for historical related storages (#333)
 - [FEATURE] Common API operation across all IoTP components to retrieve log level
 - [TASK] Reducing the size of the component Docker image
+- [FEATURE] Align all fields in logs in IoTP along all components
