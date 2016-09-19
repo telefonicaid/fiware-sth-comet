@@ -30,7 +30,6 @@ var sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNami
 var sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
 var expect = require('expect.js');
 
-var DATABASE_NAME = sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE);
 var COLLECTION_NAME_PARAMS = {
   service: sthConfig.DEFAULT_SERVICE,
   servicePath: sthConfig.DEFAULT_SERVICE_PATH,
@@ -98,37 +97,23 @@ function expectCollectionName(collectionNameParams, collectionName, dataType, da
       throw new Error(dataModel + ' is not a valid data model value');
   }
 
-  if (sthConfig.SHOULD_HASH) {
-    finalCollectionName = (sthConfig.NAME_ENCODING ?
-      sthDatabaseNameCodec.encodeCollectionName(sthConfig.COLLECTION_PREFIX) :
-      sthConfig.COLLECTION_PREFIX) +
-      sthDatabaseNaming.generateHash(collectionName4Events, sthDatabaseNaming.getHashSizeInBytes(DATABASE_NAME)) +
-      (dataType === sthTestConfig.DATA_TYPES.AGGREGATED ?
-        (sthConfig.NAME_ENCODING ? sthDatabaseNameCodec.encodeCollectionName('.aggr') : '.aggr') : '');
-  } else {
-    finalCollectionName = (sthConfig.NAME_ENCODING ?
-      sthDatabaseNameCodec.encodeCollectionName(sthConfig.COLLECTION_PREFIX) :
-      sthConfig.COLLECTION_PREFIX) +
-      collectionName4Events +
-      (dataType === sthTestConfig.DATA_TYPES.AGGREGATED ?
-        (sthConfig.NAME_ENCODING ? sthDatabaseNameCodec.encodeCollectionName('.aggr') : '.aggr') : '');
-  }
+  finalCollectionName = (sthConfig.NAME_ENCODING ?
+    sthDatabaseNameCodec.encodeCollectionName(sthConfig.COLLECTION_PREFIX) :
+    sthConfig.COLLECTION_PREFIX) +
+    collectionName4Events +
+    (dataType === sthTestConfig.DATA_TYPES.AGGREGATED ?
+      (sthConfig.NAME_ENCODING ? sthDatabaseNameCodec.encodeCollectionName('.aggr') : '.aggr') : '');
+
   expect(collectionName).to.equal(finalCollectionName);
 }
 
 /**
  * Battery of tests to check the collection name generation
- * @param  {Boolean} shouldHash Flag indicating if collection names should be hashed
  */
-function collectionNameTests(shouldHash) {
+function collectionNameTests() {
   var ORIGINAL_DATA_MODEL = sthConfig.DATA_MODEL,
-      ORIGINAL_SHOULD_HASH = sthConfig.SHOULD_HASH,
       dataTypes = Object.keys(sthTestConfig.DATA_TYPES),
       dataModels = Object.keys(sthConfig.DATA_MODELS);
-
-  before(function() {
-    sthConfig.SHOULD_HASH = shouldHash;
-  });
 
   dataModels.forEach(function(dataModel) {
     describe(sthConfig.DATA_MODELS[dataModel] + ' data model', function() {
@@ -149,19 +134,13 @@ function collectionNameTests(shouldHash) {
           }
         );
 
-        it('should compose (or not) the collection name for ' +
-          sthTestConfig.DATA_TYPES[dataType] + ' data if very long service path and hashing is enabled (or disabled)',
+        it('should not compose the collection name for ' +
+          sthTestConfig.DATA_TYPES[dataType] + ' data if very long service path',
           function(done) {
             var collectionName = sthTestConfig.DATA_TYPES[dataType] === sthTestConfig.DATA_TYPES.RAW ?
               sthDatabaseNaming.getRawCollectionName(VERY_LONG_COLLECTION_NAME_PARAMS) :
               sthDatabaseNaming.getAggregatedCollectionName(VERY_LONG_COLLECTION_NAME_PARAMS);
-            if (sthConfig.SHOULD_HASH) {
-              expectCollectionName(
-                VERY_LONG_COLLECTION_NAME_PARAMS, collectionName, sthTestConfig.DATA_TYPES[dataType],
-                sthConfig.DATA_MODELS[dataModel]);
-            } else {
-              expect(collectionName).to.be(null);
-            }
+            expect(collectionName).to.be(null);
             done();
           }
         );
@@ -172,16 +151,8 @@ function collectionNameTests(shouldHash) {
       });
     });
   });
-
-  after(function() {
-    sthConfig.SHOULD_HASH = ORIGINAL_SHOULD_HASH;
-  });
 }
 
 describe('sthDatabaseNaming tests', function() {
-  describe('collection names', function() {
-    describe('hashing enabled', collectionNameTests.bind(null, true));
-
-    describe('hashing disabled', collectionNameTests.bind(null, false));
-  });
+  describe('collection names', collectionNameTests);
 });

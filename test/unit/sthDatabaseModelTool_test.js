@@ -28,7 +28,6 @@ var sthDatabaseModelTool = require(ROOT_PATH + '/lib/database/model/sthDatabaseM
 var sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
 var sthUtils = require(ROOT_PATH + '/lib/utils/sthUtils');
 var sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
-var sthDatabaseNameCodec = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameCodec');
 var sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
 var sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
 var expect = require('expect.js');
@@ -94,25 +93,6 @@ function dropCollection(type, dataModel, callback) {
 }
 
 /**
- * Drops the collection hash to name collectionName
- * @param  {Function} callback The callback
- */
-function dropCollectionNamesCollection(callback) {
-  sthDatabase.connection.dropCollection(
-    sthConfig.NAME_ENCODING ?
-      sthDatabaseNameCodec.encodeCollectionName(sthConfig.COLLECTION_PREFIX + 'collection_names') :
-      sthConfig.COLLECTION_PREFIX + 'collection_names',
-    function (err) {
-      if (err && err.code === 26 && err.name === 'MongoError' && err.message === 'ns not found') {
-        // The collection does not exist
-        return process.nextTick(callback);
-      }
-      return process.nextTick(callback.bind(null, err));
-    }
-  );
-}
-
-/**
  * Set of tests to drop the test collections from the database
  * @param  {String} dataType The data type
  */
@@ -124,11 +104,6 @@ function cleanDatabaseTests(dataType) {
         ' data collection if it exists', dropCollection.bind(null, dataType,
           sthConfig.DATA_MODELS[dataModelsKeys[index1]]));
     }
-    it('should drop the ' +
-      (sthConfig.NAME_ENCODING ?
-        sthDatabaseNameCodec.encodeCollectionName(sthConfig.COLLECTION_PREFIX + 'collection_names') :
-        sthConfig.COLLECTION_PREFIX + 'collection_names') + ' if it exists',
-      dropCollectionNamesCollection);
   });
 }
 
@@ -168,26 +143,10 @@ function insertData(dataType, aggregationType, dataModel, callback) {
       notificationInfo: { inserts: true }
     };
 
-    if (sthConfig.SHOULD_HASH) {
-      sthDatabase.storeCollectionHash(COLLECTION_NAME_PARAMS, sthDatabase.isAggregated(collectionName), collectionName,
-        function(err) {
-          if (err && (err.message !== 'Collection name hash collision' &&
-              err.message.indexOf('E11000 duplicate key error collection') === -1)) {
-            return process.nextTick(callback.bind(null, err));
-          }
-          if (dataType === sthTestConfig.DATA_TYPES.RAW) {
-            sthDatabase.storeRawData(INSERTION_PARAMS, callback);
-          } else {
-            sthDatabase.storeAggregatedData(INSERTION_PARAMS, callback);
-          }
-        }
-      );
+    if (dataType === sthTestConfig.DATA_TYPES.RAW) {
+      sthDatabase.storeRawData(INSERTION_PARAMS, callback);
     } else {
-      if (dataType === sthTestConfig.DATA_TYPES.RAW) {
-        sthDatabase.storeRawData(INSERTION_PARAMS, callback);
-      } else {
-        sthDatabase.storeAggregatedData(INSERTION_PARAMS, callback);
-      }
+      sthDatabase.storeAggregatedData(INSERTION_PARAMS, callback);
     }
   });
 }
@@ -281,25 +240,6 @@ function analysisExclusionTest(dataType, originDataModel, targetDataModel, done)
 }
 
 /**
- * Test to check that the collection names collection is not included in the analysis
- * @param  {String}   targetDataModel The target data model
- * @param  {Function} done            Mocha done() funtion
- */
-function collectionNamesNotIncludedTest(targetDataModel, done) {
-  sthConfig.DATA_MODEL = targetDataModel;
-  sthDatabaseModelTool.getDataModelAnalysis(function(err, analysis) {
-    if (err) {
-      return done(err);
-    }
-    expect(!isCollectionIncluded(analysis, DATABASE_NAME,
-      sthConfig.NAME_ENCODING ?
-        sthDatabaseNameCodec.encodeCollectionName(sthConfig.COLLECTION_PREFIX + 'collection_names') :
-        sthConfig.COLLECTION_PREFIX + 'collection_names'));
-    done();
-  });
-}
-
-/**
  * Test to check that no system.* collections are included in the analysis
  * @param  {String}   targetDataModel The target data model
  * @param  {Function} done            Mocha done() funtion
@@ -332,30 +272,6 @@ function collectionPerAttributeAnalysisTests(dataType, aggregationType) {
       dataType + ' data collection',
       insertData.bind(null, dataType, aggregationType,
         sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
-
-    it('should not detect the ' +
-      (sthConfig.NAME_ENCODING ?
-        sthDatabaseNameCodec.encodeCollectionName(sthConfig.COLLECTION_PREFIX + 'collection_names') :
-        sthConfig.COLLECTION_PREFIX + 'collection_names') +
-      ' collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
-      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
-
-    it('should not detect the ' +
-      (sthConfig.NAME_ENCODING ?
-        sthDatabaseNameCodec.encodeCollectionName(sthConfig.COLLECTION_PREFIX + 'collection_names') :
-        sthConfig.COLLECTION_PREFIX + 'collection_names') +
-      ' collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
-      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
-
-    it('should not detect the ' +
-      (sthConfig.NAME_ENCODING ?
-        sthDatabaseNameCodec.encodeCollectionName(sthConfig.COLLECTION_PREFIX + 'collection_names') :
-        sthConfig.COLLECTION_PREFIX + 'collection_names') +
-      ' collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
-      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
 
     it('should not detect the any system.* collection needs migration to the ' +
       sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
@@ -405,30 +321,6 @@ function collectionPerEntityAnalysisTests(dataType, aggregationType) {
       dataType + ' data collection',
       insertData.bind(null, dataType, aggregationType, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
 
-    it('should not detect the ' +
-      (sthConfig.NAME_ENCODING ?
-        sthDatabaseNameCodec.encodeCollectionName(sthConfig.COLLECTION_PREFIX + 'collection_names') :
-        sthConfig.COLLECTION_PREFIX + 'collection_names') +
-      ' collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
-      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
-
-    it('should not detect the ' +
-      (sthConfig.NAME_ENCODING ?
-        sthDatabaseNameCodec.encodeCollectionName(sthConfig.COLLECTION_PREFIX + 'collection_names') :
-        sthConfig.COLLECTION_PREFIX + 'collection_names') +
-      ' collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
-      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
-
-    it('should not detect the ' +
-      (sthConfig.NAME_ENCODING ?
-        sthDatabaseNameCodec.encodeCollectionName(sthConfig.COLLECTION_PREFIX + 'collection_names') :
-        sthConfig.COLLECTION_PREFIX + 'collection_names') +
-      ' collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
-      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
-
     it('should not detect the any system.* collection needs migration to the ' +
       sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
       systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
@@ -477,30 +369,6 @@ function collectionPerServicePathAnalysisTests(dataType, aggregationType) {
       dataType + ' data collection',
       insertData.bind(null, dataType, aggregationType,
         sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
-
-    it('should not detect the ' +
-      (sthConfig.NAME_ENCODING ?
-        sthDatabaseNameCodec.encodeCollectionName(sthConfig.COLLECTION_PREFIX + 'collection_names') :
-        sthConfig.COLLECTION_PREFIX + 'collection_names') +
-      ' collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
-      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
-
-    it('should not detect the ' +
-      (sthConfig.NAME_ENCODING ?
-        sthDatabaseNameCodec.encodeCollectionName(sthConfig.COLLECTION_PREFIX + 'collection_names') :
-        sthConfig.COLLECTION_PREFIX + 'collection_names') +
-      ' collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
-      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
-
-    it('should not detect the ' +
-      (sthConfig.NAME_ENCODING ?
-        sthDatabaseNameCodec.encodeCollectionName(sthConfig.COLLECTION_PREFIX + 'collection_names') :
-        sthConfig.COLLECTION_PREFIX + 'collection_names') +
-      ' collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
-      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
 
     it('should not detect the any system.* collection needs migration to the ' +
       sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
@@ -931,7 +799,7 @@ function collectionPerEntityUpdateMigrationTests(dataType, aggregationType, opti
 }
 
 describe('sthDatabaseModelTool tests', function() {
-  this.timeout(3000);
+  this.timeout(5000);
   var originalDataModel = sthConfig.DATA_MODEL;
   [sthConfig.AGGREGATIONS.NUMERIC, sthConfig.AGGREGATIONS.TEXTUAL].forEach(function(aggregationType) {
     describe(aggregationType + ' aggregation type', function() {

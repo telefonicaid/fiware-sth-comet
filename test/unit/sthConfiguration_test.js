@@ -49,7 +49,6 @@ var DEFAULT_VALUES = {
   POOL_SIZE: 5,
   WRITE_CONCERN: '1',
   SHOULD_STORE: 'both',
-  SHOULD_HASH: false,
   TRUNCATION_EXPIRE_AFTER_SECONDS: 0,
   TRUNCATION_SIZE: 0,
   TRUNCATION_MAX: 0,
@@ -185,12 +184,6 @@ describe('sthConfiguration tests', function() {
     if (Object.keys(process.env).indexOf('SHOULD_STORE') === -1) {
       it('should set the database should store data configuration parameter to its default value', function() {
         expect(sthConfig.SHOULD_STORE).to.equal(DEFAULT_VALUES.SHOULD_STORE);
-      });
-    }
-
-    if (Object.keys(process.env).indexOf('SHOULD_HASH') === -1) {
-      it('should set the database should store data configuration parameter to its default value', function() {
-        expect(sthConfig.SHOULD_HASH).to.equal(DEFAULT_VALUES.SHOULD_HASH);
       });
     }
 
@@ -609,30 +602,6 @@ describe('sthConfiguration tests', function() {
         process.env.SHOULD_STORE = 'only-whaaat?';
         sthConfig = require(STH_CONFIGURATION_PATH);
         expect(sthConfig.SHOULD_STORE).to.equal(DEFAULT_VALUES.SHOULD_STORE);
-      }
-    );
-
-    it('should set the database should hash collection names configuration parameter to \'true\'', function() {
-      process.env.SHOULD_HASH = 'true';
-      sthConfig = require(STH_CONFIGURATION_PATH);
-      expect(sthConfig.SHOULD_HASH).to.equal(true);
-    });
-
-    it('should set the database should hash collection names configuration parameter to the default value if not set ' +
-      'via SHOULD_HASH',
-      function() {
-        delete process.env.SHOULD_HASH;
-        sthConfig = require(STH_CONFIGURATION_PATH);
-        expect(sthConfig.SHOULD_HASH).to.equal(DEFAULT_VALUES.SHOULD_HASH);
-      }
-    );
-
-    it('should set the database should hash collection names configuration parameter to the default value if set to ' +
-      'an invalid value',
-      function() {
-        process.env.SHOULD_HASH = 'not-true';
-        sthConfig = require(STH_CONFIGURATION_PATH);
-        expect(sthConfig.SHOULD_HASH).to.equal(DEFAULT_VALUES.SHOULD_HASH);
       }
     );
 

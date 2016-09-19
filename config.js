@@ -80,12 +80,6 @@ config.database = {
   // Flag indicating if the raw and/or aggregated data should be persisted. Valid values are:
   // "only-raw", "only-aggregated" and "both". Default value: "both".
   shouldStore: 'both',
-  // Flag indicating if the raw and/or aggregated data collection names should include a hash portion.
-  // This is mostly due to MongoDB's limitation regarding the number of bytes a namespace may have
-  // (currently limited to 120 bytes). In case of hashing, information about the final collection name
-  // and its correspondence to each concrete service path, entity and (if applicable) attribute
-  // is stored in a collection named `COLLECTION_PREFIX + "collection_names"`. Default value: "false".
-  shouldHash: 'false',
   truncation: {
     // Data from the raw and aggregated data collections will be removed if older than the value specified in seconds.
     // Set the value to 0 or remove the property entry not to apply this time-based truncation policy.
