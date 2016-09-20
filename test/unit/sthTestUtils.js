@@ -28,7 +28,6 @@ var sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
 var sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
 var sthUtils = require(ROOT_PATH + '/lib/utils/sthUtils');
 var sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
-var sthDatabaseNameCodec = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameCodec');
 var sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
 var request = require('request');
 var expect = require('expect.js');
@@ -125,7 +124,6 @@ function addEventTest(anEvent, includeTimeInstantMetadata, done) {
     {
       isAggregated: false,
       shouldCreate: true,
-      shouldStoreHash: true,
       shouldTruncate: true
     },
     function (err, collection) {
@@ -207,7 +205,6 @@ function addAggregatedDataTest(anEvent, done) {
     {
       isAggregated: true,
       shouldCreate: true,
-      shouldStoreHash: true,
       shouldTruncate: true
     },
     function (err, collection) {
@@ -367,23 +364,6 @@ function dropAggregatedDataCollectionTest(done) {
     }
   );
   sthDatabase.connection.dropCollection(collectionName4Aggregated, function (err) {
-    if (err && err.message === 'ns not found') {
-      err = null;
-    }
-    return done(err);
-  });
-}
-
-/**
- * A mocha test to drop the collection names collection from the database
- * @param {Function} done The mocha done() callback function
- */
-function dropCollectionNamesCollectionTest(done) {
-  var collectionName =
-    sthConfig.NAME_ENCODING ?
-      sthDatabaseNameCodec.encodeCollectionName(sthConfig.COLLECTION_PREFIX + 'collection_names') :
-      sthConfig.COLLECTION_PREFIX + 'collection_names';
-  sthDatabase.connection.dropCollection(collectionName, function (err) {
     if (err && err.message === 'ns not found') {
       err = null;
     }
@@ -988,9 +968,6 @@ function cleanDatabaseSuite() {
 
     it('should drop the aggregated data collection if it exists',
       dropAggregatedDataCollectionTest);
-
-    it('should drop the collection names collection if it exists',
-      dropCollectionNamesCollectionTest);
   }
 }
 
@@ -1768,7 +1745,6 @@ module.exports = {
   eachEventTestSuite: eachEventTestSuite,
   dropRawEventCollectionTest: dropRawEventCollectionTest,
   dropAggregatedDataCollectionTest: dropAggregatedDataCollectionTest,
-  dropCollectionNamesCollectionTest: dropCollectionNamesCollectionTest,
   getURL: getURL,
   rawDataRetrievalSuite: rawDataRetrievalSuite,
   aggregatedDataRetrievalSuite: aggregatedDataRetrievalSuite,

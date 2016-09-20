@@ -33,9 +33,6 @@ var sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
 var expect = require('expect.js');
 var _ = require('lodash');
 
-var COLLECTION_NAMES = sthConfig.NAME_ENCODING ?
-                         sthDatabaseNameCodec.encodeCollectionName(sthConfig.COLLECTION_PREFIX + 'collection_names') :
-                         sthConfig.COLLECTION_PREFIX + 'collection_names';
 var DATABASE_NAME = sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE);
 var DATABASE_CONNECTION_PARAMS = {
   authentication: sthConfig.DB_AUTHENTICATION,
@@ -140,33 +137,13 @@ function dropCollection(collectionNameParams, dataType, dataModel, callback) {
 }
 
 /**
- * Drops the collection hash to name collectionName
- * @param  {Function} callback The callback
- */
-function dropCollectionNamesCollection(callback) {
-  sthDatabase.connection.dropCollection(COLLECTION_NAMES, function (err) {
-    if (err && err.code === 26 && err.name === 'MongoError' && err.message === 'ns not found') {
-      // The collection does not exist
-      return process.nextTick(callback);
-    }
-    return process.nextTick(callback.bind(null, err));
-  });
-}
-
-/**
  * Set of tests to drop the test collections from the database
  */
-function cleanDatabaseTests(shouldHash) {
-  var ORIGINAL_SHOULD_HASH,
-      dataModelsKeys = Object.keys(sthConfig.DATA_MODELS),
+function cleanDatabaseTests() {
+  var dataModelsKeys = Object.keys(sthConfig.DATA_MODELS),
       dataTypeKeys = Object.keys(sthTestConfig.DATA_TYPES);
 
   describe('database clean up', function() {
-    before(function() {
-      ORIGINAL_SHOULD_HASH = sthConfig.SHOULD_HASH;
-      sthConfig.SHOULD_HASH = shouldHash;
-    });
-
     dataModelsKeys.forEach(function(dataModel) {
       dataTypeKeys.forEach(function(dataType) {
         it('should drop the ' + sthConfig.DATA_MODELS[dataModel] + ' ' + sthTestConfig.DATA_TYPES[dataType] +
@@ -190,75 +167,18 @@ function cleanDatabaseTests(shouldHash) {
             sthConfig.DATA_MODELS[dataModel]));
       });
     });
-
-    it('should drop the ' + COLLECTION_NAMES + ' if it exists',
-      dropCollectionNamesCollection);
-
-    after(function() {
-      sthConfig.SHOULD_HASH = ORIGINAL_SHOULD_HASH;
-    });
   });
-}
-
-/**
- * Expectations for the collection name storage if hashing is requested
- * @param  {object}   params Params object including the following properties:
- *                             - {object} collectionNameParams The collection name params
- *                             - {object} collection           The collection
- *                             - {string} dataType            The data type
- * @param  {Function} callback   The callback
- */
-function expectCollectionHashNameIsStored(params, callback) {
-  sthDatabase.connection.collection(COLLECTION_NAMES, {strict: true},
-    function(err, collectionNamesCollection) {
-      if (err) {
-        return callback(err);
-      }
-      expect(err).to.be(null);
-      expect(collectionNamesCollection).to.not.be(null);
-      collectionNamesCollection.find({'_id': params.collection.s.name}).toArray(function(err, results) {
-        if (err) {
-          return callback(err);
-        }
-        expect(err).to.be(null);
-        expect(results).to.not.be(null);
-        expect(results.length).to.equal(1);
-        expect(results[0].dataModel).to.equal(sthConfig.DATA_MODEL);
-        expect(results[0].isAggregated).to.equal(params.dataType === sthTestConfig.DATA_TYPES.AGGREGATED);
-        switch(sthConfig.DATA_MODEL) {
-          case sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE:
-            expect(results[0].attrName).to.equal(params.collectionNameParams.attrName);
-            expect(results[0].attrType).to.equal(params.collectionNameParams.attrType);
-          /* falls through */
-          case sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY:
-            expect(results[0].entityId).to.equal(params.collectionNameParams.entityId);
-            expect(results[0].entityType).to.equal(params.collectionNameParams.entityType);
-          /* falls through */
-          case sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH:
-            expect(results[0].service).to.equal(params.collectionNameParams.service);
-            expect(results[0].servicePath).to.equal(params.collectionNameParams.servicePath);
-        }
-        return callback();
-      });
-    }
-  );
 }
 
 /**
  * Battery of tests to check that the access to the collections works as expected
- * @param  {boolean} shouldHash Flag indicating if hashing should be used in the collection names
  */
-function collectionAccessTests(shouldHash) {
+function collectionAccessTests() {
   var ORIGINAL_DATA_MODEL = sthConfig.DATA_MODEL,
-      ORIGINAL_SHOULD_HASH = sthConfig.SHOULD_HASH,
       dataTypes = Object.keys(sthTestConfig.DATA_TYPES),
       dataModels = Object.keys(sthConfig.DATA_MODELS);
 
-  before(function() {
-    sthConfig.SHOULD_HASH = shouldHash;
-  });
-
-  cleanDatabaseTests(shouldHash);
+  cleanDatabaseTests();
 
   dataModels.forEach(function(dataModel) {
     describe(sthConfig.DATA_MODELS[dataModel] + ' data model', function() {
@@ -274,7 +194,6 @@ function collectionAccessTests(shouldHash) {
             {
               shouldCreate: false,
               isAggregated: sthTestConfig.DATA_TYPES[dataType] === sthTestConfig.DATA_TYPES.AGGREGATED,
-              shouldStoreHash: sthConfig.SHOULD_HASH,
               shouldTruncate: false
             },
             function(err, collection) {
@@ -287,42 +206,6 @@ function collectionAccessTests(shouldHash) {
           );
         });
 
-        it('should create (or notify as error) a ' + sthTestConfig.DATA_TYPES[dataType] +
-          ' data collection if non-existent and requested if very long service path and hashing is enabled ' +
-          '(or disabled)', function(done) {
-          sthDatabase.getCollection(
-            VERY_LONG_COLLECTION_NAME_PARAMS,
-            {
-              shouldCreate: true,
-              isAggregated: sthTestConfig.DATA_TYPES[dataType] === sthTestConfig.DATA_TYPES.AGGREGATED,
-              shouldStoreHash: sthConfig.SHOULD_HASH,
-              shouldTruncate: false
-            },
-            function(err, collection) {
-              if (sthConfig.SHOULD_HASH) {
-                expect(err).to.be(null);
-                expect(collection).to.be.ok();
-                expectCollectionHashNameIsStored(
-                  {
-                    collectionNameParams: VERY_LONG_COLLECTION_NAME_PARAMS,
-                    collection: collection,
-                    dataType: sthTestConfig.DATA_TYPES[dataType]
-                  },
-                  function(err) {
-                    return done(err);
-                  }
-                );
-              } else {
-                expect(err).to.not.be(null);
-                expect(err.name).to.equal('Error');
-                expect(err.message).to.equal('The collection name could not be generated');
-                expect(collection).to.be(undefined);
-                return done();
-              }
-            }
-          );
-        });
-
         it('should create a ' + sthTestConfig.DATA_TYPES[dataType] +
           ' data collection if non-existent and requested', function(done) {
           sthDatabase.getCollection(
@@ -330,62 +213,14 @@ function collectionAccessTests(shouldHash) {
             {
               shouldCreate: true,
               isAggregated: sthTestConfig.DATA_TYPES[dataType] === sthTestConfig.DATA_TYPES.AGGREGATED,
-              shouldStoreHash: sthConfig.SHOULD_HASH,
               shouldTruncate: false
             },
             function(err, collection) {
               expect(err).to.be(null);
               expect(collection).to.be.ok();
-              if (sthConfig.SHOULD_HASH) {
-                expectCollectionHashNameIsStored(
-                  {
-                    collectionNameParams: COLLECTION_NAME_PARAMS,
-                    collection: collection,
-                    dataType: sthTestConfig.DATA_TYPES[dataType]
-                  },
-                  function(err) {
-                    return done(err);
-                  }
-                );
-              } else {
-                return done();
-              }
+              return done();
             }
           );
-        });
-
-        it('should notify (or not) as error a hash collision for a ' + sthTestConfig.DATA_TYPES[dataType] +
-          ' data collection if hashing is enabled (or disabled)', function(done) {
-          dropCollection(COLLECTION_NAME_PARAMS, sthTestConfig.DATA_TYPES[dataType], sthConfig.DATA_MODELS[dataModel],
-            function(err) {
-              if (err) {
-                return done(err);
-              }
-              sthDatabase.getCollection(
-                COLLECTION_NAME_PARAMS,
-                {
-                  shouldCreate: true,
-                  isAggregated: sthTestConfig.DATA_TYPES[dataType] === sthTestConfig.DATA_TYPES.AGGREGATED,
-                  shouldStoreHash: sthConfig.SHOULD_HASH,
-                  shouldTruncate: false
-                },
-                function(err, collection) {
-                  if (sthConfig.SHOULD_HASH) {
-                    expect(err).to.not.be(null);
-                    expect(err.name).to.equal('Error');
-                    expect(err.message).to.equal('Collection name hash collision');
-                    // In case of a hash collision, the created collection is returned
-                    expect(collection).to.not.be(null);
-                  } else {
-                    expect(err).to.be(null);
-                    expect(collection).to.be.ok();
-                  }
-                  return done();
-                }
-              );
-            }
-          );
-
         });
       });
 
@@ -393,10 +228,6 @@ function collectionAccessTests(shouldHash) {
         sthConfig.DATA_MODEL = ORIGINAL_DATA_MODEL;
       });
     });
-  });
-
-  after(function() {
-    sthConfig.SHOULD_HASH = ORIGINAL_SHOULD_HASH;
   });
 }
 
@@ -640,7 +471,6 @@ function shouldStoreTest(aggregation, dataType, position, done) {
     {
       shouldCreate: true,
       isAggregated: dataType === sthTestConfig.DATA_TYPES.AGGREGATED,
-      shouldStoreHash: sthConfig.SHOULD_HASH,
       shouldTruncate: false
     },
     function(err, collection) {
@@ -693,11 +523,9 @@ function shouldStoreTest(aggregation, dataType, position, done) {
 
 /**
  * Battery of tests to check that the storage of raw and aggregated data works as expected
- * @param  {boolean} shouldHash Flag indicating if hashing should be used in the collection names
  */
-function storageTests(shouldHash) {
+function storageTests() {
   var ORIGINAL_DATA_MODEL,
-      ORIGINAL_SHOULD_HASH,
       dataTypes = Object.keys(sthTestConfig.DATA_TYPES),
       dataModels = Object.keys(sthConfig.DATA_MODELS),
       aggregations = Object.keys(sthConfig.AGGREGATIONS),
@@ -705,11 +533,9 @@ function storageTests(shouldHash) {
 
   before(function() {
     ORIGINAL_DATA_MODEL = sthConfig.DATA_MODEL;
-    ORIGINAL_SHOULD_HASH = sthConfig.SHOULD_HASH;
-    sthConfig.SHOULD_HASH = shouldHash;
   });
 
-  cleanDatabaseTests(shouldHash);
+  cleanDatabaseTests();
 
   dataModels.forEach(function(dataModel) {
     describe(sthConfig.DATA_MODELS[dataModel] + ' data model', function() {
@@ -729,7 +555,6 @@ function storageTests(shouldHash) {
                   {
                     shouldCreate: true,
                     isAggregated: sthTestConfig.DATA_TYPES[dataType] === sthTestConfig.DATA_TYPES.AGGREGATED,
-                    shouldStoreHash: sthConfig.SHOULD_HASH,
                     shouldTruncate: false
                   },
                   function(err, theCollection) {
@@ -811,10 +636,6 @@ function storageTests(shouldHash) {
       });
     });
   });
-
-  after(function() {
-    sthConfig.SHOULD_HASH = ORIGINAL_SHOULD_HASH;
-  });
 }
 
 /**
@@ -846,7 +667,6 @@ function retrievalTest(params, options, count, done) {
     {
       shouldCreate: true,
       isAggregated: params.dataType === sthTestConfig.DATA_TYPES.AGGREGATED,
-      shouldStoreHash: sthConfig.SHOULD_HASH,
       shouldTruncate: false
     },
     function(err, collection) {
@@ -1152,22 +972,18 @@ function shouldRetrieveTests(count, aggregation, dataType) {
 
 /**
  * Battery of tests to check that the retrieval of raw and aggregated data works as expected
- * @param  {boolean} shouldHash Flag indicating if hashing should be used in the collection names
  */
-function retrievalTests(shouldHash) {
+function retrievalTests() {
   var ORIGINAL_DATA_MODEL,
-      ORIGINAL_SHOULD_HASH,
       dataTypes = Object.keys(sthTestConfig.DATA_TYPES),
       dataModels = Object.keys(sthConfig.DATA_MODELS),
       aggregations = Object.keys(sthConfig.AGGREGATIONS);
 
   before(function() {
     ORIGINAL_DATA_MODEL = sthConfig.DATA_MODEL;
-    ORIGINAL_SHOULD_HASH = sthConfig.SHOULD_HASH;
-    sthConfig.SHOULD_HASH = shouldHash;
   });
 
-  cleanDatabaseTests(shouldHash);
+  cleanDatabaseTests();
 
   dataModels.forEach(function(dataModel) {
     describe(sthConfig.DATA_MODELS[dataModel] + ' data model', function() {
@@ -1200,14 +1016,10 @@ function retrievalTests(shouldHash) {
       });
     });
   });
-
-  after(function() {
-    sthConfig.SHOULD_HASH = ORIGINAL_SHOULD_HASH;
-  });
 }
 
 describe('sthDatabase tests', function() {
-  this.timeout(3000);
+  this.timeout(5000);
   describe('database connection', function() {
     it('should connect to the database', function(done) {
       sthDatabase.connect(DATABASE_CONNECTION_PARAMS, function(err, connection) {
@@ -1264,9 +1076,7 @@ describe('sthDatabase tests', function() {
         connectToDatabase(done);
       });
 
-      describe('hashing enabled', collectionAccessTests.bind(null, true));
-
-      describe('hashing disabled', collectionAccessTests.bind(null, false));
+      describe('access', collectionAccessTests);
     });
   });
 
@@ -1275,26 +1085,10 @@ describe('sthDatabase tests', function() {
       connectToDatabase(done);
     });
 
-    describe('storage', function() {
-      describe('hashing enabled', storageTests.bind(null, true));
+    describe('storage', storageTests);
 
-      describe('hashing disabled', storageTests.bind(null, false));
-    });
+    describe('retrieval', retrievalTests);
 
-    describe('retrieval', function() {
-      before(function(done) {
-        connectToDatabase(done);
-      });
-
-      describe('hashing enabled', retrievalTests.bind(null, true));
-
-      describe('hashing disabled', retrievalTests.bind(null, false));
-    });
-
-    describe('final clean up', function() {
-      describe('hashing enabled', cleanDatabaseTests.bind(null, true));
-
-      describe('hashing disabled', cleanDatabaseTests.bind(null, false));
-    });
+    describe('final clean up', cleanDatabaseTests);
   });
 });
