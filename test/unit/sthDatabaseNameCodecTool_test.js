@@ -161,7 +161,7 @@ function collectionAndDatabaseMandatoryOptionsTest(function2Test, callback) {
  * @param  {String}   collectionName The collection name
  * @param  {Function} callback       The callback
  */
-function shouldDetectCollectionTest(encodingFlag, collectionName, callback) {
+function shouldDetectCollectionTest(encodingFlag, databaseName, collectionName, callback) {
   sthDatabaseNameCodecTool.getEncodingAnalysis(
     {
       encode: !!encodingFlag,
@@ -171,9 +171,9 @@ function shouldDetectCollectionTest(encodingFlag, collectionName, callback) {
       if (err) {
         return process.nextTick(callback.bind(null, err));
       }
-      expect(analysis[DATABASE_NAME]).to.not.be(undefined);
-      expect(analysis[DATABASE_NAME].collections).to.not.be(undefined);
-      expect(analysis[DATABASE_NAME].collections[collectionName].
+      expect(analysis[databaseName]).to.not.be(undefined);
+      expect(analysis[databaseName].collections).to.not.be(undefined);
+      expect(analysis[databaseName].collections[collectionName].
         name).to.not.equal(collectionName);
       return process.nextTick(callback);
     }
@@ -185,20 +185,20 @@ function shouldDetectCollectionTest(encodingFlag, collectionName, callback) {
  * @param  {String}   encodingFlag Flag indicating if the test is for the encoding or decoding process
  * @param  {Function} callback     The callback
  */
-function shouldNotDetectCollectionTest(encodingFlag, callback) {
+function shouldNotDetectCollectionTest(encodingFlag, databaseName, callback) {
   sthDatabaseNameCodecTool.getEncodingAnalysis(
     {
       encode: !!encodingFlag,
       decode: !encodingFlag,
-      database: DATABASE_NAME,
-     collection: sthConfig.COLLECTION_PREFIX + 'inexistent_collection'
+      database: databaseName,
+      collection: sthConfig.COLLECTION_PREFIX + 'inexistent_collection'
     },
     function(err, analysis) {
      if (err) {
        return process.nextTick(callback.bind(null, err));
       }
-     expect(analysis[DATABASE_NAME]).to.not.be(undefined);
-     expect(analysis[DATABASE_NAME].collections).to.be(undefined);
+     expect(analysis[databaseName]).to.not.be(undefined);
+     expect(analysis[databaseName].collections).to.be(undefined);
      return process.nextTick(callback);
     }
   );
@@ -312,164 +312,266 @@ function shouldEncodeOrDecodeCollectionTest(databaseName, collectionName, encodi
 }
 
 describe('sthDatabaseNameCodecTool tests', function() {
-  before(function(done) {
-    async.series(
-      [
-        connectToDatabase,
-        dropDatabases,
-        createRawAndAggregatedCollections
-      ],
-      done
-    );
-  });
+  this.timeout(5000);
+  var ORIGINAL_NAME_ENCODING = sthConfig.NAME_ENCODING,
+      ORIGINAL_NAME_SEPARATOR = sthConfig.NAME_SEPARATOR;
 
   describe('getEncodingAnalysis tests', function() {
-    it('should raise an error if neither -e, --encode or -d, --decode options are set',
-      encodeDecodeMandatoryOptionsTest.bind(null, sthDatabaseNameCodecTool.getEncodingAnalysis));
+    describe('name encoding disabled', function() {
+      sthConfig.NAME_ENCODING = false;
+      sthConfig.NAME_SEPARATOR = '_';
+      before(function(done) {
+        sthConfig.NAME_ENCODING = false;
+        sthConfig.NAME_SEPARATOR = '_';
+        async.series(
+          [
+            connectToDatabase,
+            dropDatabases,
+            createRawAndAggregatedCollections
+          ],
+          done
+        );
+      });
 
-    it('should raise an error if he -b, --database is not set when the -c, --collection is set',
-      collectionAndDatabaseMandatoryOptionsTest.bind(null, sthDatabaseNameCodecTool.getEncodingAnalysis));
+      it('should raise an error if neither -e, --encode or -d, --decode options are set',
+        encodeDecodeMandatoryOptionsTest.bind(null, sthDatabaseNameCodecTool.getEncodingAnalysis));
 
-    it('should detect database \'' + DATABASE_NAME + '\' as susceptible of being encoded', function(done) {
-      sthDatabaseNameCodecTool.getEncodingAnalysis(
-        {
-          encode: true
-        },
-        function(err, analysis) {
-          if (err) {
-            return done(err);
-          }
-          expect(analysis[DATABASE_NAME].name).to.not.equal(DATABASE_NAME);
-          done();
-        }
-      );
-    });
+      it('should raise an error if the -b, --database is not set when the -c, --collection is set',
+        collectionAndDatabaseMandatoryOptionsTest.bind(null, sthDatabaseNameCodecTool.getEncodingAnalysis));
 
-    it('should not detect database \'' + DATABASE_NAME + '\' as susceptible of being encoded if filtered out',
-      function(done) {
+      it('should detect database \'' + DATABASE_NAME + '\' as susceptible of being encoded', function(done) {
         sthDatabaseNameCodecTool.getEncodingAnalysis(
           {
-            encode: true,
-            database: sthConfig.DB_PREFIX + 'inexistent_database'
+            encode: true
           },
           function(err, analysis) {
             if (err) {
               return done(err);
             }
-            expect(analysis[DATABASE_NAME]).to.be(undefined);
+            expect(analysis[DATABASE_NAME].name).to.not.equal(DATABASE_NAME);
             done();
           }
         );
-      }
-    );
+      });
 
-    it('should detect collection \'' + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-       '\' of database \'' + DATABASE_NAME + '\' as susceptible of being encoded',
-       shouldDetectCollectionTest.bind(null, true, sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)));
+      it('should not detect database \'' + DATABASE_NAME + '\' as susceptible of being encoded if filtered out',
+        function(done) {
+          sthDatabaseNameCodecTool.getEncodingAnalysis(
+            {
+              encode: true,
+              database: sthConfig.DB_PREFIX + 'inexistent_database'
+            },
+            function(err, analysis) {
+              if (err) {
+                return done(err);
+              }
+              expect(analysis[DATABASE_NAME]).to.be(undefined);
+              done();
+            }
+          );
+        }
+      );
 
-    it('should not detect collection \'' + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-       '\' of database \'' + DATABASE_NAME + '\' as susceptible of being encoded if filtered out',
-      shouldNotDetectCollectionTest.bind(null, true));
-
-    it('should detect collection \'' + sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-       '\' of database \'' + DATABASE_NAME + '\' as susceptible of being encoded',
-      shouldDetectCollectionTest.bind(
-        null, true, sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)));
-
-    it('should not detect collection \'' + sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-       '\' of database \'' + DATABASE_NAME + '\' as susceptible of being encoded if filtered out',
-      shouldNotDetectCollectionTest.bind(null, true));
-
-    if (sthConfig.NAME_ENCODING) {
       it('should detect collection \'' + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-         '\' of database \'' + DATABASE_NAME + '\' as susceptible of being decoded',
-         shouldDetectCollectionTest.bind(null, false, sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)));
+         '\' of database \'' + DATABASE_NAME + '\' as susceptible of being encoded',
+         shouldDetectCollectionTest.bind(null, true, DATABASE_NAME,
+           sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)));
 
       it('should not detect collection \'' + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-         '\' of database \'' + DATABASE_NAME + '\' as susceptible of being decoded if filtered out',
-        shouldNotDetectCollectionTest.bind(null, false));
+         '\' of database \'' + DATABASE_NAME + '\' as susceptible of being encoded if filtered out',
+        shouldNotDetectCollectionTest.bind(null, true, DATABASE_NAME));
 
       it('should detect collection \'' + sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-         '\' of database \'' + DATABASE_NAME + '\' as susceptible of being decoded',
+         '\' of database \'' + DATABASE_NAME + '\' as susceptible of being encoded',
         shouldDetectCollectionTest.bind(
-          null, false, sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)));
+          null, true, DATABASE_NAME, sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)));
 
       it('should not detect collection \'' + sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-         '\' of database \'' + DATABASE_NAME + '\' as susceptible of being decoded if filtered out',
-        shouldNotDetectCollectionTest.bind(null, false));
-    }
+         '\' of database \'' + DATABASE_NAME + '\' as susceptible of being encoded if filtered out',
+        shouldNotDetectCollectionTest.bind(null, true, DATABASE_NAME));
+
+      after(function() {
+        sthConfig.NAME_ENCODING = ORIGINAL_NAME_ENCODING;
+        sthConfig.NAME_SEPARATOR = ORIGINAL_NAME_SEPARATOR;
+      });
+      sthConfig.NAME_ENCODING = ORIGINAL_NAME_ENCODING;
+      sthConfig.NAME_SEPARATOR = ORIGINAL_NAME_SEPARATOR;
+    });
+
+    describe('name encoding enabled', function() {
+      sthConfig.NAME_ENCODING = true;
+      sthConfig.NAME_SEPARATOR = 'xffff';
+      before(function(done) {
+        sthConfig.NAME_ENCODING = true;
+        sthConfig.NAME_SEPARATOR = 'xffff';
+        async.series(
+          [
+            dropDatabases,
+            createRawAndAggregatedCollections
+          ],
+          done
+        );
+      });
+
+      it('should raise an error if neither -e, --encode or -d, --decode options are set',
+        encodeDecodeMandatoryOptionsTest.bind(null, sthDatabaseNameCodecTool.getEncodingAnalysis));
+
+      it('should raise an error if the -b, --database is not set when the -c, --collection is set',
+        collectionAndDatabaseMandatoryOptionsTest.bind(null, sthDatabaseNameCodecTool.getEncodingAnalysis));
+
+      it('should detect collection \'' + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
+         '\' of database \'' + sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) + '\' as susceptible of ' +
+         'being decoded',
+         shouldDetectCollectionTest.bind(null, false, sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE),
+          sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)));
+
+      it('should not detect collection \'' + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
+         '\' of database \'' + sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) +
+         '\' as susceptible of being decoded if filtered out',
+        shouldNotDetectCollectionTest.bind(null, false, sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE)));
+
+      it('should detect collection \'' + sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
+         '\' of database \'' + sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) +
+         '\' as susceptible of being decoded',
+        shouldDetectCollectionTest.bind(
+          null, false, sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE),
+          sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)));
+
+      it('should not detect collection \'' + sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
+         '\' of database \'' + sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) +
+         '\' as susceptible of being decoded if filtered out',
+        shouldNotDetectCollectionTest.bind(null, false, sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE)));
+
+      after(function() {
+        sthConfig.NAME_ENCODING = ORIGINAL_NAME_ENCODING;
+        sthConfig.NAME_SEPARATOR = ORIGINAL_NAME_SEPARATOR;
+      });
+      sthConfig.NAME_ENCODING = ORIGINAL_NAME_ENCODING;
+      sthConfig.NAME_SEPARATOR = ORIGINAL_NAME_SEPARATOR;
+    });
   });
 
   describe('encodeOrDecode tests', function() {
-    before(function(done) {
-      async.series(
-        [
-          dropDatabases,
-          createRawAndAggregatedCollections,
-        ],
-        done
-      );
+    describe('name encoding disabled', function() {
+      sthConfig.NAME_ENCODING = false;
+      sthConfig.NAME_SEPARATOR = '_';
+      before(function(done) {
+        sthConfig.NAME_ENCODING = false;
+        sthConfig.NAME_SEPARATOR = '_';
+        async.series(
+          [
+            dropDatabases,
+            createRawAndAggregatedCollections
+          ],
+          done
+        );
+      });
+
+      it('should raise an error if neither -e, --encode or -d, --decode options are set',
+        encodeDecodeMandatoryOptionsTest.bind(null, sthDatabaseNameCodecTool.encodeOrDecode));
+
+      it('should raise an error if the -b, --database is not set when the -c, --collection is set',
+        collectionAndDatabaseMandatoryOptionsTest.bind(null, sthDatabaseNameCodecTool.encodeOrDecode));
+
+      it('should encode the database \'' + DATABASE_NAME + '\' as \'' +
+         sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) + '\'',
+        shouldEncodeOrDecodeDatabaseTest.bind(
+          null, DATABASE_NAME, true));
+
+      it('should encode the collection \'' +
+         sthDatabaseNameCodec.decodeCollectionName(sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)) +
+          '\' as \'' +
+         sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
+         '\' and the database \'' + DATABASE_NAME + '\' as \'' +
+          sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) + '\'',
+        shouldEncodeOrDecodeCollectionTest.bind(
+          null, DATABASE_NAME,
+          sthDatabaseNameCodec.decodeCollectionName(sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)),
+          true));
+
+      it('should encode the collection \'' +
+        sthDatabaseNameCodec.decodeCollectionName(
+          sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)) +
+          '\' as \'' +
+            sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
+          '\' and the database \'' + DATABASE_NAME + '\' as \'' +
+         sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) + '\'',
+        shouldEncodeOrDecodeCollectionTest.bind(
+          null, DATABASE_NAME,
+          sthDatabaseNameCodec.decodeCollectionName(
+            sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)),
+          true));
+
+      after(function() {
+        sthConfig.NAME_ENCODING = ORIGINAL_NAME_ENCODING;
+        sthConfig.NAME_SEPARATOR = ORIGINAL_NAME_SEPARATOR;
+      });
+      sthConfig.NAME_ENCODING = ORIGINAL_NAME_ENCODING;
+      sthConfig.NAME_SEPARATOR = ORIGINAL_NAME_SEPARATOR;
     });
 
-    it('should raise an error if neither -e, --encode or -d, --decode options are set',
-      encodeDecodeMandatoryOptionsTest.bind(null, sthDatabaseNameCodecTool.encodeOrDecode));
+    describe('name encoding enabled', function() {
+      sthConfig.NAME_ENCODING = true;
+      sthConfig.NAME_SEPARATOR = 'xffff';
+      before(function(done) {
+        sthConfig.NAME_ENCODING = true;
+        sthConfig.NAME_SEPARATOR = 'xffff';
+        async.series(
+          [
+            dropDatabases,
+            createRawAndAggregatedCollections
+          ],
+          done
+        );
+      });
 
-    it('should raise an error if he -b, --database is not set when the -c, --collection is set',
-      collectionAndDatabaseMandatoryOptionsTest.bind(null, sthDatabaseNameCodecTool.encodeOrDecode));
+      it('should raise an error if neither -e, --encode or -d, --decode options are set',
+        encodeDecodeMandatoryOptionsTest.bind(null, sthDatabaseNameCodecTool.encodeOrDecode));
 
-    it('should encode the database \'' + DATABASE_NAME + '\' as \'' +
-       sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) + '\'',
-      shouldEncodeOrDecodeDatabaseTest.bind(
-        null, DATABASE_NAME, true));
+      it('should raise an error if the -b, --database is not set when the -c, --collection is set',
+        collectionAndDatabaseMandatoryOptionsTest.bind(null, sthDatabaseNameCodecTool.encodeOrDecode));
 
-    it('should decode the database \'' + sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) + '\' as \'' +
-       DATABASE_NAME + '\'',
-      shouldEncodeOrDecodeDatabaseTest.bind(
-        null, sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME), false));
+      it('should decode the database \'' + sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) + '\' as \'' +
+        DATABASE_NAME + '\'',
+        shouldEncodeOrDecodeDatabaseTest.bind(
+          null, sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME), false));
 
-    it('should encode the collection \'' + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-       '\' as \'' +
-       sthDatabaseNameCodec.encodeCollectionName(sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)) +
-       '\' and the database \'' + DATABASE_NAME + '\' as \'' +
-       sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) + '\'',
-      shouldEncodeOrDecodeCollectionTest.bind(
-        null, DATABASE_NAME, sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS), true));
+      it('should decode the collection \'' +
+        sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
+        '\' as \'' +
+        sthDatabaseNameCodec.decodeCollectionName(sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)) +
+        '\' and the database \'' + sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) + '\' as \'' +
+        DATABASE_NAME + '\'',
+        shouldEncodeOrDecodeCollectionTest.bind(
+          null,
+          sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME),
+          sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS),
+          false
+        )
+      );
 
-    it('should decode the collection \'' +
-       sthDatabaseNameCodec.encodeCollectionName(sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)) +
-       '\' as \'' + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-       '\' and the database \'' + sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) + '\' as \'' +
-       DATABASE_NAME + '\'',
-      shouldEncodeOrDecodeCollectionTest.bind(null,
-        sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME),
-        sthDatabaseNameCodec.encodeCollectionName(sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)),
-        false
-      ));
+      it('should decode the collection \'' +
+        sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
+        '\' as \'' +
+        sthDatabaseNameCodec.decodeCollectionName(
+          sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)) +
+        '\' and the database \'' + sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) + '\' as \'' +
+          DATABASE_NAME + '\'',
+          shouldEncodeOrDecodeCollectionTest.bind(
+            null,
+            sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME),
+            sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS),
+            false
+          )
+      );
 
-    it('should encode the collection \'' + sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-       '\' as \'' +
-       sthDatabaseNameCodec.encodeCollectionName(
-         sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)) +
-       '\' and the database \'' + DATABASE_NAME + '\' as \'' +
-       sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) + '\'',
-      shouldEncodeOrDecodeCollectionTest.bind(
-        null, DATABASE_NAME, sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS), true));
-
-    it('should decode the collection \'' +
-       sthDatabaseNameCodec.encodeCollectionName(
-         sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)) +
-       '\' as \'' + sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-       '\' and the database \'' + sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) + '\' as \'' +
-       DATABASE_NAME + '\'',
-      shouldEncodeOrDecodeCollectionTest.bind(null,
-        sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME),
-        sthDatabaseNameCodec.encodeCollectionName(
-          sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)),
-        false
-      ));
-
-    after(function(done) {
-      dropDatabases(done);
+      after(function(done) {
+        sthConfig.NAME_ENCODING = ORIGINAL_NAME_ENCODING;
+        sthConfig.NAME_SEPARATOR = ORIGINAL_NAME_SEPARATOR;
+        dropDatabases(done);
+      });
+      sthConfig.NAME_ENCODING = ORIGINAL_NAME_ENCODING;
+      sthConfig.NAME_SEPARATOR = ORIGINAL_NAME_SEPARATOR;
     });
   });
 });
