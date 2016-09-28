@@ -1,1 +1,1 @@
-- [FEATURE] Remove the hashing mechanism which will be substituted by the new general encoding and mapping one (#390)
+- [FEATURE] Configurable service, service path, entity and attribute type and name mappings (#367)

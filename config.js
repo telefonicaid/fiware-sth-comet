@@ -108,8 +108,17 @@ config.database = {
   // Attribute values to one or more blank spaces should be ignored and not processed either as raw data or for
   // the aggregated computations. Default value: "true".
   ignoreBlankSpaces: 'true',
-  // Database and collection names should be encoded to avoid the restrictions imposed by MongoDB and stated at
-  // https://docs.mongodb.com/manual/reference/limits/
+  // Database and collection names have to respect the limitations imposed by MongoDB (see
+  // https://docs.mongodb.com/manual/reference/limits/). To it, the STH provides 2 main mechanisms: mappings and
+  // encoding which can be configured using the next 2 configuration parameters.
+  // The mappings mechanism will substitute the original services, service paths, entity and attribute names and types
+  // by the ones defined in the configuration file. If enabled, the mappings mechanism will be the one applied.
+  nameMapping: {
+    // Default value: "true" (although we will set it to false until the Cygnus counterpart is ready and landed)
+    enabled: 'false',
+    // The path from the root of the STH component Node application to the mappings configuration file
+    configFile: './name-mapping.json'
+  },
   // The encoding criteria is the following one:
   // 1. Encode the forbidden characters using an escaping character (x) and a numerical Unicode code for each character.
   //    For instance, the / character will be encoded as x002f.

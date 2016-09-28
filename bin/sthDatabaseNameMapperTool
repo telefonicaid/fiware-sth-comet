@@ -30,7 +30,7 @@ var async = require('async');
 var commander = require('commander');
 var sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
 var sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
-var sthDatabaseNameCodecTool = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameCodecTool');
+var sthDatabaseNameMapperTool = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameMapperTool');
 var sthLogger = require('logops');
 var version = require(ROOT_PATH + '/package.json').version;
 
@@ -70,19 +70,19 @@ process.on('uncaughtException', function (exception) {
 });
 
 /**
- * Prints a encoding/decoding analysis to the console
- * @param  {Object}   analysis The encoding/decoding analysis
+ * Prints a mapping/unmapping analysis to the console
+ * @param  {Object}   analysis The mapping/unmapping analysis
  * @param  {Function} callback The callback
  */
-function printEncodingAnalysis(analysis, callback) {
-  var output = '========== ' + (commander.encode ? 'ENCODING' : 'DECODING') + ' ANALYSIS RESULTS (' +
+function printMappingAnalysis(analysis, callback) {
+  var output = '========== ' + (commander.map ? 'MAPPING' : 'UNMAPPING') + ' ANALYSIS RESULTS (' +
     new Date() + ' ==========\n\n';
   if (commander.database) {
-    output += '  - ' + (commander.encode ? 'Encoding' : 'Decoding') + ' process limited to database \'' +
+    output += '  - ' + (commander.map ? 'Mapping' : 'Unmapping') + ' process limited to database \'' +
       commander.database + '\'\n';
   }
   if (commander.collection) {
-    output += '  - ' + (commander.encode ? 'Encoding' : 'Decoding') + ' process limited to collection \'' +
+    output += '  - ' + (commander.map ? 'Mapping' : 'Unmapping') + ' process limited to collection \'' +
       commander.collection + '\'\n';
   }
   if (commander.database || commander.collection) {
@@ -92,10 +92,10 @@ function printEncodingAnalysis(analysis, callback) {
   databaseNames.forEach(function(databaseName) {
     if (databaseName === analysis[databaseName].name) {
       output += '  - Database \'' + databaseName + '\' will not be ' +
-        (commander.encode ? 'encoded' : 'decoded') + '\n';
+        (commander.map ? 'mapped' : 'unmapped') + '\n';
     } else {
       output += '  - Database \'' + databaseName + '\' will be ' +
-        (commander.encode ? 'encoded' : 'decoded') + ' as \'' +
+        (commander.map ? 'mapped' : 'unmapped') + ' as \'' +
         analysis[databaseName].name + '\'\n';
     }
     if (analysis[databaseName].collections &&
@@ -104,46 +104,46 @@ function printEncodingAnalysis(analysis, callback) {
       collectionNames.forEach(function(collectionName) {
         if (collectionName === analysis[databaseName].collections[collectionName].name) {
           output += '    - Collection \'' + collectionName + '\' will not be ' +
-            (commander.encode ? 'encoded' : 'decoded') + '\n';
+            (commander.map ? 'mapped' : 'unmapped') + '\n';
         } else {
           output += '    - Collection \'' + collectionName + '\' will be ' +
-            (commander.encode ? 'encoded' : 'decoded') + ' as \'' +
+            (commander.map ? 'mapped' : 'unmapped') + ' as \'' +
             analysis[databaseName].collections[collectionName].name + '\'\n';
         }
       });
     }
   });
   if (!databaseNames.length) {
-    output += '  - Nothing will be ' + (commander.encode ? 'encoded' : 'decoded') + '\n';
+    output += '  - Nothing will be ' + (commander.map ? 'mapped' : 'unmapped') + '\n';
   }
   console.log('\n' + output);
   process.nextTick(callback);
 }
 
 /**
- * Command to generate an encoding/decoding analysis and print it to the console
+ * Command to generate an mapping/unmapping analysis and print it to the console
  * @param  {Function} callback The callback
  */
-function printEncodingAnalysisCommand(callback) {
+function printMappingAnalysisCommand(callback) {
   async.seq(
     async.apply(
-      sthDatabaseNameCodecTool.getEncodingAnalysis,
+      sthDatabaseNameMapperTool.getMappingAnalysis,
       {
-        encode: commander.encode,
-        decode: commander.decode,
+        map: commander.map,
+        unmap: commander.unmap,
         database: commander.database,
         collection: commander.collection
       }
     ),
-    printEncodingAnalysis
+    printMappingAnalysis
   )(callback);
 }
 
 /**
- * Handler to be notified once the command to print an encoding/decoding analysis is completed
+ * Handler to be notified once the command to print an mapping/unmapping analysis is completed
  * @param  {Object}  err The error (if any)
  */
-function onPrintEncodingAnalysisCommand(err) {
+function onPrintMappingAnalysisCommand(err) {
   if (err) {
     sthLogger.error(
       sthConfig.LOGGING_CONTEXT.DB_LOG,
@@ -155,26 +155,26 @@ function onPrintEncodingAnalysisCommand(err) {
 }
 
 /**
- * Command to generate an encoding/decoding analysis and apply it renaming the corresponding databases and collections
+ * Command to generate an mapping/unmapping analysis and apply it renaming the corresponding databases and collections
  * @param  {Function} callback The callback
  */
-function forceEncodeOrDecodeCommand(callback) {
+function forceMapOrUnmapCommand(callback) {
   async.seq(
     async.apply(
-      sthDatabaseNameCodecTool.getEncodingAnalysis,
+      sthDatabaseNameMapperTool.getMappingAnalysis,
       {
-        encode: commander.encode,
-        decode: commander.decode,
+        map: commander.map,
+        unmap: commander.unmap,
         database: commander.database,
         collection: commander.collection
       }
     ),
-    printEncodingAnalysis,
+    printMappingAnalysis,
     async.apply(
-      sthDatabaseNameCodecTool.encodeOrDecode,
+      sthDatabaseNameMapperTool.mapOrUnmap,
       {
-        encode: commander.encode,
-        decode: commander.decode,
+        map: commander.map,
+        unmap: commander.unmap,
         database: commander.database,
         collection: commander.collection
       }
@@ -183,10 +183,10 @@ function forceEncodeOrDecodeCommand(callback) {
 }
 
 /**
- * Handler to be notified once the command to apply an encoding/decoding analysis is completed
+ * Handler to be notified once the command to apply an mapping/unmapping analysis is completed
  * @param  {Object} err The error (if any)
  */
-function onForceEncodeOrDecodeCommand(err) {
+function onForceMapOrUnmapCommand(err) {
   if (err) {
     sthLogger.error(
       sthConfig.LOGGING_CONTEXT.DB_LOG,
@@ -196,7 +196,7 @@ function onForceEncodeOrDecodeCommand(err) {
   }
   sthLogger.info(
     sthConfig.LOGGING_CONTEXT.DB_LOG,
-    (commander.encode ? 'Codification' : 'Decodification') + ' process successfully completed.');
+    (commander.map ? 'Mapping' : 'Unmapping') + ' process successfully completed.');
   process.exit(err ? 1 : 0);
 }
 
@@ -204,8 +204,8 @@ function onForceEncodeOrDecodeCommand(err) {
  * Executes the requested command
  */
 function executeCommand() {
-  if (!commander.encode && !commander.decode) {
-    console.log('\nERROR: Either the -e (--encode) or the -d (--decode) options are mandatory');
+  if (!commander.map && !commander.unmap) {
+    console.log('\nERROR: Either the -m (--map) or the -u (--unmap) options are mandatory');
     return commander.help();
   }
   if (commander.collection && !commander.database) {
@@ -213,22 +213,22 @@ function executeCommand() {
     return commander.help();
   }
   if (commander.force) {
-    forceEncodeOrDecodeCommand(onForceEncodeOrDecodeCommand);
-  } else if (commander.encode || commander.decode) {
-    printEncodingAnalysisCommand(onPrintEncodingAnalysisCommand);
+    forceMapOrUnmapCommand(onForceMapOrUnmapCommand);
+  } else if (commander.map || commander.unmap) {
+    printMappingAnalysisCommand(onPrintMappingAnalysisCommand);
   }
 }
 
 commander.
   version(version).
-  option('-e, --encode', 'Shows a report regarding the result of the codification process if applied to databases ' +
+  option('-m, --map', 'Shows a report regarding the result of the mapping process if applied to databases ' +
+         'and collections of a specific STH instance (either the -m or -u options are mandatory)').
+  option('-u, --unmap', 'Shows a report regarding the result of the unmapping process if applied to databases ' +
          'and collections of a specific STH instance (either the -e or -d options are mandatory)').
-  option('-d, --decode', 'Shows a report regarding the result of the decodification process if applied to databases ' +
-         'and collections of a specific STH instance (either the -e or -d options are mandatory)').
-  option('-f, --force', 'Forces the codification (-e) or decodification (-d) process and consequently the databases ' +
+  option('-f, --force', 'Forces the mapping (-m) or unmapping (-u) process and consequently the databases ' +
          'will be renamed').
-  option('-b, --database <databaseName>', 'Limits the codification or decodification process to certain database').
-  option('-c, --collection <collectionName>', 'Limits the codification or decodification process to certain ' +
+  option('-b, --database <databaseName>', 'Limits the mapping or unmapping process to certain database').
+  option('-c, --collection <collectionName>', 'Limits the mapping or unmapping process to certain ' +
          'collection').
   parse(process.argv);
 
