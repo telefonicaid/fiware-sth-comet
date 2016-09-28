@@ -1,1 +1,2 @@
 - [FEATURE] Configurable service, service path, entity and attribute type and name mappings (#367)
+- [TASK] Add Google Analytics to the documentation at ReadTheDocs
