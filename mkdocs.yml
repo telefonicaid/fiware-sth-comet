@@ -8,6 +8,7 @@ markdown_extensions: [toc,fenced_code]
 use_directory_urls: false
 theme: readthedocs
 extra_css: ["https://fiware.org/style/fiware_readthedocs.css"]
+google_analytics: ['UA-84868354-1', 'fiware-sth-comet.readthedocs.io']
 pages:
   - 'Home': 'index.md'
   - 'Getting Started': 'getting-started.md'
