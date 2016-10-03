@@ -23,19 +23,17 @@
 
 'use strict';
 
-var sthDatabaseModel = require('../../lib/sth_database_model');
-var sthConfig = require('../../lib/sth_configuration');
-var sthHelper = require('../../lib/sth_helper');
-var sthDatabase = require('../../lib/sth_database');
-var sthTestConfig = require('./sth_test_configuration');
+var ROOT_PATH = require('app-root-path');
+var sthDatabaseModelTool = require(ROOT_PATH + '/lib/database/model/sthDatabaseModelTool');
+var sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
+var sthUtils = require(ROOT_PATH + '/lib/utils/sthUtils');
+var sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
+var sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
+var sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
 var expect = require('expect.js');
 var async = require('async');
 
-console.log('*** Running the server tests with the following environment variables:');
-console.log('\n***** STH app environment variables:');
-console.log(sthConfig);
-
-var DATABASE_NAME = sthDatabase.getDatabaseName(sthConfig.DEFAULT_SERVICE);
+var DATABASE_NAME = sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE);
 var DATABASE_CONNECTION_PARAMS = {
   authentication: sthConfig.DB_AUTHENTICATION,
   dbURI: sthConfig.DB_URI,
@@ -82,24 +80,10 @@ function connectToDatabase(callback) {
 function dropCollection(type, dataModel, callback) {
   sthConfig.DATA_MODEL = dataModel;
   var collectionName = (type === sthTestConfig.DATA_TYPES.RAW) ?
-    sthDatabase.getCollectionName4Events(COLLECTION_NAME_PARAMS) :
-    sthDatabase.getCollectionName4Aggregated(COLLECTION_NAME_PARAMS);
+    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) :
+    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS);
 
   sthDatabase.connection.dropCollection(collectionName, function (err) {
-    if (err && err.code === 26 && err.name === 'MongoError' && err.message === 'ns not found') {
-      // The collection does not exist
-      return process.nextTick(callback);
-    }
-    return process.nextTick(callback.bind(null, err));
-  });
-}
-
-/**
- * Drops the collection hash to name collectionName
- * @param  {Function} callback The callback
- */
-function dropCollectionNamesCollection(callback) {
-  sthDatabase.connection.dropCollection(sthConfig.COLLECTION_PREFIX + 'collection_names', function (err) {
     if (err && err.code === 26 && err.name === 'MongoError' && err.message === 'ns not found') {
       // The collection does not exist
       return process.nextTick(callback);
@@ -120,8 +104,6 @@ function cleanDatabaseTests(dataType) {
         ' data collection if it exists', dropCollection.bind(null, dataType,
           sthConfig.DATA_MODELS[dataModelsKeys[index1]]));
     }
-    it('should drop the ' + sthConfig.COLLECTION_PREFIX + 'collection_names if it exists',
-      dropCollectionNamesCollection);
   });
 }
 
@@ -144,8 +126,8 @@ function insertData(dataType, aggregationType, dataModel, callback) {
 
   sthConfig.DATA_MODEL = dataModel;
   collectionName = (dataType === sthTestConfig.DATA_TYPES.RAW) ?
-    sthDatabase.getCollectionName4Events(COLLECTION_NAME_PARAMS) :
-    sthDatabase.getCollectionName4Aggregated(COLLECTION_NAME_PARAMS);
+    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) :
+    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS);
 
   sthDatabase.connection.collection(collectionName, function(err, collection) {
     if (err) {
@@ -161,26 +143,10 @@ function insertData(dataType, aggregationType, dataModel, callback) {
       notificationInfo: { inserts: true }
     };
 
-    if (sthConfig.SHOULD_HASH) {
-      sthDatabase.storeCollectionHash(COLLECTION_NAME_PARAMS, sthDatabase.isAggregated(collectionName), collectionName,
-        function(err) {
-          if (err && (err.message !== 'Collection name hash collision' &&
-              err.message.indexOf('E11000 duplicate key error collection') === -1)) {
-            return process.nextTick(callback.bind(null, err));
-          }
-          if (dataType === sthTestConfig.DATA_TYPES.RAW) {
-            sthDatabase.storeRawData(INSERTION_PARAMS, callback);
-          } else {
-            sthDatabase.storeAggregatedData(INSERTION_PARAMS, callback);
-          }
-        }
-      );
+    if (dataType === sthTestConfig.DATA_TYPES.RAW) {
+      sthDatabase.storeRawData(INSERTION_PARAMS, callback);
     } else {
-      if (dataType === sthTestConfig.DATA_TYPES.RAW) {
-        sthDatabase.storeRawData(INSERTION_PARAMS, callback);
-      } else {
-        sthDatabase.storeAggregatedData(INSERTION_PARAMS, callback);
-      }
+      sthDatabase.storeAggregatedData(INSERTION_PARAMS, callback);
     }
   });
 }
@@ -230,7 +196,7 @@ function isCollectionIncluded(analysis, databaseName, collectionName) {
  */
 function analysisInclusionTest(dataType, originDataModel, targetDataModel, done) {
   sthConfig.DATA_MODEL = targetDataModel;
-  sthDatabaseModel.getDataModelAnalysis(function(err, analysis) {
+  sthDatabaseModelTool.getDataModelAnalysis(function(err, analysis) {
     if (err) {
       return done(err);
     }
@@ -240,8 +206,8 @@ function analysisInclusionTest(dataType, originDataModel, targetDataModel, done)
     expect(
       isCollectionIncluded(analysis, DATABASE_NAME,
         dataType === sthTestConfig.DATA_TYPES.RAW ?
-          sthDatabase.getCollectionName4Events(COLLECTION_NAME_PARAMS) :
-          sthDatabase.getCollectionName4Aggregated(COLLECTION_NAME_PARAMS))
+          sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) :
+          sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS))
     ).to.equal(true);
     done();
   });
@@ -257,7 +223,7 @@ function analysisInclusionTest(dataType, originDataModel, targetDataModel, done)
  */
 function analysisExclusionTest(dataType, originDataModel, targetDataModel, done) {
   sthConfig.DATA_MODEL = targetDataModel;
-  sthDatabaseModel.getDataModelAnalysis(function(err, analysis) {
+  sthDatabaseModelTool.getDataModelAnalysis(function(err, analysis) {
     if (err) {
       return done(err);
     }
@@ -266,25 +232,9 @@ function analysisExclusionTest(dataType, originDataModel, targetDataModel, done)
     expect(
       isCollectionIncluded(analysis, DATABASE_NAME,
         dataType === sthTestConfig.DATA_TYPES.RAW ?
-          sthDatabase.getCollectionName4Events(COLLECTION_NAME_PARAMS) :
-          sthDatabase.getCollectionName4Aggregated(COLLECTION_NAME_PARAMS))
+          sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) :
+          sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS))
     ).to.equal(false);
-    done();
-  });
-}
-
-/**
- * Test to check that the collection names collection is not included in the analysis
- * @param  {String}   targetDataModel The target data model
- * @param  {Function} done            Mocha done() funtion
- */
-function collectionNamesNotIncludedTest(targetDataModel, done) {
-  sthConfig.DATA_MODEL = targetDataModel;
-  sthDatabaseModel.getDataModelAnalysis(function(err, analysis) {
-    if (err) {
-      return done(err);
-    }
-    expect(!isCollectionIncluded(analysis, DATABASE_NAME, sthConfig.COLLECTION_PREFIX + 'collection_names'));
     done();
   });
 }
@@ -296,7 +246,7 @@ function collectionNamesNotIncludedTest(targetDataModel, done) {
  */
 function systemCollectionNotIncludedTest(targetDataModel, done) {
   sthConfig.DATA_MODEL = targetDataModel;
-  sthDatabaseModel.getDataModelAnalysis(function(err, analysis) {
+  sthDatabaseModelTool.getDataModelAnalysis(function(err, analysis) {
     if (err) {
       return done(err);
     }
@@ -322,18 +272,6 @@ function collectionPerAttributeAnalysisTests(dataType, aggregationType) {
       dataType + ' data collection',
       insertData.bind(null, dataType, aggregationType,
         sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
-
-    it('should not detect the ' + sthConfig.COLLECTION_PREFIX + 'collection_names collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
-      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
-
-    it('should not detect the ' + sthConfig.COLLECTION_PREFIX + 'collection_names collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
-      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
-
-    it('should not detect the ' + sthConfig.COLLECTION_PREFIX + 'collection_names collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
-      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
 
     it('should not detect the any system.* collection needs migration to the ' +
       sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
@@ -383,18 +321,6 @@ function collectionPerEntityAnalysisTests(dataType, aggregationType) {
       dataType + ' data collection',
       insertData.bind(null, dataType, aggregationType, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
 
-    it('should not detect the ' + sthConfig.COLLECTION_PREFIX + 'collection_names collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
-      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
-
-    it('should not detect the ' + sthConfig.COLLECTION_PREFIX + 'collection_names collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
-      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
-
-    it('should not detect the ' + sthConfig.COLLECTION_PREFIX + 'collection_names collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
-      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
-
     it('should not detect the any system.* collection needs migration to the ' +
       sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
       systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
@@ -443,18 +369,6 @@ function collectionPerServicePathAnalysisTests(dataType, aggregationType) {
       dataType + ' data collection',
       insertData.bind(null, dataType, aggregationType,
         sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
-
-    it('should not detect the ' + sthConfig.COLLECTION_PREFIX + 'collection_names collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
-      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
-
-    it('should not detect the ' + sthConfig.COLLECTION_PREFIX + 'collection_names collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
-      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
-
-    it('should not detect the ' + sthConfig.COLLECTION_PREFIX + 'collection_names collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
-      collectionNamesNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
 
     it('should not detect the any system.* collection needs migration to the ' +
       sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
@@ -593,7 +507,7 @@ function getQuery4AggregatedDataMigrationTest(originDataModel, targetDataModel, 
       query['_id.entityId'] = sthTestConfig.ENTITY_ID;
       query['_id.entityType'] = sthTestConfig.ENTITY_TYPE;
       query['_id.attrName'] = ATTRIBUTE.NAME;
-      query['_id.origin'] = sthHelper.getOrigin(ATTRIBUTE.RECV_TIME[originDataModel], resolution);
+      query['_id.origin'] = sthUtils.getOrigin(ATTRIBUTE.RECV_TIME[originDataModel], resolution);
       query['_id.resolution'] = resolution;
       return query;
     default:
@@ -643,7 +557,7 @@ function expectAggregatedDataMigration4Resolution(params, options, callback) {
     }
     expect(results.length).to.equal(1);
     var point = getAggregatedEntry4Offset(results[0].points,
-      sthHelper.getOffset(params.resolution, ATTRIBUTE.RECV_TIME[params.originDataModel]));
+      sthUtils.getOffset(params.resolution, ATTRIBUTE.RECV_TIME[params.originDataModel]));
     if (options.updateCollection) {
       if (point.sum) {
         expect(point.samples).to.equal(2);
@@ -730,17 +644,17 @@ function expectAggregatedDataMigration(params, options, done) {
 function migrationTest(params, options, done) {
   sthConfig.DATA_MODEL = params.originDataModel;
   var originCollectionName = (params.dataType === sthTestConfig.DATA_TYPES.RAW ?
-    sthDatabase.getCollectionName4Events(COLLECTION_NAME_PARAMS) :
-    sthDatabase.getCollectionName4Aggregated(COLLECTION_NAME_PARAMS));
+    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) :
+    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS));
   params.originCollectionName = originCollectionName;
 
   sthConfig.DATA_MODEL = params.targetDataModel;
   var targetCollectionName = (params.dataType === sthTestConfig.DATA_TYPES.RAW ?
-    sthDatabase.getCollectionName4Events(COLLECTION_NAME_PARAMS) :
-    sthDatabase.getCollectionName4Aggregated(COLLECTION_NAME_PARAMS));
+    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) :
+    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS));
   params.targetCollectionName = targetCollectionName;
 
-  sthDatabaseModel.migrateCollection(DATABASE_NAME, originCollectionName, options,
+  sthDatabaseModelTool.migrateCollection(DATABASE_NAME, originCollectionName, options,
     function(err) {
     if (err) {
       return done(err);
@@ -763,11 +677,11 @@ function migrationTest(params, options, done) {
 function noMigrationTest(dataType, originDataModel, targetDataModel, done) {
   sthConfig.DATA_MODEL = originDataModel;
   var originCollectionName = (dataType === sthTestConfig.DATA_TYPES.RAW ?
-    sthDatabase.getCollectionName4Events(COLLECTION_NAME_PARAMS) :
-    sthDatabase.getCollectionName4Aggregated(COLLECTION_NAME_PARAMS));
+    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) :
+    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS));
 
   sthConfig.DATA_MODEL = targetDataModel;
-  sthDatabaseModel.migrateCollection(DATABASE_NAME, originCollectionName, function(err) {
+  sthDatabaseModelTool.migrateCollection(DATABASE_NAME, originCollectionName, function(err) {
     expect(err).to.exit;
     done();
   });
@@ -884,7 +798,9 @@ function collectionPerEntityUpdateMigrationTests(dataType, aggregationType, opti
   });
 }
 
-describe('sth_database_model tests', function() {
+describe('sthDatabaseModelTool tests', function() {
+  this.timeout(5000);
+  var originalDataModel = sthConfig.DATA_MODEL;
   [sthConfig.AGGREGATIONS.NUMERIC, sthConfig.AGGREGATIONS.TEXTUAL].forEach(function(aggregationType) {
     describe(aggregationType + ' aggregation type', function() {
       var dataTypes = Object.keys(sthTestConfig.DATA_TYPES);
@@ -948,5 +864,9 @@ describe('sth_database_model tests', function() {
         });
       });
     });
+  });
+
+  after(function() {
+    sthConfig.DATA_MODEL = originalDataModel;
   });
 });

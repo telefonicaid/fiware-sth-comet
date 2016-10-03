@@ -15,13 +15,13 @@ To set the desired data model to be used, please take a look at [Running the STH
 
 To run the data migration tool, please execute the following command:
 ```bash
-./bin/sth_database_model
+./bin/sthDatabaseModelTool
 ```
 
 which will present the command help information:
 
 ```
-Usage: sth_database_model [options]
+Usage: sthDatabaseModelTool [options]
 
   Options:
 
@@ -43,11 +43,11 @@ Special care should be taken when requesting a data model migration since the mi
 1. Check the current configured data model used by the STH component based on the options detailed in [Running the STH server](#section5) below. Typically it will be the default collection per entity data model.
 2. Get a data model analysis report about the databases and collections which need to be migrated to the new desired data model (set in the `DATA_MODEL` environment variable) running the following command:
     ```
-    LOGOPS_FORMAT=dev DATA_MODEL=collection-per-service-path ./bin/sth_database_model -a
+    LOGOPS_FORMAT=dev DATA_MODEL=collection-per-service-path ./bin/sthDatabaseModelTool -a
     ```
 3. Request the desired data model migration (set in the `DATA_MODEL` environment variable) without forcing the update of the target data model collections running the following command:
     ```
-    LOGOPS_FORMAT=dev DATA_MODEL=collection-per-service-path ./bin/sth_database_model -a -m
+    LOGOPS_FORMAT=dev DATA_MODEL=collection-per-service-path ./bin/sthDatabaseModelTool -a -m
     ```
     If any of the target collections already exist, the data model migration will stop and it will not be made for the first already existent target data model collection, either for any subsequent collection. If none of the target collections already exist, the data model migration will successfully complete.
     1. If the data model migration completed successfully, remove the original data model collections already migrated to avoid problems if in the future you decide to go back to the original data model. Information about the successfully migrated collections is provided in the logs. Setting the `-r` option when running the command mentioned in point 3 will make this removal automatically for you. The data model migration has successfully finished.
@@ -56,7 +56,7 @@ Special care should be taken when requesting a data model migration since the mi
         2. You have to decide if the target data model collection causing the conflict contains valuable data. If they does, just keep it. If it does not, just remove it.
         3. If you decided to keep the target data model collection causing the conflict since it contains valuable data, force its data model migration using the following command:
             ```
-            LOGOPS_FORMAT=dev DATA_MODEL=collection-per-service-path ./bin/sth_database_model -a -m -d <database_name> -c <original_data_model_collection_to_be_migrated> -u
+            LOGOPS_FORMAT=dev DATA_MODEL=collection-per-service-path ./bin/sthDatabaseModelTool -a -m -d <database_name> -c <original_data_model_collection_to_be_migrated> -u
             ```
             The original data model collection will be combined with the already existent data stored in the target data model collection.
         4. Remove the `<original_data_model_collection_to_be_migrated>` collection whose migration you just forced so it is not migrated again in the future or use the `-r` to let the migration tool make this removal for you.

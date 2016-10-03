@@ -23,8 +23,8 @@
 
 'use strict';
 
-var STH_CONFIGURATION_PATH = '../../lib/sth_configuration';
-
+var ROOT_PATH = require('app-root-path');
+var STH_CONFIGURATION_PATH = ROOT_PATH + '/lib/configuration/sthConfiguration';
 var sthConfig = require(STH_CONFIGURATION_PATH);
 var expect = require('expect.js');
 var clearRequire = require('clear-require');
@@ -49,137 +49,189 @@ var DEFAULT_VALUES = {
   POOL_SIZE: 5,
   WRITE_CONCERN: '1',
   SHOULD_STORE: 'both',
-  SHOULD_HASH: false,
   TRUNCATION_EXPIRE_AFTER_SECONDS: 0,
   TRUNCATION_SIZE: 0,
   TRUNCATION_MAX: 0,
   IGNORE_BLANK_SPACES: true,
+  NAME_ENCODING: false,
   PROOF_OF_LIFE_INTERVAL: 60
 };
 
-describe('sth_configuration tests', function() {
+describe('sthConfiguration tests', function() {
   describe('default values', function() {
-    it('should set the logging level configuration parameter to its default value', function() {
-      expect(sthConfig.LOGOPS_LEVEL).to.equal(DEFAULT_VALUES.LOGOPS_LEVEL);
-    });
+    if (Object.keys(process.env).indexOf('LOGOPS_LEVEL') === -1) {
+      it('should set the logging level configuration parameter to its default value', function() {
+        expect(sthConfig.LOGOPS_LEVEL).to.equal(DEFAULT_VALUES.LOGOPS_LEVEL);
+      });
+    }
 
-    it('should set the logging format configuration parameter to its default value', function() {
-      expect(sthConfig.LOGOPS_FORMAT).to.equal(DEFAULT_VALUES.LOGOPS_FORMAT);
-    });
+    if (Object.keys(process.env).indexOf('LOGOPS_FORMAT') === -1) {
+      it('should set the logging format configuration parameter to its default value', function() {
+        expect(sthConfig.LOGOPS_FORMAT).to.equal(DEFAULT_VALUES.LOGOPS_FORMAT);
+      });
+    }
 
-    it('should set the STH server host configuration parameter to its default value', function() {
-      expect(sthConfig.STH_HOST).to.equal(DEFAULT_VALUES.STH_HOST);
-    });
+    if (Object.keys(process.env).indexOf('STH_HOST') === -1) {
+      it('should set the STH server host configuration parameter to its default value', function() {
+        expect(sthConfig.STH_HOST).to.equal(DEFAULT_VALUES.STH_HOST);
+      });
+    }
 
-    it('should set the STH server port configuration parameter to its default value', function() {
-      expect(sthConfig.STH_PORT).to.equal(DEFAULT_VALUES.STH_PORT);
-    });
+    if (Object.keys(process.env).indexOf('STH_PORT') === -1) {
+      it('should set the STH server port configuration parameter to its default value', function() {
+        expect(sthConfig.STH_PORT).to.equal(DEFAULT_VALUES.STH_PORT);
+      });
+    }
 
-    it('should set the default service configuration parameter to its default value', function() {
-      expect(sthConfig.DEFAULT_SERVICE).to.equal(DEFAULT_VALUES.DEFAULT_SERVICE);
-    });
+    if (Object.keys(process.env).indexOf('DEFAULT_SERVICE') === -1) {
+      it('should set the default service configuration parameter to its default value', function() {
+        expect(sthConfig.DEFAULT_SERVICE).to.equal(DEFAULT_VALUES.DEFAULT_SERVICE);
+      });
+    }
 
-    it('should set the default service path configuration parameter to its default value', function() {
-      expect(sthConfig.DEFAULT_SERVICE_PATH).to.equal(DEFAULT_VALUES.DEFAULT_SERVICE_PATH);
-    });
+    if (Object.keys(process.env).indexOf('DEFAULT_SERVICE_PATH') === -1) {
+      it('should set the default service path configuration parameter to its default value', function() {
+        expect(sthConfig.DEFAULT_SERVICE_PATH).to.equal(DEFAULT_VALUES.DEFAULT_SERVICE_PATH);
+      });
+    }
 
-    it('should set the filter out empty configuration parameter to its default value', function() {
-      expect(sthConfig.FILTER_OUT_EMPTY).to.equal(DEFAULT_VALUES.FILTER_OUT_EMPTY);
-    });
+    if (Object.keys(process.env).indexOf('FILTER_OUT_EMPTY') === -1) {
+      it('should set the filter out empty configuration parameter to its default value', function() {
+        expect(sthConfig.FILTER_OUT_EMPTY).to.equal(DEFAULT_VALUES.FILTER_OUT_EMPTY);
+      });
+    }
 
-    it('should set the resolution to aggregate the data by to its default value',
-      function() {
-        DEFAULT_VALUES.AGGREGATION_BY.forEach(function(aggregationBy) {
-          expect(sthConfig.AGGREGATION_BY).to.contain(aggregationBy);
-        });
-      }
-    );
+    if (Object.keys(process.env).indexOf('AGGREGATION_BY') === -1) {
+      it('should set the resolution to aggregate the data by to its default value',
+        function() {
+          DEFAULT_VALUES.AGGREGATION_BY.forEach(function(aggregationBy) {
+            expect(sthConfig.AGGREGATION_BY).to.contain(aggregationBy);
+          });
+        }
+      );
+    }
 
-    it('should set the temporal directory configuration parameter to its default value',
-      function() {
-        expect(sthConfig.TEMPORAL_DIR).to.equal(DEFAULT_VALUES.TEMPORAL_DIR);
-      }
-    );
+    if (Object.keys(process.env).indexOf('TEMPORAL_DIR') === -1) {
+      it('should set the temporal directory configuration parameter to its default value',
+        function() {
+          expect(sthConfig.TEMPORAL_DIR).to.equal(DEFAULT_VALUES.TEMPORAL_DIR);
+        }
+      );
+    }
 
-    it('should set the data model configuration parameter to its default value', function() {
-      expect(sthConfig.DATA_MODEL).to.equal(DEFAULT_VALUES.DATA_MODEL);
-    });
+    if (Object.keys(process.env).indexOf('DATA_MODEL') === -1) {
+      it('should set the data model configuration parameter to its default value', function() {
+        expect(sthConfig.DATA_MODEL).to.equal(DEFAULT_VALUES.DATA_MODEL);
+      });
+    }
 
-    it('should set the database user configuration parameter to its default value',
-      function() {
-        expect(sthConfig.DB_USERNAME).to.equal(DEFAULT_VALUES.DB_USERNAME);
-      }
-    );
+    if (Object.keys(process.env).indexOf('DB_USERNAME') === -1) {
+      it('should set the database user configuration parameter to its default value',
+        function() {
+          expect(sthConfig.DB_USERNAME).to.equal(DEFAULT_VALUES.DB_USERNAME);
+        }
+      );
+    }
 
-    it('should set the database password configuration parameter to its default value',
-      function() {
-        expect(sthConfig.DB_PASSWORD).to.equal(DEFAULT_VALUES.DB_PASSWORD);
-      }
-    );
+    if (Object.keys(process.env).indexOf('DB_PASSWORD') === -1) {
+      it('should set the database password configuration parameter to its default value',
+        function() {
+          expect(sthConfig.DB_PASSWORD).to.equal(DEFAULT_VALUES.DB_PASSWORD);
+        }
+      );
+    }
 
-    it('should set the database URI configuration parameter to its default value',
-      function() {
-        expect(sthConfig.DB_URI).to.equal(DEFAULT_VALUES.DB_URI);
-      }
-    );
+    if (Object.keys(process.env).indexOf('DB_URI') === -1) {
+      it('should set the database URI configuration parameter to its default value',
+        function() {
+          expect(sthConfig.DB_URI).to.equal(DEFAULT_VALUES.DB_URI);
+        }
+      );
+    }
 
-    it('should set the database replica set configuration parameter to its default value',
-      function() {
-        expect(sthConfig.REPLICA_SET).to.equal(DEFAULT_VALUES.REPLICA_SET);
-      }
-    );
+    if (Object.keys(process.env).indexOf('REPLICA_SET') === -1) {
+      it('should set the database replica set configuration parameter to its default value',
+        function() {
+          expect(sthConfig.REPLICA_SET).to.equal(DEFAULT_VALUES.REPLICA_SET);
+        }
+      );
+    }
 
-    it('should set the database prefix configuration parameter to its default value', function() {
-      expect(sthConfig.DB_PREFIX).to.equal(DEFAULT_VALUES.DB_PREFIX);
-    });
+    if (Object.keys(process.env).indexOf('DB_PREFIX') === -1) {
+      it('should set the database prefix configuration parameter to its default value', function() {
+        expect(sthConfig.DB_PREFIX).to.equal(DEFAULT_VALUES.DB_PREFIX);
+      });
+    }
 
-    it('should set the collection prefix configuration parameter to its default value', function() {
-      expect(sthConfig.COLLECTION_PREFIX).to.equal(DEFAULT_VALUES.COLLECTION_PREFIX);
-    });
+    if (Object.keys(process.env).indexOf('COLLECTION_PREFIX') === -1) {
+      it('should set the collection prefix configuration parameter to its default value', function() {
+        expect(sthConfig.COLLECTION_PREFIX).to.equal(DEFAULT_VALUES.COLLECTION_PREFIX);
+      });
+    }
 
-    it('should set the database pool size configuration parameter to its default value', function() {
-      expect(sthConfig.POOL_SIZE).to.equal(DEFAULT_VALUES.POOL_SIZE);
-    });
+    if (Object.keys(process.env).indexOf('POOL_SIZE') === -1) {
+      it('should set the database pool size configuration parameter to its default value', function() {
+        expect(sthConfig.POOL_SIZE).to.equal(DEFAULT_VALUES.POOL_SIZE);
+      });
+    }
 
-    it('should set the database write concern configuration parameter to its default value', function() {
-      expect(sthConfig.WRITE_CONCERN).to.equal(DEFAULT_VALUES.WRITE_CONCERN);
-    });
+    if (Object.keys(process.env).indexOf('WRITE_CONCERN') === -1) {
+      it('should set the database write concern configuration parameter to its default value', function() {
+        expect(sthConfig.WRITE_CONCERN).to.equal(DEFAULT_VALUES.WRITE_CONCERN);
+      });
+    }
 
-    it('should set the database should store data configuration parameter to its default value', function() {
-      expect(sthConfig.SHOULD_STORE).to.equal(DEFAULT_VALUES.SHOULD_STORE);
-    });
+    if (Object.keys(process.env).indexOf('SHOULD_STORE') === -1) {
+      it('should set the database should store data configuration parameter to its default value', function() {
+        expect(sthConfig.SHOULD_STORE).to.equal(DEFAULT_VALUES.SHOULD_STORE);
+      });
+    }
 
-    it('should set the database should store data configuration parameter to its default value', function() {
-      expect(sthConfig.SHOULD_HASH).to.equal(DEFAULT_VALUES.SHOULD_HASH);
-    });
+    if (Object.keys(process.env).indexOf('TRUNCATION_EXPIRE_AFTER_SECONDS') === -1) {
+      it('should set the database truncation expiration after seconds configuration parameter to its default value',
+        function() {
+          expect(sthConfig.TRUNCATION_EXPIRE_AFTER_SECONDS).to.equal(DEFAULT_VALUES.TRUNCATION_EXPIRE_AFTER_SECONDS);
+        }
+      );
+    }
 
-    it('should set the database truncation expiration after seconds configuration parameter to its default value',
-      function() {
-        expect(sthConfig.TRUNCATION_EXPIRE_AFTER_SECONDS).to.equal(DEFAULT_VALUES.TRUNCATION_EXPIRE_AFTER_SECONDS);
-      }
-    );
+    if (Object.keys(process.env).indexOf('TRUNCATION_SIZE') === -1) {
+      it('should set the database truncation size configuration parameter to its default value',
+        function() {
+          expect(sthConfig.TRUNCATION_SIZE).to.equal(DEFAULT_VALUES.TRUNCATION_SIZE);
+        }
+      );
+    }
 
-    it('should set the database truncation size configuration parameter to its default value',
-      function() {
-        expect(sthConfig.TRUNCATION_SIZE).to.equal(DEFAULT_VALUES.TRUNCATION_SIZE);
-      }
-    );
+    if (Object.keys(process.env).indexOf('TRUNCATION_MAX') === -1) {
+      it('should set the database truncation document number configuration parameter to its default value',
+        function() {
+          expect(sthConfig.TRUNCATION_MAX).to.equal(DEFAULT_VALUES.TRUNCATION_MAX);
+        }
+      );
+    }
 
-    it('should set the database truncation document number configuration parameter to its default value',
-      function() {
-        expect(sthConfig.TRUNCATION_MAX).to.equal(DEFAULT_VALUES.TRUNCATION_MAX);
-      }
-    );
+    if (Object.keys(process.env).indexOf('IGNORE_BLANK_SPACES') === -1) {
+      it('should set the database ignore blank spaces configuration parameter to its default value',
+        function() {
+          expect(sthConfig.IGNORE_BLANK_SPACES).to.equal(DEFAULT_VALUES.IGNORE_BLANK_SPACES);
+        }
+      );
+    }
 
-    it('should set the database ignore blank spaces configuration parameter to its default value',
-      function() {
-        expect(sthConfig.IGNORE_BLANK_SPACES).to.equal(DEFAULT_VALUES.IGNORE_BLANK_SPACES);
-      }
-    );
+    if (Object.keys(process.env).indexOf('NAME_ENCODING') === -1) {
+      it('should set the database name encoding configuration parameter to its default value',
+        function() {
+          expect(sthConfig.NAME_ENCODING).to.equal(DEFAULT_VALUES.NAME_ENCODING);
+        }
+      );
+    }
 
-    it('should set the proof of life interval configuration parameter to its default value', function() {
-      expect(sthConfig.PROOF_OF_LIFE_INTERVAL).to.equal(DEFAULT_VALUES.PROOF_OF_LIFE_INTERVAL);
-    });
+    if (Object.keys(process.env).indexOf('PROOF_OF_LIFE_INTERVAL') === -1) {
+      it('should set the proof of life interval configuration parameter to its default value', function() {
+        expect(sthConfig.PROOF_OF_LIFE_INTERVAL).to.equal(DEFAULT_VALUES.PROOF_OF_LIFE_INTERVAL);
+      });
+    }
   });
 
   describe('setting values via environment variables', function() {
@@ -553,30 +605,6 @@ describe('sth_configuration tests', function() {
       }
     );
 
-    it('should set the database should hash collection names configuration parameter to \'true\'', function() {
-      process.env.SHOULD_HASH = 'true';
-      sthConfig = require(STH_CONFIGURATION_PATH);
-      expect(sthConfig.SHOULD_HASH).to.equal(true);
-    });
-
-    it('should set the database should hash collection names configuration parameter to the default value if not set ' +
-      'via SHOULD_HASH',
-      function() {
-        delete process.env.SHOULD_HASH;
-        sthConfig = require(STH_CONFIGURATION_PATH);
-        expect(sthConfig.SHOULD_HASH).to.equal(DEFAULT_VALUES.SHOULD_HASH);
-      }
-    );
-
-    it('should set the database should hash collection names configuration parameter to the default value if set to ' +
-      'an invalid value',
-      function() {
-        process.env.SHOULD_HASH = 'not-true';
-        sthConfig = require(STH_CONFIGURATION_PATH);
-        expect(sthConfig.SHOULD_HASH).to.equal(DEFAULT_VALUES.SHOULD_HASH);
-      }
-    );
-
     it('should set the database truncation expiration time configuration parameter to \'123456789\'',
       function() {
         process.env.TRUNCATION_EXPIRE_AFTER_SECONDS = '123456789';
@@ -678,6 +706,32 @@ describe('sth_configuration tests', function() {
         process.env.IGNORE_BLANK_SPACES = 'not-false';
         sthConfig = require(STH_CONFIGURATION_PATH);
         expect(sthConfig.IGNORE_BLANK_SPACES).to.equal(DEFAULT_VALUES.IGNORE_BLANK_SPACES);
+      }
+    );
+
+    it('should set the database name encoding configuration parameter to \'false\'',
+      function() {
+        process.env.NAME_ENCODING = 'false';
+        sthConfig = require(STH_CONFIGURATION_PATH);
+        expect(sthConfig.NAME_ENCODING).to.equal(false);
+      }
+    );
+
+    it('should set the database name encoding configuration parameter to the default value ' +
+      'if not set via NAME_ENCODING',
+      function() {
+        delete process.env.NAME_ENCODING;
+        sthConfig = require(STH_CONFIGURATION_PATH);
+        expect(sthConfig.NAME_ENCODING).to.equal(DEFAULT_VALUES.NAME_ENCODING);
+      }
+    );
+
+    it('should set the database name encoding configuration parameter to the default value ' +
+      'if set to an invalid value',
+      function() {
+        process.env.NAME_ENCODING = 'not-false';
+        sthConfig = require(STH_CONFIGURATION_PATH);
+        expect(sthConfig.NAME_ENCODING).to.equal(DEFAULT_VALUES.NAME_ENCODING);
       }
     );
 

@@ -80,12 +80,6 @@ config.database = {
   // Flag indicating if the raw and/or aggregated data should be persisted. Valid values are:
   // "only-raw", "only-aggregated" and "both". Default value: "both".
   shouldStore: 'both',
-  // Flag indicating if the raw and/or aggregated data collection names should include a hash portion.
-  // This is mostly due to MongoDB's limitation regarding the number of bytes a namespace may have
-  // (currently limited to 120 bytes). In case of hashing, information about the final collection name
-  // and its correspondence to each concrete service path, entity and (if applicable) attribute
-  // is stored in a collection named `COLLECTION_PREFIX + "collection_names"`. Default value: "false".
-  shouldHash: 'false',
   truncation: {
     // Data from the raw and aggregated data collections will be removed if older than the value specified in seconds.
     // Set the value to 0 or remove the property entry not to apply this time-based truncation policy.
@@ -113,7 +107,28 @@ config.database = {
   },
   // Attribute values to one or more blank spaces should be ignored and not processed either as raw data or for
   // the aggregated computations. Default value: "true".
-  ignoreBlankSpaces: 'true'
+  ignoreBlankSpaces: 'true',
+  // Database and collection names have to respect the limitations imposed by MongoDB (see
+  // https://docs.mongodb.com/manual/reference/limits/). To it, the STH provides 2 main mechanisms: mappings and
+  // encoding which can be configured using the next 2 configuration parameters.
+  // The mappings mechanism will substitute the original services, service paths, entity and attribute names and types
+  // by the ones defined in the configuration file. If enabled, the mappings mechanism will be the one applied.
+  nameMapping: {
+    // Default value: "true" (although we will set it to false until the Cygnus counterpart is ready and landed)
+    enabled: 'false',
+    // The path from the root of the STH component Node application to the mappings configuration file
+    configFile: './name-mapping.json'
+  },
+  // The encoding criteria is the following one:
+  // 1. Encode the forbidden characters using an escaping character (x) and a numerical Unicode code for each character.
+  //    For instance, the / character will be encoded as x002f.
+  // 2. Database and collection names already using the above encoding must be escaped prepending another x,
+  //    for instance, the text x002a will be encoded as xx002a.
+  // 3. The uppercase characters included in database names will be encoded using the mechanism stated in 1.
+  // 4. Collection names starting with 'system.' will be encoded as 'xsystem.'. For instance, system.myData will be
+  //    encoded as xsystem.myData.
+  // Default value: "true" (although we will set it to false until the Cygnus counterpart is ready and landed)
+  nameEncoding: 'false'
 };
 
 // Logging configuration
