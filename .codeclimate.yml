@@ -25,33 +25,10 @@ ratings:
   - "**.py"
   - "**.rb"
 exclude_paths:
-- test/
----
-engines:
-  csslint:
-    enabled: true
-  duplication:
-    enabled: true
-    config:
-      languages:
-      - ruby
-      - javascript
-      - python
-      - php
-  eslint:
-    enabled: true
-  fixme:
-    enabled: true
-ratings:
-  paths:
-  - "**.css"
-  - "**.inc"
-  - "**.js"
-  - "**.jsx"
-  - "**.module"
-  - "**.php"
-  - "**.py"
-  - "**.rb"
-exclude_paths:
+- .git/
+- data/
+- doc/
+- ghpages/
+- log/
 - node_modules/
-- test/
+- temp/

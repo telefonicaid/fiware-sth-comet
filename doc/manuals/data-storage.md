@@ -65,5 +65,5 @@ in, the `throttling` should be fine-tuned accordingly. For example, it may make 
 
 Further information about the Orion Context Broker subscription API can be found in its documentation:
 
-* [Subscriptions for NGSI version 2](http://fiware-orion.readthedocs.io/en/develop/user/walkthrough_apiv2/index.html#subscriptions).
-* [Subscriptions for NGSI version 1](http://fiware-orion.readthedocs.io/en/develop/user/walkthrough_apiv1/index.html#context-subscriptions).
+* [Subscriptions for NGSI version 2](http://fiware-orion.readthedocs.io/en/latest/user/walkthrough_apiv2/index.html#subscriptions).
+* [Subscriptions for NGSI version 1](http://fiware-orion.readthedocs.io/en/latest/user/walkthrough_apiv1/index.html#context-subscriptions).

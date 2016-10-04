@@ -24,11 +24,11 @@ In order to start contributing:
     git remote add fiware-sth-comet https://github.com/telefonicaid/fiware-sth-comet.git
     ```
 
-Before starting your contribution, remember to synchronize the `develop` branch in your forked repository with the `develop` branch in the main fiware-sth-comet repository following the next steps:
+Before starting your contribution, remember to synchronize the `master` branch in your forked repository with the `master` branch in the main fiware-sth-comet repository following the next steps:
 
-1. Change to your local `develop` branch (in case you are not in it already):
+1. Change to your local `master` branch (in case you are not in it already):
     ```
-    git checkout develop
+    git checkout master
     ```
 2. Fetch the remote changes:
     ```
@@ -36,10 +36,10 @@ Before starting your contribution, remember to synchronize the `develop` branch 
     ```
 3. Merge them:
     ```
-    git rebase fiware-sth-comet/develop
+    git rebase fiware-sth-comet/master
     ```
 
-Contributions following these guidelines will be added to the `develop` branch, and released in the next version. The release process is explained in the **Releasing** section below.
+Contributions following these guidelines will be added to the `master` branch, and released in the next version. The release process is explained in the **Releasing** section below.
 
 ## Coding guidelines
 
@@ -57,10 +57,9 @@ grunt lint-report
 
 ## Branching model
 
-There are two special branches in the repository:
+There is one special branch in the repository:
 
-* `master`: it holds the code for the last stable version of the project. It is only updated when a new version is released.
-* `develop`: it contains the last stable development code. New features and bug fixes are always merged to `develop` until a new release is created and moved to `master`.
+* `master`: it contains the last stable development code. New features and bug fixes are always merged to `master` until a new release is created and published.
 
 Apart from the previous branches, there is another set of branches called `release/X.Y.Z` where the latest version of each release code can be found. To this regard, a release called `X.Y.Z` is created whenever a new version of the project is released pointing to the latest status of the corresponding `release/X.Y.Z` release branch.
 
@@ -73,11 +72,11 @@ In order to start developing a new feature or refactoring, a new branch should b
 
 depending on the type of work.
 
-Once the final code is available in the local forked repository branch, a Pull Request should be sent to the `develop` branch in the fiware-sth-comet remote repository when a review process will start before its final landing. Remember to check both the linters and the tests before creating the Pull Request.
+Once the final code is available in the local forked repository branch, a Pull Request should be sent to the `master` branch in the fiware-sth-comet remote repository when a review process will start before its final landing. Remember to check both the linters and the tests before creating the Pull Request.
 
 ## Changelog
 
-The project contains a version changelog file, called `CHANGES_NEXT_RELEASE`, that can be found in the root of the project. Whenever a new feature or bug fix is going to be merged into `develop`, a new entry should be added to this changelog file. The new entry should contain the reference number of the issue it is solving (if any).
+The project contains a version changelog file, called `CHANGES_NEXT_RELEASE`, that can be found in the root of the project. Whenever a new feature or bug fix is going to be merged into `master`, a new entry should be added to this changelog file. The new entry should contain the reference number of the issue it is solving (if any).
 
 When a new version is released, the changelog is cleared and remains fixed in the last commit of that version. The content of the changelog is also moved to the release description in the Github release.
 
@@ -147,15 +146,14 @@ grunt doc
 
 The process of making a release consists of the following steps and should only be made by any of the owners or administrators of the main repository:
 
-1. Synchronize the `develop` branch in your local forked repository to the latest version of the `develop` branch of the remote fiware-sth-comet repository as indicated in the **How to contribute** section above.
-2. From the updated `develop` branch in your local forked repository, create a new task branch changing the development version number in the `package.json` file (currently it should include a `-next` suffix) to the new version to be released (`X.Y.Z`, for example, without any suffix).
-3. Create a pull request from this task branch to the `develop` branch in the fiware-sth-comet remote repository and ask any of the additional project administrators to review it and to land it.
-4. In the fiware-sth-comet main repository, create a release branch named `release/X.Y.Z` from the latest version of the `develop` branch using the corresponding version number.
+1. Synchronize the `master` branch in your local forked repository to the latest version of the `master` branch of the remote fiware-sth-comet repository as indicated in the **How to contribute** section above.
+2. From the updated `master` branch in your local forked repository, create a new task branch changing the development version number in the `package.json` file (currently it should include a `-next` suffix) to the new version to be released (`X.Y.Z`, for example, without any suffix).
+3. Create a pull request from this task branch to the `master` branch in the fiware-sth-comet remote repository and ask any of the additional project administrators to review it and to land it.
+4. In the fiware-sth-comet main repository, create a release branch named `release/X.Y.Z` from the latest version of the `master` branch using the corresponding version number.
 5. In the fiware-sth-comet main repository, create a new release setting the tag version to `X.Y.Z` from the new release branch `release/X.Y.Z` and publish it.
-6. In the fiware-sth-comet main repository, create a pull request from the new release branch `release/X.Y.Z` to the `master` branch (in this precise moment the `master`, `develop` and `release/X.Y.Z` branches are all synchronized).
-7. Synchronize the `develop` branch in your local forked repository to the latest version of the `develop` branch of the remote fiware-sth-comet repository as indicated in the **How to contribute** section above.
-8. From the updated `develop` branch in your local forked repository, create a new task branch and add the `-next` suffix to the current version number in the `package.json` file (to signal this as the development version) and remove the contents of the `CHANGES_NEXT_RELEASE` changelog file.
-9. Create a pull request from this new task branch to the `develop` branch in the remote fiware-sth-comet repository.
+6. Synchronize the `master` branch in your local forked repository to the latest version of the `master` branch of the remote fiware-sth-comet repository as indicated in the **How to contribute** section above.
+7. From the updated `master` branch in your local forked repository, create a new task branch and add the `-next` suffix to the current version number in the `package.json` file (to signal this as the development version) and remove the contents of the `CHANGES_NEXT_RELEASE` changelog file.
+8. Create a pull request from this new task branch to the `master` branch in the remote fiware-sth-comet repository.
 
 ## Version/release numbers
 
@@ -167,4 +165,4 @@ very important changes in the feature set of the component. If *X* changes, *Y* 
 * *Y* will change every time a new version is released. If only *Y* changes, it means some new features or bug fixes have been released, but the component is just an improved version of the current major (*X*) release.
 * *Z* will increment its value as new bug fixes are detected and fixed for each major (*X*) and minor (*Y*) release.
 
-Between releases, the version number in the `develop` branch will be `X.Y.Z-next` (where `X.Y.Z` is the latest stable release), indicating that it is a development version.
+Between releases, the version number in the `master` branch will be `X.Y.Z-next` (where `X.Y.Z` is the latest stable release), indicating that it is a development version.

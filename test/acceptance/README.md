@@ -106,9 +106,6 @@ Verify if a label and its text exists in the last lines. The file log by default
 
 You can to use multiples tags in each scenario, possibles tags used:
 
-    - happy_path, skip, errors_40x, only_develop, ISSUE_XXX, BUG_XXX, etc
+    - happy_path, skip, errors_40x, only_master, ISSUE_XXX, BUG_XXX, etc
 
 and to filter scenarios by these tags: see Tests execution section.
-
-
-
