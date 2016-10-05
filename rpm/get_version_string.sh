@@ -4,7 +4,7 @@
 # Call method get_rpm_version_string to obtain them for rpmbuild
 # The result appear on the vars ver and rel
 # The requisites are tags similar to 0.1.0/KO. This tag must be created by 'git tag -a 0.1.0'
-# The main purpose to use this script is to deploy CI on develop branch.
+# The main purpose to use this script is to deploy CI on master branch.
 #
 # Steps to get version and release:
 # 1 - source get_version_string.sh
@@ -28,8 +28,7 @@ get_branch_type()
     local branch="$(get_branch)"
     case $branch in
         release/*) echo "release";;
-        develop) echo "develop";;
-        master) echo "stable";;
+        master) echo "latest";;
         *) echo "other";;
     esac
 }
@@ -38,14 +37,8 @@ get_version_string()
 {
     local branch branch_name describe_tags version ancestor release
     case $(get_branch_type) in
-        stable)
-           # If we are on stable branch get last tag as the version, but transform to x.x.x-x-SHA1
-           describe_tags="$(git describe --tags --long  --match "[[:digit:]]*.[[:digit:]]*.[[:digit:]]*" 2>/dev/null)"
-           version="${describe_tags%-*-*}"
-           echo "${version%.*}-${version#*.*.*.}-$(git log --pretty=format:'%h' -1)"
-        ;;
-        develop)
-          ## If we are in develop use the total count of commits of the repo
+        master)
+          ## If we are in master use the total count of commits of the repo
           total_commit_number=$(git rev-list --all --count)
           short_hash=$(git rev-parse --short HEAD)
           version="$(git describe --tags --long  --match "[[:digit:]]*.[[:digit:]]*.[[:digit:]]*" 2>/dev/null)"
@@ -73,9 +66,9 @@ get_version_string()
         *)
            # RMs don't stablish any standard here, we use branch name as version
            version=$(get_branch)
-           # Using always develop as parent branch does not describe correctly the number of revision
+           # Using always master as parent branch does not describe correctly the number of revision
            # for branches not starting there, but works as an incremental rev
-           ancestor="$(git merge-base $version develop)"
+           ancestor="$(git merge-base $version master)"
            version=${version#*/}
            local res="$(git log --oneline ${ancestor}.. --pretty='format:%h')"
            ## wc alone does not get the last line when there's no new line

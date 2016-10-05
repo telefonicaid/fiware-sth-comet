@@ -51,7 +51,7 @@ On the other hand, in case of connecting to a MongoDB replica set composed of 3 
 DB_URI=1.1.1.1:27771,1.1.1.2:27772,1.1.1.3:27773 ./bin/sth
 ```
 
-The STH component creates a new database for each [service](http://fiware-orion.readthedocs.io/en/develop/user/multitenancy/index.html). The name of these databases will be the concatenation of the `DB_PREFIX` environment variable and the service name, using an underscore (`_`) as the separator.
+The STH component creates a new database for each [service](http://fiware-orion.readthedocs.io/en/latest/user/multitenancy/index.html). The name of these databases will be the concatenation of the `DB_PREFIX` environment variable and the service name, using an underscore (`_`) as the separator.
 
 As already mentioned, all these configuration parameters can also be adjusted using the `config.js` file whose contents are self-explanatory.
 
