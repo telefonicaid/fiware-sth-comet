@@ -1,2 +1,3 @@
 - [TASK] Add Code Climate configuration to repository
 - [TASK] Inclusion of documentation about the Architecture, Data Models & Schemas
+- [TASK] Fixing the FIWARE badges after creating the sth-comet Docker automated build in the FIWARE Docker Hub
