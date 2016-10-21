@@ -23,7 +23,7 @@ FROM centos:6
 
 MAINTAINER Germán Toro del Valle <german.torodelvalle@telefonica.com>
 
-ARG NODEJS_VERSION=v0.10.42
+ARG NODEJS_VERSION=
 
 COPY . /opt/sth/
 WORKDIR /opt/sth
@@ -31,24 +31,26 @@ WORKDIR /opt/sth
 RUN yum update -y && yum install -y curl \
   && yum install -y epel-release && yum update -y epel-release \
   && echo "INFO: Building node and npm..." \
-  && yum install -y gcc-c++ make \
+  && yum install -y gcc-c++ make yum-utils \
+  # If we not define node version, use the official for the SO
+  && [[ "${NODEJS_VERSION}" == "" ]] && export NODEJS_VERSION="$(repoquery --qf '%{VERSION}' nodejs.x86_64)" || echo "INFO: Using specific node version..." \
   && echo "***********************************************************" \
   && echo "USING NODEJS VERSION <${NODEJS_VERSION}>" \
   && echo "***********************************************************" \
-  && curl -s --fail http://nodejs.org/dist/${NODEJS_VERSION}/node-${NODEJS_VERSION}.tar.gz -o /opt/sth/node-${NODEJS_VERSION}.tar.gz \
-  && tar zxf node-${NODEJS_VERSION}.tar.gz \
-  && cd node-${NODEJS_VERSION} \
+  && curl -s --fail http://nodejs.org/dist/v${NODEJS_VERSION}/node-v${NODEJS_VERSION}.tar.gz -o /opt/sth/node-v${NODEJS_VERSION}.tar.gz \
+  && tar zxf node-v${NODEJS_VERSION}.tar.gz \
+  && cd node-v${NODEJS_VERSION} \
   && echo "INFO: Configure..." && ./configure \
   && echo "INFO: Make..." && make -s V= \
   && echo "INFO: Make install..." && make install \
   && echo "INFO: node version <$(node -e "console.log(process.version)")>" \
   && echo "INFO: npm version <$(npm --version)>" \
   && cd /opt/sth \
-  && echo "INFO: npm install --production..." && npm install --production \
-
+  && echo "INFO: npm install --production..." \
+  && npm install --production \
   && echo "INFO: Cleaning unused software..." \
-  && yum erase -y gcc-c++ gcc ppl cpp glibc-devel glibc-headers kernel-headers libgomp libstdc++-devel mpfr libss \
-  && rm -rf /opt/sth/node-${NODEJS_VERSION}.tar.gz /opt/sth/node-${NODEJS_VERSION} \
+  && yum erase -y gcc-c++ gcc ppl cpp glibc-devel glibc-headers kernel-headers libgomp libstdc++-devel mpfr libss yum-utils libxml2-python \
+  && rm -rf /opt/sth/node-v${NODEJS_VERSION}.tar.gz /opt/sth/node-v${NODEJS_VERSION} \
   # Erase without dependencies of the document formatting system (man). This cannot be removed using yum 
   # as yum uses hard dependencies and doing so will uninstall essential packages
   && rpm -qa groff redhat-logos | xargs -r rpm -e --nodeps \
