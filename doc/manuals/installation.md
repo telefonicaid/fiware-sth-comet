@@ -104,7 +104,7 @@ sudo /sbin/service sth stop [<instance>]
 # status
 sudo /sbin/service sth status [<instance>]
 # restart
-sudo /sbin/service sth stop [<instance>]
+sudo /sbin/service sth restart [<instance>]
 ```
 
 An example [`sth_default.conf`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/rpm/EXAMPLES/sth_default.conf) file has been included in the component repository in Github  to guide the STH instance configuration.
@@ -144,4 +144,3 @@ To do it, follow the next steps once you have installed Docker in your machine:
     ```bash
     sudo docker build --build-arg NODEJS_VERSION=0.10.46 -f Dockerfile .
     ```
-
