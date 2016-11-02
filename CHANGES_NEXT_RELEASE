@@ -1,5 +1,0 @@
-- [TASK] Add Code Climate configuration to repository
-- [TASK] Inclusion of documentation about the Architecture, Data Models & Schemas
-- [TASK] Fixing the FIWARE badges after creating the sth-comet Docker automated build in the FIWARE Docker Hub
-- [TASK] Updating the sth_default.conf file including the latest environment variables
-- [TASK] Fixing a minor typo in the installation documentation
