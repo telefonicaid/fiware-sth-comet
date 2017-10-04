@@ -19,11 +19,11 @@
 # For those usages not covered by the GNU Affero General Public License
 # please contact with: [german.torodelvalle@telefonica.com]
 
-FROM centos:6
+FROM centos:7
 
 MAINTAINER Germán Toro del Valle <german.torodelvalle@telefonica.com>
 
-ARG NODEJS_VERSION=
+ARG NODEJS_VERSION=4.8.4
 
 COPY . /opt/sth/
 WORKDIR /opt/sth
