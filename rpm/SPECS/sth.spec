@@ -159,3 +159,5 @@ rm -rf $RPM_BUILD_ROOT
 %{_install_dir}
 
 %changelog
+* Web Oct 18 2017 Fermin Galan <fermin.galanmarquez@telefonica.com> 2.3.0
+- FEATURE update node version to 4.8.4
