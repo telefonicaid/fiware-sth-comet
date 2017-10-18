@@ -1,6 +1,6 @@
 {
   "name": "fiware-sth-comet",
-  "version": "2.2.0-next",
+  "version": "2.3.0",
   "dependencies": {
     "app-root-path": {
       "version": "1.4.0",
