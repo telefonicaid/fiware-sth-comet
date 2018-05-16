@@ -20,6 +20,10 @@ The requests for raw context information can use the following query parameters:
 * **dateTo**: The final date and time until which the raw context information is desired. It is an optional parameter.
 * **filetype**: The raw context information can be requested as a file setting this query parameter to the desired file type. Currently, the only supported value and file type is `csv`.  It is an optional parameter.
 
+In order to avoid problems handing big results there is a restriction about the the number of results per page that could be retrieved.
+The rule is  ```hLimit <= lastN <= config.maxPageSize```
+Where default max page is are defined to 100.
+
 An example response provided by the STH component to a request such as the previous one could be the following:
 ```json
 {
