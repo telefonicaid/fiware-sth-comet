@@ -1,2 +1,2 @@
-- Check & ensure hLimit<=lastN<=config.maxPageSize. [#431]
+- Check & ensure hLimit<=lastN<=config.maxPageSize for raw data query. [#431]
 - Fix: Content Disposition header encoding issue (#433)
