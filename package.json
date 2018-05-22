@@ -60,7 +60,7 @@
     "lodash": "^4.8.2",
     "logops": "^1.0.5",
     "mkdirp": "^0.5.1",
-    "mongodb": "^2.2.0",
+    "mongodb": "^2.2.35",
     "object-assign": "^4.1.0",
     "progress": "^1.1.8",
     "rfc5987-value-chars": "^1.0.0",
