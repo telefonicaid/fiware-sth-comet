@@ -1,2 +1,3 @@
+- Upgrade mongodb dependence to 2.2.35
 - Check & ensure hLimit<=lastN<=config.maxPageSize for raw data query. [#431]
 - Fix: Content Disposition header encoding issue (#433)
