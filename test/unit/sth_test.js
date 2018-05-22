@@ -163,6 +163,8 @@ describe('sth tests', function() {
 
     it('should respond with 200 - OK if lastN query param', sthTestUtils.status200Test.bind(null, {lastN: 1}));
 
+    it('should respond with 200 - OK if count query param', sthTestUtils.status200Test.bind(null, {count: true}));
+
     it('should respond with 200 - OK if hLimit and hOffset query params',
       sthTestUtils.status200Test.bind(
         null,
