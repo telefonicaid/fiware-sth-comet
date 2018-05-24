@@ -1346,6 +1346,9 @@ function status200Test(options, done) {
     var bodyJSON = JSON.parse(body);
     expect(err).to.equal(null);
     expect(response.statusCode).to.equal(200);
+    if (options && options.count) {
+        expect(response.headers['fiware-total-count']).to.be.a('string');
+    }
     expect(bodyJSON.contextResponses[0].contextElement.id).to.equal(sthTestConfig.ENTITY_ID);
     expect(bodyJSON.contextResponses[0].contextElement.type).to.equal(sthTestConfig.ENTITY_TYPE);
     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).to.be.an(Array);
@@ -1353,6 +1356,7 @@ function status200Test(options, done) {
     done();
   });
 }
+
 
 /**
  * Test to check that in case of updating a numeric attribute value aggregated data:
