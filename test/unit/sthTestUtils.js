@@ -428,6 +428,9 @@ function getURL(type, options, attrName) {
       if (options && options.dateTo) {
         url += (getQuerySeparator() + 'dateTo=' + options.dateTo);
       }
+      if (options && options.count) {
+        url += (getQuerySeparator() + 'count=' + options.count);
+      }
       break;
     case sthTestConfig.API_OPERATION.NOTIFY:
       if (options && options.invalidPath) {
