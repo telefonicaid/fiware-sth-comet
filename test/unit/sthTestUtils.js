@@ -538,6 +538,10 @@ function rawDataAvailableDateFilter(params, done) {
     var bodyJSON = JSON.parse(body);
     expect(err).to.equal(null);
     expect(response.statusCode).to.equal(200);
+    if (options && options.count) {
+      // Check fiware-total-count header
+      expect(response.headers['fiware-total-count']).to.not.be(undefined);
+    }
     expect(bodyJSON.contextResponses[0].contextElement.id).to.equal(sthTestConfig.ENTITY_ID);
     expect(bodyJSON.contextResponses[0].contextElement.isPattern).to.equal(false);
     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).to.equal(
@@ -1352,7 +1356,6 @@ function status200Test(options, done) {
     if (options && options.count) {
       // Check fiware-total-count header
       expect(response.headers['fiware-total-count']).to.not.be(undefined);
-      //expect(response.headers).to.have.key('fiware-total-count');
     }
     expect(bodyJSON.contextResponses[0].contextElement.id).to.equal(sthTestConfig.ENTITY_ID);
     expect(bodyJSON.contextResponses[0].contextElement.type).to.equal(sthTestConfig.ENTITY_TYPE);

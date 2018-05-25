@@ -163,7 +163,7 @@ describe('sth tests', function() {
 
     it('should respond with 200 - OK if lastN query param', sthTestUtils.status200Test.bind(null, {lastN: 1}));
 
-    it('should respond with 200 - OK if count query param',
+    it('should respond with 200 - OK if lastN and count query params',
        sthTestUtils.status200Test.bind(null, {lastN: 1, count: true}));
 
     it('should respond with 200 - OK if hLimit and hOffset query params',
@@ -201,6 +201,9 @@ describe('sth tests', function() {
 
     describe('raw data retrieval',
       sthTestUtils.rawDataRetrievalSuite.bind(null, {hLimit: 1, hOffset: i}, 'attribute-float', 'float', true));
+
+    describe('raw data retrieval',
+      sthTestUtils.rawDataRetrievalSuite.bind(null, {hLimit: 1, hOffset: i, count: true}, 'attribute-float', 'float', false));
 
     describe('aggregated data retrieval',
       sthTestUtils.aggregatedDataRetrievalSuite.bind(null, 'attribute-float', 'float', 'min'));
