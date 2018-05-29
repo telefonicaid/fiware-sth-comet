@@ -203,6 +203,13 @@ describe('sth tests', function() {
       sthTestUtils.rawDataRetrievalSuite.bind(null, {hLimit: 1, hOffset: i}, 'attribute-float', 'float', true));
 
     describe('raw data retrieval',
+      // FIXME: As discussed @fgalan and @AlvaroVega F2F, it would be great to have a unit test that checks not 
+      // only existence of fiware-total-count header, but also that is actually working. I mean, for instance, 
+      // having 4 items in the raw collection, set count=true in the request and check not only that 
+      // fiware-total-count is in the response, but also that its value is 4.
+      //
+      // However, it is not clear if the cost of developing such unit test would be high, given the current "style" 
+      // in the unit tests in this componente. This FIXME is a remark about this future improvement.
       sthTestUtils.rawDataRetrievalSuite.bind(null, {hLimit: 1, hOffset: i, count: true}, 'attribute-float', 'float', false));
 
     describe('aggregated data retrieval',
