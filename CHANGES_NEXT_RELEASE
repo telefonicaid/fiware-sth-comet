@@ -2,3 +2,4 @@
 - Check & ensure hLimit<=lastN<=config.maxPageSize for raw data query. [#431]
 - Fix: Content Disposition header encoding issue (#433)
 - Add count to query and related fiware-total-count header [#428]
+- Using precise dependencies (~=) in packages.json
