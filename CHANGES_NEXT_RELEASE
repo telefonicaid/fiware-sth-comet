@@ -3,3 +3,4 @@
 - Fix: Content Disposition header encoding issue (#433)
 - Add count to query and related fiware-total-count header [#428]
 - Using precise dependencies (~=) in packages.json
+- Upgrade hapi to 11.1.3 
