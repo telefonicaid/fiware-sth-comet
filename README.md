@@ -117,6 +117,13 @@ Ask your thorough programmming questions using [stackoverflow](http://stackoverf
 
 [Top](#top)
 
+## Alarms
+
+Alarms documentation for the STH component can be found at the [Alarms](doc/manuals/alarms.md) section of the documentation.
+
+[Top](#top)
+
+
 ## Contact
 
 * Germán Toro del Valle ([german.torodelvalle@telefonica.com](mailto:german.torodelvalle@telefonica.com), [@gtorodelvalle](http://www.twitter.com/gtorodelvalle))
