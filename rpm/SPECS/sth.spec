@@ -160,5 +160,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_install_dir}
 
 %changelog
+* Thu Aug 16 2018 Alvaro Vega <alvaro.vegagarcia@telefonica.com> 2.4.0
+- Upgrade mongodb dependence to 2.2.35
+- Check & ensure hLimit<=lastN<=config.maxPageSize for raw data query. [#431]
+- Fix: Content Disposition header encoding issue (#433)
+- Add count to query and related fiware-total-count header [#428]
+- Using precise dependencies (~=) in packages.json
+- Upgrade hapi to 11.1.3
+
 * Wed Oct 18 2017 Fermin Galan <fermin.galanmarquez@telefonica.com> 2.3.0
 - FEATURE update node version to 4.8.4
