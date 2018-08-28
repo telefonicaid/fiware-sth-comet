@@ -161,6 +161,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Thu Aug 16 2018 Alvaro Vega <alvaro.vegagarcia@telefonica.com> 2.4.0
+- Upgrade lodash dependence to 4.17.5
 - Upgrade mongodb dependence to 2.2.35
 - Check & ensure hLimit<=lastN<=config.maxPageSize for raw data query. [#431]
 - Fix: Content Disposition header encoding issue (#433)
