@@ -54,7 +54,7 @@
     "bytes-counter": "~1.0.0",
     "commander": "~2.9.0",
     "csv-parser": "~1.9.3",
-    "hapi": "~16.0.0",
+    "hapi": "~16.1.1",
     "joi": "~5.1.0",
     "json-csv": "~1.2.0",
     "lodash": "~4.17.5",
