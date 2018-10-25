@@ -5,12 +5,12 @@ The STH component exposes an HTTP REST API to let external clients query the sto
 A typical URL querying for this information using a GET request is the following:
 
 ```
-http://<sth-host>:<sth-port>/STH/v1/contextEntities/type/<entityType>/id/<entityId>/attributes/<attrName>?aggrMethod=sum&aggrPeriod=second&dateFrom=2016-02101T00:00:00.000Z&dateTo=2016-01-01T23:59:59.999Z
+http://<sth-host>:<sth-port>/STH/v1/contextEntities/type/<entityType>/id/<entityId>/attributes/<attrName>?aggrMethod=sum&aggrPeriod=second&dateFrom=2016-01-01T00:00:00.000Z&dateTo=2016-01-01T23:59:59.999Z
 ```
 
 Notice that in the previous URL we have used some templates between `<` and `>` which should be substituted by the corresponding real values.
 
-Also notice how in the previous request `sum` aggregated context information is requested with a resolution of `second` from `2016-02101T00:00:00.000Z` until `2016-01-01T23:59:59.999Z`.
+Also notice how in the previous request `sum` aggregated context information is requested with a resolution of `second` from `2016-01-01T00:00:00.000Z` until `2016-01-01T23:59:59.999Z`.
 
 The requests for aggregated time series context information can use the following query parameters:
 
