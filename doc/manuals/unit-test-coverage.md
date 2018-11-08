@@ -12,14 +12,9 @@ The STH component source code includes a set of tests to validate the correct fu
 A running instance of a MongoDB database.
 
 ## Running the tests
-In order to execute the test suite you must have the Grunt client installed. You can install it using the following command (you will need root permissions):
-```bash
-npm install -g grunt-cli
+In order to execute the test suite you can execute:
 ```
-
-Once the client is installed and the dependencies are downloaded, you can execute the tests using:
-```
-grunt test
+npm test
 ```
 
 This will execute the functional tests and the syntax checking as well.
@@ -41,8 +36,9 @@ since these collisions may arise.
 
 For example, to run the tests using 100 samples, certain start and end data without cleaning up the database after running
 the tests, use:
+
 ```bash
-SAMPLES=100 START_DATE=2014-02-14T00:00:00 END_DATE=2014-02-14T23:59:59 CLEAN=false grunt test
+SAMPLES=100 START_DATE=2014-02-14T00:00:00 END_DATE=2014-02-14T23:59:59 CLEAN=false npm test
 ```
 
 In case of executing the tests with the `CLEAN` option set to false, the contents of the database can be inspected using the MongoDB

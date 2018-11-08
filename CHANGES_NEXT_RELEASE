@@ -2,3 +2,5 @@ Set Nodejs 8.12.0 as minimum version in packages.json
 Add: use NodeJS 8 in Dockerfile
 Add: use PM2 in Dockerfile
 Upgrade hapi to 16.1.1
+Remove: old unused development dependencies
+  * grunt and grunt related module
