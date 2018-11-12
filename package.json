@@ -50,7 +50,7 @@
     "joi": "~5.1.0",
     "json-csv": "~1.2.0",
     "lodash": "~4.17.5",
-    "logops": "~1.0.5",
+    "logops": "2.1.0",
     "mkdirp": "~0.5.1",
     "mongodb": "~2.2.35",
     "object-assign": "~4.1.0",
