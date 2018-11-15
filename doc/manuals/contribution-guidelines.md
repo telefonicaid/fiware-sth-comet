@@ -43,16 +43,10 @@ Contributions following these guidelines will be added to the `master` branch, a
 
 ## Coding guidelines
 
-Coding guidelines are defined via the provided `.jshintrc` and `.gjslintrc` flag files. The latter requires Python and its use can be disabled while creating the project skeleton with grunt-init.
+Use provided .jshintrc flag file. To check source code style, type
 
-To check source code style, type:
 ```bash
-grunt lint
-```
-
-Checkstyle reports can be used together with Jenkins to monitor project quality metrics by means of Checkstyle and Violations plugins. To generate Checkstyle and JSLint reports under `report/lint/`, type:
-```bash
-grunt lint-report
+npm run lint
 ```
 
 ## Branching model
@@ -84,62 +78,47 @@ More on this in the **Releasing** section below.
 
 ## Testing
 
-The test environment is preconfigured to run the [Mocha](http://visionmedia.github.io/mocha/) Test Runner with support for the [Chai](http://chaijs.com/) assertion library as well as for [Sinon](http://sinonjs.org/) spies, stubs, etc., following a [BDD](http://chaijs.com/api/bdd/) testing style with `chai.expect` and `chai.should()` available globally while executing tests, as well as the [Sinon-Chai](http://chaijs.com/plugins/sinon-chai) plugin.
+The test environment is preconfigured to run the [Mocha](http://visionmedia.github.io/mocha/) Test Runner with support for the [Should.js](https://shouldjs.github.io/) assertion Library .
 
 Module mocking during testing can be done with [proxyquire](https://github.com/thlorenz/proxyquire).
 
 To run tests, type:
 ```bash
-grunt test
+npm test
 ```
 
-Tests reports can be used together with Jenkins to monitor project quality metrics by means of TAP or XUnit plugins. To generate TAP report in `report/test/unit_tests.tap`, type
-```bash
-grunt test-report
-```
 ## Continuous testing
 
-Support for continuous testing is provided so that tests are run when any source file or test is modified.
+Support for continuous testing by modifying a src file or a test.
+For continuous testing, type
 
-For continuous testing, type:
 ```bash
-grunt watch
+npm run test:watch
+```
+
+If you want to continuously check also source code style, use instead:
+
+```bash
+npm run watch
 ```
 
 ## Code coverage
 
 A very good practice is to measure the code coverage of your tests.
 
-To generate an HTML coverage report under the `site/coverage/` path and to print out a summary, type:
+To generate an HTML coverage report under `site/coverage/` and to print out a summary, type
+
+```bash
+npm run test:coverage
+```
+
+## Clean
+
+Removes `node_modules` and `coverage` folders, and  `package-lock.json` file so that a fresh copy of the project is restored.
+
 ```bash
 # Use git-bash on Windows
-grunt coverage
-```
-
-To generate a Cobertura report in `report/coverage/cobertura-coverage.xml` that can be used together with Jenkins to monitor project quality metrics by means of Cobertura plugin, type
-```bash
-# Use git-bash on Windows
-grunt coverage-report
-```
-
-## Code complexity
-
-Another very good practice is to analyze code complexity.
-
-Support for using Plato and storing the generated report in the `site/report/` path is provided. This capability can be used together with Jenkins by means of DocLinks plugin.
-
-To generate a code complexity report, type:
-```bash
-grunt complexity
-```
-
-## Source code documentation
-
-HTML code documentation can be generated under the `site/doc/` path. It can be used together with Jenkins by means of DocLinks plugin.
-
-For compiling source code documentation, type:
-```bash
-grunt doc
+npm run clean
 ```
 
 ## Releasing
