@@ -210,7 +210,8 @@ describe('sth tests', function() {
       //
       // However, it is not clear if the cost of developing such unit test would be high, given the current "style" 
       // in the unit tests in this componente. This FIXME is a remark about this future improvement.
-      sthTestUtils.rawDataRetrievalSuite.bind(null, {hLimit: 1, hOffset: i, count: true}, 'attribute-float', 'float', false));
+      sthTestUtils.rawDataRetrievalSuite.bind(null, {hLimit: 1, hOffset: i, count: true},
+          'attribute-float', 'float', false));
 
     describe('aggregated data retrieval',
       sthTestUtils.aggregatedDataRetrievalSuite.bind(null, 'attribute-float', 'float', 'min'));
