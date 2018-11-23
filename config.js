@@ -48,7 +48,10 @@ config.server = {
   // Default value: "temp".
   temporalDir: 'temp',
   // Max page size returned by a query
-  maxPageSize: '100'
+  maxPageSize: '100',
+  // Enable/disable attribute metadata support
+  attributeMetadataSupport: true,
+  metadataNameSeparator: "___"
 };
 
 // Database configuration
