@@ -1,26 +1,44 @@
 # <a name="top"></a>FIWARE Short Time Historic (STH) - Comet
 
-[![License badge](https://img.shields.io/badge/license-AGPL-blue.svg)](https://opensource.org/licenses/AGPL-3.0)
-[![Documentation badge](https://readthedocs.org/projects/fiware-sth-comet/badge/?version=latest)](http://fiware-sth-comet.readthedocs.org/en/latest/?badge=latest)
-[![Docker badge](https://img.shields.io/docker/pulls/fiware/sth-comet.svg)](https://hub.docker.com/r/fiware/sth-comet/)
-[![Support badge]( https://img.shields.io/badge/support-sof-yellowgreen.svg)](http://stackoverflow.com/questions/tagged/fiware-sth-comet)
+[![](https://nexus.lab.fiware.org/repository/raw/public/badges/chapters/core.svg)](https://www.fiware.org/developers/catalogue/)
+[![License](https://img.shields.io/github/license/telefonicaid/fiware-sth-comet.svg)](https://opensource.org/licenses/AGPL-3.0)
+[![Docker badge](https://img.shields.io/docker/pulls/fiware/sth-comet.svg)](https://hub.docker.com/r/fiware/sth-comet-ngsi/)
+[![](https://img.shields.io/badge/tag-fiware--sth-comet-orange.svg?logo=stackoverflow)](http://stackoverflow.com/questions/tagged/fiware-sth-comet)
+[![Support badge]( https://img.shields.io/badge/support-askbot-yellowgreen.svg)](https://ask.fiware.org/questions/scope%3Aall/tags%3Asth-comet/)
+<br/>
+[![Documentation badge](https://readthedocs.org/projects/fiware-sth-comet/badge/?version=latest)](http://fiware-sth-comet.rtfd.io)
+![Status](https://nexus.lab.fiware.org/static/badges/statuses/cygnus.svg)
 [![Join the chat at https://gitter.im/telefonicaid/fiware-sth-comet](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/telefonicaid/fiware-sth-comet?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-* [Introduction](#introduction)
-* [Overall description](#overall-description)
-* [Build and install](#build-and-install)
-* [Running](#running)
+The **FIWARE Short Time Historic (STH) - Comet** is in charge of managing (storing and retrieving) historical raw and aggregated time series context information about the evolution in time of context data (i.e., entity attribute values) registered in an [Orion Context Broker](https://github.com/telefonicaid/fiware-orion) instance.
+
+All the communications between the STH and the Orion Context Broker as well as between the STH and any third party (typically for data retrieval) use standardized [NGSI v1](http://technical.openmobilealliance.org/Technical/technical-information/release-program/current-releases/ngsi-v1-0) interfaces.
+
+This project is part of [FIWARE](https://www.fiware.org/). For more information
+check the FIWARE Catalogue entry for the
+[Core Context Management](https://github.com/Fiware/catalogue/tree/master/core).
+
+
+| :books: [Documentation](https://fiware-sth-comet.rtfd.io) | :mortar_board: [Academy](https://fiware-academy.readthedocs.io/en/latest/core/sth-comet) |  :whale: [Docker Hub](https://hub.docker.com/r/fiware/sth-comet/) |
+|---|---|---|
+
+
+# Contents
+
+* [Background](#background)
+* [Install](#install)
+* [Usage](#usage)
 * [API overview](#api-overview)
 * [API walkthrough](#api-walkthrough)
 * [Testing](#testing)
     * [Unit tests](#unit-tests)
     * [Performance tests](#performance-tests)
 * [Advanced topics](#advanced-topics)
-* [License](#license)
 * [Support](#support)
 * [Contact](#contact)
+* [License](#license)
 
-## Introduction
+## Background
 
 This is the code repository for the **FIWARE Short Time Historic (STH) - Comet**, a component able to manage (storing and retrieving) historical context information as raw and aggregated time series context information.
 
@@ -30,27 +48,19 @@ Any feedback on this documentation is highly welcome, including bugs, typos or t
 
 You can find the Users & Developers Manual and the Installation & Administration Manual on [readthedocs.org](https://fiware-sth-comet.readthedocs.org)
 
-[Top](#top)
-
-## Overall description
-
-The **FIWARE Short Time Historic (STH) - Comet** is a component of the [FIWARE](https://www.fiware.org/) ecosystem in charge of managing (storing and retrieving) historical raw and aggregated time series context information about the evolution in time of context data (i.e., entity attribute values) registered in an [Orion Context Broker](https://github.com/telefonicaid/fiware-orion) instance.
-
-All the communications between the STH and the Orion Context Broker as well as between the STH and any third party (typically for data retrieval) use standardized NGSI9 and [NGSI10](http://technical.openmobilealliance.org/Technical/technical-information/release-program/current-releases/ngsi-v1-0) interfaces.
-
 If this is your first contact with the STH component, it is highly recommended that you visit the [Getting started](doc/manuals/getting-started.md) guide where we introduce some basic concepts upon which the STH component leans on all the functionality it offers.
 
 In case you are curious about why we called this component **Comet**, you can also visit the [Why Comet](doc/manuals/why-comet.md) section of the documentation.
 
 [Top](#top)
 
-## Build and install
+## Install
 
 Build and Install documentation for the STH component can be found at the [Installation](doc/manuals/installation.md) section of the documentation.
 
 [Top](#top)
 
-## Running
+## Usage
 
 Detailed information about how to run the STH component can be found at the [Running the STH server](doc/manuals/running.md) section of the documentation.
 
@@ -105,12 +115,6 @@ If you are a developer, you may be interested in checking the [Additional resour
 
 [Top](#top)
 
-## Licence
-
-The STH component is licensed under Affero General Public License (GPL) version 3.
-
-[Top](#top)
-
 ## Support
 
 Ask your thorough programmming questions using [stackoverflow](http://stackoverflow.com/questions/ask) and your general questions on [FIWARE Q&A](https://ask.fiware.org). In both cases please use the tag `fiware-sth-comet`.
@@ -131,3 +135,12 @@ Alarms documentation for the STH component can be found at the [Alarms](doc/manu
 * Iván Arias León ([ivan.ariasleon@telefonica.com](mailto:ivan.ariasleon@telefonica.com))
 
 [Top](#top)
+
+---
+
+## License
+
+STH-Comet is licensed under Affero General Public License (GPL)
+version 3. You can find a [copy of this license in the repository](./LICENSE).
+
+© 2018 Telefonica Investigación y Desarrollo, S.A.U
