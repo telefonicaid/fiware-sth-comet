@@ -2,7 +2,7 @@
 
 [![](https://nexus.lab.fiware.org/repository/raw/public/badges/chapters/core.svg)](https://www.fiware.org/developers/catalogue/)
 [![License](https://img.shields.io/github/license/telefonicaid/fiware-sth-comet.svg)](https://opensource.org/licenses/AGPL-3.0)
-[![Docker badge](https://img.shields.io/docker/pulls/fiware/sth-comet-ngsi.svg)](https://hub.docker.com/r/fiware/sth-comet-ngsi/)
+[![Docker badge](https://img.shields.io/docker/pulls/fiware/sth-comet.svg)](https://hub.docker.com/r/fiware/sth-comet-ngsi/)
 [![](https://img.shields.io/badge/tag-fiware--sth-comet-orange.svg?logo=stackoverflow)](http://stackoverflow.com/questions/tagged/fiware-sth-comet)
 [![Support badge]( https://img.shields.io/badge/support-askbot-yellowgreen.svg)](https://ask.fiware.org/questions/scope%3Aall/tags%3Asth-comet/)
 <br/>
@@ -19,16 +19,15 @@ check the FIWARE Catalogue entry for the
 [Core Context Management](https://github.com/Fiware/catalogue/tree/master/core).
 
 
-| :books: [Documentation](https://fiware-sth-comet.rtfd.io) | :mortar_board: [Academy](https://fiware-academy.readthedocs.io/en/latest/core/sth-comet) |
-|   :whale: [Docker Hub](https://hub.docker.com/r/fiware/sth-comet/) |
+| :books: [Documentation](https://fiware-sth-comet.rtfd.io) | :mortar_board: [Academy](https://fiware-academy.readthedocs.io/en/latest/core/sth-comet) |  :whale: [Docker Hub](https://hub.docker.com/r/fiware/sth-comet/) |
 |---|---|---|
 
 
 # Contents
 
 * [Background](#background)
-* [Build and install](#build-and-install)
-* [Running](#running)
+* [Install](#install)
+* [Usage](#usage)
 * [API overview](#api-overview)
 * [API walkthrough](#api-walkthrough)
 * [Testing](#testing)
@@ -55,13 +54,13 @@ In case you are curious about why we called this component **Comet**, you can al
 
 [Top](#top)
 
-## Build and install
+## Install
 
 Build and Install documentation for the STH component can be found at the [Installation](doc/manuals/installation.md) section of the documentation.
 
 [Top](#top)
 
-## Running
+## Usage
 
 Detailed information about how to run the STH component can be found at the [Running the STH server](doc/manuals/running.md) section of the documentation.
 
@@ -139,7 +138,7 @@ Alarms documentation for the STH component can be found at the [Alarms](doc/manu
 
 ---
 
-## Licence
+## License
 
 Cygnus is licensed under Affero General Public License (GPL)
 version 3. You can find a [copy of this license in the repository](./LICENSE).
