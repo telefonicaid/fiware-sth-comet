@@ -160,6 +160,19 @@ rm -rf $RPM_BUILD_ROOT
 %{_install_dir}
 
 %changelog
+* Wed Dec 19 2018 Fermin Galan <fermin.galanmarquez@telefonica.com> 2.5.0
+- Set Nodejs 8.12.0 as minimum version in packages.json (effectively removing Nodev4 and Nodev6 as supported versions)
+- Add: use NodeJS 8 in Dockerfile
+- Add: use PM2 in Dockerfile
+- Upgrade: hapi dependence from ~11.1.3 to ~16.7.0
+- Upgrade: logops dependence from ~1.0.5 to 2.1.0
+- Upgrade: joi dependence from ~5.1.0 to 14.0.6
+- Upgrade: boom dependence from ~2.7.2 to 7.2.2
+- Upgrade: json-csv dependence from ~1.2.0 to 1.5.0
+- Upgrade: request development dependence from ~2.79.0 to 2.88.0
+- Upgrade: mocha development depencence from ~3.2.0 to 5.2.0
+- Remove: old unused development dependencies (chai, sinon, sinon-chai, grunt and grunt related module)
+
 * Thu Aug 16 2018 Alvaro Vega <alvaro.vegagarcia@telefonica.com> 2.4.0
 - Upgrade lodash dependence to 4.17.5
 - Upgrade mongodb dependence to 2.2.35
