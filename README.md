@@ -143,4 +143,4 @@ Alarms documentation for the STH component can be found at the [Alarms](doc/manu
 STH-Comet is licensed under Affero General Public License (GPL)
 version 3. You can find a [copy of this license in the repository](./LICENSE).
 
-© 2018 Telefonica Investigación y Desarrollo, S.A.U
+© 2019 Telefonica Investigación y Desarrollo, S.A.U
