@@ -15,7 +15,7 @@ http://<sth-host>:<sth-port>/STH/v1/contextEntities
 http://<sth-host>:<sth-port>/STH/v1/contextEntities/type/<entityType>/id/<entityId>
 
 # Removing all the data associated to certain attribute of certain entity, service and service path
-http://<sth-host>:<sth-host>/STH/v1/contextEntities/type/<entityType>/id/<entityId>/attributes/>attrName>
+http://<sth-host>:<sth-host>/STH/v1/contextEntities/type/<entityType>/id/<entityId>/attributes/<attrName>
 ```
 
 The values between `<` and `>` should be substituted by their real values.
