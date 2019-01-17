@@ -1,4 +1,4 @@
-#<a id="section0"></a> Additional resources
+# <a id="section0"></a> Additional resources
 
 This directory includes a set of scripts which may make the developer's life much easier. Currently, it includes the following scripts:
 
