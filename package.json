@@ -27,11 +27,13 @@
     "test:watch": "npm run test -- -w ./lib",
     "lint": "jshint lib/ --config .jshintrc && jshint test/ --config test/.jshintrc",
     "test:coverage": "istanbul cover _mocha -- --recursive 'test/**/*.js' --reporter spec --exit",
+    "test:coveralls": "npm run test:coverage && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
     "watch": "watch 'npm test && npm run lint' ./lib ./test"
   },
   "devDependencies": {
     "jshint": "~2.9.6",
     "clear-require": "~1.0.1",
+    "coveralls": "~3.0.2",
     "expect.js": "~0.3.1",
     "istanbul": "~0.4.5",
     "mocha": "5.2.0",

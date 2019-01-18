@@ -5,11 +5,13 @@
 [![Docker badge](https://img.shields.io/docker/pulls/fiware/sth-comet.svg)](https://hub.docker.com/r/fiware/sth-comet-ngsi/)
 [![](https://img.shields.io/badge/tag-fiware--sth-comet-orange.svg?logo=stackoverflow)](http://stackoverflow.com/questions/tagged/fiware-sth-comet)
 [![Support badge]( https://img.shields.io/badge/support-askbot-yellowgreen.svg)](https://ask.fiware.org/questions/scope%3Aall/tags%3Asth-comet/)
+[![Join the chat at https://gitter.im/telefonicaid/fiware-sth-comet](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/telefonicaid/fiware-sth-comet?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 <br/>
 [![Documentation badge](https://readthedocs.org/projects/fiware-sth-comet/badge/?version=latest)](http://fiware-sth-comet.rtfd.io)
 [![Build badge](https://img.shields.io/travis/telefonicaid/fiware-sth-comet.svg)](https://travis-ci.org/telefonicaid/fiware-sth-comet/)
+[![Coverage Status](https://coveralls.io/repos/github/telefonicaid/fiware-sth-comet/badge.svg?branch=master)](https://coveralls.io/github/telefonicaid/fiware-sth-comet?branch=master)
 ![Status](https://nexus.lab.fiware.org/static/badges/statuses/cygnus.svg)
-[![Join the chat at https://gitter.im/telefonicaid/fiware-sth-comet](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/telefonicaid/fiware-sth-comet?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 
 The **FIWARE Short Time Historic (STH) - Comet** is in charge of managing (storing and retrieving) historical raw and aggregated time series context information about the evolution in time of context data (i.e., entity attribute values) registered in an [Orion Context Broker](https://github.com/telefonicaid/fiware-orion) instance.
 
