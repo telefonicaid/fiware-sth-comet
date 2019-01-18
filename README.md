@@ -7,6 +7,7 @@
 [![Support badge]( https://img.shields.io/badge/support-askbot-yellowgreen.svg)](https://ask.fiware.org/questions/scope%3Aall/tags%3Asth-comet/)
 <br/>
 [![Documentation badge](https://readthedocs.org/projects/fiware-sth-comet/badge/?version=latest)](http://fiware-sth-comet.rtfd.io)
+[![Build badge](https://img.shields.io/travis/telefonicaid/fiware-sth-comet.svg)](https://travis-ci.org/telefonicaid/fiware-sth-comet/)
 ![Status](https://nexus.lab.fiware.org/static/badges/statuses/cygnus.svg)
 [![Join the chat at https://gitter.im/telefonicaid/fiware-sth-comet](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/telefonicaid/fiware-sth-comet?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
