@@ -37,6 +37,7 @@ check the FIWARE Catalogue entry for the
     * [Unit tests](#unit-tests)
     * [Performance tests](#performance-tests)
 * [Advanced topics](#advanced-topics)
+* [Roadmap](#roadmap) 
 * [Support](#support)
 * [Contact](#contact)
 * [License](#license)
@@ -115,6 +116,12 @@ Detailed information about the performance tests included with the STH component
 ## Advanced topics
 
 If you are a developer, you may be interested in checking the [Additional resources](doc/manuals/additional-resources.md) section of the documentation as well as the [Contribution guidelines](doc/manuals/contribution-guidelines.md) section in case you may be interested in contributing to the project.
+
+[Top](#top)
+
+## Roadmap
+
+The roadmap of this FIWARE GE is described [here](doc/roadmap.md).
 
 [Top](#top)
 
