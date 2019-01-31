@@ -34,57 +34,53 @@ var expect = require('expect.js');
 var request = require('request');
 
 describe('sthGetLogLevelHandler tests', function() {
-  describe('database connection', function () {
-    it('should be a database available', function (done) {
-      sth.sthDatabase.connect(
-        {
-          authentication: sthConfig.DB_AUTHENTICATION,
-          dbURI: sthConfig.DB_URI,
-          replicaSet: sthConfig.REPLICA_SET,
-          database: sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE),
-          poolSize: sthConfig.POOL_SIZE
-        },
-        function (err) {
-          done(err);
-        }
-      );
-    });
-  });
-
-  describe('database clean up', function () {
-    it('should drop the event raw data collection if it exists',
-      sthTestHelper.dropRawEventCollectionTest);
-
-    it('should drop the aggregated data collection if it exists',
-      sthTestHelper.dropAggregatedDataCollectionTest);
-  });
-
-  describe('server start', function () {
-    it('should start gracefully', function (done) {
-      sth.sthServer.startServer(
-        sthConfig.STH_HOST,
-        sthConfig.STH_PORT,
-        function (err, server) {
-          expect(err).to.equal(undefined);
-          expect(server).to.be.a(hapi.Server);
-          done();
+    describe('database connection', function() {
+        it('should be a database available', function(done) {
+            sth.sthDatabase.connect(
+                {
+                    authentication: sthConfig.DB_AUTHENTICATION,
+                    dbURI: sthConfig.DB_URI,
+                    replicaSet: sthConfig.REPLICA_SET,
+                    database: sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE),
+                    poolSize: sthConfig.POOL_SIZE,
+                },
+                function(err) {
+                    done(err);
+                }
+            );
         });
     });
-  });
 
-  describe('GET /admin/log', function() {
-    it('should respond with the logging level', function(done) {
-      request({
-        uri: sthTestHelper.getURL(
-          sthTestConfig.API_OPERATION.ADMIN.GET_LOG_LEVEL
-        ),
-        method: 'GET',
-        json: true
-      }, function (err, response, body) {
-        expect(err).to.equal(null);
-        expect(body.level).to.equal(sthConfig.LOGOPS_LEVEL);
-        done();
-      });
+    describe('database clean up', function() {
+        it('should drop the event raw data collection if it exists', sthTestHelper.dropRawEventCollectionTest);
+
+        it('should drop the aggregated data collection if it exists', sthTestHelper.dropAggregatedDataCollectionTest);
     });
-  });
+
+    describe('server start', function() {
+        it('should start gracefully', function(done) {
+            sth.sthServer.startServer(sthConfig.STH_HOST, sthConfig.STH_PORT, function(err, server) {
+                expect(err).to.equal(undefined);
+                expect(server).to.be.a(hapi.Server);
+                done();
+            });
+        });
+    });
+
+    describe('GET /admin/log', function() {
+        it('should respond with the logging level', function(done) {
+            request(
+                {
+                    uri: sthTestHelper.getURL(sthTestConfig.API_OPERATION.ADMIN.GET_LOG_LEVEL),
+                    method: 'GET',
+                    json: true,
+                },
+                function(err, response, body) {
+                    expect(err).to.equal(null);
+                    expect(body.level).to.equal(sthConfig.LOGOPS_LEVEL);
+                    done();
+                }
+            );
+        });
+    });
 });

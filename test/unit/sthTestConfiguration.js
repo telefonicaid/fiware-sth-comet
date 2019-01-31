@@ -26,37 +26,35 @@
 var ENV = process.env;
 
 module.exports = {
-  SAMPLES: ENV.SAMPLES || 1,
-  EVENT_NOTIFICATION_CONTEXT_ELEMENTS: ENV.EVENT_NOTIFICATION_CONTEXT_ELEMENTS || 3,
-  ENTITY_ID: ENV.ENTITY_ID || 'entityId',
-  ENTITY_TYPE: ENV.ENTITY_TYPE || 'entityType',
-  ATTRIBUTE_NAME: ENV.ATTRIBUTE_NAME || 'attrName',
-  ATTRIBUTE_TYPE: ENV.ATTRIBUTE_TYPE || 'attrType',
-  // If not set, the start date for the generation of random events is set
-  //  by default to the beginning of the previous year to avoid collisions
-  //  with the testing of the Orion Context Broker notifications
-  START_DATE: ENV.START_DATE ? new Date(ENV.START_DATE) :
-    new Date(new Date().getFullYear() - 1, 0),
-  // If not set, the start date for the generation of random events is set
-  //  by default to the end of the previous year to avoid collisions
-  //  with the testing of the Orion Context Broker notifications
-  END_DATE: ENV.END_DATE ? new Date(ENV.END_DATE) :
-    new Date(new Date(new Date().getFullYear(), 0) - 1),
-  MIN_VALUE: ENV.MIN_VALUE || 0,
-  MAX_VALUE: ENV.MAX_VALUE || 100,
-  CLEAN: ENV.CLEAN !== 'false',
-  API_OPERATION: {
-    READ: 'read',
-    NOTIFY: 'notify',
-    ADMIN: {
-      GET_LOG_LEVEL: 'getLogLevel',
-      SET_LOG_LEVEL: 'setLogLevel'
+    SAMPLES: ENV.SAMPLES || 1,
+    EVENT_NOTIFICATION_CONTEXT_ELEMENTS: ENV.EVENT_NOTIFICATION_CONTEXT_ELEMENTS || 3,
+    ENTITY_ID: ENV.ENTITY_ID || 'entityId',
+    ENTITY_TYPE: ENV.ENTITY_TYPE || 'entityType',
+    ATTRIBUTE_NAME: ENV.ATTRIBUTE_NAME || 'attrName',
+    ATTRIBUTE_TYPE: ENV.ATTRIBUTE_TYPE || 'attrType',
+    // If not set, the start date for the generation of random events is set
+    //  by default to the beginning of the previous year to avoid collisions
+    //  with the testing of the Orion Context Broker notifications
+    START_DATE: ENV.START_DATE ? new Date(ENV.START_DATE) : new Date(new Date().getFullYear() - 1, 0),
+    // If not set, the start date for the generation of random events is set
+    //  by default to the end of the previous year to avoid collisions
+    //  with the testing of the Orion Context Broker notifications
+    END_DATE: ENV.END_DATE ? new Date(ENV.END_DATE) : new Date(new Date(new Date().getFullYear(), 0) - 1),
+    MIN_VALUE: ENV.MIN_VALUE || 0,
+    MAX_VALUE: ENV.MAX_VALUE || 100,
+    CLEAN: ENV.CLEAN !== 'false',
+    API_OPERATION: {
+        READ: 'read',
+        NOTIFY: 'notify',
+        ADMIN: {
+            GET_LOG_LEVEL: 'getLogLevel',
+            SET_LOG_LEVEL: 'setLogLevel',
+        },
+        VERSION: 'version',
+        DELETE: 'delete',
     },
-    VERSION: 'version',
-    DELETE: 'delete'
-  },
-  DATA_TYPES: {
-    RAW: 'raw',
-    AGGREGATED: 'aggregated'
-  }
+    DATA_TYPES: {
+        RAW: 'raw',
+        AGGREGATED: 'aggregated',
+    },
 };

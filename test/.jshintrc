@@ -13,7 +13,7 @@
   "maxparams": 4,
   "maxdepth": 4,
   "camelcase": true,
-  "maxlen": 120,
+  "maxlen": 180,
   "node": true,
   "expr": true,
   "esversion": 6,
@@ -26,5 +26,7 @@
     "beforeEach": true,
     "afterEach": true,
     "mock": true
-  }
+  },
+  "laxbreak": true,
+  "quotmark": 0
 }

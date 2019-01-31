@@ -15,14 +15,9 @@ function assertEntriesPerCollection(entriesPerCollection) {
                 var database = db.getSisterDB(databases[i].name);
                 var collections = database.getCollectionNames();
                 for (var j = 0; j < collections.length; j++) {
-                    if (
-                        collections[j].indexOf('sth_') === 0 &&
-                        collections[j].indexOf('aggr') === -1
-                    ) {
+                    if (collections[j].indexOf('sth_') === 0 && collections[j].indexOf('aggr') === -1) {
                         caseCounter++;
-                        print(
-                            '** Checking collection ' + collections[j] + '...'
-                        );
+                        print('** Checking collection ' + collections[j] + '...');
                         var count = database[collections[j]].count();
                         var percentage = (count / entriesPerCollection) * 100;
                         print(
