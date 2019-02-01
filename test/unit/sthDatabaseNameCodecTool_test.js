@@ -41,14 +41,14 @@ var DATABASE_CONNECTION_PARAMS = {
     dbURI: sthConfig.DB_URI,
     replicaSet: sthConfig.REPLICA_SET,
     database: DATABASE_NAME,
-    poolSize: sthConfig.POOL_SIZE,
+    poolSize: sthConfig.POOL_SIZE
 };
 var COLLECTION_NAME_PARAMS = {
     service: DEFAULT_SERVICE,
     servicePath: sthConfig.DEFAULT_SERVICE_PATH,
     entityId: sthTestConfig.ENTITY_ID,
     entityType: sthTestConfig.ENTITY_TYPE,
-    attrName: sthTestConfig.ATTRIBUTE_NAME,
+    attrName: sthTestConfig.ATTRIBUTE_NAME
 };
 
 /**
@@ -73,12 +73,12 @@ function createRawAndAggregatedCollections(callback) {
     async.series(
         [
             async.apply(sthDatabase.getCollection, COLLECTION_NAME_PARAMS, {
-                shouldCreate: true,
+                shouldCreate: true
             }),
             async.apply(sthDatabase.getCollection, COLLECTION_NAME_PARAMS, {
                 shouldCreate: true,
-                isAggregated: true,
-            }),
+                isAggregated: true
+            })
         ],
         callback
     );
@@ -140,7 +140,7 @@ function encodeDecodeMandatoryOptionsTest(function2Test, callback) {
 function collectionAndDatabaseMandatoryOptionsTest(function2Test, callback) {
     function2Test(
         {
-            collection: sthConfig.COLLECTION_PREFIX + 'any_collection',
+            collection: sthConfig.COLLECTION_PREFIX + 'any_collection'
         },
         function(err) {
             expect(err instanceof sthErrors.MandatoryOptionNotFound).to.be.ok();
@@ -159,7 +159,7 @@ function shouldDetectCollectionTest(encodingFlag, databaseName, collectionName, 
     sthDatabaseNameCodecTool.getEncodingAnalysis(
         {
             encode: !!encodingFlag,
-            decode: !encodingFlag,
+            decode: !encodingFlag
         },
         function(err, analysis) {
             if (err) {
@@ -184,7 +184,7 @@ function shouldNotDetectCollectionTest(encodingFlag, databaseName, callback) {
             encode: !!encodingFlag,
             decode: !encodingFlag,
             database: databaseName,
-            collection: sthConfig.COLLECTION_PREFIX + 'inexistent_collection',
+            collection: sthConfig.COLLECTION_PREFIX + 'inexistent_collection'
         },
         function(err, analysis) {
             if (err) {
@@ -230,7 +230,7 @@ function shouldEncodeOrDecodeDatabaseTest(databaseName, encodingFlag, callback) 
         {
             encode: !!encodingFlag,
             decode: !encodingFlag,
-            database: databaseName,
+            database: databaseName
         },
         function(err) {
             if (err) {
@@ -271,7 +271,7 @@ function shouldEncodeOrDecodeCollectionTest(databaseName, collectionName, encodi
             encode: !!encodingFlag,
             decode: !encodingFlag,
             database: databaseName,
-            collection: collectionName,
+            collection: collectionName
         },
         function(err) {
             if (err) {
@@ -330,7 +330,7 @@ describe('sthDatabaseNameCodecTool tests', function() {
             it("should detect database '" + DATABASE_NAME + "' as susceptible of being encoded", function(done) {
                 sthDatabaseNameCodecTool.getEncodingAnalysis(
                     {
-                        encode: true,
+                        encode: true
                     },
                     function(err, analysis) {
                         if (err) {
@@ -348,7 +348,7 @@ describe('sthDatabaseNameCodecTool tests', function() {
                     sthDatabaseNameCodecTool.getEncodingAnalysis(
                         {
                             encode: true,
-                            database: sthConfig.DB_PREFIX + 'inexistent_database',
+                            database: sthConfig.DB_PREFIX + 'inexistent_database'
                         },
                         function(err, analysis) {
                             if (err) {

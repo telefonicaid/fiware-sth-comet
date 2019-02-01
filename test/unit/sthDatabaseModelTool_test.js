@@ -39,22 +39,22 @@ var DATABASE_CONNECTION_PARAMS = {
     dbURI: sthConfig.DB_URI,
     replicaSet: sthConfig.REPLICA_SET,
     database: DATABASE_NAME,
-    poolSize: sthConfig.POOL_SIZE,
+    poolSize: sthConfig.POOL_SIZE
 };
 var COLLECTION_NAME_PARAMS = {
     service: sthConfig.DEFAULT_SERVICE,
     servicePath: sthConfig.DEFAULT_SERVICE_PATH,
     entityId: sthTestConfig.ENTITY_ID,
     entityType: sthTestConfig.ENTITY_TYPE,
-    attrName: sthTestConfig.ATTRIBUTE_NAME,
+    attrName: sthTestConfig.ATTRIBUTE_NAME
 };
 var ATTRIBUTE = {
     NAME: 'attrName',
     TYPE: 'attrType',
     VALUE: {
-        NUMERIC: 666,
+        NUMERIC: 666
     },
-    RECV_TIME: {},
+    RECV_TIME: {}
 };
 ATTRIBUTE.RECV_TIME[sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH] = new Date(Date.UTC(1970, 0, 1, 0, 0, 0, 0));
 ATTRIBUTE.RECV_TIME[sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY] = new Date(Date.UTC(1970, 0, 1, 0, 0, 0, 555));
@@ -149,7 +149,7 @@ function insertData(dataType, aggregationType, dataModel, callback) {
             entityId: sthTestConfig.ENTITY_ID,
             entityType: sthTestConfig.ENTITY_TYPE,
             attribute: attribute,
-            notificationInfo: { inserts: true },
+            notificationInfo: { inserts: true }
         };
 
         if (dataType === sthTestConfig.DATA_TYPES.RAW) {
@@ -776,7 +776,7 @@ function expectAggregatedDataMigration(params, options, done) {
                 } else {
                     callback();
                 }
-            },
+            }
         ],
         done
     );
@@ -927,7 +927,7 @@ function collectionPerEntityCleanMigrationTests(dataType, aggregationType, optio
                     dataType: dataType,
                     aggregationType: aggregationType,
                     originDataModel: sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY,
-                    targetDataModel: sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH,
+                    targetDataModel: sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH
                 },
                 options
             )
@@ -983,7 +983,7 @@ function collectionPerEntityUpdateMigrationTests(dataType, aggregationType, opti
                     dataType: dataType,
                     aggregationType: aggregationType,
                     originDataModel: sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY,
-                    targetDataModel: sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH,
+                    targetDataModel: sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH
                 },
                 options
             )
@@ -1025,22 +1025,22 @@ describe('sthDatabaseModelTool tests', function() {
 
                         collectionPerEntityCleanMigrationTests(sthTestConfig.DATA_TYPES[dataType], aggregationType, {
                             removeCollection: false,
-                            updateCollection: false,
+                            updateCollection: false
                         });
 
                         collectionPerEntityCleanMigrationTests(sthTestConfig.DATA_TYPES[dataType], aggregationType, {
                             removeCollection: true,
-                            updateCollection: false,
+                            updateCollection: false
                         });
 
                         collectionPerEntityUpdateMigrationTests(sthTestConfig.DATA_TYPES[dataType], aggregationType, {
                             removeCollection: false,
-                            updateCollection: true,
+                            updateCollection: true
                         });
 
                         collectionPerEntityUpdateMigrationTests(sthTestConfig.DATA_TYPES[dataType], aggregationType, {
                             removeCollection: true,
-                            updateCollection: true,
+                            updateCollection: true
                         });
                     });
                 });

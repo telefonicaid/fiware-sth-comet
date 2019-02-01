@@ -48,7 +48,7 @@ describe('sth tests', function() {
                     dbURI: sthConfig.DB_URI,
                     replicaSet: sthConfig.REPLICA_SET,
                     database: sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE),
-                    poolSize: sthConfig.POOL_SIZE,
+                    poolSize: sthConfig.POOL_SIZE
                 },
                 function(err) {
                     done(err);
@@ -74,7 +74,7 @@ describe('sth tests', function() {
             request(
                 {
                     uri: sthTestUtils.getURL(sthTestConfig.API_OPERATION.READ),
-                    method: 'PUT',
+                    method: 'PUT'
                 },
                 function(err, response, body) {
                     var bodyJSON = JSON.parse(body);
@@ -91,9 +91,9 @@ describe('sth tests', function() {
             request(
                 {
                     uri: sthTestUtils.getURL(sthTestConfig.API_OPERATION.READ, {
-                        invalidPath: true,
+                        invalidPath: true
                     }),
-                    method: 'GET',
+                    method: 'GET'
                 },
                 function(err, response, body) {
                     var bodyJSON = JSON.parse(body);
@@ -110,7 +110,7 @@ describe('sth tests', function() {
             request(
                 {
                     uri: sthTestUtils.getURL(sthTestConfig.API_OPERATION.READ),
-                    method: 'GET',
+                    method: 'GET'
                 },
                 function(err, response, body) {
                     var bodyJSON = JSON.parse(body);
@@ -129,8 +129,8 @@ describe('sth tests', function() {
                     uri: sthTestUtils.getURL(sthTestConfig.API_OPERATION.READ),
                     method: 'GET',
                     headers: {
-                        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                    },
+                        'Fiware-Service': sthConfig.DEFAULT_SERVICE
+                    }
                 },
                 function(err, response, body) {
                     var bodyJSON = JSON.parse(body);
@@ -153,8 +153,8 @@ describe('sth tests', function() {
                         method: 'GET',
                         headers: {
                             'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                            'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
-                        },
+                            'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                        }
                     },
                     function(err, response, body) {
                         var bodyJSON = JSON.parse(body);
@@ -186,7 +186,7 @@ describe('sth tests', function() {
             'should respond with 200 - OK if hLimit and hOffset query params',
             sthTestUtils.status200Test.bind(null, {
                 hLimit: 1,
-                hOffset: 1,
+                hOffset: 1
             })
         );
 
@@ -194,7 +194,7 @@ describe('sth tests', function() {
             'should respond with 200 - OK if aggrMethod and aggrPeriod query params',
             sthTestUtils.status200Test.bind(null, {
                 aggrMethod: 'min',
-                aggrPeriod: 'second',
+                aggrPeriod: 'second'
             })
         );
     });
@@ -313,14 +313,14 @@ describe('sth tests', function() {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                         'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
                     },
                     json: true,
                     body: {
                         subscriptionId: '1234567890ABCDF123456789',
                         originator: 'orion.contextBroker.instance',
-                        contextResponses: contextResponseNumericWithFixedTimeInstant.contextResponses,
-                    },
+                        contextResponses: contextResponseNumericWithFixedTimeInstant.contextResponses
+                    }
                 },
                 function(err, response, body) {
                     expect(body).to.be(undefined);
@@ -338,14 +338,14 @@ describe('sth tests', function() {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                         'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
                     },
                     json: true,
                     body: {
                         subscriptionId: '1234567890ABCDF123456789',
                         originator: 'orion.contextBroker.instance',
-                        contextResponses: contextResponseNumericWithFixedTimeInstant.contextResponses,
-                    },
+                        contextResponses: contextResponseNumericWithFixedTimeInstant.contextResponses
+                    }
                 },
                 function(err, response, body) {
                     expect(body).to.be(undefined);
@@ -366,7 +366,7 @@ describe('sth tests', function() {
                                     .attributes[0].metadatas[0].value,
                             dateTo:
                                 contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement
-                                    .attributes[0].metadatas[0].value,
+                                    .attributes[0].metadatas[0].value
                         },
                         contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
                     ),
@@ -375,8 +375,8 @@ describe('sth tests', function() {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                         'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
-                    },
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                    }
                 },
                 function(err, response, body) {
                     var bodyJSON = JSON.parse(body);
@@ -451,14 +451,14 @@ describe('sth tests', function() {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                         'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
                     },
                     json: true,
                     body: {
                         subscriptionId: '1234567890ABCDF123456789',
                         originator: 'orion.contextBroker.instance',
-                        contextResponses: contextResponseTextualWithFixedTimeInstant.contextResponses,
-                    },
+                        contextResponses: contextResponseTextualWithFixedTimeInstant.contextResponses
+                    }
                 },
                 function(err, response, body) {
                     expect(body).to.be(undefined);
@@ -476,14 +476,14 @@ describe('sth tests', function() {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                         'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
                     },
                     json: true,
                     body: {
                         subscriptionId: '1234567890ABCDF123456789',
                         originator: 'orion.contextBroker.instance',
-                        contextResponses: contextResponseTextualWithFixedTimeInstant.contextResponses,
-                    },
+                        contextResponses: contextResponseTextualWithFixedTimeInstant.contextResponses
+                    }
                 },
                 function(err, response, body) {
                     expect(body).to.be(undefined);
@@ -504,7 +504,7 @@ describe('sth tests', function() {
                                     .attributes[0].metadatas[0].value,
                             dateTo:
                                 contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement
-                                    .attributes[0].metadatas[0].value,
+                                    .attributes[0].metadatas[0].value
                         },
                         contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
                     ),
@@ -513,8 +513,8 @@ describe('sth tests', function() {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                         'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
-                    },
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                    }
                 },
                 function(err, response, body) {
                     var bodyJSON = JSON.parse(body);
@@ -558,14 +558,14 @@ describe('sth tests', function() {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                         'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
                     },
                     json: true,
                     body: {
                         subscriptionId: '1234567890ABCDF123456789',
                         originator: 'orion.contextBroker.instance',
-                        contextResponses: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses,
-                    },
+                        contextResponses: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses
+                    }
                 },
                 function(err, response, body) {
                     expect(body).to.be(undefined);
@@ -583,14 +583,14 @@ describe('sth tests', function() {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                         'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
                     },
                     json: true,
                     body: {
                         subscriptionId: '1234567890ABCDF123456789',
                         originator: 'orion.contextBroker.instance',
-                        contextResponses: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses,
-                    },
+                        contextResponses: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses
+                    }
                 },
                 function(err, response, body) {
                     expect(body).to.be(undefined);
@@ -611,7 +611,7 @@ describe('sth tests', function() {
                                     .attributes[0].metadatas[0].value,
                             dateTo:
                                 contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement
-                                    .attributes[0].metadatas[0].value,
+                                    .attributes[0].metadatas[0].value
                         },
                         contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement
                             .attributes[0].name
@@ -621,8 +621,8 @@ describe('sth tests', function() {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                         'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
-                    },
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                    }
                 },
                 function(err, response, body) {
                     var bodyJSON = JSON.parse(body);
@@ -697,14 +697,14 @@ describe('sth tests', function() {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                         'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
                     },
                     json: true,
                     body: {
                         subscriptionId: '1234567890ABCDF123456789',
                         originator: 'orion.contextBroker.instance',
-                        contextResponses: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses,
-                    },
+                        contextResponses: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses
+                    }
                 },
                 function(err, response, body) {
                     expect(body).to.be(undefined);
@@ -722,14 +722,14 @@ describe('sth tests', function() {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                         'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
                     },
                     json: true,
                     body: {
                         subscriptionId: '1234567890ABCDF123456789',
                         originator: 'orion.contextBroker.instance',
-                        contextResponses: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses,
-                    },
+                        contextResponses: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses
+                    }
                 },
                 function(err, response, body) {
                     expect(body).to.be(undefined);
@@ -750,7 +750,7 @@ describe('sth tests', function() {
                                     .attributes[0].metadatas[0].value,
                             dateTo:
                                 contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement
-                                    .attributes[0].metadatas[0].value,
+                                    .attributes[0].metadatas[0].value
                         },
                         contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement
                             .attributes[0].name
@@ -760,8 +760,8 @@ describe('sth tests', function() {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                         'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
-                    },
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                    }
                 },
                 function(err, response, body) {
                     var bodyJSON = JSON.parse(body);
@@ -805,14 +805,14 @@ describe('sth tests', function() {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                         'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
                     },
                     json: true,
                     body: {
                         subscriptionId: '1234567890ABCDF123456789',
                         originator: 'orion.contextBroker.instance',
-                        contextResponses: contextResponseArrayWithFixedTimeInstant.contextResponses,
-                    },
+                        contextResponses: contextResponseArrayWithFixedTimeInstant.contextResponses
+                    }
                 },
                 function(err, response, body) {
                     expect(body).to.be(undefined);
@@ -833,7 +833,7 @@ describe('sth tests', function() {
                                     .attributes[0].metadatas[0].value,
                             dateTo:
                                 contextResponseArrayWithFixedTimeInstant.contextResponses[0].contextElement
-                                    .attributes[0].metadatas[0].value,
+                                    .attributes[0].metadatas[0].value
                         },
                         contextResponseArrayWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
                     ),
@@ -842,8 +842,8 @@ describe('sth tests', function() {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                         'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
-                    },
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                    }
                 },
                 function(err, response, body) {
                     var bodyJSON = JSON.parse(body);
@@ -927,14 +927,14 @@ describe('sth tests', function() {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                         'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
                     },
                     json: true,
                     body: {
                         subscriptionId: '1234567890ABCDF123456789',
                         originator: 'orion.contextBroker.instance',
-                        contextResponses: contextResponseObjectWithFixedTimeInstant.contextResponses,
-                    },
+                        contextResponses: contextResponseObjectWithFixedTimeInstant.contextResponses
+                    }
                 },
                 function(err, response, body) {
                     expect(body).to.be(undefined);
@@ -955,7 +955,7 @@ describe('sth tests', function() {
                                     .attributes[0].metadatas[0].value,
                             dateTo:
                                 contextResponseObjectWithFixedTimeInstant.contextResponses[0].contextElement
-                                    .attributes[0].metadatas[0].value,
+                                    .attributes[0].metadatas[0].value
                         },
                         contextResponseObjectWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
                     ),
@@ -964,8 +964,8 @@ describe('sth tests', function() {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                         'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
-                    },
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                    }
                 },
                 function(err, response, body) {
                     var bodyJSON = JSON.parse(body);
@@ -1044,7 +1044,7 @@ describe('sth tests', function() {
                 entityType: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.type,
                 attrName:
                     contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.attributes[0]
-                        .name,
+                        .name
             })
         );
 
@@ -1052,7 +1052,7 @@ describe('sth tests', function() {
             'Removal of concrete entities including numeric data',
             sthTestUtils.dataRemovalSuite.bind(null, sthConfig.AGGREGATIONS.NUMERIC, {
                 entityId: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.id,
-                entityType: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.type,
+                entityType: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.type
             })
         );
 
@@ -1068,7 +1068,7 @@ describe('sth tests', function() {
                 entityType: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement.type,
                 attrName:
                     contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement.attributes[0]
-                        .name,
+                        .name
             })
         );
 
@@ -1076,7 +1076,7 @@ describe('sth tests', function() {
             'Removal of concrete entities including textual data',
             sthTestUtils.dataRemovalSuite.bind(null, sthConfig.AGGREGATIONS.TEXTUAL, {
                 entityId: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.id,
-                entityType: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement.type,
+                entityType: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement.type
             })
         );
 
@@ -1104,9 +1104,9 @@ describe('sth tests', function() {
             request(
                 {
                     uri: sthTestUtils.getURL(sthTestConfig.API_OPERATION.ADMIN.SET_LOG_LEVEL, {
-                        level: 'deBug',
+                        level: 'deBug'
                     }),
-                    method: 'PUT',
+                    method: 'PUT'
                 },
                 function(err, response) {
                     expect(err).to.equal(null);
@@ -1122,7 +1122,7 @@ describe('sth tests', function() {
             request(
                 {
                     uri: sthTestUtils.getURL(sthTestConfig.API_OPERATION.VERSION),
-                    method: 'GET',
+                    method: 'GET'
                 },
                 function(err, response, body) {
                     var bodyJSON = JSON.parse(body);

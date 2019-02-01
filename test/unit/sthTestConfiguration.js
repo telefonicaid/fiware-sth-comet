@@ -48,13 +48,13 @@ module.exports = {
         NOTIFY: 'notify',
         ADMIN: {
             GET_LOG_LEVEL: 'getLogLevel',
-            SET_LOG_LEVEL: 'setLogLevel',
+            SET_LOG_LEVEL: 'setLogLevel'
         },
         VERSION: 'version',
-        DELETE: 'delete',
+        DELETE: 'delete'
     },
     DATA_TYPES: {
         RAW: 'raw',
-        AGGREGATED: 'aggregated',
-    },
+        AGGREGATED: 'aggregated'
+    }
 };

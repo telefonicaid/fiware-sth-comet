@@ -54,7 +54,7 @@ var DEFAULT_VALUES = {
     TRUNCATION_MAX: 0,
     IGNORE_BLANK_SPACES: true,
     NAME_ENCODING: false,
-    PROOF_OF_LIFE_INTERVAL: 60,
+    PROOF_OF_LIFE_INTERVAL: 60
 };
 
 describe('sthConfiguration tests', function() {

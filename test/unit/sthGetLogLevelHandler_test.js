@@ -42,7 +42,7 @@ describe('sthGetLogLevelHandler tests', function() {
                     dbURI: sthConfig.DB_URI,
                     replicaSet: sthConfig.REPLICA_SET,
                     database: sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE),
-                    poolSize: sthConfig.POOL_SIZE,
+                    poolSize: sthConfig.POOL_SIZE
                 },
                 function(err) {
                     done(err);
@@ -73,7 +73,7 @@ describe('sthGetLogLevelHandler tests', function() {
                 {
                     uri: sthTestHelper.getURL(sthTestConfig.API_OPERATION.ADMIN.GET_LOG_LEVEL),
                     method: 'GET',
-                    json: true,
+                    json: true
                 },
                 function(err, response, body) {
                     expect(err).to.equal(null);

@@ -40,7 +40,7 @@ var COLLECTION_NAME_PARAMS = {
     entityId: sthTestConfig.ENTITY_ID,
     entityType: sthTestConfig.ENTITY_TYPE,
     attrName: sthTestConfig.ATTRIBUTE_NAME,
-    attrType: sthTestConfig.ATTRIBUTE_TYPE,
+    attrType: sthTestConfig.ATTRIBUTE_TYPE
 };
 var VERY_LONG_COLLECTION_NAME_PARAMS = {
     service: sthConfig.DEFAULT_SERVICE,
@@ -55,7 +55,7 @@ var VERY_LONG_COLLECTION_NAME_PARAMS = {
     entityId: sthTestConfig.ENTITY_ID,
     entityType: sthTestConfig.ENTITY_TYPE,
     attrName: sthTestConfig.ATTRIBUTE_NAME,
-    attrType: sthTestConfig.ATTRIBUTE_TYPE,
+    attrType: sthTestConfig.ATTRIBUTE_TYPE
 };
 
 /**

@@ -41,14 +41,14 @@ var DATABASE_CONNECTION_PARAMS = {
     dbURI: sthConfig.DB_URI,
     replicaSet: sthConfig.REPLICA_SET,
     database: DATABASE_NAME,
-    poolSize: sthConfig.POOL_SIZE,
+    poolSize: sthConfig.POOL_SIZE
 };
 var COLLECTION_NAME_PARAMS = {
     service: DEFAULT_SERVICE,
     servicePath: sthConfig.DEFAULT_SERVICE_PATH,
     entityId: sthTestConfig.ENTITY_ID,
     entityType: sthTestConfig.ENTITY_TYPE,
-    attrName: sthTestConfig.ATTRIBUTE_NAME,
+    attrName: sthTestConfig.ATTRIBUTE_NAME
 };
 
 /**
@@ -73,12 +73,12 @@ function createRawAndAggregatedCollections(callback) {
     async.series(
         [
             async.apply(sthDatabase.getCollection, COLLECTION_NAME_PARAMS, {
-                shouldCreate: true,
+                shouldCreate: true
             }),
             async.apply(sthDatabase.getCollection, COLLECTION_NAME_PARAMS, {
                 shouldCreate: true,
-                isAggregated: true,
-            }),
+                isAggregated: true
+            })
         ],
         callback
     );
@@ -140,7 +140,7 @@ function mapUnmapMandatoryOptionsTest(function2Test, callback) {
 function collectionAndDatabaseMandatoryOptionsTest(function2Test, callback) {
     function2Test(
         {
-            collection: sthConfig.COLLECTION_PREFIX + 'any_collection',
+            collection: sthConfig.COLLECTION_PREFIX + 'any_collection'
         },
         function(err) {
             expect(err instanceof sthErrors.MandatoryOptionNotFound).to.be.ok();
@@ -159,7 +159,7 @@ function shouldDetectCollectionTest(mappingFlag, databaseName, collectionName, c
     sthDatabaseNameMapperTool.getMappingAnalysis(
         {
             map: !!mappingFlag,
-            unmap: !mappingFlag,
+            unmap: !mappingFlag
         },
         function(err, analysis) {
             if (err) {
@@ -184,7 +184,7 @@ function shouldNotDetectCollectionTest(mappingFlag, databaseName, collectionName
             map: !!mappingFlag,
             unmap: !mappingFlag,
             database: databaseName,
-            collection: collectionName,
+            collection: collectionName
         },
         function(err, analysis) {
             if (err) {
@@ -233,7 +233,7 @@ function shouldMapOrUnmapDatabaseTest(databaseName, mappingFlag, callback) {
         {
             map: !!mappingFlag,
             unmap: !mappingFlag,
-            database: databaseName,
+            database: databaseName
         },
         function(err) {
             if (err) {
@@ -273,7 +273,7 @@ function shouldNotMapOrUnmapDatabaseTest(databaseName, mappingFlag, callback) {
         {
             map: !!mappingFlag,
             unmap: !mappingFlag,
-            database: databaseName,
+            database: databaseName
         },
         function(err) {
             if (err) {
@@ -303,7 +303,7 @@ function shouldMapOrUnmapCollectionTest(databaseName, collectionName, mappingFla
             map: !!mappingFlag,
             unmap: !mappingFlag,
             database: databaseName,
-            collection: collectionName,
+            collection: collectionName
         },
         function(err) {
             if (err) {
@@ -353,7 +353,7 @@ function shouldNotMapOrUnmapCollectionTest(databaseName, collectionName, mapping
             map: !!mappingFlag,
             unmap: !mappingFlag,
             database: databaseName,
-            collection: collectionName,
+            collection: collectionName
         },
         function(err) {
             if (err) {
@@ -394,7 +394,7 @@ describe('sthDatabaseNameMapperTool tests', function() {
             it("should not detect database '" + DATABASE_NAME + "' as susceptible of being mapped", function(done) {
                 sthDatabaseNameMapperTool.getMappingAnalysis(
                     {
-                        map: true,
+                        map: true
                     },
                     function(err, analysis) {
                         if (err) {
@@ -412,7 +412,7 @@ describe('sthDatabaseNameMapperTool tests', function() {
                     sthDatabaseNameMapperTool.getMappingAnalysis(
                         {
                             map: true,
-                            database: sthConfig.DB_PREFIX + 'inexistent_database',
+                            database: sthConfig.DB_PREFIX + 'inexistent_database'
                         },
                         function(err, analysis) {
                             if (err) {
@@ -512,7 +512,7 @@ describe('sthDatabaseNameMapperTool tests', function() {
                     sthDatabaseNameMapperTool.getMappingAnalysis(
                         {
                             map: false,
-                            unmap: true,
+                            unmap: true
                         },
                         function(err, analysis) {
                             if (err) {
@@ -536,7 +536,7 @@ describe('sthDatabaseNameMapperTool tests', function() {
                         {
                             map: false,
                             unmap: true,
-                            database: sthConfig.DB_PREFIX + 'inexistent_database',
+                            database: sthConfig.DB_PREFIX + 'inexistent_database'
                         },
                         function(err, analysis) {
                             if (err) {

@@ -39,7 +39,7 @@ var DATABASE_CONNECTION_PARAMS = {
     dbURI: sthConfig.DB_URI,
     replicaSet: sthConfig.REPLICA_SET,
     database: DATABASE_NAME,
-    poolSize: sthConfig.POOL_SIZE,
+    poolSize: sthConfig.POOL_SIZE
 };
 var COLLECTION_NAME_PARAMS = {
     service: sthConfig.DEFAULT_SERVICE,
@@ -47,7 +47,7 @@ var COLLECTION_NAME_PARAMS = {
     entityId: sthTestConfig.ENTITY_ID,
     entityType: sthTestConfig.ENTITY_TYPE,
     attrName: sthTestConfig.ATTRIBUTE_NAME,
-    attrType: sthTestConfig.ATTRIBUTE_TYPE,
+    attrType: sthTestConfig.ATTRIBUTE_TYPE
 };
 var NUMERIC_COLLECTION_NAME_PARAMS = {
     service: sthConfig.DEFAULT_SERVICE,
@@ -55,7 +55,7 @@ var NUMERIC_COLLECTION_NAME_PARAMS = {
     entityId: sthTestConfig.ENTITY_ID,
     entityType: sthTestConfig.ENTITY_TYPE,
     attrName: sthTestConfig.ATTRIBUTE_NAME + sthConfig.AGGREGATIONS.NUMERIC,
-    attrType: sthTestConfig.ATTRIBUTE_TYPE,
+    attrType: sthTestConfig.ATTRIBUTE_TYPE
 };
 var TEXTUAL_COLLECTION_NAME_PARAMS = {
     service: sthConfig.DEFAULT_SERVICE,
@@ -63,7 +63,7 @@ var TEXTUAL_COLLECTION_NAME_PARAMS = {
     entityId: sthTestConfig.ENTITY_ID,
     entityType: sthTestConfig.ENTITY_TYPE,
     attrName: sthTestConfig.ATTRIBUTE_NAME + sthConfig.AGGREGATIONS.TEXTUAL,
-    attrType: sthTestConfig.ATTRIBUTE_TYPE,
+    attrType: sthTestConfig.ATTRIBUTE_TYPE
 };
 var VERY_LONG_COLLECTION_NAME_PARAMS = {
     service: sthConfig.DEFAULT_SERVICE,
@@ -78,7 +78,7 @@ var VERY_LONG_COLLECTION_NAME_PARAMS = {
     entityId: sthTestConfig.ENTITY_ID,
     entityType: sthTestConfig.ENTITY_TYPE,
     attrName: sthTestConfig.ATTRIBUTE_NAME,
-    attrType: sthTestConfig.ATTRIBUTE_TYPE,
+    attrType: sthTestConfig.ATTRIBUTE_TYPE
 };
 var DATE = new Date(Date.UTC(1970, 1, 3, 4, 5, 6, 777));
 var DELAY = 100;
@@ -86,8 +86,8 @@ var LIMIT = 10;
 var PAGINATION = 0;
 var ATTRIBUTE = {
     VALUE: {
-        NUMERIC: 666,
-    },
+        NUMERIC: 666
+    }
 };
 var STORE_DATA_PARAMS = {
     recvTime: DATE,
@@ -95,13 +95,13 @@ var STORE_DATA_PARAMS = {
     entityType: sthTestConfig.ENTITY_TYPE,
     attribute: {
         name: sthTestConfig.ATTRIBUTE_NAME,
-        type: sthTestConfig.ATTRIBUTE_TYPE,
-    },
+        type: sthTestConfig.ATTRIBUTE_TYPE
+    }
 };
 var RETRIEVAL_DATA_PARAMS = {
     entityId: sthTestConfig.ENTITY_ID,
     entityType: sthTestConfig.ENTITY_TYPE,
-    attrName: sthTestConfig.ATTRIBUTE_NAME,
+    attrName: sthTestConfig.ATTRIBUTE_NAME
 };
 
 /**
@@ -243,7 +243,7 @@ function collectionAccessTests() {
                                 shouldCreate: false,
                                 isAggregated:
                                     sthTestConfig.DATA_TYPES[dataType] === sthTestConfig.DATA_TYPES.AGGREGATED,
-                                shouldTruncate: false,
+                                shouldTruncate: false
                             },
                             function(err, collection) {
                                 expect(err).to.not.be(null);
@@ -267,7 +267,7 @@ function collectionAccessTests() {
                                 shouldCreate: true,
                                 isAggregated:
                                     sthTestConfig.DATA_TYPES[dataType] === sthTestConfig.DATA_TYPES.AGGREGATED,
-                                shouldTruncate: false,
+                                shouldTruncate: false
                             },
                             function(err, collection) {
                                 expect(err).to.be(null);
@@ -533,7 +533,7 @@ function shouldStoreTest(aggregation, dataType, position, done) {
         {
             shouldCreate: true,
             isAggregated: dataType === sthTestConfig.DATA_TYPES.AGGREGATED,
-            shouldTruncate: false,
+            shouldTruncate: false
         },
         function(err, collection) {
             if (err) {
@@ -551,7 +551,7 @@ function shouldStoreTest(aggregation, dataType, position, done) {
                         {
                             collection: collection,
                             dataType: dataType,
-                            aggregation: aggregation,
+                            aggregation: aggregation
                         },
                         position,
                         done
@@ -566,7 +566,7 @@ function shouldStoreTest(aggregation, dataType, position, done) {
                         {
                             collection: collection,
                             dataType: dataType,
-                            aggregation: aggregation,
+                            aggregation: aggregation
                         },
                         position,
                         done
@@ -612,7 +612,7 @@ function storageTests() {
                                         shouldCreate: true,
                                         isAggregated:
                                             sthTestConfig.DATA_TYPES[dataType] === sthTestConfig.DATA_TYPES.AGGREGATED,
-                                        shouldTruncate: false,
+                                        shouldTruncate: false
                                     },
                                     function(err, theCollection) {
                                         if (err) {
@@ -775,7 +775,7 @@ function retrievalTest(params, options, count, done) {
         {
             shouldCreate: true,
             isAggregated: params.dataType === sthTestConfig.DATA_TYPES.AGGREGATED,
-            shouldTruncate: false,
+            shouldTruncate: false
         },
         function(err, collection) {
             if (err) {
@@ -840,7 +840,7 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                 null,
                 {
                     aggregation: aggregation,
-                    dataType: dataType,
+                    dataType: dataType
                 },
                 null,
                 count
@@ -861,10 +861,10 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                 null,
                 {
                     aggregation: aggregation,
-                    dataType: dataType,
+                    dataType: dataType
                 },
                 {
-                    lastN: LIMIT,
+                    lastN: LIMIT
                 },
                 count
             )
@@ -884,11 +884,11 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                 null,
                 {
                     aggregation: aggregation,
-                    dataType: dataType,
+                    dataType: dataType
                 },
                 {
                     hLimit: LIMIT,
-                    hOffset: PAGINATION,
+                    hOffset: PAGINATION
                 },
                 count
             )
@@ -908,10 +908,10 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                 null,
                 {
                     aggregation: aggregation,
-                    dataType: dataType,
+                    dataType: dataType
                 },
                 {
-                    dateFrom: DATE,
+                    dateFrom: DATE
                 },
                 count
             )
@@ -931,10 +931,10 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                 null,
                 {
                     aggregation: aggregation,
-                    dataType: dataType,
+                    dataType: dataType
                 },
                 {
-                    dateFrom: new Date(DATE.getTime() + 1000 * 60 * 60),
+                    dateFrom: new Date(DATE.getTime() + 1000 * 60 * 60)
                 },
                 0
             )
@@ -954,10 +954,10 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                 null,
                 {
                     aggregation: aggregation,
-                    dataType: dataType,
+                    dataType: dataType
                 },
                 {
-                    dateTo: new Date(),
+                    dateTo: new Date()
                 },
                 count
             )
@@ -977,10 +977,10 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                 null,
                 {
                     aggregation: aggregation,
-                    dataType: dataType,
+                    dataType: dataType
                 },
                 {
-                    dateTo: new Date(DATE.getTime() - 1000 * 60 * 60),
+                    dateTo: new Date(DATE.getTime() - 1000 * 60 * 60)
                 },
                 0
             )
@@ -1000,10 +1000,10 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                 null,
                 {
                     aggregation: aggregation,
-                    dataType: dataType,
+                    dataType: dataType
                 },
                 {
-                    filetype: 'csv',
+                    filetype: 'csv'
                 },
                 count
             )
@@ -1027,11 +1027,11 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                         null,
                         {
                             aggregation: aggregation,
-                            dataType: dataType,
+                            dataType: dataType
                         },
                         {
                             aggrMethod: 'sum',
-                            aggrPeriod: aggregationBy,
+                            aggrPeriod: aggregationBy
                         },
                         count
                     )
@@ -1053,12 +1053,12 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                         null,
                         {
                             aggregation: aggregation,
-                            dataType: dataType,
+                            dataType: dataType
                         },
                         {
                             aggrMethod: 'sum',
                             aggrPeriod: aggregationBy,
-                            dateFrom: DATE,
+                            dateFrom: DATE
                         },
                         count
                     )
@@ -1080,12 +1080,12 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                         null,
                         {
                             aggregation: aggregation,
-                            dataType: dataType,
+                            dataType: dataType
                         },
                         {
                             aggrMethod: 'sum',
                             aggrPeriod: aggregationBy,
-                            dateTo: new Date(),
+                            dateTo: new Date()
                         },
                         count
                     )
@@ -1107,11 +1107,11 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                         null,
                         {
                             aggregation: aggregation,
-                            dataType: dataType,
+                            dataType: dataType
                         },
                         {
                             aggrMethod: 'sum2',
-                            aggrPeriod: aggregationBy,
+                            aggrPeriod: aggregationBy
                         },
                         count
                     )
@@ -1133,11 +1133,11 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                         null,
                         {
                             aggregation: aggregation,
-                            dataType: dataType,
+                            dataType: dataType
                         },
                         {
                             aggrMethod: 'min',
-                            aggrPeriod: aggregationBy,
+                            aggrPeriod: aggregationBy
                         },
                         count
                     )
@@ -1159,11 +1159,11 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                         null,
                         {
                             aggregation: aggregation,
-                            dataType: dataType,
+                            dataType: dataType
                         },
                         {
                             aggrMethod: 'max',
-                            aggrPeriod: aggregationBy,
+                            aggrPeriod: aggregationBy
                         },
                         count
                     )
@@ -1185,11 +1185,11 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                         null,
                         {
                             aggregation: aggregation,
-                            dataType: dataType,
+                            dataType: dataType
                         },
                         {
                             aggrMethod: 'occur',
-                            aggrPeriod: aggregationBy,
+                            aggrPeriod: aggregationBy
                         },
                         count
                     )

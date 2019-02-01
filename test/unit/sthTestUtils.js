@@ -68,7 +68,7 @@ function createEvent(attrName, attrType, recvTime) {
                 entityType: sthTestConfig.ENTITY_TYPE,
                 attrName: attrName,
                 attrType: attrType,
-                attrValue: attrValue,
+                attrValue: attrValue
             };
             break;
         case sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY:
@@ -76,7 +76,7 @@ function createEvent(attrName, attrType, recvTime) {
                 recvTime: recvTime,
                 attrName: attrName,
                 attrType: attrType,
-                attrValue: attrValue,
+                attrValue: attrValue
             };
             break;
         case sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE:
@@ -86,7 +86,7 @@ function createEvent(attrName, attrType, recvTime) {
                 //  It is included just to ease its recovery
                 attrName: attrName,
                 attrType: attrType,
-                attrValue: attrValue,
+                attrValue: attrValue
             };
             break;
     }
@@ -123,12 +123,12 @@ function addEventTest(anEvent, includeTimeInstantMetadata, done) {
             servicePath: sthConfig.DEFAULT_SERVICE_PATH,
             entityId: sthTestConfig.ENTITY_ID,
             entityType: sthTestConfig.ENTITY_TYPE,
-            attrName: anEvent.attrName,
+            attrName: anEvent.attrName
         },
         {
             isAggregated: false,
             shouldCreate: true,
-            shouldTruncate: true,
+            shouldTruncate: true
         },
         function(err, collection) {
             if (err) {
@@ -149,13 +149,13 @@ function addEventTest(anEvent, includeTimeInstantMetadata, done) {
                                     {
                                         name: 'TimeInstant',
                                         type: 'ISO8601',
-                                        value: anEvent.recvTime,
-                                    },
-                                ],
+                                        value: anEvent.recvTime
+                                    }
+                                ]
                             },
                             notificationInfo: {
-                                inserts: true,
-                            },
+                                inserts: true
+                            }
                         },
                         done
                     );
@@ -169,11 +169,11 @@ function addEventTest(anEvent, includeTimeInstantMetadata, done) {
                             attribute: {
                                 name: anEvent.attrName,
                                 type: anEvent.attrType,
-                                value: anEvent.attrValue,
+                                value: anEvent.attrValue
                             },
                             notificationInfo: {
-                                inserts: true,
-                            },
+                                inserts: true
+                            }
                         },
                         done
                     );
@@ -206,12 +206,12 @@ function addAggregatedDataTest(anEvent, done) {
             servicePath: sthConfig.DEFAULT_SERVICE_PATH,
             entityId: sthTestConfig.ENTITY_ID,
             entityType: sthTestConfig.ENTITY_TYPE,
-            attrName: anEvent.attrName,
+            attrName: anEvent.attrName
         },
         {
             isAggregated: true,
             shouldCreate: true,
-            shouldTruncate: true,
+            shouldTruncate: true
         },
         function(err, collection) {
             if (err) {
@@ -228,8 +228,8 @@ function addAggregatedDataTest(anEvent, done) {
                         resolution: sthConfig.RESOLUTION.SECOND,
                         timestamp: anEvent.recvTime,
                         notificationInfo: {
-                            inserts: true,
-                        },
+                            inserts: true
+                        }
                     },
                     callback
                 );
@@ -244,8 +244,8 @@ function addAggregatedDataTest(anEvent, done) {
                         resolution: sthConfig.RESOLUTION.MINUTE,
                         timestamp: anEvent.recvTime,
                         notificationInfo: {
-                            inserts: true,
-                        },
+                            inserts: true
+                        }
                     },
                     callback
                 );
@@ -260,8 +260,8 @@ function addAggregatedDataTest(anEvent, done) {
                         resolution: sthConfig.RESOLUTION.HOUR,
                         timestamp: anEvent.recvTime,
                         notificationInfo: {
-                            inserts: true,
-                        },
+                            inserts: true
+                        }
                     },
                     callback
                 );
@@ -276,8 +276,8 @@ function addAggregatedDataTest(anEvent, done) {
                         resolution: sthConfig.RESOLUTION.DAY,
                         timestamp: anEvent.recvTime,
                         notificationInfo: {
-                            inserts: true,
-                        },
+                            inserts: true
+                        }
                     },
                     callback
                 );
@@ -292,8 +292,8 @@ function addAggregatedDataTest(anEvent, done) {
                         resolution: sthConfig.RESOLUTION.MONTH,
                         timestamp: anEvent.recvTime,
                         notificationInfo: {
-                            inserts: true,
-                        },
+                            inserts: true
+                        }
                     },
                     callback
                 );
@@ -341,7 +341,7 @@ function dropRawEventCollectionTest(done) {
         servicePath: sthConfig.DEFAULT_SERVICE_PATH,
         entityId: sthTestConfig.ENTITY_ID,
         entityType: sthTestConfig.ENTITY_TYPE,
-        attrName: sthTestConfig.ATTRIBUTE_NAME,
+        attrName: sthTestConfig.ATTRIBUTE_NAME
     });
     console.log(collectionName4Events);
     sthDatabase.connection.dropCollection(collectionName4Events, function(err) {
@@ -362,7 +362,7 @@ function dropAggregatedDataCollectionTest(done) {
         servicePath: sthConfig.DEFAULT_SERVICE_PATH,
         entityId: sthTestConfig.ENTITY_ID,
         entityType: sthTestConfig.ENTITY_TYPE,
-        attrName: sthTestConfig.ATTRIBUTE_NAME,
+        attrName: sthTestConfig.ATTRIBUTE_NAME
     });
     sthDatabase.connection.dropCollection(collectionName4Aggregated, function(err) {
         if (err && err.message === 'ns not found') {
@@ -500,8 +500,8 @@ function noRawDataIfEntityCaseChange(params, done) {
             method: 'GET',
             headers: {
                 'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
-                'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH,
-            },
+                'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
+            }
         },
         function(err, response, body) {
             var bodyJSON = JSON.parse(body);
@@ -543,8 +543,8 @@ function rawDataAvailableDateFilter(params, done) {
             method: 'GET',
             headers: {
                 'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
-                'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH,
-            },
+                'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
+            }
         },
         function(err, response, body) {
             var bodyJSON = JSON.parse(body);
@@ -606,15 +606,15 @@ function noAggregatedDataIfEntityCaseChangeTest(params, done) {
                 {
                     aggrMethod: aggrMethod,
                     aggrPeriod: resolution,
-                    changeEntityCase: true,
+                    changeEntityCase: true
                 },
                 attrName
             ),
             method: 'GET',
             headers: {
                 'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
-                'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH,
-            },
+                'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
+            }
         },
         function(err, response, body) {
             var bodyJSON = JSON.parse(body);
@@ -684,15 +684,15 @@ function noAggregatedDataSinceDateTest(params, done) {
                     aggrPeriod: resolution,
                     dateFrom: sthUtils.getISODateString(
                         sthUtils.getOrigin(new Date(events[events.length - 1].recvTime.getTime() + offset), resolution)
-                    ),
+                    )
                 },
                 attrName
             ),
             method: 'GET',
             headers: {
                 'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
-                'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH,
-            },
+                'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
+            }
         },
         function(err, response, body) {
             var bodyJSON = JSON.parse(body);
@@ -741,15 +741,15 @@ function aggregatedDataAvailableSinceDateTest(params, done) {
                     aggrPeriod: resolution,
                     dateFrom: sthUtils.getISODateString(
                         sthUtils.getOrigin(events[events.length - 1].recvTime, resolution)
-                    ),
+                    )
                 },
                 attrName
             ),
             method: 'GET',
             headers: {
                 'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
-                'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH,
-            },
+                'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
+            }
         },
         function(err, response, body) {
             var theEvent = events[events.length - 1];
@@ -881,7 +881,7 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
                 servicePath: sthConfig.DEFAULT_SERVICE_PATH,
                 attrName: attrName,
                 options: optionsForCaseSensitivity,
-                checkRecvTime: checkRecvTime,
+                checkRecvTime: checkRecvTime
             })
         );
 
@@ -892,7 +892,7 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
                 servicePath: sthConfig.DEFAULT_SERVICE_PATH,
                 attrName: attrName,
                 options: optionsWithNoDates,
-                checkRecvTime: checkRecvTime,
+                checkRecvTime: checkRecvTime
             })
         );
 
@@ -903,7 +903,7 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
                 servicePath: sthConfig.DEFAULT_SERVICE_PATH,
                 attrName: attrName,
                 options: optionsWithDateFrom,
-                checkRecvTime: checkRecvTime,
+                checkRecvTime: checkRecvTime
             })
         );
 
@@ -914,7 +914,7 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
                 servicePath: sthConfig.DEFAULT_SERVICE_PATH,
                 attrName: attrName,
                 options: optionsWithDateTo,
-                checkRecvTime: checkRecvTime,
+                checkRecvTime: checkRecvTime
             })
         );
 
@@ -925,7 +925,7 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
                 servicePath: sthConfig.DEFAULT_SERVICE_PATH,
                 attrName: attrName,
                 options: optionsWithFromAndToDate,
-                checkRecvTime: checkRecvTime,
+                checkRecvTime: checkRecvTime
             })
         );
     });
@@ -946,7 +946,7 @@ function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
             servicePath: sthConfig.DEFAULT_SERVICE_PATH,
             attrName: attrName,
             aggrMethod: aggrMethod,
-            resolution: sthConfig.AGGREGATION_BY[index],
+            resolution: sthConfig.AGGREGATION_BY[index]
         })
     );
 
@@ -957,7 +957,7 @@ function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
             servicePath: sthConfig.DEFAULT_SERVICE_PATH,
             attrName: attrName,
             aggrMethod: aggrMethod,
-            resolution: sthConfig.AGGREGATION_BY[index],
+            resolution: sthConfig.AGGREGATION_BY[index]
         })
     );
 
@@ -969,7 +969,7 @@ function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
             attrName: attrName,
             attrType: attrType,
             aggrMethod: aggrMethod,
-            resolution: sthConfig.AGGREGATION_BY[index],
+            resolution: sthConfig.AGGREGATION_BY[index]
         })
     );
 }
@@ -1019,7 +1019,7 @@ function noAttributesTest(service, servicePath, done) {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
                 'Fiware-Service': service || sthConfig.SERVICE,
-                'Fiware-ServicePath': servicePath || sthConfig.SERVICE_PATH,
+                'Fiware-ServicePath': servicePath || sthConfig.SERVICE_PATH
             },
             json: true,
             body: {
@@ -1031,39 +1031,39 @@ function noAttributesTest(service, servicePath, done) {
                             attributes: [],
                             type: sthTestConfig.ENTITY_TYPE,
                             isPattern: 'false',
-                            id: sthTestConfig.ENTITY_ID,
+                            id: sthTestConfig.ENTITY_ID
                         },
                         statusCode: {
                             code: '200',
-                            reasonPhrase: 'OK',
-                        },
+                            reasonPhrase: 'OK'
+                        }
                     },
                     {
                         contextElement: {
                             attributes: [],
                             type: sthTestConfig.ENTITY_TYPE,
                             isPattern: 'false',
-                            id: sthTestConfig.ENTITY_ID,
+                            id: sthTestConfig.ENTITY_ID
                         },
                         statusCode: {
                             code: '200',
-                            reasonPhrase: 'OK',
-                        },
+                            reasonPhrase: 'OK'
+                        }
                     },
                     {
                         contextElement: {
                             attributes: [],
                             type: sthTestConfig.ENTITY_TYPE,
                             isPattern: 'false',
-                            id: sthTestConfig.ENTITY_ID,
+                            id: sthTestConfig.ENTITY_ID
                         },
                         statusCode: {
                             code: '200',
-                            reasonPhrase: 'OK',
-                        },
-                    },
-                ],
-            },
+                            reasonPhrase: 'OK'
+                        }
+                    }
+                ]
+            }
         },
         function(err, response, body) {
             expect(err).to.equal(null);
@@ -1095,17 +1095,17 @@ function nonAggregatableAttributeValuesTest(service, servicePath, done) {
                         {
                             name: sthTestConfig.ATTRIBUTE_NAME,
                             type: sthTestConfig.ATTRIBUTE_TYPE,
-                            value: '',
-                        },
+                            value: ''
+                        }
                     ],
                     type: sthTestConfig.ENTITY_TYPE,
                     isPattern: 'false',
-                    id: sthTestConfig.ENTITY_ID,
+                    id: sthTestConfig.ENTITY_ID
                 },
                 statusCode: {
                     code: '200',
-                    reasonPhrase: 'OK',
-                },
+                    reasonPhrase: 'OK'
+                }
             },
             {
                 contextElement: {
@@ -1113,17 +1113,17 @@ function nonAggregatableAttributeValuesTest(service, servicePath, done) {
                         {
                             name: sthTestConfig.ATTRIBUTE_NAME,
                             type: sthTestConfig.ATTRIBUTE_TYPE,
-                            value: ['just', 'an', 'array'],
-                        },
+                            value: ['just', 'an', 'array']
+                        }
                     ],
                     type: sthTestConfig.ENTITY_TYPE,
                     isPattern: 'false',
-                    id: sthTestConfig.ENTITY_ID,
+                    id: sthTestConfig.ENTITY_ID
                 },
                 statusCode: {
                     code: '200',
-                    reasonPhrase: 'OK',
-                },
+                    reasonPhrase: 'OK'
+                }
             },
             {
                 contextElement: {
@@ -1132,20 +1132,20 @@ function nonAggregatableAttributeValuesTest(service, servicePath, done) {
                             name: sthTestConfig.ATTRIBUTE_NAME,
                             type: sthTestConfig.ATTRIBUTE_TYPE,
                             value: {
-                                just: 'an object',
-                            },
-                        },
+                                just: 'an object'
+                            }
+                        }
                     ],
                     type: sthTestConfig.ENTITY_TYPE,
                     isPattern: 'false',
-                    id: sthTestConfig.ENTITY_ID,
+                    id: sthTestConfig.ENTITY_ID
                 },
                 statusCode: {
                     code: '200',
-                    reasonPhrase: 'OK',
-                },
-            },
-        ],
+                    reasonPhrase: 'OK'
+                }
+            }
+        ]
     };
     if (sthConfig.IGNORE_BLANK_SPACES) {
         body.contextResponses.push(
@@ -1155,17 +1155,17 @@ function nonAggregatableAttributeValuesTest(service, servicePath, done) {
                         {
                             name: sthTestConfig.ATTRIBUTE_NAME,
                             type: sthTestConfig.ATTRIBUTE_TYPE,
-                            value: ' ', // Blank space
-                        },
+                            value: ' ' // Blank space
+                        }
                     ],
                     type: sthTestConfig.ENTITY_TYPE,
                     isPattern: 'false',
-                    id: sthTestConfig.ENTITY_ID,
+                    id: sthTestConfig.ENTITY_ID
                 },
                 statusCode: {
                     code: '200',
-                    reasonPhrase: 'OK',
-                },
+                    reasonPhrase: 'OK'
+                }
             },
             {
                 contextElement: {
@@ -1173,17 +1173,17 @@ function nonAggregatableAttributeValuesTest(service, servicePath, done) {
                         {
                             name: sthTestConfig.ATTRIBUTE_NAME,
                             type: sthTestConfig.ATTRIBUTE_TYPE,
-                            value: '   ', // Several blank space
-                        },
+                            value: '   ' // Several blank space
+                        }
                     ],
                     type: sthTestConfig.ENTITY_TYPE,
                     isPattern: 'false',
-                    id: sthTestConfig.ENTITY_ID,
+                    id: sthTestConfig.ENTITY_ID
                 },
                 statusCode: {
                     code: '200',
-                    reasonPhrase: 'OK',
-                },
+                    reasonPhrase: 'OK'
+                }
             }
         );
     }
@@ -1195,10 +1195,10 @@ function nonAggregatableAttributeValuesTest(service, servicePath, done) {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
                 'Fiware-Service': service || sthConfig.SERVICE,
-                'Fiware-ServicePath': servicePath || sthConfig.SERVICE_PATH,
+                'Fiware-ServicePath': servicePath || sthConfig.SERVICE_PATH
             },
             json: true,
-            body: body,
+            body: body
         },
         function(err, response) {
             expect(err).to.equal(null);
@@ -1234,7 +1234,7 @@ function complexNotificationSuite(attrName, attrType, includeTimeInstantMetadata
                     servicePath: sthConfig.DEFAULT_SERVICE_PATH,
                     attrName: attrName,
                     attrType: attrType,
-                    includeTimeInstantMetadata: includeTimeInstantMetadata,
+                    includeTimeInstantMetadata: includeTimeInstantMetadata
                 })
             );
         });
@@ -1336,7 +1336,7 @@ complexNotificationTest = function complexNotificationTest(params, done) {
     var attribute = {
         name: anEvent.attrName,
         type: anEvent.attrType,
-        value: anEvent.attrValue,
+        value: anEvent.attrValue
     };
 
     if (includeTimeInstantMetadata) {
@@ -1344,8 +1344,8 @@ complexNotificationTest = function complexNotificationTest(params, done) {
             {
                 name: 'TimeInstant',
                 type: 'ISO8601',
-                value: now,
-            },
+                value: now
+            }
         ];
     }
 
@@ -1355,12 +1355,12 @@ complexNotificationTest = function complexNotificationTest(params, done) {
                 attributes: [attribute],
                 type: sthTestConfig.ENTITY_TYPE,
                 isPattern: 'false',
-                id: sthTestConfig.ENTITY_ID,
+                id: sthTestConfig.ENTITY_ID
             },
             statusCode: {
                 code: '200',
-                reasonPhrase: 'OK',
-            },
+                reasonPhrase: 'OK'
+            }
         });
     }
     request(
@@ -1371,14 +1371,14 @@ complexNotificationTest = function complexNotificationTest(params, done) {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
                 'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
-                'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH,
+                'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
             },
             json: true,
             body: {
                 subscriptionId: '1234567890ABCDF123456789',
                 originator: 'orion.contextBroker.instance',
-                contextResponses: contextResponses,
-            },
+                contextResponses: contextResponses
+            }
         },
         function(err, response, body) {
             for (var i = 0; i < 3; i++) {
@@ -1404,8 +1404,8 @@ function status200Test(options, done) {
             method: 'GET',
             headers: {
                 'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
-            },
+                'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+            }
         },
         function(err, response, body) {
             var bodyJSON = JSON.parse(body);
@@ -1448,7 +1448,7 @@ function numericAggregatedDataUpdatedTest(contextResponseFile, aggrMethod, resol
                             .metadatas[0].value,
                     dateTo:
                         contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0]
-                            .metadatas[0].value,
+                            .metadatas[0].value
                 },
                 contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
             ),
@@ -1457,8 +1457,8 @@ function numericAggregatedDataUpdatedTest(contextResponseFile, aggrMethod, resol
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
                 'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
-            },
+                'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+            }
         },
         function(err, response, body) {
             var bodyJSON = JSON.parse(body);
@@ -1520,7 +1520,7 @@ function textualAggregatedDataUpdatedTest(contextResponseFile, resolution, done)
                             .metadatas[0].value,
                     dateTo:
                         contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0]
-                            .metadatas[0].value,
+                            .metadatas[0].value
                 },
                 contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
             ),
@@ -1529,8 +1529,8 @@ function textualAggregatedDataUpdatedTest(contextResponseFile, resolution, done)
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
                 'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
-            },
+                'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+            }
         },
         function(err, response, body) {
             var bodyJSON = JSON.parse(body);
@@ -1582,7 +1582,7 @@ function aggregatedDataNonExistentTest(contextResponseFile, aggrMethod, resoluti
                             .metadatas[0].value,
                     dateTo:
                         contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0]
-                            .metadatas[0].value,
+                            .metadatas[0].value
                 },
                 contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
             ),
@@ -1591,8 +1591,8 @@ function aggregatedDataNonExistentTest(contextResponseFile, aggrMethod, resoluti
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
                 'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
-            },
+                'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+            }
         },
         function(err, response, body) {
             var bodyJSON = JSON.parse(body);
@@ -1629,14 +1629,14 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
                     'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                    'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
+                    'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
                 },
                 json: true,
                 body: {
                     subscriptionId: '1234567890ABCDF123456789',
                     originator: 'orion.contextBroker.instance',
-                    contextResponses: contextResponsesObj.contextResponses,
-                },
+                    contextResponses: contextResponsesObj.contextResponses
+                }
             },
             function(err, response, body) {
                 expect(body).to.be(undefined);
@@ -1654,7 +1654,7 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                         lastN: 0,
                         dateFrom:
                             contextResponsesObj.contextResponses[0].contextElement.attributes[0].metadatas[0].value,
-                        dateTo: contextResponsesObj.contextResponses[0].contextElement.attributes[0].metadatas[0].value,
+                        dateTo: contextResponsesObj.contextResponses[0].contextElement.attributes[0].metadatas[0].value
                     },
                     contextResponsesObj.contextResponses[0].contextElement.attributes[0].name
                 ),
@@ -1663,8 +1663,8 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
                     'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                    'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
-                },
+                    'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                }
             },
             function(err, response, body) {
                 var bodyJSON = JSON.parse(body);
@@ -1743,14 +1743,14 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
                     'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                    'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
+                    'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
                 },
                 json: true,
                 body: {
                     subscriptionId: '1234567890ABCDF123456789',
                     originator: 'orion.contextBroker.instance',
-                    contextResponses: contextResponsesObj.contextResponses,
-                },
+                    contextResponses: contextResponsesObj.contextResponses
+                }
             },
             function(err, response, body) {
                 expect(body).to.be(undefined);
@@ -1768,7 +1768,7 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                         lastN: 0,
                         dateFrom:
                             contextResponsesObj.contextResponses[0].contextElement.attributes[0].metadatas[0].value,
-                        dateTo: contextResponsesObj.contextResponses[0].contextElement.attributes[0].metadatas[0].value,
+                        dateTo: contextResponsesObj.contextResponses[0].contextElement.attributes[0].metadatas[0].value
                     },
                     contextResponsesObj.contextResponses[0].contextElement.attributes[0].name
                 ),
@@ -1777,8 +1777,8 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
                     'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                    'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH,
-                },
+                    'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                }
             },
             function(err, response, body) {
                 var bodyJSON = JSON.parse(body);
@@ -1854,9 +1854,9 @@ function validLogLevelChangeTest(level, done) {
     request(
         {
             uri: getURL(sthTestConfig.API_OPERATION.ADMIN.SET_LOG_LEVEL, {
-                level: level,
+                level: level
             }),
-            method: 'PUT',
+            method: 'PUT'
         },
         function(err, response) {
             expect(err).to.equal(null);
@@ -1882,5 +1882,5 @@ module.exports = {
     textualAggregatedDataUpdatedTest: textualAggregatedDataUpdatedTest,
     aggregatedDataNonExistentTest: aggregatedDataNonExistentTest,
     dataRemovalSuite: dataRemovalSuite,
-    validLogLevelChangeTest: validLogLevelChangeTest,
+    validLogLevelChangeTest: validLogLevelChangeTest
 };

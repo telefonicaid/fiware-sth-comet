@@ -48,7 +48,7 @@ config.server = {
     // Default value: "temp".
     temporalDir: 'temp',
     // Max page size returned by a query
-    maxPageSize: '100',
+    maxPageSize: '100'
 };
 
 // Database configuration
@@ -105,7 +105,7 @@ config.database = {
         // truncation policy. Default value: "0".
         // Notice that this configuration parameter does not affect the aggregated data collections since MongoDB does not
         // currently support updating documents in capped collections which increase the size of the documents.
-        max: '0',
+        max: '0'
     },
     // Attribute values to one or more blank spaces should be ignored and not processed either as raw data or for
     // the aggregated computations. Default value: "true".
@@ -119,7 +119,7 @@ config.database = {
         // Default value: "true" (although we will set it to false until the Cygnus counterpart is ready and landed)
         enabled: 'false',
         // The path from the root of the STH component Node application to the mappings configuration file
-        configFile: './name-mapping.json',
+        configFile: './name-mapping.json'
     },
     // The encoding criteria is the following one:
     // 1. Encode the forbidden characters using an escaping character (x) and a numerical Unicode code for each character.
@@ -130,7 +130,7 @@ config.database = {
     // 4. Collection names starting with 'system.' will be encoded as 'xsystem.'. For instance, system.myData will be
     //    encoded as xsystem.myData.
     // Default value: "true" (although we will set it to false until the Cygnus counterpart is ready and landed)
-    nameEncoding: 'false',
+    nameEncoding: 'false'
 };
 
 // Logging configuration
@@ -146,7 +146,7 @@ config.logging = {
     format: 'pipe',
     // The time in seconds between proof of life logging messages informing that the server is up and running normally.
     // Default value: "60"
-    proofOfLifeInterval: '60',
+    proofOfLifeInterval: '60'
 };
 
 module.exports = config;
