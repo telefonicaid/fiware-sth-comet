@@ -22,8 +22,8 @@ check the FIWARE Catalogue entry for the
 [Core Context Management](https://github.com/Fiware/catalogue/tree/master/core).
 
 
-| :books: [Documentation](https://fiware-sth-comet.rtfd.io) | :mortar_board: [Academy](https://fiware-academy.readthedocs.io/en/latest/core/sth-comet) |  :whale: [Docker Hub](https://hub.docker.com/r/fiware/sth-comet/) |
-|---|---|---|
+| :books: [Documentation](https://fiware-sth-comet.rtfd.io) | :mortar_board: [Academy](https://fiware-academy.readthedocs.io/en/latest/core/sth-comet) |  :whale: [Docker Hub](https://hub.docker.com/r/fiware/sth-comet/) | :dart: [Roadmap](https://github.com/telefonicaid/fiware-sth-comet/blob/master/doc/roadmap.md)|
+|---|---|---|---|
 
 
 # Contents
