@@ -15,9 +15,9 @@ Also notice how in the previous request `sum` aggregated context information is 
 The requests for aggregated time series context information can use the following query parameters:
 
 * **aggrMethod**: The aggregation method. The STH component supports the following aggregation methods: `max` (maximum value), `min` (minimum value), `sum` (sum of all the samples) and `sum2` (sum of the square value of all the samples) for numeric attribute values and `occur` for attributes values of type string. Combining the information provided by these aggregated methods with the number of samples, it is possible to calculate probabilistic values such as the average value, the variance as well as the standard deviation. It is a mandatory parameter.
-* **aggrPeriod**: Aggregation period or resolution. A fixed resolution determines the origin time format and the possible offsets. It is a mandatory parameter.
-* **dateFrom**: The starting date and time from which the aggregated time series information is desired. It is an optional parameter.
-* **dateTo**: The final date and time until which the aggregated time series information is desired. It is an optional parameter.
+* **aggrPeriod**: Aggregation period or resolution. A fixed resolution determines the origin time format and the possible offsets. It is a mandatory parameter. Possible valid aggrPeriod or resolution values supported by the STH are: `month`, `day`, `hour`, `minute` and `second`.
+* **dateFrom**: The starting date and time from which the aggregated time series information is desired, specified using the ISO 8601 standard format. It is an optional parameter.
+* **dateTo**: The final date and time until which the aggregated time series information is desired, specified using the ISO 8601 standard format. It is an optional parameter.
 
 An example response provided by the STH component to a request such as the previous one (for a numeric attribute value) could be the following:
 ```json
