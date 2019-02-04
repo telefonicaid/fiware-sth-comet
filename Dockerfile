@@ -19,9 +19,10 @@
 # For those usages not covered by the GNU Affero General Public License
 # please contact with: [german.torodelvalle@telefonica.com]
 
-FROM node:8.12.0-slim
+ARG NODE_VERSION=8.15.0-slim
+FROM node:${NODE_VERSION}
 
-MAINTAINER FIWARE STH Team. TelefÃ³nica I+D
+MAINTAINER FIWARE STH Team. Telefónica I+D
 
 COPY . /opt/sth/
 WORKDIR /opt/sth
