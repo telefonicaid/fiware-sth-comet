@@ -285,12 +285,9 @@ function systemCollectionNotIncludedTest(targetDataModel, done) {
  */
 function collectionPerAttributeAnalysisTests(dataType, aggregationType) {
     describe('collection per attribute analysis', function() {
-        it(
-            'should insert data into the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE +
-                ' ' +
-                dataType +
-                ' data collection',
+        // prettier-ignore
+        it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' ' + dataType +
+            ' data collection',
             insertData.bind(null, dataType, aggregationType, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE)
         );
 
@@ -315,15 +312,10 @@ function collectionPerAttributeAnalysisTests(dataType, aggregationType) {
             systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH)
         );
 
-        it(
-            'should not detect the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE +
-                ' ' +
-                dataType +
-                ' data collection needs ' +
-                'migration to the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE +
-                ' data model',
+        // prettier-ignore
+        it('should not detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' ' + dataType +
+            ' data collection needs migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE +
+            ' data model',
             analysisExclusionTest.bind(
                 null,
                 dataType,
@@ -332,15 +324,10 @@ function collectionPerAttributeAnalysisTests(dataType, aggregationType) {
             )
         );
 
-        it(
-            'should detect the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE +
-                ' ' +
-                dataType +
-                ' data collection needs ' +
-                'migration to the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +
-                ' data model',
+        // prettier-ignore
+        it('should detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' ' + dataType +
+            ' data collection needs migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +
+            ' data model',
             analysisInclusionTest.bind(
                 null,
                 dataType,
@@ -852,32 +839,22 @@ function noMigrationTest(dataType, originDataModel, targetDataModel, done) {
  */
 function collectionPerEntityNotUpdatableMigrationTests(dataType, aggregationType) {
     describe('collection per entity not updatable migration', function() {
-        it(
-            'should insert data into the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +
-                ' ' +
-                dataType +
-                ' data collection',
+        // prettier-ignore
+        it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' +
+            dataType + ' data collection',
             insertData.bind(null, dataType, aggregationType, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY)
         );
 
-        it(
-            'should insert data into the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
-                ' ' +
-                dataType +
-                ' data collection',
+        // prettier-ignore
+        it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' +
+            dataType + ' data collection',
             insertData.bind(null, dataType, aggregationType, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH)
         );
 
-        it(
-            'should not migrate the ' +
-                dataType +
-                ' data collection from the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +
-                ' to the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
-                ' data model',
+        // prettier-ignore
+        it('should not migrate the ' + dataType + ' data collection from the ' + 
+            sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' to the ' +
+            sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
             noMigrationTest.bind(
                 null,
                 dataType,
@@ -903,24 +880,17 @@ function collectionPerEntityNotUpdatableMigrationTests(dataType, aggregationType
  */
 function collectionPerEntityCleanMigrationTests(dataType, aggregationType, options) {
     describe('collection per entity clean migration', function() {
-        it(
-            'should insert data into the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +
-                ' ' +
-                dataType +
-                ' data collection',
+        // prettier-ignore
+        it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' + dataType + 
+            ' data collection',
             insertData.bind(null, dataType, aggregationType, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY)
         );
 
-        it(
-            'should migrate the ' +
-                dataType +
-                ' data collection from the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +
-                ' to the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
-                ' data model' +
-                (options.removeCollection ? ' removing the original collection afterwards' : ''),
+        // prettier-ignore
+        it('should migrate the ' + dataType + ' data collection from the ' + 
+            sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' to the ' + 
+            sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model' +
+            (options.removeCollection ? ' removing the original collection afterwards' : ''),
             migrationTest.bind(
                 null,
                 {
@@ -950,33 +920,24 @@ function collectionPerEntityCleanMigrationTests(dataType, aggregationType, optio
  */
 function collectionPerEntityUpdateMigrationTests(dataType, aggregationType, options) {
     describe('collection per entity updatable migration', function() {
-        it(
-            'should insert data into the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +
-                ' ' +
-                dataType +
-                ' data collection',
+        // prettier-ignore
+        it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' +
+            dataType + ' data collection',
             insertData.bind(null, dataType, aggregationType, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY)
         );
 
-        it(
-            'should insert data into the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
-                ' ' +
-                dataType +
-                ' data collection',
+        // prettier-ignore
+        it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' +
+            dataType + ' data collection',
             insertData.bind(null, dataType, aggregationType, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH)
         );
 
-        it(
-            'should migrate the ' +
-                dataType +
-                ' data collection from the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +
-                ' to the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
-                ' data model updating the target collection' +
-                (options.removeCollection ? ' and removing the original collection afterwards' : ''),
+        // prettier-ignore
+        it('should migrate the ' + dataType + ' data collection from the ' + 
+            sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' to the ' + 
+            sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
+            ' data model updating the target collection' +
+            (options.removeCollection ? ' and removing the original collection afterwards' : ''),
             migrationTest.bind(
                 null,
                 {

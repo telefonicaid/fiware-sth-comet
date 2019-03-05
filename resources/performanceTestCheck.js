@@ -20,16 +20,9 @@ function assertEntriesPerCollection(entriesPerCollection) {
                         print('** Checking collection ' + collections[j] + '...');
                         var count = database[collections[j]].count();
                         var percentage = (count / entriesPerCollection) * 100;
-                        print(
-                            '*** Expected ' +
-                                entriesPerCollection +
-                                ' and found ' +
-                                count +
-                                '... ' +
-                                percentage +
-                                '% ' +
-                                (percentage === 100 ? 'PERFECT' : 'ERROR')
-                        );
+                        // prettier-ignore
+                        print('*** Expected ' + entriesPerCollection + ' and found ' + count + '... ' + percentage + '% ' +
+                            (percentage === 100 ? 'PERFECT' : 'ERROR'));
                         if (percentage !== 100) {
                             errorCounter++;
                         }
