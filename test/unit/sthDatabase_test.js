@@ -155,12 +155,9 @@ function cleanDatabaseTests() {
     describe('database clean up', function() {
         dataModelsKeys.forEach(function(dataModel) {
             dataTypeKeys.forEach(function(dataType) {
-                it(
-                    'should drop the ' +
-                        sthConfig.DATA_MODELS[dataModel] +
-                        ' ' +
-                        sthTestConfig.DATA_TYPES[dataType] +
-                        ' data collection if it exists',
+                //prettier-ignore
+                it('should drop the ' + sthConfig.DATA_MODELS[dataModel] + ' ' + sthTestConfig.DATA_TYPES[dataType] + 
+                    ' data collection if it exists',
                     dropCollection.bind(
                         null,
                         COLLECTION_NAME_PARAMS,
@@ -169,12 +166,9 @@ function cleanDatabaseTests() {
                     )
                 );
 
-                it(
-                    'should drop the numeric ' +
-                        sthConfig.DATA_MODELS[dataModel] +
-                        ' ' +
-                        sthTestConfig.DATA_TYPES[dataType] +
-                        ' data collection if it exists',
+                //prettier-ignore
+                it('should drop the numeric ' + sthConfig.DATA_MODELS[dataModel] + ' ' + 
+                    sthTestConfig.DATA_TYPES[dataType] + ' data collection if it exists',
                     dropCollection.bind(
                         null,
                         NUMERIC_COLLECTION_NAME_PARAMS,
@@ -183,12 +177,9 @@ function cleanDatabaseTests() {
                     )
                 );
 
-                it(
-                    'should drop the textual ' +
-                        sthConfig.DATA_MODELS[dataModel] +
-                        ' ' +
-                        sthTestConfig.DATA_TYPES[dataType] +
-                        ' data collection if it exists',
+                //prettier-ignore
+                it('should drop the textual ' + sthConfig.DATA_MODELS[dataModel] + ' ' + 
+                    sthTestConfig.DATA_TYPES[dataType] + ' data collection if it exists',
                     dropCollection.bind(
                         null,
                         TEXTUAL_COLLECTION_NAME_PARAMS,
@@ -197,12 +188,9 @@ function cleanDatabaseTests() {
                     )
                 );
 
-                it(
-                    'should drop the very long service path ' +
-                        sthConfig.DATA_MODELS[dataModel] +
-                        ' ' +
-                        sthTestConfig.DATA_TYPES[dataType] +
-                        ' data collection if it exists',
+                //prettier-ignore
+                it('should drop the very long service path ' + sthConfig.DATA_MODELS[dataModel] + ' ' + 
+                    sthTestConfig.DATA_TYPES[dataType] + ' data collection if it exists',
                     dropCollection.bind(
                         null,
                         VERY_LONG_COLLECTION_NAME_PARAMS,
@@ -232,10 +220,9 @@ function collectionAccessTests() {
             });
 
             dataTypes.forEach(function(dataType) {
-                it(
-                    'should notify as error a non-existent ' +
-                        sthTestConfig.DATA_TYPES[dataType] +
-                        ' data collection if it should not be created',
+                //prettier-ignore
+                it('should notify as error a non-existent ' + sthTestConfig.DATA_TYPES[dataType] + 
+                    ' data collection if it should not be created',
                     function(done) {
                         sthDatabase.getCollection(
                             COLLECTION_NAME_PARAMS,
@@ -256,10 +243,9 @@ function collectionAccessTests() {
                     }
                 );
 
-                it(
-                    'should create a ' +
-                        sthTestConfig.DATA_TYPES[dataType] +
-                        ' data collection if non-existent and requested',
+                //prettier-ignore
+                it('should create a ' + sthTestConfig.DATA_TYPES[dataType] + 
+                    ' data collection if non-existent and requested',
                     function(done) {
                         sthDatabase.getCollection(
                             COLLECTION_NAME_PARAMS,
@@ -628,8 +614,7 @@ function storageTests() {
                                 it(
                                     'should detect a new ' +
                                         sthConfig.AGGREGATIONS[aggregation] +
-                                        ' attribute value notification is ' +
-                                        'susceptible of being inserted',
+                                        ' attribute value notification is susceptible of being inserted',
                                     function(done) {
                                         var notificationInfoParams = getDataStoreParams(
                                             collection,
@@ -645,13 +630,9 @@ function storageTests() {
                                     }
                                 );
                             }
-
-                            it(
-                                'should store ' +
-                                    sthConfig.AGGREGATIONS[aggregation] +
-                                    ' ' +
-                                    sthTestConfig.DATA_TYPES[dataType] +
-                                    ' data',
+                            //prettier-ignore
+                            it('should store ' + sthConfig.AGGREGATIONS[aggregation] + ' ' + 
+                                sthTestConfig.DATA_TYPES[dataType] + ' data',
                                 shouldStoreTest.bind(
                                     null,
                                     sthConfig.AGGREGATIONS[aggregation],
@@ -661,11 +642,9 @@ function storageTests() {
                             );
 
                             if (sthTestConfig.DATA_TYPES[dataType] === sthTestConfig.DATA_TYPES.RAW) {
-                                it(
-                                    'should detect an already inserted ' +
-                                        sthConfig.AGGREGATIONS[aggregation] +
-                                        ' attribute value ' +
-                                        'notification already exists',
+                                //prettier-ignore
+                                it('should detect an already inserted ' +  sthConfig.AGGREGATIONS[aggregation] +
+                                    ' attribute value notification already exists',
                                     function(done) {
                                         var notificationInfoParams = getDataStoreParams(
                                             collection,
@@ -684,14 +663,9 @@ function storageTests() {
                                 );
                             }
 
-                            it(
-                                'should store a second entry of ' +
-                                    sthConfig.AGGREGATIONS[aggregation] +
-                                    ' ' +
-                                    sthTestConfig.DATA_TYPES[dataType] +
-                                    ' data with a ' +
-                                    DELAY +
-                                    ' ms delay',
+                            //prettier-ignore
+                            it('should store a second entry of ' + sthConfig.AGGREGATIONS[aggregation] + ' ' + 
+                                sthTestConfig.DATA_TYPES[dataType] + ' data with a ' + DELAY + ' ms delay',
                                 shouldStoreTest.bind(
                                     null,
                                     sthConfig.AGGREGATIONS[aggregation],
@@ -701,10 +675,9 @@ function storageTests() {
                             );
 
                             if (sthTestConfig.DATA_TYPES[dataType] === sthTestConfig.DATA_TYPES.RAW) {
-                                it(
-                                    'should detect as updatable an updated ' +
-                                        sthConfig.AGGREGATIONS[aggregation] +
-                                        ' attribute value',
+                                //prettier-ignore
+                                it('should detect as updatable an updated ' + sthConfig.AGGREGATIONS[aggregation] + 
+                                    ' attribute value',
                                     function(done) {
                                         var notificationInfoParams = getDataStoreParams(
                                             collection,
@@ -826,16 +799,9 @@ function retrievalTest(params, options, count, done) {
  */
 function shouldRetrieveTests(count, aggregation, dataType) {
     if (dataType === sthTestConfig.DATA_TYPES.RAW) {
-        it(
-            'should retrieve ' +
-                count +
-                ' ' +
-                aggregation +
-                ' ' +
-                dataType +
-                ' data with no params if ' +
-                count +
-                ' data is inserted',
+        //prettier-ignore
+        it('should retrieve ' + count + ' ' + aggregation + ' ' + dataType + ' data with no params if ' + count + 
+            ' data is inserted',
             retrievalTest.bind(
                 null,
                 {
@@ -847,16 +813,9 @@ function shouldRetrieveTests(count, aggregation, dataType) {
             )
         );
 
-        it(
-            'should retrieve ' +
-                count +
-                ' ' +
-                aggregation +
-                ' ' +
-                dataType +
-                ' data with lastN if ' +
-                count +
-                ' data is inserted',
+        //prettier-ignore
+        it('should retrieve ' + count + ' ' + aggregation + ' ' + dataType + ' data with lastN if ' + count + 
+            ' data is inserted',
             retrievalTest.bind(
                 null,
                 {
@@ -870,16 +829,9 @@ function shouldRetrieveTests(count, aggregation, dataType) {
             )
         );
 
-        it(
-            'should retrieve ' +
-                count +
-                ' ' +
-                aggregation +
-                ' ' +
-                dataType +
-                ' data with hLimit and hOffset if ' +
-                count +
-                ' data is inserted',
+        //prettier-ignore
+        it('should retrieve ' + count + ' ' + aggregation + ' ' + dataType + ' data with hLimit and hOffset if ' + 
+            count + ' data is inserted',
             retrievalTest.bind(
                 null,
                 {
@@ -894,16 +846,9 @@ function shouldRetrieveTests(count, aggregation, dataType) {
             )
         );
 
-        it(
-            'should retrieve ' +
-                count +
-                ' ' +
-                aggregation +
-                ' ' +
-                dataType +
-                ' data with dateFrom if ' +
-                count +
-                ' data is inserted',
+        //prettier-ignore
+        it('should retrieve ' + count + ' ' + aggregation + ' ' + dataType + ' data with dateFrom if ' + count + 
+            ' data is inserted',
             retrievalTest.bind(
                 null,
                 {
@@ -917,16 +862,9 @@ function shouldRetrieveTests(count, aggregation, dataType) {
             )
         );
 
-        it(
-            'should retrieve ' +
-                0 +
-                ' ' +
-                aggregation +
-                ' ' +
-                dataType +
-                ' data with dateFrom is beyond if ' +
-                count +
-                ' data is inserted',
+        //prettier-ignore
+        it('should retrieve ' + 0 + ' ' + aggregation + ' ' + dataType + ' data with dateFrom is beyond if ' + count + 
+            ' data is inserted',
             retrievalTest.bind(
                 null,
                 {
@@ -940,16 +878,9 @@ function shouldRetrieveTests(count, aggregation, dataType) {
             )
         );
 
-        it(
-            'should retrieve ' +
-                count +
-                ' ' +
-                aggregation +
-                ' ' +
-                dataType +
-                ' data with dateTo if ' +
-                count +
-                ' data is inserted',
+        //prettier-ignore
+        it('should retrieve ' + count + ' ' + aggregation + ' ' + dataType + ' data with dateTo if ' + count + 
+            ' data is inserted',
             retrievalTest.bind(
                 null,
                 {
@@ -963,16 +894,9 @@ function shouldRetrieveTests(count, aggregation, dataType) {
             )
         );
 
-        it(
-            'should retrieve ' +
-                0 +
-                ' ' +
-                aggregation +
-                ' ' +
-                dataType +
-                ' data with dateTo if previous if ' +
-                count +
-                ' data is inserted',
+        //prettier-ignore
+        it('should retrieve ' + 0 + ' ' + aggregation + ' ' + dataType + ' data with dateTo if previous if ' + 
+            count + ' data is inserted',
             retrievalTest.bind(
                 null,
                 {
@@ -986,16 +910,9 @@ function shouldRetrieveTests(count, aggregation, dataType) {
             )
         );
 
-        it(
-            'should retrieve ' +
-                count +
-                ' ' +
-                aggregation +
-                ' ' +
-                dataType +
-                ' data with csv if ' +
-                count +
-                ' data is inserted',
+        //prettier-ignore
+        it('should retrieve ' + count + ' ' + aggregation + ' ' + dataType + ' data with csv if ' + count + 
+            ' data is inserted',
             retrievalTest.bind(
                 null,
                 {
@@ -1011,18 +928,9 @@ function shouldRetrieveTests(count, aggregation, dataType) {
     } else {
         sthConfig.AGGREGATION_BY.forEach(function(aggregationBy) {
             if (aggregation === sthConfig.AGGREGATIONS.NUMERIC) {
-                it(
-                    'should retrieve ' +
-                        count +
-                        ' ' +
-                        aggregation +
-                        ' ' +
-                        dataType +
-                        ' data for a resolution of ' +
-                        aggregationBy +
-                        ' and an aggregation method of sum if ' +
-                        count +
-                        ' data is inserted',
+                //prettier-ignore
+                it('should retrieve ' + count + ' ' + aggregation + ' ' + dataType + ' data for a resolution of ' + 
+                    aggregationBy + ' and an aggregation method of sum if ' + count + ' data is inserted',
                     retrievalTest.bind(
                         null,
                         {
@@ -1037,18 +945,10 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                     )
                 );
 
-                it(
-                    'should retrieve ' +
-                        count +
-                        ' ' +
-                        aggregation +
-                        ' ' +
-                        dataType +
-                        ' data for a resolution of ' +
-                        aggregationBy +
-                        ' and an aggregation method of sum with dataFrom set if ' +
-                        count +
-                        ' data is inserted',
+                //prettier-ignore
+                it('should retrieve ' + count + ' ' + aggregation + ' ' + dataType + ' data for a resolution of ' + 
+                    aggregationBy + ' and an aggregation method of sum with dataFrom set if ' + count + 
+                    ' data is inserted',
                     retrievalTest.bind(
                         null,
                         {
@@ -1064,18 +964,10 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                     )
                 );
 
-                it(
-                    'should retrieve ' +
-                        count +
-                        ' ' +
-                        aggregation +
-                        ' ' +
-                        dataType +
-                        ' data for a resolution of ' +
-                        aggregationBy +
-                        ' and an aggregation method of sum with dataTo set if ' +
-                        count +
-                        ' data is inserted',
+                //prettier-ignore
+                it('should retrieve ' + count + ' ' + aggregation + ' ' + dataType + ' data for a resolution of ' + 
+                    aggregationBy + ' and an aggregation method of sum with dataTo set if ' + count + 
+                    ' data is inserted',
                     retrievalTest.bind(
                         null,
                         {
@@ -1091,18 +983,9 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                     )
                 );
 
-                it(
-                    'should retrieve ' +
-                        count +
-                        ' ' +
-                        aggregation +
-                        ' ' +
-                        dataType +
-                        ' data for a resolution of ' +
-                        aggregationBy +
-                        ' and an aggregation method of sum2 if ' +
-                        count +
-                        ' data is inserted',
+                //prettier-ignore
+                it('should retrieve ' + count + ' ' + aggregation + ' ' + dataType + ' data for a resolution of ' + 
+                    aggregationBy + ' and an aggregation method of sum2 if ' + count + ' data is inserted',
                     retrievalTest.bind(
                         null,
                         {
@@ -1117,18 +1000,9 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                     )
                 );
 
-                it(
-                    'should retrieve ' +
-                        count +
-                        ' ' +
-                        aggregation +
-                        ' ' +
-                        dataType +
-                        ' data for a resolution of ' +
-                        aggregationBy +
-                        ' and an aggregation method of min if ' +
-                        count +
-                        ' data is inserted',
+                //prettier-ignore
+                it('should retrieve ' + count + ' ' + aggregation + ' ' + dataType + ' data for a resolution of ' + 
+                    aggregationBy + ' and an aggregation method of min if ' + count + ' data is inserted',
                     retrievalTest.bind(
                         null,
                         {
@@ -1143,18 +1017,9 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                     )
                 );
 
-                it(
-                    'should retrieve ' +
-                        count +
-                        ' ' +
-                        aggregation +
-                        ' ' +
-                        dataType +
-                        ' data for a resolution of ' +
-                        aggregationBy +
-                        ' and an aggregation method of max if ' +
-                        count +
-                        ' data is inserted',
+                //prettier-ignore
+                it('should retrieve ' + count + ' ' + aggregation + ' ' + dataType + ' data for a resolution of ' + 
+                    aggregationBy + ' and an aggregation method of max if ' + count + ' data is inserted',
                     retrievalTest.bind(
                         null,
                         {
@@ -1169,18 +1034,9 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                     )
                 );
             } else {
-                it(
-                    'should retrieve ' +
-                        count +
-                        ' ' +
-                        aggregation +
-                        ' ' +
-                        dataType +
-                        ' data for a resolution of ' +
-                        aggregationBy +
-                        ' and an aggregation method of occur if ' +
-                        count +
-                        ' data is inserted',
+                //prettier-ignore
+                it('should retrieve ' + count + ' ' + aggregation + ' ' + dataType + ' data for a resolution of ' + 
+                    aggregationBy + ' and an aggregation method of occur if ' + count + ' data is inserted',
                     retrievalTest.bind(
                         null,
                         {
@@ -1231,16 +1087,10 @@ function retrievalTests() {
                             );
 
                             for (var i = 1; i <= 5; i++) {
-                                it(
-                                    'should store ' +
-                                        (i === 1 ? i : 'another (' + i + ')') +
-                                        ' ' +
-                                        sthConfig.AGGREGATIONS[aggregation] +
-                                        ' ' +
-                                        sthTestConfig.DATA_TYPES[dataType] +
-                                        ' data with ' +
-                                        (i - 1) * DELAY +
-                                        'ms delay',
+                                //prettier-ignore
+                                it('should store ' + (i === 1 ? i : 'another (' + i + ')') + ' ' +  
+                                    sthConfig.AGGREGATIONS[aggregation] + ' ' +  sthTestConfig.DATA_TYPES[dataType] + 
+                                    ' data with ' + (i - 1) * DELAY +  'ms delay',
                                     shouldStoreTest.bind(
                                         null,
                                         sthConfig.AGGREGATIONS[aggregation],

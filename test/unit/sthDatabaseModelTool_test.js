@@ -291,24 +291,21 @@ function collectionPerAttributeAnalysisTests(dataType, aggregationType) {
             insertData.bind(null, dataType, aggregationType, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE)
         );
 
-        it(
-            'should not detect the any system.* collection needs migration to the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE +
-                ' data model',
+        // prettier-ignore
+        it('should not detect the any system.* collection needs migration to the ' +
+            sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
             systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE)
         );
 
-        it(
-            'should not detect the any system.* collection needs migration to the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +
-                ' data model',
+        // prettier-ignore
+        it('should not detect the any system.* collection needs migration to the ' +
+            sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
             systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY)
         );
 
-        it(
-            'should not detect the any system.* collection needs migration to the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
-                ' data model',
+        // prettier-ignore
+        it('should not detect the any system.* collection needs migration to the ' +
+            sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
             systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH)
         );
 
@@ -336,15 +333,10 @@ function collectionPerAttributeAnalysisTests(dataType, aggregationType) {
             )
         );
 
-        it(
-            'should detect the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE +
-                ' ' +
-                dataType +
-                ' data collection needs ' +
-                'migration to the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
-                ' data model',
+        // prettier-ignore
+        it('should detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' ' + dataType + 
+            ' data collection needs ' + 'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
+            ' data model',
             analysisInclusionTest.bind(
                 null,
                 dataType,
@@ -363,46 +355,34 @@ function collectionPerAttributeAnalysisTests(dataType, aggregationType) {
  * @param  {String}  aggregationType The aggregation type
  */
 function collectionPerEntityAnalysisTests(dataType, aggregationType) {
-    describe('collection per entity analysis', function() {
-        it(
-            'should insert data into the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +
-                ' ' +
-                dataType +
-                ' data collection',
+    describe('col// pretty analysis', function() {
+        // prettier-ignore
+        it( 'should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +  ' ' + dataType +
+            ' data collection',
             insertData.bind(null, dataType, aggregationType, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY)
         );
 
-        it(
-            'should not detect the any system.* collection needs migration to the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE +
-                ' data model',
+        // prettier-ignore
+        it('should not detect the any system.* collection needs migration to the ' +
+            sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
             systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE)
         );
 
-        it(
-            'should not detect the any system.* collection needs migration to the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +
-                ' data model',
+        // prettier-ignore
+        it('should not detect the any system.* collection needs migration to the ' +
+            sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
             systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY)
         );
 
-        it(
-            'should not detect the any system.* collection needs migration to the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
-                ' data model',
+        // prettier-ignore
+        it('should not detect the any system.* collection needs migration to the ' +
+            sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
             systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH)
         );
 
-        it(
-            'should not detect the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +
-                ' ' +
-                dataType +
-                ' data collection needs ' +
-                'migration to the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +
-                ' data model',
+        // prettier-ignore
+        it('should not detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' +  dataType +
+            ' data collection needs migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
             analysisExclusionTest.bind(
                 null,
                 dataType,
@@ -411,15 +391,10 @@ function collectionPerEntityAnalysisTests(dataType, aggregationType) {
             )
         );
 
-        it(
-            'should detect the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +
-                ' ' +
-                dataType +
-                ' data collection needs ' +
-                'migration to the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE +
-                ' data model',
+        // prettier-ignore
+        it('should detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' + dataType +
+            ' data collection needs ' + 'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE +
+            ' data model',
             analysisInclusionTest.bind(
                 null,
                 dataType,
@@ -428,15 +403,10 @@ function collectionPerEntityAnalysisTests(dataType, aggregationType) {
             )
         );
 
-        it(
-            'should detect the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +
-                ' ' +
-                dataType +
-                ' data collection needs ' +
-                'migration to the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
-                ' data model',
+        // prettier-ignore
+        it('should detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' + dataType +
+           ' data collection needs ' + 'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
+           ' data model',
             analysisInclusionTest.bind(
                 null,
                 dataType,
@@ -456,45 +426,34 @@ function collectionPerEntityAnalysisTests(dataType, aggregationType) {
  */
 function collectionPerServicePathAnalysisTests(dataType, aggregationType) {
     describe('collection per service path analysis', function() {
-        it(
-            'should insert data into the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
-                ' ' +
-                dataType +
-                ' data collection',
+        // prettier-ignore
+        it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' + dataType +
+            ' data collection',
             insertData.bind(null, dataType, aggregationType, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH)
         );
 
-        it(
-            'should not detect the any system.* collection needs migration to the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE +
-                ' data model',
+        // prettier-ignore
+        it('should not detect the any system.* collection needs migration to the ' +
+            sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
             systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE)
         );
 
-        it(
-            'should not detect the any system.* collection needs migration to the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +
-                ' data model',
+        // prettier-ignore
+        it('should not detect the any system.* collection needs migration to the ' +
+            sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
             systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY)
         );
 
-        it(
-            'should not detect the any system.* collection needs migration to the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
-                ' data model',
+        // prettier-ignore
+        it('should not detect the any system.* collection needs migration to the ' +
+            sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
             systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH)
         );
 
-        it(
-            'should not detect the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
-                ' ' +
-                dataType +
-                ' data collection needs ' +
-                'migration to the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
-                ' data model',
+        // prettier-ignore
+        it('should not detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' + dataType +
+            ' data collection needs ' + 'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
+            ' data model',
             analysisExclusionTest.bind(
                 null,
                 dataType,
@@ -503,15 +462,10 @@ function collectionPerServicePathAnalysisTests(dataType, aggregationType) {
             )
         );
 
-        it(
-            'should detect the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
-                ' ' +
-                dataType +
-                ' data collection needs ' +
-                'migration to the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE +
-                ' data model',
+        // prettier-ignore
+        it('should detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' + dataType +
+            ' data collection needs ' + 'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + 
+            ' data model',
             analysisInclusionTest.bind(
                 null,
                 dataType,
@@ -520,15 +474,10 @@ function collectionPerServicePathAnalysisTests(dataType, aggregationType) {
             )
         );
 
-        it(
-            'should detect the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
-                ' ' +
-                dataType +
-                ' data collection needs ' +
-                'migration to the ' +
-                sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +
-                ' data model',
+        // prettier-ignore
+        it('should detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' + dataType +
+            ' data collection needs ' + 'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +
+            ' data model',
             analysisInclusionTest.bind(
                 null,
                 dataType,
@@ -921,14 +870,14 @@ function collectionPerEntityCleanMigrationTests(dataType, aggregationType, optio
 function collectionPerEntityUpdateMigrationTests(dataType, aggregationType, options) {
     describe('collection per entity updatable migration', function() {
         // prettier-ignore
-        it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' +
-            dataType + ' data collection',
+        it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' + dataType +
+            ' data collection',
             insertData.bind(null, dataType, aggregationType, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY)
         );
 
         // prettier-ignore
-        it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' +
-            dataType + ' data collection',
+        it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' + dataType +
+            ' data collection',
             insertData.bind(null, dataType, aggregationType, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH)
         );
 

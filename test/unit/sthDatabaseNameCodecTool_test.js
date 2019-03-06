@@ -317,13 +317,13 @@ describe('sthDatabaseNameCodecTool tests', function() {
                 async.series([connectToDatabase, dropDatabases, createRawAndAggregatedCollections], done);
             });
 
-            it(
-                'should raise an error if neither -e, --encode or -d, --decode options are set',
+            // prettier-ignore
+            it('should raise an error if neither -e, --encode or -d, --decode options are set',
                 encodeDecodeMandatoryOptionsTest.bind(null, sthDatabaseNameCodecTool.getEncodingAnalysis)
             );
 
-            it(
-                'should raise an error if the -b, --database is not set when the -c, --collection is set',
+            // prettier-ignore
+            it('should raise an error if the -b, --database is not set when the -c, --collection is set',
                 collectionAndDatabaseMandatoryOptionsTest.bind(null, sthDatabaseNameCodecTool.getEncodingAnalysis)
             );
 
@@ -342,8 +342,8 @@ describe('sthDatabaseNameCodecTool tests', function() {
                 );
             });
 
-            it(
-                "should not detect database '" + DATABASE_NAME + "' as susceptible of being encoded if filtered out",
+            // prettier-ignore
+            it("should not detect database '" + DATABASE_NAME + "' as susceptible of being encoded if filtered out",
                 function(done) {
                     sthDatabaseNameCodecTool.getEncodingAnalysis(
                         {
@@ -361,12 +361,9 @@ describe('sthDatabaseNameCodecTool tests', function() {
                 }
             );
 
-            it(
-                "should detect collection '" +
-                    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-                    "' of database '" +
-                    DATABASE_NAME +
-                    "' as susceptible of being encoded",
+            // prettier-ignore
+            it("should detect collection '" + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
+                "' of database '" + DATABASE_NAME + "' as susceptible of being encoded",
                 shouldDetectCollectionTest.bind(
                     null,
                     true,
@@ -375,21 +372,15 @@ describe('sthDatabaseNameCodecTool tests', function() {
                 )
             );
 
-            it(
-                "should not detect collection '" +
-                    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-                    "' of database '" +
-                    DATABASE_NAME +
-                    "' as susceptible of being encoded if filtered out",
+            // prettier-ignore
+            it("should not detect collection '" + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
+                "' of database '" + DATABASE_NAME + "' as susceptible of being encoded if filtered out",
                 shouldNotDetectCollectionTest.bind(null, true, DATABASE_NAME)
             );
 
-            it(
-                "should detect collection '" +
-                    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-                    "' of database '" +
-                    DATABASE_NAME +
-                    "' as susceptible of being encoded",
+            // prettier-ignore
+            it("should detect collection '" + sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
+                "' of database '" + DATABASE_NAME + "' as susceptible of being encoded",
                 shouldDetectCollectionTest.bind(
                     null,
                     true,
@@ -398,12 +389,10 @@ describe('sthDatabaseNameCodecTool tests', function() {
                 )
             );
 
-            it(
-                "should not detect collection '" +
-                    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-                    "' of database '" +
-                    DATABASE_NAME +
-                    "' as susceptible of being encoded if filtered out",
+            // prettier-ignore
+            it("should not detect collection '" + 
+                sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) + "' of database '" + 
+                DATABASE_NAME + "' as susceptible of being encoded if filtered out",
                 shouldNotDetectCollectionTest.bind(null, true, DATABASE_NAME)
             );
 
@@ -424,23 +413,20 @@ describe('sthDatabaseNameCodecTool tests', function() {
                 async.series([dropDatabases, createRawAndAggregatedCollections], done);
             });
 
-            it(
-                'should raise an error if neither -e, --encode or -d, --decode options are set',
+            // prettier-ignore
+            it('should raise an error if neither -e, --encode or -d, --decode options are set',
                 encodeDecodeMandatoryOptionsTest.bind(null, sthDatabaseNameCodecTool.getEncodingAnalysis)
             );
 
-            it(
-                'should raise an error if the -b, --database is not set when the -c, --collection is set',
+            // prettier-ignore
+            it('should raise an error if the -b, --database is not set when the -c, --collection is set',
                 collectionAndDatabaseMandatoryOptionsTest.bind(null, sthDatabaseNameCodecTool.getEncodingAnalysis)
             );
 
-            it(
-                "should detect collection '" +
-                    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-                    "' of database '" +
-                    sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) +
-                    "' as susceptible of " +
-                    'being decoded',
+            // prettier-ignore
+            it("should detect collection '" + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) + 
+                "' of database '" + sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) + "' as susceptible of " + 
+                'being decoded',
                 shouldDetectCollectionTest.bind(
                     null,
                     false,
@@ -449,21 +435,17 @@ describe('sthDatabaseNameCodecTool tests', function() {
                 )
             );
 
-            it(
-                "should not detect collection '" +
-                    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-                    "' of database '" +
-                    sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) +
-                    "' as susceptible of being decoded if filtered out",
+            // prettier-ignore
+            it("should not detect collection '" + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) + 
+                "' of database '" + sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) + 
+                "' as susceptible of being decoded if filtered out",
                 shouldNotDetectCollectionTest.bind(null, false, sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE))
             );
 
-            it(
-                "should detect collection '" +
-                    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-                    "' of database '" +
-                    sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) +
-                    "' as susceptible of being decoded",
+            // prettier-ignore
+            it("should detect collection '" + sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) + 
+                "' of database '" + sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) + 
+                "' as susceptible of being decoded",
                 shouldDetectCollectionTest.bind(
                     null,
                     false,
@@ -472,12 +454,11 @@ describe('sthDatabaseNameCodecTool tests', function() {
                 )
             );
 
-            it(
-                "should not detect collection '" +
-                    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-                    "' of database '" +
-                    sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) +
-                    "' as susceptible of being decoded if filtered out",
+            // prettier-ignore
+            it("should not detect collection '" + 
+                sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) + "' of database '" +
+                sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) + 
+                "' as susceptible of being decoded if filtered out",
                 shouldNotDetectCollectionTest.bind(null, false, sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE))
             );
 
@@ -500,37 +481,29 @@ describe('sthDatabaseNameCodecTool tests', function() {
                 async.series([dropDatabases, createRawAndAggregatedCollections], done);
             });
 
-            it(
-                'should raise an error if neither -e, --encode or -d, --decode options are set',
+            // prettier-ignore
+            it('should raise an error if neither -e, --encode or -d, --decode options are set',
                 encodeDecodeMandatoryOptionsTest.bind(null, sthDatabaseNameCodecTool.encodeOrDecode)
             );
 
-            it(
-                'should raise an error if the -b, --database is not set when the -c, --collection is set',
+            // prettier-ignore
+            it('should raise an error if the -b, --database is not set when the -c, --collection is set',
                 collectionAndDatabaseMandatoryOptionsTest.bind(null, sthDatabaseNameCodecTool.encodeOrDecode)
             );
 
-            it(
-                "should encode the database '" +
-                    DATABASE_NAME +
-                    "' as '" +
-                    sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) +
-                    "'",
+            // prettier-ignore
+            it("should encode the database '" + DATABASE_NAME + "' as '" + 
+                sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) + "'",
                 shouldEncodeOrDecodeDatabaseTest.bind(null, DATABASE_NAME, true)
             );
 
-            it(
-                "should encode the collection '" +
-                    sthDatabaseNameCodec.decodeCollectionName(
-                        sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)
-                    ) +
-                    "' as '" +
-                    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-                    "' and the database '" +
-                    DATABASE_NAME +
-                    "' as '" +
-                    sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) +
-                    "'",
+            // prettier-ignore
+            it("should encode the collection '" + 
+                sthDatabaseNameCodec.decodeCollectionName(
+                    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)
+                ) + "' as '" + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) + 
+                "' and the database '" + DATABASE_NAME + "' as '" + 
+                sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) + "'",
                 shouldEncodeOrDecodeCollectionTest.bind(
                     null,
                     DATABASE_NAME,
@@ -541,18 +514,12 @@ describe('sthDatabaseNameCodecTool tests', function() {
                 )
             );
 
-            it(
-                "should encode the collection '" +
-                    sthDatabaseNameCodec.decodeCollectionName(
-                        sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)
-                    ) +
-                    "' as '" +
-                    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-                    "' and the database '" +
-                    DATABASE_NAME +
-                    "' as '" +
-                    sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) +
-                    "'",
+            // prettier-ignore
+            it("should encode the collection '" + sthDatabaseNameCodec.decodeCollectionName(
+                    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)
+                ) + "' as '" + sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) + 
+                "' and the database '" + DATABASE_NAME + "' as '" + 
+                sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) + "'",
                 shouldEncodeOrDecodeCollectionTest.bind(
                     null,
                     DATABASE_NAME,
@@ -580,22 +547,19 @@ describe('sthDatabaseNameCodecTool tests', function() {
                 async.series([dropDatabases, createRawAndAggregatedCollections], done);
             });
 
-            it(
-                'should raise an error if neither -e, --encode or -d, --decode options are set',
+            // prettier-ignore
+            it('should raise an error if neither -e, --encode or -d, --decode options are set',
                 encodeDecodeMandatoryOptionsTest.bind(null, sthDatabaseNameCodecTool.encodeOrDecode)
             );
 
-            it(
-                'should raise an error if the -b, --database is not set when the -c, --collection is set',
+            // prettier-ignore
+            it('should raise an error if the -b, --database is not set when the -c, --collection is set',
                 collectionAndDatabaseMandatoryOptionsTest.bind(null, sthDatabaseNameCodecTool.encodeOrDecode)
             );
 
-            it(
-                "should decode the database '" +
-                    sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) +
-                    "' as '" +
-                    DATABASE_NAME +
-                    "'",
+            // prettier-ignore
+            it("should decode the database '" + sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) + "' as '" +
+             DATABASE_NAME + "'",
                 shouldEncodeOrDecodeDatabaseTest.bind(
                     null,
                     sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME),
@@ -603,18 +567,12 @@ describe('sthDatabaseNameCodecTool tests', function() {
                 )
             );
 
-            it(
-                "should decode the collection '" +
-                    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-                    "' as '" +
-                    sthDatabaseNameCodec.decodeCollectionName(
+            // prettier-ignore
+            it("should decode the collection '" + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) + 
+                "' as '" + sthDatabaseNameCodec.decodeCollectionName(
                         sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)
-                    ) +
-                    "' and the database '" +
-                    sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) +
-                    "' as '" +
-                    DATABASE_NAME +
-                    "'",
+                    ) + "' and the database '" + sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) + "' as '" + 
+                DATABASE_NAME + "'",
                 shouldEncodeOrDecodeCollectionTest.bind(
                     null,
                     sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME),
@@ -623,18 +581,13 @@ describe('sthDatabaseNameCodecTool tests', function() {
                 )
             );
 
-            it(
-                "should decode the collection '" +
-                    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-                    "' as '" +
-                    sthDatabaseNameCodec.decodeCollectionName(
-                        sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)
-                    ) +
-                    "' and the database '" +
-                    sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) +
-                    "' as '" +
-                    DATABASE_NAME +
-                    "'",
+            // prettier-ignore
+            it("should decode the collection '" + 
+                sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) + "' as '" + 
+                sthDatabaseNameCodec.decodeCollectionName(
+                    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)
+                ) + "' and the database '" + sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME) + "' as '" + 
+                DATABASE_NAME + "'",
                 shouldEncodeOrDecodeCollectionTest.bind(
                     null,
                     sthDatabaseNameCodec.encodeDatabaseName(DATABASE_NAME),

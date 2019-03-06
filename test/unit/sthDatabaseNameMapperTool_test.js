@@ -381,13 +381,13 @@ describe('sthDatabaseNameMapperTool tests', function() {
                 async.series([connectToDatabase, dropDatabases, createRawAndAggregatedCollections], done);
             });
 
-            it(
-                'should raise an error if neither -m, --map or -u, --unmap options are set',
+            // prettier-ignore
+            it('should raise an error if neither -m, --map or -u, --unmap options are set',
                 mapUnmapMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.getMappingAnalysis)
             );
 
-            it(
-                'should raise an error if the -b, --database is not set when the -c, --collection is set',
+            // prettier-ignore
+            it('should raise an error if the -b, --database is not set when the -c, --collection is set',
                 collectionAndDatabaseMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.getMappingAnalysis)
             );
 
@@ -406,8 +406,8 @@ describe('sthDatabaseNameMapperTool tests', function() {
                 );
             });
 
-            it(
-                "should not detect database '" + DATABASE_NAME + "' as susceptible of being mapped if filtered out",
+            // prettier-ignore
+            it("should not detect database '" + DATABASE_NAME + "' as susceptible of being mapped if filtered out",
                 function(done) {
                     sthDatabaseNameMapperTool.getMappingAnalysis(
                         {
@@ -425,12 +425,9 @@ describe('sthDatabaseNameMapperTool tests', function() {
                 }
             );
 
-            it(
-                "should not detect collection '" +
-                    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-                    "' of database '" +
-                    DATABASE_NAME +
-                    "' as susceptible of being mapped",
+            // prettier-ignore
+            it("should not detect collection '" + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) + 
+                "' of database '" + DATABASE_NAME + "' as susceptible of being mapped",
                 shouldNotDetectCollectionTest.bind(
                     null,
                     true,
@@ -439,12 +436,9 @@ describe('sthDatabaseNameMapperTool tests', function() {
                 )
             );
 
-            it(
-                "should not detect collection '" +
-                    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-                    "' of database '" +
-                    DATABASE_NAME +
-                    "' as susceptible of being mapped if filtered out",
+            // prettier-ignore
+            it("should not detect collection '" + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) + 
+                "' of database '" + DATABASE_NAME + "' as susceptible of being mapped if filtered out",
                 shouldNotDetectCollectionTest.bind(
                     null,
                     true,
@@ -453,12 +447,10 @@ describe('sthDatabaseNameMapperTool tests', function() {
                 )
             );
 
-            it(
-                "should not detect collection '" +
-                    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-                    "' of database '" +
-                    DATABASE_NAME +
-                    "' as susceptible of being mapped",
+            // prettier-ignore
+            it("should not detect collection '" + 
+                sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) + "' of database '" + 
+                DATABASE_NAME + "' as susceptible of being mapped",
                 shouldNotDetectCollectionTest.bind(
                     null,
                     true,
@@ -467,12 +459,10 @@ describe('sthDatabaseNameMapperTool tests', function() {
                 )
             );
 
-            it(
-                "should not detect collection '" +
-                    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-                    "' of database '" +
-                    DATABASE_NAME +
-                    "' as susceptible of being mapped if filtered out",
+            // prettier-ignore
+            it("should not detect collection '" + 
+                sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) + "' of database '" + 
+                DATABASE_NAME + "' as susceptible of being mapped if filtered out",
                 shouldNotDetectCollectionTest.bind(
                     null,
                     true,
@@ -494,20 +484,19 @@ describe('sthDatabaseNameMapperTool tests', function() {
                 async.series([dropDatabases, createRawAndAggregatedCollections], done);
             });
 
-            it(
-                'should raise an error if neither -m, --map or -u, --unmap options are set',
+            // prettier-ignore
+            it('should raise an error if neither -m, --map or -u, --unmap options are set',
                 mapUnmapMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.getMappingAnalysis)
             );
 
-            it(
-                'should raise an error if the -b, --database is not set when the -c, --collection is set',
+            // prettier-ignore
+            it('should raise an error if the -b, --database is not set when the -c, --collection is set',
                 collectionAndDatabaseMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.getMappingAnalysis)
             );
 
-            it(
-                "should detect database '" +
-                    sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME) +
-                    "' as susceptible of being unmapped",
+            // prettier-ignore
+            it("should detect database '" + sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME) + 
+                "' as susceptible of being unmapped",
                 function(done) {
                     sthDatabaseNameMapperTool.getMappingAnalysis(
                         {
@@ -527,10 +516,9 @@ describe('sthDatabaseNameMapperTool tests', function() {
                 }
             );
 
-            it(
-                "should not detect database '" +
-                    sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME) +
-                    "' as susceptible of being mapped if filtered out",
+            // prettier-ignore
+            it("should not detect database '" + sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME) + 
+                "' as susceptible of being mapped if filtered out",
                 function(done) {
                     sthDatabaseNameMapperTool.getMappingAnalysis(
                         {
@@ -549,13 +537,10 @@ describe('sthDatabaseNameMapperTool tests', function() {
                 }
             );
 
-            it(
-                "should detect collection '" +
-                    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-                    "' of database '" +
-                    sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) +
-                    "' as susceptible of " +
-                    'being unmapped',
+            // prettier-ignore
+            it("should detect collection '" + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) + 
+                "' of database '" + sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) + "' as susceptible of " + 
+                'being unmapped',
                 shouldDetectCollectionTest.bind(
                     null,
                     false,
@@ -564,12 +549,10 @@ describe('sthDatabaseNameMapperTool tests', function() {
                 )
             );
 
-            it(
-                "should not detect collection '" +
-                    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-                    "' of database '" +
-                    sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) +
-                    "' as susceptible of being unmapped if filtered out",
+            // prettier-ignore
+            it("should not detect collection '" + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) + 
+                "' of database '" + sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) + 
+                "' as susceptible of being unmapped if filtered out",
                 shouldNotDetectCollectionTest.bind(
                     null,
                     false,
@@ -578,12 +561,10 @@ describe('sthDatabaseNameMapperTool tests', function() {
                 )
             );
 
-            it(
-                "should detect collection '" +
-                    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-                    "' of database '" +
-                    sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) +
-                    "' as susceptible of being unmapped",
+            // prettier-ignore
+            it("should detect collection '" + sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) + 
+                "' of database '" + sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) + 
+                "' as susceptible of being unmapped",
                 shouldDetectCollectionTest.bind(
                     null,
                     false,
@@ -592,12 +573,11 @@ describe('sthDatabaseNameMapperTool tests', function() {
                 )
             );
 
-            it(
-                "should not detect collection '" +
-                    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-                    "' of database '" +
-                    sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) +
-                    "' as susceptible of being unmapped if filtered out",
+            // prettier-ignore
+            it("should not detect collection '" + 
+                sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) + "' of database '" + 
+                sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) + 
+                "' as susceptible of being unmapped if filtered out",
                 shouldNotDetectCollectionTest.bind(
                     null,
                     false,
@@ -621,27 +601,24 @@ describe('sthDatabaseNameMapperTool tests', function() {
                 async.series([dropDatabases, createRawAndAggregatedCollections], done);
             });
 
-            it(
-                'should raise an error if neither -m, --map or -u, --unmap options are set',
+            // prettier-ignore
+            it('should raise an error if neither -m, --map or -u, --unmap options are set',
                 mapUnmapMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.mapOrUnmap)
             );
 
-            it(
-                'should raise an error if the -b, --database is not set when the -c, --collection is set',
+            // prettier-ignore
+            it('should raise an error if the -b, --database is not set when the -c, --collection is set',
                 collectionAndDatabaseMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.mapOrUnmap)
             );
 
-            it(
-                "should not map the database '" + DATABASE_NAME,
+            // prettier-ignore
+            it("should not map the database '" + DATABASE_NAME,
                 shouldNotMapOrUnmapDatabaseTest.bind(null, DATABASE_NAME, true)
             );
 
-            it(
-                "should not map the collection '" +
-                    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-                    " of database '" +
-                    DATABASE_NAME +
-                    "'",
+            // prettier-ignore
+            it("should not map the collection '" + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) + 
+                " of database '" + DATABASE_NAME + "'",
                 shouldNotMapOrUnmapCollectionTest.bind(
                     null,
                     DATABASE_NAME,
@@ -650,12 +627,10 @@ describe('sthDatabaseNameMapperTool tests', function() {
                 )
             );
 
-            it(
-                "should not map the collection '" +
-                    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-                    " of database '" +
-                    DATABASE_NAME +
-                    "'",
+            // prettier-ignore
+            it("should not map the collection '" + 
+                sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) + " of database '" + 
+                DATABASE_NAME + "'",
                 shouldNotMapOrUnmapCollectionTest.bind(
                     null,
                     DATABASE_NAME,
@@ -677,38 +652,27 @@ describe('sthDatabaseNameMapperTool tests', function() {
                 async.series([dropDatabases, createRawAndAggregatedCollections], done);
             });
 
-            it(
-                'should raise an error if neither -m, --map or -u, --unmap options are set',
+            // prettier-ignore
+            it('should raise an error if neither -m, --map or -u, --unmap options are set',
                 mapUnmapMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.mapOrUnmap)
             );
 
-            it(
-                'should raise an error if the -b, --database is not set when the -c, --collection is set',
+            // prettier-ignore
+            it('should raise an error if the -b, --database is not set when the -c, --collection is set',
                 collectionAndDatabaseMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.mapOrUnmap)
             );
 
-            it(
-                "should unmap the database '" +
-                    sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME) +
-                    "' as '" +
-                    DATABASE_NAME +
-                    "'",
+            // prettier-ignore
+            it("should unmap the database '" + sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME) + "' as '" + 
+                DATABASE_NAME + "'",
                 shouldMapOrUnmapDatabaseTest.bind(null, sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME), false)
             );
 
-            it(
-                "should unmap the collection '" +
-                    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-                    "' as '" +
-                    sthDatabaseNameMapper.unmapCollectionName(
-                        sthDatabaseNameMapper.mapService(DEFAULT_SERVICE),
-                        sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)
-                    ) +
-                    "' and the database '" +
-                    sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME) +
-                    "' as '" +
-                    DATABASE_NAME +
-                    "'",
+            // prettier-ignore
+            it("should unmap the collection '" + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) + 
+                "' as '" + sthDatabaseNameMapper.unmapCollectionName(sthDatabaseNameMapper.mapService(DEFAULT_SERVICE),
+                sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)) + "' and the database '" + 
+                sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME) + "' as '" + DATABASE_NAME + "'",
                 shouldMapOrUnmapCollectionTest.bind(
                     null,
                     sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME),
@@ -717,19 +681,11 @@ describe('sthDatabaseNameMapperTool tests', function() {
                 )
             );
 
-            it(
-                "should unmap the collection '" +
-                    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-                    "' as '" +
-                    sthDatabaseNameMapper.unmapCollectionName(
-                        sthDatabaseNameMapper.mapService(DEFAULT_SERVICE),
-                        sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)
-                    ) +
-                    "' and the database '" +
-                    sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME) +
-                    "' as '" +
-                    DATABASE_NAME +
-                    "'",
+            // prettier-ignore
+            it("should unmap the collection '" + sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
+                "' as '" + sthDatabaseNameMapper.unmapCollectionName(sthDatabaseNameMapper.mapService(DEFAULT_SERVICE),
+                sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)) + "' and the database '" + 
+                sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME) + "' as '" + DATABASE_NAME + "'",
                 shouldMapOrUnmapCollectionTest.bind(
                     null,
                     sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME),
