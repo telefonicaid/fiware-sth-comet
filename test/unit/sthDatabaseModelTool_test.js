@@ -104,12 +104,9 @@ function cleanDatabaseTests(dataType) {
     var dataModelsKeys = Object.keys(sthConfig.DATA_MODELS);
     describe('database clean up', function() {
         for (var index1 = 0; index1 < dataModelsKeys.length; index1++) {
-            it(
-                'should drop the ' +
-                    sthConfig.DATA_MODELS[dataModelsKeys[index1]] +
-                    ' ' +
-                    dataType +
-                    ' data collection if it exists',
+            // prettier-ignore
+            it('should drop the ' + sthConfig.DATA_MODELS[dataModelsKeys[index1]] + ' ' + dataType + 
+                ' data collection if it exists',
                 dropCollection.bind(null, dataType, sthConfig.DATA_MODELS[dataModelsKeys[index1]])
             );
         }
