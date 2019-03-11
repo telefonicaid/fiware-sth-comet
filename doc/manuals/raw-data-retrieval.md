@@ -26,7 +26,7 @@ The requests for raw context information can use the following query parameters:
 -   **dateFrom**: The starting date and time from which the raw context information is desired. It is an optional
     parameter.
 -   **dateTo**: The final date and time until which the raw context information is desired. It is an optional parameter.
--   **filetype**: The raw context information can be requested as a file setting this query parameter to the desired
+-   **file type**: The raw context information can be requested as a file setting this query parameter to the desired
     file type. Currently, the only supported value and file type is `csv`. It is an optional parameter.
 -   **count**: The total count of elements could be asked using this query parameter. Supported values are `true` or
     `false`. As a result response will include a new header: Fiware-Total-Count. It is an optional parameter which
@@ -34,8 +34,8 @@ The requests for raw context information can use the following query parameters:
 
 **NOTE**: Date is specified using the [ISO 8601](http://www.wikipedia.org/wiki/ISO_8601) standard format.
 
-In order to avoid problems handing big results there is a restriction about the the number of results per page that
-could be retrieved. The rule is `hLimit <= lastN <= config.maxPageSize` Where default max page is are defined to 100.
+In order to avoid problems handing big results there is a restriction about the number of results per page that could be
+retrieved. The rule is `hLimit <= lastN <= config.maxPageSize` Where default max page is are defined to 100.
 
 An example response provided by the STH component to a request such as the previous one could be the following:
 

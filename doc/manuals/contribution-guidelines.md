@@ -6,7 +6,7 @@ Being an open source project, everyone can contribute, provided that you follow 
 
 -   Before contributing any code, the author must make sure all the tests work (see below how to run the tests).
 -   Developed code must adhere to the syntax guidelines enforced by the linters.
--   Code must be developed following the branching model and changelog policies defined below.
+-   Code must be developed following the branching model and change log policies defined below.
 -   For any new feature added, unit tests must be provided, taking as a reference the ones already created and included
     in the project.
 
@@ -63,7 +63,7 @@ npm run lint
 
 There is one special branch in the repository:
 
--   `master`: it contains the last stable development code. New features and bug fixes are always merged to `master`
+-   `master`: it contains the last stable development code. New features and bugfixes are always merged to `master`
     until a new release is created and published.
 
 Apart from the previous branches, there is another set of branches called `release/X.Y.Z` where the latest version of
@@ -84,21 +84,21 @@ Once the final code is available in the local forked repository branch, a Pull R
 branch in the fiware-sth-comet remote repository when a review process will start before its final landing. Remember to
 check both the linters and the tests before creating the Pull Request.
 
-## Changelog
+## Change log
 
-The project contains a version changelog file, called `CHANGES_NEXT_RELEASE`, that can be found in the root of the
+The project contains a version change log file, called `CHANGES_NEXT_RELEASE`, that can be found in the root of the
 project. Whenever a new feature or bug fix is going to be merged into `master`, a new entry should be added to this
-changelog file. The new entry should contain the reference number of the issue it is solving (if any).
+change log file. The new entry should contain the reference number of the issue it is solving (if any).
 
-When a new version is released, the changelog is cleared and remains fixed in the last commit of that version. The
-content of the changelog is also moved to the release description in the Github release.
+When a new version is released, the change log is cleared and remains fixed in the last commit of that version. The
+content of the change log is also moved to the release description in the GitHub release.
 
 More on this in the **Releasing** section below.
 
 ## Testing
 
-The test environment is preconfigured to run the [Mocha](http://visionmedia.github.io/mocha/) Test Runner with support
-for the [Should.js](https://shouldjs.github.io/) assertion Library .
+The test environment is preconfigured to run the [Mocha](https://mochajs.org/) Test Runner with support for the
+[Should.js](https://shouldjs.github.io/) assertion Library .
 
 Module mocking during testing can be done with [proxyquire](https://github.com/thlorenz/proxyquire).
 
@@ -198,7 +198,7 @@ administrators of the main repository:
     remote fiware-sth-comet repository as indicated in the **How to contribute** section above.
 7.  From the updated `master` branch in your local forked repository, create a new task branch and add the `-next`
     suffix to the current version number in the `package.json` file (to signal this as the development version) and
-    remove the contents of the `CHANGES_NEXT_RELEASE` changelog file.
+    remove the contents of the `CHANGES_NEXT_RELEASE` change log file.
 8.  Create a pull request from this new task branch to the `master` branch in the remote fiware-sth-comet repository.
 
 ## Version/release numbers
@@ -210,7 +210,7 @@ The version numbers will change for each release according to the following rule
     important changes in the feature set of the component. If _X_ changes, _Y_ should be set to 0.
 -   _Y_ will change every time a new version is released. If only _Y_ changes, it means some new features or bug fixes
     have been released, but the component is just an improved version of the current major (_X_) release.
--   _Z_ will increment its value as new bug fixes are detected and fixed for each major (_X_) and minor (_Y_) release.
+-   _Z_ will increment its value as new bugfixes are detected and fixed for each major (_X_) and minor (_Y_) release.
 
 Between releases, the version number in the `master` branch will be `X.Y.Z-next` (where `X.Y.Z` is the latest stable
 release), indicating that it is a development version.

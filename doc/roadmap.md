@@ -34,8 +34,8 @@ the product:
 The following list of features are planned to be addressed in the medium term, typically within the subsequent
 release(s) generated in the next **9 months** after next planned release:
 
--   NGSIv2 notification reception endpoint
--   Align raw and aggregated data API with NGSIv2
+-   NGSI v2 notification reception endpoint
+-   Align raw and aggregated data API with NGSI v2
 
 ## Long term
 

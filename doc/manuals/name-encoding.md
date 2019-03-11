@@ -37,7 +37,7 @@ The codification mechanism is detailed next:
         case of appearing in any of the elements it would be encoded as `xxffff`.
 
 To ease the migration process from databases and collections of previous versions of the STH component not using the
-previous codification mechanism, we provide a command line tool called `sthDatabaseNameCodecTool`.
+previous codification mechanism, we provide a command-line tool called `sthDatabaseNameCodecTool`.
 
 To run the name encoding/decoding tool, please execute the following command:
 
@@ -61,12 +61,12 @@ Usage: sthDatabaseNameCodecTool [options]
     -c, --collection <collectionName>  Limits the codification or decodification process to certain collection
 ```
 
-You can use the `sthDatabaseNameCodecTool` command line tool to analyse your STH component databases and to get reports
+You can use the `sthDatabaseNameCodecTool` command-line tool to analyse your STH component databases and to get reports
 about the name encoding or decoding results which the encoding or decoding process would make on your databases and
 collections.
 
 Once you are fine with the analysis report and you are sure it is what you really want to do, set the `-f, --force`
 option to apply the name codification or decodification process.
 
-The `sthDatabaseNameCodecTool` command line tool makes also possible to filter the analysis report and the application
+The `sthDatabaseNameCodecTool` command-line tool makes also possible to filter the analysis report and the application
 of the codification or decodification by database names and by collection names.

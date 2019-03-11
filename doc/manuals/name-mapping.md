@@ -23,8 +23,8 @@ set of properties:
         -   `newServicePath`: The final or new service path the original service path should be mapped to.
         -   `entityMappings`: Array of entity mappings. Each element of the array is an object including the following
             properties:
-            -   `originalEntityId`: The original entity id which should be mapped.
-            -   `newEntityId`: The final or new entity id the original entity id should be mapped to.
+            -   `originalEntityId`: The original entity ID which should be mapped.
+            -   `newEntityId`: The final or new entity ID the original entity ID should be mapped to.
             -   `originalEntityType`: The original entity type which should be mapped.
             -   `newEntityType`: The final or new entity type the entity type should be mapped to.
             -   `attributeMappings`: Array of attribute mappings. Each element of the array is an object including the
@@ -70,7 +70,7 @@ Next we include an example mapping configuration file:
 ```
 
 To ease the migration process from databases and collections of previous versions of the STH component not using the
-previous mapping mechanism, we provide a command line tool called `sthDatabaseNameMapperTool`.
+previous mapping mechanism, we provide a command-line tool called `sthDatabaseNameMapperTool`.
 
 To run the name encoding/decoding tool, please execute the following command:
 
@@ -94,12 +94,12 @@ Usage: sthDatabaseNameMapperTool [options]
     -c, --collection <collectionName>  Limits the mapping or unmapping process to certain collection
 ```
 
-You can use the `sthDatabaseNameMapperTool` command line tool to analyse your STH component databases and to get reports
+You can use the `sthDatabaseNameMapperTool` command-line tool to analyse your STH component databases and to get reports
 about the name mapping or unmapping results which the mapping or unmapping process would make on your databases and
 collections.
 
 Once you are fine with the analysis report and you are sure it is what you really want to do, set the `-f, --force`
 option to apply the name mapping or unmapping process.
 
-The `sthDatabaseNameMapperTool` command line tool makes also possible to filter the analysis report and the application
+The `sthDatabaseNameMapperTool` command-line tool makes also possible to filter the analysis report and the application
 of the mapping or unmapping by database names and by collection names.

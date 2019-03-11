@@ -2,13 +2,13 @@
 
 The STH component provides 3 alternatives for its installation:
 
-1.  Cloning the Github repository
+1.  Cloning the GitHub repository
 2.  Using a RPM package
 3.  Automatic deployment using Docker
 
-## Cloning the Github repository
+## Cloning the GitHub repository
 
-To install the STH component cloning the Github repository, please follow the next steps:
+To install the STH component cloning the GitHub repository, please follow the next steps:
 
 1.  Clone the repository.
 2.  Get into the directory where the STH repository has been cloned.
@@ -128,9 +128,13 @@ sudo /sbin/service sth restart [<instance>]
 
 An example
 [`sth_default.conf`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/rpm/EXAMPLES/sth_default.conf) file
-has been included in the component repository in Github to guide the STH instance configuration.
+has been included in the component repository in GitHub to guide the STH instance configuration.
+
+<!-- textlint-disable write-good -->
 
 Last but not least, the STH process (a `node` process) runs the as `sth` user.
+
+<!-- textlint-enable write-good -->
 
 ## Automatic deployment using Docker
 
@@ -140,7 +144,7 @@ try the STH component via the execution of a simple Docker command.
 
 On the other hand a [`Dockerfile`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/Dockerfile) and a
 [`docker-compose.yml`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/docker-compose.yml) files have also
-been included in the component repository in Github to quickly and easily start your own instance of the STH component,
+been included in the component repository in GitHub to quickly and easily start your own instance of the STH component,
 even including the needed associated MongoDB instance where all the data will be stored.
 
 To do it, follow the next steps once you have installed Docker in your machine:

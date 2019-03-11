@@ -27,7 +27,7 @@ additional sinks such as:
 
 To properly configure and use the MongoDB and the STH sinks to register raw and aggregated time series context
 information into MongoDB databases susceptible of being retrieved by the STH component, please refer to the following
-documentation provided at the [Cygnus Github repository](https://github.com/telefonicaid/fiware-cygnus) site:
+documentation provided at the [Cygnus GitHub repository](https://github.com/telefonicaid/fiware-cygnus) site:
 
 -   [Connecting Orion Context Broker and Cygnus](https://github.com/telefonicaid/fiware-cygnus/blob/master/doc/cygnus-ngsi/user_and_programmer_guide/connecting_orion.md)
 -   [NGSIMongoSink](https://github.com/telefonicaid/fiware-cygnus/blob/master/doc/cygnus-ngsi/flume_extensions_catalogue/ngsi_mongo_sink.md)
@@ -83,11 +83,15 @@ sets the duration of the subscription.
 On the other hand, for the time being the STH component only is able to manage notifications in JSON format and
 consequently it is very important to set the `Accept` header to `application/json`.
 
+<!-- textlint-disable write-good -->
+
 Last but not least, the `throttling` makes it possible to control the frequency of the notifications. Depending on the
 resolution of the aggregated time series context information you are interested in, the `throttling` should be
 fine-tuned accordingly. For example, it may make no sense to set the minimum resolution in the STH component to `second`
 but set the throttling to `PT60s` (60 seconds), since with this configuration 1 value update will be notified every 60
 seconds (1 minute) the most, and corresponding the minimum recommended resolutions should be `minute`.
+
+<!-- textlint-enable write-good -->
 
 Further information about the Orion Context Broker subscription API can be found in its documentation:
 

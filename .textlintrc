@@ -190,9 +190,13 @@
        "ignoreRedirects": true,
        "ignore": [
           "mailto:*",
-          "https://github.com/telefonicaid/sigfox-iotagent/blob/master/doc/roadmap.md",
+          "https://npmcompare.com/compare/connect,express,hapi,koa",
+          "http://technical.openmobilealliance.org/Technical/technical-information/release-program/current-releases/ngsi-v1-0",
           "https://coveralls.io/**"
       ]
     }
+  },
+  "filters": {
+    "comments": true
   }
 }

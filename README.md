@@ -52,7 +52,7 @@ and retrieving) historical context information as raw and aggregated time series
 This project is part of [FIWARE](http://www.fiware.org).
 
 Any feedback on this documentation is highly welcome, including bugs, typos or things you think should be included but
-aren't. You can use [github issues](https://github.com/telefonicaid/fiware-sth-comet/issues/new) to provide feedback.
+aren't. You can use [GitHub issues](https://github.com/telefonicaid/fiware-sth-comet/issues/new) to provide feedback.
 
 You can find the Users & Developers Manual and the Installation & Administration Manual on
 [readthedocs.org](https://fiware-sth-comet.readthedocs.org)
@@ -158,7 +158,7 @@ The roadmap of this FIWARE GE is described [here](doc/roadmap.md).
 
 ## Support
 
-Ask your thorough programmming questions using [stackoverflow](http://stackoverflow.com/questions/ask) and your general
+Ask your thorough programmming questions using [Stack Overflow](http://stackoverflow.com/questions/ask) and your general
 questions on [FIWARE Q&A](https://ask.fiware.org). In both cases please use the tag `fiware-sth-comet`.
 
 [Top](#top)

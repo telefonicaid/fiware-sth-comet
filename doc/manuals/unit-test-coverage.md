@@ -32,10 +32,10 @@ The test suite accepts the following parameters as environment variables which c
     value: "5".
 -   `EVENT_NOTIFICATION_CONTEXT_ELEMENTS`: The number of context elements included in the simulated notifications sent
     to the STH component. Optional. Default value: 3.
--   `ENTITY_ID`: The id of the entity for which the random event will be generated. Optional. Default value: "entityId".
+-   `ENTITY_ID`: The ID of the entity for which the random event will be generated. Optional. Default value: "entityId".
 -   `ENTITY_TYPE`: The type of the entity for which the random event will be generated. Optional. Default value:
     "entityType".
--   `ATTRIBUTE_NAME`: The id of the attribute for which the random event will be generated. Optional. Default value:
+-   `ATTRIBUTE_NAME`: The ID of the attribute for which the random event will be generated. Optional. Default value:
     "attrName"
 -   `ATTRIBUTE_TYPE`: The type of the attribute for which the random event will be generated. Optional. Default value:
     "attrType".

@@ -69,11 +69,11 @@ The environment variables accepted by the script (for which there exists counter
     "0".
 -   `IGNORE_BLANK_SPACES`: Attribute values to one or more blank spaces should be ignored and not processed either as
     raw data or for the aggregated computations. Default value: "true".
--   `NAME_MAPPING`: Database and collection names are generated from the service, service path, entity id and type and
+-   `NAME_MAPPING`: Database and collection names are generated from the service, service path, entity ID and type and
     attribute names. Consequently and to avoid the restrictions imposed by MongoDB and stated at
     [limits](https://docs.mongodb.com/manual/reference/limits/), it may be mapped to database and collection names which
     bypass those limitations. The mapping mechanism provided consists on a 1 to 1 mapping between services, service
-    paths, entity ids and types and attribute names via a mapping configuration file. The `NAME_MAPPING` value is an
+    paths, entity IDs and types and attribute names via a mapping configuration file. The `NAME_MAPPING` value is an
     object including 2 properties: 1) `enabled` which, as its name states, enables or disables the mapping mechanism
     (default value: "true") and 2) `configFile` which is a relative or absolute path to the mapping configuration file
     (default value: "./name-mapping.json"). More information about the mapping configuration file in the "Database and
