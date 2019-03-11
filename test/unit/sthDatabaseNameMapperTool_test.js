@@ -37,18 +37,18 @@ var sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
 var DEFAULT_SERVICE = sthConfig.DEFAULT_SERVICE;
 var DATABASE_NAME = sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE);
 var DATABASE_CONNECTION_PARAMS = {
-  authentication: sthConfig.DB_AUTHENTICATION,
-  dbURI: sthConfig.DB_URI,
-  replicaSet: sthConfig.REPLICA_SET,
-  database: DATABASE_NAME,
-  poolSize: sthConfig.POOL_SIZE
+    authentication: sthConfig.DB_AUTHENTICATION,
+    dbURI: sthConfig.DB_URI,
+    replicaSet: sthConfig.REPLICA_SET,
+    database: DATABASE_NAME,
+    poolSize: sthConfig.POOL_SIZE
 };
 var COLLECTION_NAME_PARAMS = {
-  service: DEFAULT_SERVICE,
-  servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-  entityId: sthTestConfig.ENTITY_ID,
-  entityType: sthTestConfig.ENTITY_TYPE,
-  attrName: sthTestConfig.ATTRIBUTE_NAME
+    service: DEFAULT_SERVICE,
+    servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+    entityId: sthTestConfig.ENTITY_ID,
+    entityType: sthTestConfig.ENTITY_TYPE,
+    attrName: sthTestConfig.ATTRIBUTE_NAME
 };
 
 /**
@@ -56,10 +56,13 @@ var COLLECTION_NAME_PARAMS = {
  * @param  {Function} callback The callblack
  */
 function connectToDatabase(callback) {
-  if (sthDatabase.connection) {
-    return process.nextTick(callback.bind(null, null, sthDatabase.connection));
-  }
-  sthDatabase.connect(DATABASE_CONNECTION_PARAMS, callback);
+    if (sthDatabase.connection) {
+        return process.nextTick(callback.bind(null, null, sthDatabase.connection));
+    }
+    sthDatabase.connect(
+        DATABASE_CONNECTION_PARAMS,
+        callback
+    );
 }
 
 /**
@@ -67,26 +70,18 @@ function connectToDatabase(callback) {
  * @param  {Function} callback The callback
  */
 function createRawAndAggregatedCollections(callback) {
-  async.series(
-    [
-      async.apply(
-        sthDatabase.getCollection,
-        COLLECTION_NAME_PARAMS,
-        {
-          shouldCreate: true
-        }
-      ),
-      async.apply(
-        sthDatabase.getCollection,
-        COLLECTION_NAME_PARAMS,
-        {
-          shouldCreate: true,
-          isAggregated: true
-        }
-      )
-    ],
-    callback
-  );
+    async.series(
+        [
+            async.apply(sthDatabase.getCollection, COLLECTION_NAME_PARAMS, {
+                shouldCreate: true
+            }),
+            async.apply(sthDatabase.getCollection, COLLECTION_NAME_PARAMS, {
+                shouldCreate: true,
+                isAggregated: true
+            })
+        ],
+        callback
+    );
 }
 
 /**
@@ -96,12 +91,15 @@ function createRawAndAggregatedCollections(callback) {
  * @param  {Function} callback       The callback
  */
 function checkCollectionExists(databaseName, collectionName, callback) {
-  sthDatabase.connection.db(databaseName).listCollections({name: collectionName}).toArray(function(err, collections) {
-    if (err) {
-      return process.nextTick(callback.bind(null, err));
-    }
-    return process.nextTick(callback.bind(null, err, collections.length === 1));
-  });
+    sthDatabase.connection
+        .db(databaseName)
+        .listCollections({ name: collectionName })
+        .toArray(function(err, collections) {
+            if (err) {
+                return process.nextTick(callback.bind(null, err));
+            }
+            return process.nextTick(callback.bind(null, err, collections.length === 1));
+        });
 }
 
 /**
@@ -109,17 +107,17 @@ function checkCollectionExists(databaseName, collectionName, callback) {
  * @param  {Function} callback The callback
  */
 function dropDatabases(callback) {
-  sthDatabase.connection.db(DATABASE_NAME.toLowerCase()).dropDatabase(function(err) {
-    if (err) {
-      return process.nextTick(callback.bind(null, err));
-    }
-    sthDatabase.connection.db(DATABASE_NAME).dropDatabase(function(err) {
-      if (err) {
-        return process.nextTick(callback.bind(null, err));
-      }
-      sthDatabase.connection.db(sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME)).dropDatabase(callback);
+    sthDatabase.connection.db(DATABASE_NAME.toLowerCase()).dropDatabase(function(err) {
+        if (err) {
+            return process.nextTick(callback.bind(null, err));
+        }
+        sthDatabase.connection.db(DATABASE_NAME).dropDatabase(function(err) {
+            if (err) {
+                return process.nextTick(callback.bind(null, err));
+            }
+            sthDatabase.connection.db(sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME)).dropDatabase(callback);
+        });
     });
-  });
 }
 
 /**
@@ -128,14 +126,10 @@ function dropDatabases(callback) {
  * @param  {Function} callback      The callback
  */
 function mapUnmapMandatoryOptionsTest(function2Test, callback) {
-  function2Test(
-    {
-    },
-    function(err) {
-      expect(err instanceof sthErrors.MandatoryOptionNotFound).to.be.ok();
-      process.nextTick(callback);
-    }
-  );
+    function2Test({}, function(err) {
+        expect(err instanceof sthErrors.MandatoryOptionNotFound).to.be.ok();
+        process.nextTick(callback);
+    });
 }
 
 /**
@@ -144,15 +138,15 @@ function mapUnmapMandatoryOptionsTest(function2Test, callback) {
  * @param  {Function} callback      The callback
  */
 function collectionAndDatabaseMandatoryOptionsTest(function2Test, callback) {
-  function2Test(
-    {
-      collection: sthConfig.COLLECTION_PREFIX + 'any_collection'
-    },
-    function(err) {
-      expect(err instanceof sthErrors.MandatoryOptionNotFound).to.be.ok();
-      process.nextTick(callback);
-    }
-  );
+    function2Test(
+        {
+            collection: sthConfig.COLLECTION_PREFIX + 'any_collection'
+        },
+        function(err) {
+            expect(err instanceof sthErrors.MandatoryOptionNotFound).to.be.ok();
+            process.nextTick(callback);
+        }
+    );
 }
 
 /**
@@ -162,22 +156,21 @@ function collectionAndDatabaseMandatoryOptionsTest(function2Test, callback) {
  * @param  {Function} callback       The callback
  */
 function shouldDetectCollectionTest(mappingFlag, databaseName, collectionName, callback) {
-  sthDatabaseNameMapperTool.getMappingAnalysis(
-    {
-      map: !!mappingFlag,
-      unmap: !mappingFlag
-    },
-    function(err, analysis) {
-      if (err) {
-        return process.nextTick(callback.bind(null, err));
-      }
-      expect(analysis[databaseName]).to.not.be(undefined);
-      expect(analysis[databaseName].collections).to.not.be(undefined);
-      expect(analysis[databaseName].collections[collectionName].
-        name).to.not.equal(collectionName);
-      return process.nextTick(callback);
-    }
-  );
+    sthDatabaseNameMapperTool.getMappingAnalysis(
+        {
+            map: !!mappingFlag,
+            unmap: !mappingFlag
+        },
+        function(err, analysis) {
+            if (err) {
+                return process.nextTick(callback.bind(null, err));
+            }
+            expect(analysis[databaseName]).to.not.be(undefined);
+            expect(analysis[databaseName].collections).to.not.be(undefined);
+            expect(analysis[databaseName].collections[collectionName].name).to.not.equal(collectionName);
+            return process.nextTick(callback);
+        }
+    );
 }
 
 /**
@@ -186,22 +179,25 @@ function shouldDetectCollectionTest(mappingFlag, databaseName, collectionName, c
  * @param  {Function} callback     The callback
  */
 function shouldNotDetectCollectionTest(mappingFlag, databaseName, collectionName, callback) {
-  sthDatabaseNameMapperTool.getMappingAnalysis(
-    {
-      map: !!mappingFlag,
-      unmap: !mappingFlag,
-      database: databaseName,
-      collection: collectionName
-    },
-    function(err, analysis) {
-     if (err) {
-       return process.nextTick(callback.bind(null, err));
-      }
-     expect(!analysis[databaseName] || !analysis[databaseName].collections ||
-       !analysis[databaseName].collections[collectionName]).to.be(true);
-     return process.nextTick(callback);
-    }
-  );
+    sthDatabaseNameMapperTool.getMappingAnalysis(
+        {
+            map: !!mappingFlag,
+            unmap: !mappingFlag,
+            database: databaseName,
+            collection: collectionName
+        },
+        function(err, analysis) {
+            if (err) {
+                return process.nextTick(callback.bind(null, err));
+            }
+            expect(
+                !analysis[databaseName] ||
+                    !analysis[databaseName].collections ||
+                    !analysis[databaseName].collections[collectionName]
+            ).to.be(true);
+            return process.nextTick(callback);
+        }
+    );
 }
 
 /**
@@ -210,19 +206,19 @@ function shouldNotDetectCollectionTest(mappingFlag, databaseName, collectionName
  * @param  {Function} callback     The callback
  */
 function checkDatabaseExists(databaseName, callback) {
-  var adminDB = sthDatabase.connection.admin();
-  adminDB.listDatabases(function(err, databases) {
-    var databaseFound = false;
-    databases.databases.forEach(function (database) {
-      if (database.name === databaseName) {
-        databaseFound = true;
-        return process.nextTick(callback.bind(null, null, databaseFound));
-      }
+    var adminDB = sthDatabase.connection.admin();
+    adminDB.listDatabases(function(err, databases) {
+        var databaseFound = false;
+        databases.databases.forEach(function(database) {
+            if (database.name === databaseName) {
+                databaseFound = true;
+                return process.nextTick(callback.bind(null, null, databaseFound));
+            }
+        });
+        if (!databaseFound) {
+            return process.nextTick(callback.bind(null, null, false));
+        }
     });
-    if (!databaseFound) {
-      return process.nextTick(callback.bind(null, null, false));
-    }
-  });
 }
 
 /**
@@ -233,38 +229,36 @@ function checkDatabaseExists(databaseName, callback) {
  * @param  {Function} callback       The callback
  */
 function shouldMapOrUnmapDatabaseTest(databaseName, mappingFlag, callback) {
-  sthDatabaseNameMapperTool.mapOrUnmap(
-    {
-      map: !!mappingFlag,
-      unmap: !mappingFlag,
-      database: databaseName
-    },
-    function(err) {
-      if (err) {
-        return process.nextTick(callback.bind(null, err));
-      }
-      checkDatabaseExists(
-        databaseName,
-        function(err, exists) {
-          if (err) {
-            return process.nextTick(callback.bind(null, err));
-          }
-          expect(exists).to.be.equal(false);
-          checkDatabaseExists(
-            mappingFlag ? sthDatabaseNameMapper.mapDatabaseName(databaseName) :
-              sthDatabaseNameMapper.unmapDatabaseName(databaseName),
-            function(err, exists) {
-              if (err) {
+    sthDatabaseNameMapperTool.mapOrUnmap(
+        {
+            map: !!mappingFlag,
+            unmap: !mappingFlag,
+            database: databaseName
+        },
+        function(err) {
+            if (err) {
                 return process.nextTick(callback.bind(null, err));
-              }
-              expect(exists).to.be.equal(true);
-              process.nextTick(callback);
             }
-          );
+            checkDatabaseExists(databaseName, function(err, exists) {
+                if (err) {
+                    return process.nextTick(callback.bind(null, err));
+                }
+                expect(exists).to.be.equal(false);
+                checkDatabaseExists(
+                    mappingFlag
+                        ? sthDatabaseNameMapper.mapDatabaseName(databaseName)
+                        : sthDatabaseNameMapper.unmapDatabaseName(databaseName),
+                    function(err, exists) {
+                        if (err) {
+                            return process.nextTick(callback.bind(null, err));
+                        }
+                        expect(exists).to.be.equal(true);
+                        process.nextTick(callback);
+                    }
+                );
+            });
         }
-      );
-    }
-  );
+    );
 }
 
 /**
@@ -275,28 +269,25 @@ function shouldMapOrUnmapDatabaseTest(databaseName, mappingFlag, callback) {
  * @param  {Function} callback       The callback
  */
 function shouldNotMapOrUnmapDatabaseTest(databaseName, mappingFlag, callback) {
-  sthDatabaseNameMapperTool.mapOrUnmap(
-    {
-      map: !!mappingFlag,
-      unmap: !mappingFlag,
-      database: databaseName
-    },
-    function(err) {
-      if (err) {
-        return process.nextTick(callback.bind(null, err));
-      }
-      checkDatabaseExists(
-        databaseName,
-        function(err, exists) {
-          if (err) {
-            return process.nextTick(callback.bind(null, err));
-          }
-          expect(exists).to.be.equal(true);
-          process.nextTick(callback);
+    sthDatabaseNameMapperTool.mapOrUnmap(
+        {
+            map: !!mappingFlag,
+            unmap: !mappingFlag,
+            database: databaseName
+        },
+        function(err) {
+            if (err) {
+                return process.nextTick(callback.bind(null, err));
+            }
+            checkDatabaseExists(databaseName, function(err, exists) {
+                if (err) {
+                    return process.nextTick(callback.bind(null, err));
+                }
+                expect(exists).to.be.equal(true);
+                process.nextTick(callback);
+            });
         }
-      );
-    }
-  );
+    );
 }
 
 /**
@@ -307,43 +298,46 @@ function shouldNotMapOrUnmapDatabaseTest(databaseName, mappingFlag, callback) {
  * @param  {Function} callback       The callback
  */
 function shouldMapOrUnmapCollectionTest(databaseName, collectionName, mappingFlag, callback) {
-  sthDatabaseNameMapperTool.mapOrUnmap(
-    {
-      map: !!mappingFlag,
-      unmap: !mappingFlag,
-      database: databaseName,
-      collection: collectionName
-    },
-    function(err) {
-      if (err) {
-        return process.nextTick(callback.bind(null, err));
-      }
-      checkCollectionExists(databaseName, collectionName,
-        function(err, exists) {
-          if (err) {
-            return process.nextTick(callback.bind(null, err));
-          }
-          expect(exists).to.be.equal(false);
-          checkCollectionExists(
-            mappingFlag ? sthDatabaseNameMapper.mapDatabaseName(databaseName) :
-              sthDatabaseNameMapper.unmapDatabaseName(databaseName),
-            mappingFlag ?
-              sthDatabaseNameMapper.mapCollectionName(sthDatabaseNaming.getService(databaseName), collectionName) :
-              sthDatabaseNameMapper.unmapCollectionName(
-                sthDatabaseNameMapper.mapService(sthDatabaseNaming.getService(databaseName)),
-                collectionName),
-            function(err, exists) {
-              if (err) {
+    sthDatabaseNameMapperTool.mapOrUnmap(
+        {
+            map: !!mappingFlag,
+            unmap: !mappingFlag,
+            database: databaseName,
+            collection: collectionName
+        },
+        function(err) {
+            if (err) {
                 return process.nextTick(callback.bind(null, err));
-              }
-              expect(exists).to.be.equal(true);
-              process.nextTick(callback);
             }
-          );
+            checkCollectionExists(databaseName, collectionName, function(err, exists) {
+                if (err) {
+                    return process.nextTick(callback.bind(null, err));
+                }
+                expect(exists).to.be.equal(false);
+                checkCollectionExists(
+                    mappingFlag
+                        ? sthDatabaseNameMapper.mapDatabaseName(databaseName)
+                        : sthDatabaseNameMapper.unmapDatabaseName(databaseName),
+                    mappingFlag
+                        ? sthDatabaseNameMapper.mapCollectionName(
+                              sthDatabaseNaming.getService(databaseName),
+                              collectionName
+                          )
+                        : sthDatabaseNameMapper.unmapCollectionName(
+                              sthDatabaseNameMapper.mapService(sthDatabaseNaming.getService(databaseName)),
+                              collectionName
+                          ),
+                    function(err, exists) {
+                        if (err) {
+                            return process.nextTick(callback.bind(null, err));
+                        }
+                        expect(exists).to.be.equal(true);
+                        process.nextTick(callback);
+                    }
+                );
+            });
         }
-      );
-    }
-  );
+    );
 }
 
 /**
@@ -354,309 +348,357 @@ function shouldMapOrUnmapCollectionTest(databaseName, collectionName, mappingFla
  * @param  {Function} callback       The callback
  */
 function shouldNotMapOrUnmapCollectionTest(databaseName, collectionName, mappingFlag, callback) {
-  sthDatabaseNameMapperTool.mapOrUnmap(
-    {
-      map: !!mappingFlag,
-      unmap: !mappingFlag,
-      database: databaseName,
-      collection: collectionName
-    },
-    function(err) {
-      if (err) {
-        return process.nextTick(callback.bind(null, err));
-      }
-      checkCollectionExists(databaseName, collectionName,
-        function(err, exists) {
-          if (err) {
-            return process.nextTick(callback.bind(null, err));
-          }
-          expect(exists).to.be.equal(true);
-          process.nextTick(callback);
+    sthDatabaseNameMapperTool.mapOrUnmap(
+        {
+            map: !!mappingFlag,
+            unmap: !mappingFlag,
+            database: databaseName,
+            collection: collectionName
+        },
+        function(err) {
+            if (err) {
+                return process.nextTick(callback.bind(null, err));
+            }
+            checkCollectionExists(databaseName, collectionName, function(err, exists) {
+                if (err) {
+                    return process.nextTick(callback.bind(null, err));
+                }
+                expect(exists).to.be.equal(true);
+                process.nextTick(callback);
+            });
         }
-      );
-    }
-  );
+    );
 }
 
 describe('sthDatabaseNameMapperTool tests', function() {
-  var ORIGINAL_NAME_MAPPING = sthConfig.NAME_MAPPING;
+    var ORIGINAL_NAME_MAPPING = sthConfig.NAME_MAPPING;
 
-  describe('getMappingAnalysis tests', function() {
-    describe('name mapping disabled', function() {
-      sthConfig.NAME_MAPPING = undefined;
-      before(function(done) {
-        sthConfig.NAME_MAPPING = undefined;
-        async.series(
-          [
-            connectToDatabase,
-            dropDatabases,
-            createRawAndAggregatedCollections
-          ],
-          done
-        );
-      });
+    describe('getMappingAnalysis tests', function() {
+        describe('name mapping disabled', function() {
+            sthConfig.NAME_MAPPING = undefined;
+            before(function(done) {
+                sthConfig.NAME_MAPPING = undefined;
+                async.series([connectToDatabase, dropDatabases, createRawAndAggregatedCollections], done);
+            });
 
-      it('should raise an error if neither -m, --map or -u, --unmap options are set',
-        mapUnmapMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.getMappingAnalysis));
+            // prettier-ignore
+            it('should raise an error if neither -m, --map or -u, --unmap options are set',
+                mapUnmapMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.getMappingAnalysis)
+            );
 
-      it('should raise an error if the -b, --database is not set when the -c, --collection is set',
-        collectionAndDatabaseMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.getMappingAnalysis));
+            // prettier-ignore
+            it('should raise an error if the -b, --database is not set when the -c, --collection is set',
+                collectionAndDatabaseMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.getMappingAnalysis)
+            );
 
-      it('should not detect database \'' + DATABASE_NAME + '\' as susceptible of being mapped', function(done) {
-        sthDatabaseNameMapperTool.getMappingAnalysis(
-          {
-            map: true
-          },
-          function(err, analysis) {
-            if (err) {
-              return done(err);
-            }
-            expect(analysis[DATABASE_NAME]).to.equal(undefined);
-            done();
-          }
-        );
-      });
+            it("should not detect database '" + DATABASE_NAME + "' as susceptible of being mapped", function(done) {
+                sthDatabaseNameMapperTool.getMappingAnalysis(
+                    {
+                        map: true
+                    },
+                    function(err, analysis) {
+                        if (err) {
+                            return done(err);
+                        }
+                        expect(analysis[DATABASE_NAME]).to.equal(undefined);
+                        done();
+                    }
+                );
+            });
 
-      it('should not detect database \'' + DATABASE_NAME + '\' as susceptible of being mapped if filtered out',
-        function(done) {
-          sthDatabaseNameMapperTool.getMappingAnalysis(
-            {
-              map: true,
-              database: sthConfig.DB_PREFIX + 'inexistent_database'
-            },
-            function(err, analysis) {
-              if (err) {
-                return done(err);
-              }
-              expect(analysis[DATABASE_NAME]).to.be(undefined);
-              done();
-            }
-          );
-        }
-      );
+            // prettier-ignore
+            it("should not detect database '" + DATABASE_NAME + "' as susceptible of being mapped if filtered out",
+                function(done) {
+                    sthDatabaseNameMapperTool.getMappingAnalysis(
+                        {
+                            map: true,
+                            database: sthConfig.DB_PREFIX + 'inexistent_database'
+                        },
+                        function(err, analysis) {
+                            if (err) {
+                                return done(err);
+                            }
+                            expect(analysis[DATABASE_NAME]).to.be(undefined);
+                            done();
+                        }
+                    );
+                }
+            );
 
-      it('should not detect collection \'' + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-         '\' of database \'' + DATABASE_NAME + '\' as susceptible of being mapped',
-         shouldNotDetectCollectionTest.bind(null, true, DATABASE_NAME,
-           sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)));
+            // prettier-ignore
+            it("should not detect collection '" + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) + 
+                "' of database '" + DATABASE_NAME + "' as susceptible of being mapped",
+                shouldNotDetectCollectionTest.bind(
+                    null,
+                    true,
+                    DATABASE_NAME,
+                    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)
+                )
+            );
 
-      it('should not detect collection \'' + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-         '\' of database \'' + DATABASE_NAME + '\' as susceptible of being mapped if filtered out',
-        shouldNotDetectCollectionTest.bind(null, true, DATABASE_NAME,
-          sthConfig.COLLECTION_PREFIX + 'inexistent_collection'));
+            // prettier-ignore
+            it("should not detect collection '" + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) + 
+                "' of database '" + DATABASE_NAME + "' as susceptible of being mapped if filtered out",
+                shouldNotDetectCollectionTest.bind(
+                    null,
+                    true,
+                    DATABASE_NAME,
+                    sthConfig.COLLECTION_PREFIX + 'inexistent_collection'
+                )
+            );
 
-      it('should not detect collection \'' + sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-         '\' of database \'' + DATABASE_NAME + '\' as susceptible of being mapped',
-        shouldNotDetectCollectionTest.bind(
-          null, true, DATABASE_NAME, sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)));
+            // prettier-ignore
+            it("should not detect collection '" + 
+                sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) + "' of database '" + 
+                DATABASE_NAME + "' as susceptible of being mapped",
+                shouldNotDetectCollectionTest.bind(
+                    null,
+                    true,
+                    DATABASE_NAME,
+                    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)
+                )
+            );
 
-      it('should not detect collection \'' + sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-         '\' of database \'' + DATABASE_NAME + '\' as susceptible of being mapped if filtered out',
-        shouldNotDetectCollectionTest.bind(null, true, DATABASE_NAME,
-          sthConfig.COLLECTION_PREFIX + 'inexistent_collection'));
+            // prettier-ignore
+            it("should not detect collection '" + 
+                sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) + "' of database '" + 
+                DATABASE_NAME + "' as susceptible of being mapped if filtered out",
+                shouldNotDetectCollectionTest.bind(
+                    null,
+                    true,
+                    DATABASE_NAME,
+                    sthConfig.COLLECTION_PREFIX + 'inexistent_collection'
+                )
+            );
 
-      after(function() {
-        sthConfig.NAME_MAPPING = ORIGINAL_NAME_MAPPING;
-      });
-      sthConfig.NAME_MAPPING = ORIGINAL_NAME_MAPPING;
+            after(function() {
+                sthConfig.NAME_MAPPING = ORIGINAL_NAME_MAPPING;
+            });
+            sthConfig.NAME_MAPPING = ORIGINAL_NAME_MAPPING;
+        });
+
+        describe('name mapping enabled', function() {
+            sthConfig.NAME_MAPPING = require(ROOT_PATH + '/test/unit/nameMappings/name-mapping.json');
+            before(function(done) {
+                sthConfig.NAME_MAPPING = require(ROOT_PATH + '/test/unit/nameMappings/name-mapping.json');
+                async.series([dropDatabases, createRawAndAggregatedCollections], done);
+            });
+
+            // prettier-ignore
+            it('should raise an error if neither -m, --map or -u, --unmap options are set',
+                mapUnmapMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.getMappingAnalysis)
+            );
+
+            // prettier-ignore
+            it('should raise an error if the -b, --database is not set when the -c, --collection is set',
+                collectionAndDatabaseMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.getMappingAnalysis)
+            );
+
+            // prettier-ignore
+            it("should detect database '" + sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME) + 
+                "' as susceptible of being unmapped",
+                function(done) {
+                    sthDatabaseNameMapperTool.getMappingAnalysis(
+                        {
+                            map: false,
+                            unmap: true
+                        },
+                        function(err, analysis) {
+                            if (err) {
+                                return done(err);
+                            }
+                            expect(analysis[sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME)]).to.not.equal(
+                                undefined
+                            );
+                            done();
+                        }
+                    );
+                }
+            );
+
+            // prettier-ignore
+            it("should not detect database '" + sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME) + 
+                "' as susceptible of being mapped if filtered out",
+                function(done) {
+                    sthDatabaseNameMapperTool.getMappingAnalysis(
+                        {
+                            map: false,
+                            unmap: true,
+                            database: sthConfig.DB_PREFIX + 'inexistent_database'
+                        },
+                        function(err, analysis) {
+                            if (err) {
+                                return done(err);
+                            }
+                            expect(analysis[sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME)]).to.be(undefined);
+                            done();
+                        }
+                    );
+                }
+            );
+
+            // prettier-ignore
+            it("should detect collection '" + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) + 
+                "' of database '" + sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) + "' as susceptible of " + 
+                'being unmapped',
+                shouldDetectCollectionTest.bind(
+                    null,
+                    false,
+                    sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE),
+                    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)
+                )
+            );
+
+            // prettier-ignore
+            it("should not detect collection '" + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) + 
+                "' of database '" + sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) + 
+                "' as susceptible of being unmapped if filtered out",
+                shouldNotDetectCollectionTest.bind(
+                    null,
+                    false,
+                    sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE),
+                    sthConfig.COLLECTION_PREFIX + 'inexistent_collection'
+                )
+            );
+
+            // prettier-ignore
+            it("should detect collection '" + sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) + 
+                "' of database '" + sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) + 
+                "' as susceptible of being unmapped",
+                shouldDetectCollectionTest.bind(
+                    null,
+                    false,
+                    sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE),
+                    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)
+                )
+            );
+
+            // prettier-ignore
+            it("should not detect collection '" + 
+                sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) + "' of database '" + 
+                sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) + 
+                "' as susceptible of being unmapped if filtered out",
+                shouldNotDetectCollectionTest.bind(
+                    null,
+                    false,
+                    sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE),
+                    sthConfig.COLLECTION_PREFIX + 'inexistent_collection'
+                )
+            );
+
+            after(function() {
+                sthConfig.NAME_MAPPING = ORIGINAL_NAME_MAPPING;
+            });
+            sthConfig.NAME_MAPPING = ORIGINAL_NAME_MAPPING;
+        });
     });
 
-    describe('name mapping enabled', function() {
-      sthConfig.NAME_MAPPING = require(ROOT_PATH + '/test/unit/nameMappings/name-mapping.json');
-      before(function(done) {
-        sthConfig.NAME_MAPPING = require(ROOT_PATH + '/test/unit/nameMappings/name-mapping.json');
-        async.series(
-          [
-            dropDatabases,
-            createRawAndAggregatedCollections
-          ],
-          done
-        );
-      });
+    describe('mapOrUnmap tests', function() {
+        describe('name mapping disabled', function() {
+            sthConfig.NAME_MAPPING = undefined;
+            before(function(done) {
+                sthConfig.NAME_MAPPING = undefined;
+                async.series([dropDatabases, createRawAndAggregatedCollections], done);
+            });
 
-      it('should raise an error if neither -m, --map or -u, --unmap options are set',
-        mapUnmapMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.getMappingAnalysis));
+            // prettier-ignore
+            it('should raise an error if neither -m, --map or -u, --unmap options are set',
+                mapUnmapMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.mapOrUnmap)
+            );
 
-      it('should raise an error if the -b, --database is not set when the -c, --collection is set',
-        collectionAndDatabaseMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.getMappingAnalysis));
+            // prettier-ignore
+            it('should raise an error if the -b, --database is not set when the -c, --collection is set',
+                collectionAndDatabaseMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.mapOrUnmap)
+            );
 
-      it('should detect database \'' + sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME) +
-         '\' as susceptible of being unmapped', function(done) {
-        sthDatabaseNameMapperTool.getMappingAnalysis(
-          {
-            map: false,
-            unmap: true
-          },
-          function(err, analysis) {
-            if (err) {
-              return done(err);
-            }
-            expect(analysis[sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME)]).to.not.equal(undefined);
-            done();
-          }
-        );
-      });
+            // prettier-ignore
+            it("should not map the database '" + DATABASE_NAME,
+                shouldNotMapOrUnmapDatabaseTest.bind(null, DATABASE_NAME, true)
+            );
 
-      it('should not detect database \'' + sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME) +
-         '\' as susceptible of being mapped if filtered out',
-        function(done) {
-          sthDatabaseNameMapperTool.getMappingAnalysis(
-            {
-              map: false,
-              unmap: true,
-              database: sthConfig.DB_PREFIX + 'inexistent_database'
-            },
-            function(err, analysis) {
-              if (err) {
-                return done(err);
-              }
-              expect(analysis[sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME)]).to.be(undefined);
-              done();
-            }
-          );
-        }
-      );
+            // prettier-ignore
+            it("should not map the collection '" + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) + 
+                " of database '" + DATABASE_NAME + "'",
+                shouldNotMapOrUnmapCollectionTest.bind(
+                    null,
+                    DATABASE_NAME,
+                    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS),
+                    true
+                )
+            );
 
-      it('should detect collection \'' + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-         '\' of database \'' + sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) + '\' as susceptible of ' +
-         'being unmapped',
-         shouldDetectCollectionTest.bind(null, false, sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE),
-          sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)));
+            // prettier-ignore
+            it("should not map the collection '" + 
+                sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) + " of database '" + 
+                DATABASE_NAME + "'",
+                shouldNotMapOrUnmapCollectionTest.bind(
+                    null,
+                    DATABASE_NAME,
+                    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS),
+                    true
+                )
+            );
 
-      it('should not detect collection \'' + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-         '\' of database \'' + sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) +
-         '\' as susceptible of being unmapped if filtered out',
-        shouldNotDetectCollectionTest.bind(null, false, sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE),
-          sthConfig.COLLECTION_PREFIX + 'inexistent_collection')
-      );
+            after(function() {
+                sthConfig.NAME_MAPPING = ORIGINAL_NAME_MAPPING;
+            });
+            sthConfig.NAME_MAPPING = ORIGINAL_NAME_MAPPING;
+        });
 
-      it('should detect collection \'' + sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-         '\' of database \'' + sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) +
-         '\' as susceptible of being unmapped',
-        shouldDetectCollectionTest.bind(
-          null, false, sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE),
-          sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)));
+        describe('name mapping enabled', function() {
+            sthConfig.NAME_MAPPING = require(ROOT_PATH + '/test/unit/nameMappings/name-mapping.json');
+            before(function(done) {
+                sthConfig.NAME_MAPPING = require(ROOT_PATH + '/test/unit/nameMappings/name-mapping.json');
+                async.series([dropDatabases, createRawAndAggregatedCollections], done);
+            });
 
-      it('should not detect collection \'' + sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-         '\' of database \'' + sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE) +
-         '\' as susceptible of being unmapped if filtered out',
-        shouldNotDetectCollectionTest.bind(null, false, sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE),
-          sthConfig.COLLECTION_PREFIX + 'inexistent_collection')
-        );
+            // prettier-ignore
+            it('should raise an error if neither -m, --map or -u, --unmap options are set',
+                mapUnmapMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.mapOrUnmap)
+            );
 
-      after(function() {
-        sthConfig.NAME_MAPPING = ORIGINAL_NAME_MAPPING;
-      });
-      sthConfig.NAME_MAPPING = ORIGINAL_NAME_MAPPING;
+            // prettier-ignore
+            it('should raise an error if the -b, --database is not set when the -c, --collection is set',
+                collectionAndDatabaseMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.mapOrUnmap)
+            );
+
+            // prettier-ignore
+            it("should unmap the database '" + sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME) + "' as '" + 
+                DATABASE_NAME + "'",
+                shouldMapOrUnmapDatabaseTest.bind(null, sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME), false)
+            );
+
+            // prettier-ignore
+            it("should unmap the collection '" + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) + 
+                "' as '" + sthDatabaseNameMapper.unmapCollectionName(sthDatabaseNameMapper.mapService(DEFAULT_SERVICE),
+                sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)) + "' and the database '" + 
+                sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME) + "' as '" + DATABASE_NAME + "'",
+                shouldMapOrUnmapCollectionTest.bind(
+                    null,
+                    sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME),
+                    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS),
+                    false
+                )
+            );
+
+            // prettier-ignore
+            it("should unmap the collection '" + sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
+                "' as '" + sthDatabaseNameMapper.unmapCollectionName(sthDatabaseNameMapper.mapService(DEFAULT_SERVICE),
+                sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)) + "' and the database '" + 
+                sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME) + "' as '" + DATABASE_NAME + "'",
+                shouldMapOrUnmapCollectionTest.bind(
+                    null,
+                    sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME),
+                    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS),
+                    false
+                )
+            );
+
+            after(function(done) {
+                sthConfig.NAME_MAPPING = ORIGINAL_NAME_MAPPING;
+                dropDatabases(done);
+            });
+            sthConfig.NAME_MAPPING = ORIGINAL_NAME_MAPPING;
+        });
     });
-  });
-
-  describe('mapOrUnmap tests', function() {
-    describe('name mapping disabled', function() {
-      sthConfig.NAME_MAPPING = undefined;
-      before(function(done) {
-        sthConfig.NAME_MAPPING = undefined;
-        async.series(
-          [
-            dropDatabases,
-            createRawAndAggregatedCollections
-          ],
-          done
-        );
-      });
-
-      it('should raise an error if neither -m, --map or -u, --unmap options are set',
-        mapUnmapMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.mapOrUnmap));
-
-      it('should raise an error if the -b, --database is not set when the -c, --collection is set',
-        collectionAndDatabaseMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.mapOrUnmap));
-
-      it('should not map the database \'' + DATABASE_NAME,
-        shouldNotMapOrUnmapDatabaseTest.bind(null, DATABASE_NAME, true));
-
-      it('should not map the collection \'' +
-          sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-          ' of database \'' + DATABASE_NAME + '\'',
-        shouldNotMapOrUnmapCollectionTest.bind(
-          null, DATABASE_NAME, sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS),
-          true)
-      );
-
-      it('should not map the collection \'' +
-         sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-         ' of database \'' + DATABASE_NAME + '\'',
-         shouldNotMapOrUnmapCollectionTest.bind(
-           null, DATABASE_NAME, sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS),
-           true)
-      );
-
-      after(function() {
-        sthConfig.NAME_MAPPING = ORIGINAL_NAME_MAPPING;
-      });
-      sthConfig.NAME_MAPPING = ORIGINAL_NAME_MAPPING;
-    });
-
-    describe('name mapping enabled', function() {
-      sthConfig.NAME_MAPPING = require(ROOT_PATH + '/test/unit/nameMappings/name-mapping.json');
-      before(function(done) {
-        sthConfig.NAME_MAPPING = require(ROOT_PATH + '/test/unit/nameMappings/name-mapping.json');
-        async.series(
-          [
-            dropDatabases,
-            createRawAndAggregatedCollections
-          ],
-          done
-        );
-      });
-
-      it('should raise an error if neither -m, --map or -u, --unmap options are set',
-        mapUnmapMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.mapOrUnmap));
-
-      it('should raise an error if the -b, --database is not set when the -c, --collection is set',
-        collectionAndDatabaseMandatoryOptionsTest.bind(null, sthDatabaseNameMapperTool.mapOrUnmap));
-
-      it('should unmap the database \'' + sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME) + '\' as \'' +
-        DATABASE_NAME + '\'',
-        shouldMapOrUnmapDatabaseTest.bind(
-          null, sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME), false));
-
-      it('should unmap the collection \'' +
-        sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-        '\' as \'' +
-        sthDatabaseNameMapper.unmapCollectionName(
-          sthDatabaseNameMapper.mapService(DEFAULT_SERVICE),
-          sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)) +
-          '\' and the database \'' + sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME) + '\' as \'' +
-          DATABASE_NAME + '\'',
-          shouldMapOrUnmapCollectionTest.bind(
-            null,
-            sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME),
-            sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS),
-            false
-          )
-      );
-
-      it('should unmap the collection \'' +
-        sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) +
-        '\' as \'' +
-        sthDatabaseNameMapper.unmapCollectionName(
-          sthDatabaseNameMapper.mapService(DEFAULT_SERVICE),
-          sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)) +
-        '\' and the database \'' + sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME) + '\' as \'' +
-          DATABASE_NAME + '\'',
-          shouldMapOrUnmapCollectionTest.bind(
-            null,
-            sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME),
-            sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS),
-            false
-          )
-      );
-
-      after(function(done) {
-        sthConfig.NAME_MAPPING = ORIGINAL_NAME_MAPPING;
-        dropDatabases(done);
-      });
-      sthConfig.NAME_MAPPING = ORIGINAL_NAME_MAPPING;
-    });
-  });
 });

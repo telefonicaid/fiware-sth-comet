@@ -15,5 +15,7 @@
 	"camelcase": true,
 	"maxlen": 120,
         "esversion": 6,
-	"node": true
+	"node": true,
+	"laxbreak": true,
+	"quotmark": 0
 }

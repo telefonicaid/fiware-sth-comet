@@ -16,26 +16,26 @@ In order to start contributing:
 
 1. Fork this repository clicking on the "Fork" button on the upper-right area of the page.
 2. Clone your just forked repository:
-    ```
+    ```bash
     git clone https://github.com/your-github-username/fiware-sth-comet.git
     ```
 3. Add the main fiware-sth-comet repository as a remote to your forked repository (use any name for your remote repository, it does not have to be fiware-sth-comet, although we will use it in the next steps):
-    ```
+    ```bash
     git remote add fiware-sth-comet https://github.com/telefonicaid/fiware-sth-comet.git
     ```
 
 Before starting your contribution, remember to synchronize the `master` branch in your forked repository with the `master` branch in the main fiware-sth-comet repository following the next steps:
 
 1. Change to your local `master` branch (in case you are not in it already):
-    ```
+    ```bash
     git checkout master
     ```
 2. Fetch the remote changes:
-    ```
+    ```bash
     git fetch fiware-sth-comet
     ```
 3. Merge them:
-    ```
+    ```bash
     git rebase fiware-sth-comet/master
     ```
 
@@ -119,6 +119,16 @@ Removes `node_modules` and `coverage` folders, and  `package-lock.json` file so 
 ```bash
 # Use git-bash on Windows
 npm run clean
+```
+
+### Prettify Code
+
+Runs the [prettier](https://prettier.io) code formatter to ensure consistent code style (whitespacing, parameter
+placement and breakup of long lines etc.) within the codebase.
+
+```bash
+# Use git-bash on Windows
+npm run prettier
 ```
 
 ## Releasing
