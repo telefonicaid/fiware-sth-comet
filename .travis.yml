@@ -1,34 +1,51 @@
 language: node_js
-
-node_js:
- - "8"
- - "10"
-
-addons:
-  code_climate:
-    repo_token: 6dc47f6e0d95f643d41d7e15941b0c26c87214b4362c6aa01cf1e465eaeae0d3
+sudo: false
 
 branches:
   only:
     - master
 
-sudo: false
-
 services:
-- mongodb
-
-addons:
-  apt:
-    sources:
-    - mongodb-3.2-precise
-    packages:
-    - mongodb-org-server
+  - mongodb
 
 install:
- - npm install
+  - npm install
 
-before_script:
- - npm run lint
+addons:
+  code_climate:
+    repo_token: 6dc47f6e0d95f643d41d7e15941b0c26c87214b4362c6aa01cf1e465eaeae0d3
+  apt:
+    sources:
+      - mongodb-3.2-precise
+    packages:
+      - mongodb-org-server
 
-after_script: 
-  - npm run test:coveralls
+jobs:
+  include:
+    - stage: test
+      name: "Unit Tests: Node 8"
+      node_js: 8
+
+      before_script:
+        - npm run lint
+
+      after_script:
+        - npm run test:coveralls
+
+    - stage: test
+      name: "Unit Tests: Node 10"
+      node_js: 10
+
+      before_script:
+        - npm run lint
+
+      after_script:
+        - npm run test:coveralls
+
+    - stage: test
+      name: "Documentation Tests"
+      node_js: 10
+
+      script:
+        - npm run lint:md
+        - npm run lint:text
