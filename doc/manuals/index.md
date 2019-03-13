@@ -10,5 +10,5 @@ context data (i.e., entity attribute values) registered in an
 
 All the communications between the STH and the Orion Context Broker as well as between the STH and any third party
 (typically for data retrieval) use standardized NGSI9 and
-[NGSI10](http://technical.openmobilealliance.org/Technical/technical-information/release-program/current-releases/ngsi-v1-0)
+[NGSI10](https://openmobilealliance.org/release/NGSI/V1_0-20120529-A/OMA-TS-NGSI_Context_Management-V1_0-20120529-A.pdf)
 interfaces.

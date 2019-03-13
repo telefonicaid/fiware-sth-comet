@@ -191,7 +191,6 @@
        "ignore": [
           "mailto:*",
           "https://npmcompare.com/compare/connect,express,hapi,koa",
-          "http://technical.openmobilealliance.org/Technical/technical-information/release-program/current-releases/ngsi-v1-0",
           "https://coveralls.io/**"
       ]
     }
