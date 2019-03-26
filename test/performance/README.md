@@ -1,22 +1,23 @@
 ## Performance Tests
 
-This is the repository for scripts to Short Term Historic (STH), used for Performance tests.
-Load testing is the process of putting demand on a system and measuring its response.
-Load testing is performed to determine a system's behavior under anticipated peak load conditions
+This is the repository for scripts to Short Term Historic (STH), used for Performance tests. Load testing is the process
+of putting demand on a system and measuring its response. Load testing is performed to determine a system's behavior
+under anticipated peak load conditions
 
 #### Pre-conditions:
 
-* "Jmeter" app exists in Launcher VM
-* "ServerAgent" app exists in STH Nodes and Balancer (only in cluster case)
-* have a account in Loadosophia - (http://loadosophia.org)
-* "nginx" app exists in Balancer VM (only in cluster case)
-* Verify nginx configuration for each scenario (only in cluster case)
-* Verify that the mongoDB exists and it is installed correctly
-	
+-   "Jmeter" app exists in Launcher VM
+-   "ServerAgent" app exists in STH Nodes and Balancer (only in cluster case)
+-   have a account in [Loadosophia](http://loadosophia.org)
+-   "nginx" app exists in Balancer VM (only in cluster case)
+-   Verify nginx configuration for each scenario (only in cluster case)
+-   Verify that the mongoDB exists and it is installed correctly
+
 #### Pre-steps:
 
-* Launch "ServerAgent" in Balancer or/and each STH Node VMs (java is a dependency)
-```
+-   Launch "ServerAgent" in Balancer or/and each STH Node VMs (java is a dependency)
+
+```console
 nohup sh startAgent.sh --udp-port 0 --tcp-port 4444 &
 ```
 
@@ -24,8 +25,9 @@ nohup sh startAgent.sh --udp-port 0 --tcp-port 4444 &
 
 **sth_notifications.jmx**:
 
-  >**Scenario**:
-```
+> **Scenario**:
+
+```text
 * Multiples Notifications at the same time against a STH instance specific during a given time.
 * Ten services always will be used in parallel, therefore:
       notifications TOTAL = 10 Services (threads groups) *  THREADS (retries during a given time)
@@ -35,16 +37,20 @@ nohup sh startAgent.sh --udp-port 0 --tcp-port 4444 &
         ENTITIES = 100
         service path / entity id postfix are incremental until equal to 10
 ```
-  >**Steps**:
+
+> **Steps**:
+
+```text
+-  verify mongo is installed correctly
+-  STH configuration (by command line or config file)
+-  restart STH app or service
+-  launch jmeter script
+-  reports path (/tmp/JMeter_result/<TESTNAME>_result_<date>)
 ```
-- verify mongo is installed correctly
-- STH configuration (by command line or config file)
-- restart STH app or service
-- launch jmeter script
-- reports path (/tmp/JMeter_result/<TESTNAME>_result_<date>)
-```
-  >**Properties**:
-```
+
+> **Properties**:
+
+```text
 * TESTNAME       - test name (notifications by default)
 * HOST           - IP or hostname main node(in case of clusters is Nginx)  (127.0.0.1 by default)
 * PORT           - port used by sth (8666 by default)
@@ -61,16 +67,19 @@ nohup sh startAgent.sh --udp-port 0 --tcp-port 4444 &
 * ATTR_TYPE      - attribute value (float by default)
 ```
 
-  >**example**:
-```
+> **example**:
+
+```text
 <jmeter_path>/jmeter.sh -n -t <path>/sth_notifications_v1.0.jmx -JHOST=X.X.X.X -JPORT=7777 -JRAMPUP=10 -JTHREADS=20 -JENTITIES=5 -JRUNTIME=10 > <log_path>/sth_notifications_`date +%FT%T`.log &
 ```
 
 #### Post-steps:
-  * Upload in Loadosophia web Loadosophia_xxxxxxxxxxxxxxxxxxxxx.jtl.gz and perfmon_xxxxxxxxxxxxxxxxxxxx.jtl.gz (where "xxxxxxxxxxxxxxxxxxx" is a hash value).
-  * Create Final Report (recommend google docs)
 
-```
+-   Upload in Loadosophia web `Loadosophia_xxxxxxxxxxxxxxxxxxxxx.jtl.gz` and `perfmon_xxxxxxxxxxxxxxxxxxxx.jtl.gz`
+    (where `xxxxxxxxxxxxxxxxxxx` is a hash value).
+-   Create Final Report (recommend google docs)
+
+```text
 Comments:
     /tmp/error_xxxxxxxxxxxxxxxxxxx.html is created, because does not have access at loadosophia, the token is wrong intentionally
     This is made to not constantly access and penalizes the test times. We only store dates manually when finished test. So "xxxxxxxxxxxxxxxxxxx" is a hash value.

@@ -35,26 +35,26 @@ var async = require('async');
 
 var DATABASE_NAME = sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE);
 var DATABASE_CONNECTION_PARAMS = {
-  authentication: sthConfig.DB_AUTHENTICATION,
-  dbURI: sthConfig.DB_URI,
-  replicaSet: sthConfig.REPLICA_SET,
-  database: DATABASE_NAME,
-  poolSize: sthConfig.POOL_SIZE
+    authentication: sthConfig.DB_AUTHENTICATION,
+    dbURI: sthConfig.DB_URI,
+    replicaSet: sthConfig.REPLICA_SET,
+    database: DATABASE_NAME,
+    poolSize: sthConfig.POOL_SIZE
 };
 var COLLECTION_NAME_PARAMS = {
-  service: sthConfig.DEFAULT_SERVICE,
-  servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-  entityId: sthTestConfig.ENTITY_ID,
-  entityType: sthTestConfig.ENTITY_TYPE,
-  attrName: sthTestConfig.ATTRIBUTE_NAME
+    service: sthConfig.DEFAULT_SERVICE,
+    servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+    entityId: sthTestConfig.ENTITY_ID,
+    entityType: sthTestConfig.ENTITY_TYPE,
+    attrName: sthTestConfig.ATTRIBUTE_NAME
 };
 var ATTRIBUTE = {
-  NAME: 'attrName',
-  TYPE: 'attrType',
-  VALUE: {
-    NUMERIC: 666
-  },
-  RECV_TIME: {}
+    NAME: 'attrName',
+    TYPE: 'attrType',
+    VALUE: {
+        NUMERIC: 666
+    },
+    RECV_TIME: {}
 };
 ATTRIBUTE.RECV_TIME[sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH] = new Date(Date.UTC(1970, 0, 1, 0, 0, 0, 0));
 ATTRIBUTE.RECV_TIME[sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY] = new Date(Date.UTC(1970, 0, 1, 0, 0, 0, 555));
@@ -65,10 +65,13 @@ ATTRIBUTE.RECV_TIME[sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE] = new Date(D
  * @param  {Function} callback The callblack
  */
 function connectToDatabase(callback) {
-  if (sthDatabase.connection) {
-    return process.nextTick(callback.bind(null, null, sthDatabase.connection));
-  }
-  sthDatabase.connect(DATABASE_CONNECTION_PARAMS, callback);
+    if (sthDatabase.connection) {
+        return process.nextTick(callback.bind(null, null, sthDatabase.connection));
+    }
+    sthDatabase.connect(
+        DATABASE_CONNECTION_PARAMS,
+        callback
+    );
 }
 
 /**
@@ -78,18 +81,19 @@ function connectToDatabase(callback) {
  * @param  {Function} callback  The Callback
  */
 function dropCollection(type, dataModel, callback) {
-  sthConfig.DATA_MODEL = dataModel;
-  var collectionName = (type === sthTestConfig.DATA_TYPES.RAW) ?
-    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) :
-    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS);
+    sthConfig.DATA_MODEL = dataModel;
+    var collectionName =
+        type === sthTestConfig.DATA_TYPES.RAW
+            ? sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)
+            : sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS);
 
-  sthDatabase.connection.dropCollection(collectionName, function (err) {
-    if (err && err.code === 26 && err.name === 'MongoError' && err.message === 'ns not found') {
-      // The collection does not exist
-      return process.nextTick(callback);
-    }
-    return process.nextTick(callback.bind(null, err));
-  });
+    sthDatabase.connection.dropCollection(collectionName, function(err) {
+        if (err && err.code === 26 && err.name === 'MongoError' && err.message === 'ns not found') {
+            // The collection does not exist
+            return process.nextTick(callback);
+        }
+        return process.nextTick(callback.bind(null, err));
+    });
 }
 
 /**
@@ -97,14 +101,16 @@ function dropCollection(type, dataModel, callback) {
  * @param  {String} dataType The data type
  */
 function cleanDatabaseTests(dataType) {
-  var dataModelsKeys = Object.keys(sthConfig.DATA_MODELS);
-  describe('database clean up', function() {
-    for (var index1 = 0; index1 < dataModelsKeys.length; index1++) {
-      it('should drop the ' + sthConfig.DATA_MODELS[dataModelsKeys[index1]] + ' ' + dataType +
-        ' data collection if it exists', dropCollection.bind(null, dataType,
-          sthConfig.DATA_MODELS[dataModelsKeys[index1]]));
-    }
-  });
+    var dataModelsKeys = Object.keys(sthConfig.DATA_MODELS);
+    describe('database clean up', function() {
+        for (var index1 = 0; index1 < dataModelsKeys.length; index1++) {
+            // prettier-ignore
+            it('should drop the ' + sthConfig.DATA_MODELS[dataModelsKeys[index1]] + ' ' + dataType + 
+                ' data collection if it exists',
+                dropCollection.bind(null, dataType, sthConfig.DATA_MODELS[dataModelsKeys[index1]])
+            );
+        }
+    });
 }
 
 /**
@@ -115,40 +121,40 @@ function cleanDatabaseTests(dataType) {
  * @param  {Function} callback        The callback
  */
 function insertData(dataType, aggregationType, dataModel, callback) {
-  var INSERTION_PARAMS,
-      collectionName,
-      attribute = {};
+    var INSERTION_PARAMS,
+        collectionName,
+        attribute = {};
 
-  attribute.name = ATTRIBUTE.NAME;
-  attribute.type = ATTRIBUTE.TYPE;
-  attribute.value = (aggregationType === sthConfig.AGGREGATIONS.NUMERIC ?
-    ATTRIBUTE.VALUE.NUMERIC : dataModel);
+    attribute.name = ATTRIBUTE.NAME;
+    attribute.type = ATTRIBUTE.TYPE;
+    attribute.value = aggregationType === sthConfig.AGGREGATIONS.NUMERIC ? ATTRIBUTE.VALUE.NUMERIC : dataModel;
 
-  sthConfig.DATA_MODEL = dataModel;
-  collectionName = (dataType === sthTestConfig.DATA_TYPES.RAW) ?
-    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) :
-    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS);
+    sthConfig.DATA_MODEL = dataModel;
+    collectionName =
+        dataType === sthTestConfig.DATA_TYPES.RAW
+            ? sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)
+            : sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS);
 
-  sthDatabase.connection.collection(collectionName, function(err, collection) {
-    if (err) {
-      return process.nextTick(callback.bind(null, err));
-    }
+    sthDatabase.connection.collection(collectionName, function(err, collection) {
+        if (err) {
+            return process.nextTick(callback.bind(null, err));
+        }
 
-    INSERTION_PARAMS = {
-      collection: collection,
-      recvTime: ATTRIBUTE.RECV_TIME[dataModel],
-      entityId: sthTestConfig.ENTITY_ID,
-      entityType: sthTestConfig.ENTITY_TYPE,
-      attribute: attribute,
-      notificationInfo: { inserts: true }
-    };
+        INSERTION_PARAMS = {
+            collection: collection,
+            recvTime: ATTRIBUTE.RECV_TIME[dataModel],
+            entityId: sthTestConfig.ENTITY_ID,
+            entityType: sthTestConfig.ENTITY_TYPE,
+            attribute: attribute,
+            notificationInfo: { inserts: true }
+        };
 
-    if (dataType === sthTestConfig.DATA_TYPES.RAW) {
-      sthDatabase.storeRawData(INSERTION_PARAMS, callback);
-    } else {
-      sthDatabase.storeAggregatedData(INSERTION_PARAMS, callback);
-    }
-  });
+        if (dataType === sthTestConfig.DATA_TYPES.RAW) {
+            sthDatabase.storeRawData(INSERTION_PARAMS, callback);
+        } else {
+            sthDatabase.storeAggregatedData(INSERTION_PARAMS, callback);
+        }
+    });
 }
 
 /**
@@ -158,12 +164,12 @@ function insertData(dataType, aggregationType, dataModel, callback) {
  * @return {Boolean}              True if the database is included in the analysis result, false otherwise
  */
 function isDatabaseIncluded(analysis, databaseName) {
-  for (var index = 0; index < analysis.result.length; index++) {
-    if (analysis.result[index].databaseName === databaseName) {
-      return true;
+    for (var index = 0; index < analysis.result.length; index++) {
+        if (analysis.result[index].databaseName === databaseName) {
+            return true;
+        }
     }
-  }
-  return false;
+    return false;
 }
 
 /**
@@ -174,16 +180,16 @@ function isDatabaseIncluded(analysis, databaseName) {
  * @return {Boolean}                True if the collection is included in the analysis result, false otherwise
  */
 function isCollectionIncluded(analysis, databaseName, collectionName) {
-  for (var index1 = 0; index1 < analysis.result.length; index1++) {
-    if (analysis.result[index1].databaseName === databaseName) {
-      for (var index2 = 0; index2 < analysis.result[index1].collections2Migrate.length; index2++) {
-        if (analysis.result[index1].collections2Migrate[index2].collectionName === collectionName) {
-          return true;
+    for (var index1 = 0; index1 < analysis.result.length; index1++) {
+        if (analysis.result[index1].databaseName === databaseName) {
+            for (var index2 = 0; index2 < analysis.result[index1].collections2Migrate.length; index2++) {
+                if (analysis.result[index1].collections2Migrate[index2].collectionName === collectionName) {
+                    return true;
+                }
+            }
         }
-      }
     }
-  }
-  return false;
+    return false;
 }
 
 /**
@@ -195,22 +201,25 @@ function isCollectionIncluded(analysis, databaseName, collectionName) {
  * @param  {Function} done            mocha's done() function
  */
 function analysisInclusionTest(dataType, originDataModel, targetDataModel, done) {
-  sthConfig.DATA_MODEL = targetDataModel;
-  sthDatabaseModelTool.getDataModelAnalysis(function(err, analysis) {
-    if (err) {
-      return done(err);
-    }
-    expect(analysis.currentDataModel).to.equal(targetDataModel);
-    expect(isDatabaseIncluded(analysis, DATABASE_NAME)).to.equal(true);
-    sthConfig.DATA_MODEL = originDataModel;
-    expect(
-      isCollectionIncluded(analysis, DATABASE_NAME,
-        dataType === sthTestConfig.DATA_TYPES.RAW ?
-          sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) :
-          sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS))
-    ).to.equal(true);
-    done();
-  });
+    sthConfig.DATA_MODEL = targetDataModel;
+    sthDatabaseModelTool.getDataModelAnalysis(function(err, analysis) {
+        if (err) {
+            return done(err);
+        }
+        expect(analysis.currentDataModel).to.equal(targetDataModel);
+        expect(isDatabaseIncluded(analysis, DATABASE_NAME)).to.equal(true);
+        sthConfig.DATA_MODEL = originDataModel;
+        expect(
+            isCollectionIncluded(
+                analysis,
+                DATABASE_NAME,
+                dataType === sthTestConfig.DATA_TYPES.RAW
+                    ? sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)
+                    : sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)
+            )
+        ).to.equal(true);
+        done();
+    });
 }
 
 /**
@@ -222,21 +231,24 @@ function analysisInclusionTest(dataType, originDataModel, targetDataModel, done)
  * @param  {Function} done            mocha's done() function
  */
 function analysisExclusionTest(dataType, originDataModel, targetDataModel, done) {
-  sthConfig.DATA_MODEL = targetDataModel;
-  sthDatabaseModelTool.getDataModelAnalysis(function(err, analysis) {
-    if (err) {
-      return done(err);
-    }
-    expect(analysis.currentDataModel).to.equal(targetDataModel);
-    sthConfig.DATA_MODEL = originDataModel;
-    expect(
-      isCollectionIncluded(analysis, DATABASE_NAME,
-        dataType === sthTestConfig.DATA_TYPES.RAW ?
-          sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) :
-          sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS))
-    ).to.equal(false);
-    done();
-  });
+    sthConfig.DATA_MODEL = targetDataModel;
+    sthDatabaseModelTool.getDataModelAnalysis(function(err, analysis) {
+        if (err) {
+            return done(err);
+        }
+        expect(analysis.currentDataModel).to.equal(targetDataModel);
+        sthConfig.DATA_MODEL = originDataModel;
+        expect(
+            isCollectionIncluded(
+                analysis,
+                DATABASE_NAME,
+                dataType === sthTestConfig.DATA_TYPES.RAW
+                    ? sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)
+                    : sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS)
+            )
+        ).to.equal(false);
+        done();
+    });
 }
 
 /**
@@ -245,20 +257,22 @@ function analysisExclusionTest(dataType, originDataModel, targetDataModel, done)
  * @param  {Function} done            Mocha done() funtion
  */
 function systemCollectionNotIncludedTest(targetDataModel, done) {
-  sthConfig.DATA_MODEL = targetDataModel;
-  sthDatabaseModelTool.getDataModelAnalysis(function(err, analysis) {
-    if (err) {
-      return done(err);
-    }
-    for (var index1 = 0; index1 < analysis.result.length; index1++) {
-      if (analysis.result[index1].databaseName === DATABASE_NAME) {
-        for (var index2 = 0; index2 < analysis.result[index1].collections2Migrate.length; index2++) {
-          expect(analysis.result[index1].collections2Migrate[index2].collectionName.indexOf('system.')).not.to.equal(0);
+    sthConfig.DATA_MODEL = targetDataModel;
+    sthDatabaseModelTool.getDataModelAnalysis(function(err, analysis) {
+        if (err) {
+            return done(err);
         }
-      }
-    }
-    done();
-  });
+        for (var index1 = 0; index1 < analysis.result.length; index1++) {
+            if (analysis.result[index1].databaseName === DATABASE_NAME) {
+                for (var index2 = 0; index2 < analysis.result[index1].collections2Migrate.length; index2++) {
+                    expect(
+                        analysis.result[index1].collections2Migrate[index2].collectionName.indexOf('system.')
+                    ).not.to.equal(0);
+                }
+            }
+        }
+        done();
+    });
 }
 
 /**
@@ -267,47 +281,69 @@ function systemCollectionNotIncludedTest(targetDataModel, done) {
  * @param  {String}  aggregationType The aggregation type
  */
 function collectionPerAttributeAnalysisTests(dataType, aggregationType) {
-  describe('collection per attribute analysis', function() {
-    it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' ' +
-      dataType + ' data collection',
-      insertData.bind(null, dataType, aggregationType,
-        sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
+    describe('collection per attribute analysis', function() {
+        // prettier-ignore
+        it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' ' + dataType +
+            ' data collection',
+            insertData.bind(null, dataType, aggregationType, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE)
+        );
 
-    it('should not detect the any system.* collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
-      systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
+        // prettier-ignore
+        it('should not detect the any system.* collection needs migration to the ' +
+            sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
+            systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE)
+        );
 
-    it('should not detect the any system.* collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
-      systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
+        // prettier-ignore
+        it('should not detect the any system.* collection needs migration to the ' +
+            sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
+            systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY)
+        );
 
-    it('should not detect the any system.* collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
-      systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
+        // prettier-ignore
+        it('should not detect the any system.* collection needs migration to the ' +
+            sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
+            systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH)
+        );
 
-    it('should not detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' ' +
-      dataType + ' data collection needs ' +
-      'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
-      analysisExclusionTest.bind(null, dataType,
-        sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE,
-        sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
+        // prettier-ignore
+        it('should not detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' ' + dataType +
+            ' data collection needs migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE +
+            ' data model',
+            analysisExclusionTest.bind(
+                null,
+                dataType,
+                sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE,
+                sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE
+            )
+        );
 
-    it('should detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' ' +
-      dataType + ' data collection needs ' +
-      'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
-      analysisInclusionTest.bind(null, dataType,
-        sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE,
-        sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
+        // prettier-ignore
+        it('should detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' ' + dataType +
+            ' data collection needs migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +
+            ' data model',
+            analysisInclusionTest.bind(
+                null,
+                dataType,
+                sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE,
+                sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY
+            )
+        );
 
-    it('should detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' ' +
-      dataType + ' data collection needs ' +
-      'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
-      analysisInclusionTest.bind(null, dataType,
-        sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE,
-        sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
+        // prettier-ignore
+        it('should detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' ' + dataType + 
+            ' data collection needs ' + 'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
+            ' data model',
+            analysisInclusionTest.bind(
+                null,
+                dataType,
+                sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE,
+                sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH
+            )
+        );
 
-    cleanDatabaseTests(dataType);
-  });
+        cleanDatabaseTests(dataType);
+    });
 }
 
 /**
@@ -316,46 +352,68 @@ function collectionPerAttributeAnalysisTests(dataType, aggregationType) {
  * @param  {String}  aggregationType The aggregation type
  */
 function collectionPerEntityAnalysisTests(dataType, aggregationType) {
-  describe('collection per entity analysis', function() {
-    it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' +
-      dataType + ' data collection',
-      insertData.bind(null, dataType, aggregationType, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
+    describe('col// pretty analysis', function() {
+        // prettier-ignore
+        it( 'should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +  ' ' + dataType +
+            ' data collection',
+            insertData.bind(null, dataType, aggregationType, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY)
+        );
 
-    it('should not detect the any system.* collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
-      systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
+        // prettier-ignore
+        it('should not detect the any system.* collection needs migration to the ' +
+            sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
+            systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE)
+        );
 
-    it('should not detect the any system.* collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
-      systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
+        // prettier-ignore
+        it('should not detect the any system.* collection needs migration to the ' +
+            sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
+            systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY)
+        );
 
-    it('should not detect the any system.* collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
-      systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
+        // prettier-ignore
+        it('should not detect the any system.* collection needs migration to the ' +
+            sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
+            systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH)
+        );
 
-    it('should not detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' +
-      dataType + ' data collection needs ' +
-      'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
-      analysisExclusionTest.bind(null, dataType,
-        sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY,
-        sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
+        // prettier-ignore
+        it('should not detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' +  dataType +
+            ' data collection needs migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
+            analysisExclusionTest.bind(
+                null,
+                dataType,
+                sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY,
+                sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY
+            )
+        );
 
-    it('should detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' +
-      dataType + ' data collection needs ' +
-      'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
-      analysisInclusionTest.bind(null, dataType,
-        sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY,
-        sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
+        // prettier-ignore
+        it('should detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' + dataType +
+            ' data collection needs ' + 'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE +
+            ' data model',
+            analysisInclusionTest.bind(
+                null,
+                dataType,
+                sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY,
+                sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE
+            )
+        );
 
-    it('should detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' +
-      dataType + ' data collection needs ' +
-      'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
-      analysisInclusionTest.bind(null, dataType,
-        sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY,
-        sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
+        // prettier-ignore
+        it('should detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' + dataType +
+           ' data collection needs ' + 'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
+           ' data model',
+            analysisInclusionTest.bind(
+                null,
+                dataType,
+                sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY,
+                sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH
+            )
+        );
 
-    cleanDatabaseTests(dataType);
-  });
+        cleanDatabaseTests(dataType);
+    });
 }
 
 /**
@@ -364,47 +422,69 @@ function collectionPerEntityAnalysisTests(dataType, aggregationType) {
  * @param  {String}  aggregationType The aggregation type
  */
 function collectionPerServicePathAnalysisTests(dataType, aggregationType) {
-  describe('collection per service path analysis', function() {
-    it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' +
-      dataType + ' data collection',
-      insertData.bind(null, dataType, aggregationType,
-        sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
+    describe('collection per service path analysis', function() {
+        // prettier-ignore
+        it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' + dataType +
+            ' data collection',
+            insertData.bind(null, dataType, aggregationType, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH)
+        );
 
-    it('should not detect the any system.* collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
-      systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
+        // prettier-ignore
+        it('should not detect the any system.* collection needs migration to the ' +
+            sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
+            systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE)
+        );
 
-    it('should not detect the any system.* collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
-      systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
+        // prettier-ignore
+        it('should not detect the any system.* collection needs migration to the ' +
+            sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
+            systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY)
+        );
 
-    it('should not detect the any system.* collection needs migration to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
-      systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
+        // prettier-ignore
+        it('should not detect the any system.* collection needs migration to the ' +
+            sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
+            systemCollectionNotIncludedTest.bind(null, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH)
+        );
 
-    it('should not detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' +
-      dataType + ' data collection needs ' +
-      'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
-      analysisExclusionTest.bind(null, dataType,
-        sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH,
-        sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
+        // prettier-ignore
+        it('should not detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' + dataType +
+            ' data collection needs ' + 'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
+            ' data model',
+            analysisExclusionTest.bind(
+                null,
+                dataType,
+                sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH,
+                sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH
+            )
+        );
 
-    it('should detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' +
-      dataType + ' data collection needs ' +
-      'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' data model',
-      analysisInclusionTest.bind(null, dataType,
-        sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH,
-        sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE));
+        // prettier-ignore
+        it('should detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' + dataType +
+            ' data collection needs ' + 'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + 
+            ' data model',
+            analysisInclusionTest.bind(
+                null,
+                dataType,
+                sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH,
+                sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE
+            )
+        );
 
-    it('should detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' +
-      dataType + ' data collection needs ' +
-      'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' data model',
-      analysisInclusionTest.bind(null, dataType,
-        sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH,
-        sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
+        // prettier-ignore
+        it('should detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' + dataType +
+            ' data collection needs ' + 'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +
+            ' data model',
+            analysisInclusionTest.bind(
+                null,
+                dataType,
+                sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH,
+                sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY
+            )
+        );
 
-    cleanDatabaseTests(dataType);
-  });
+        cleanDatabaseTests(dataType);
+    });
 }
 
 /**
@@ -414,18 +494,18 @@ function collectionPerServicePathAnalysisTests(dataType, aggregationType) {
  * @return {Object}                 The query
  */
 function getQuery4RawDataMigrationTest(originDataModel, targetDataModel) {
-  var query = {};
-  switch (targetDataModel) {
-    case sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH:
-      query.entityId = sthTestConfig.ENTITY_ID;
-      query.entityType = sthTestConfig.ENTITY_TYPE;
-      query.attrName = ATTRIBUTE.NAME;
-      query.attrType = ATTRIBUTE.TYPE;
-      query.recvTime = ATTRIBUTE.RECV_TIME[originDataModel];
-      return query;
-    default:
-      return;
-  }
+    var query = {};
+    switch (targetDataModel) {
+        case sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH:
+            query.entityId = sthTestConfig.ENTITY_ID;
+            query.entityType = sthTestConfig.ENTITY_TYPE;
+            query.attrName = ATTRIBUTE.NAME;
+            query.attrType = ATTRIBUTE.TYPE;
+            query.recvTime = ATTRIBUTE.RECV_TIME[originDataModel];
+            return query;
+        default:
+            return;
+    }
 }
 
 /**
@@ -434,13 +514,13 @@ function getQuery4RawDataMigrationTest(originDataModel, targetDataModel) {
  * @param  {Function} callback       The callback
  */
 function expectCollectionRemoved(collectionName, callback) {
-  sthDatabase.connection.collection(collectionName, { strict: true}, function(err) {
-    var error;
-    if (err.message.indexOf('does not exist') === -1) {
-      error = err;
-    }
-    callback(error);
-  });
+    sthDatabase.connection.collection(collectionName, { strict: true }, function(err) {
+        var error;
+        if (err.message.indexOf('does not exist') === -1) {
+            error = err;
+        }
+        callback(error);
+    });
 }
 
 /**
@@ -460,37 +540,43 @@ function expectCollectionRemoved(collectionName, callback) {
  * @param  {Function} done   mocha's done function
  */
 function expectRawDataMigration(params, options, done) {
-  sthDatabase.connection.collection(params.targetCollectionName, function(err, targetCollection) {
-    targetCollection.find(getQuery4RawDataMigrationTest(params.originDataModel, params.targetDataModel)).
-      toArray(function(err, results) {
-        if (err) {
-          return done(err);
-        }
-        expect(results.length).to.equal(1);
-        expect(results[0].attrValue).to.equal(
-          params.aggregationType === sthConfig.AGGREGATIONS.NUMERIC ?
-            ATTRIBUTE.VALUE.NUMERIC : params.originDataModel);
-        targetCollection.find(getQuery4RawDataMigrationTest(params.targetDataModel, params.targetDataModel)).
-          toArray(function(err, results) {
-            if (err) {
-              return done(err);
-            }
-            if (options.updateCollection) {
+    sthDatabase.connection.collection(params.targetCollectionName, function(err, targetCollection) {
+        targetCollection
+            .find(getQuery4RawDataMigrationTest(params.originDataModel, params.targetDataModel))
+            .toArray(function(err, results) {
+                if (err) {
+                    return done(err);
+                }
                 expect(results.length).to.equal(1);
                 expect(results[0].attrValue).to.equal(
-                  params.aggregationType === sthConfig.AGGREGATIONS.NUMERIC ?
-                    ATTRIBUTE.VALUE.NUMERIC : params.targetDataModel);
-            } else {
-              expect(results.length).to.equal(0);
-            }
-            if (options.removeCollection) {
-              expectCollectionRemoved(params.originCollectionName, done);
-            } else {
-              done();
-            }
-          });
-      });
-  });
+                    params.aggregationType === sthConfig.AGGREGATIONS.NUMERIC
+                        ? ATTRIBUTE.VALUE.NUMERIC
+                        : params.originDataModel
+                );
+                targetCollection
+                    .find(getQuery4RawDataMigrationTest(params.targetDataModel, params.targetDataModel))
+                    .toArray(function(err, results) {
+                        if (err) {
+                            return done(err);
+                        }
+                        if (options.updateCollection) {
+                            expect(results.length).to.equal(1);
+                            expect(results[0].attrValue).to.equal(
+                                params.aggregationType === sthConfig.AGGREGATIONS.NUMERIC
+                                    ? ATTRIBUTE.VALUE.NUMERIC
+                                    : params.targetDataModel
+                            );
+                        } else {
+                            expect(results.length).to.equal(0);
+                        }
+                        if (options.removeCollection) {
+                            expectCollectionRemoved(params.originCollectionName, done);
+                        } else {
+                            done();
+                        }
+                    });
+            });
+    });
 }
 
 /**
@@ -501,18 +587,18 @@ function expectRawDataMigration(params, options, done) {
  * @return {Object}                 The query
  */
 function getQuery4AggregatedDataMigrationTest(originDataModel, targetDataModel, resolution) {
-  var query = {};
-  switch (targetDataModel) {
-    case sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH:
-      query['_id.entityId'] = sthTestConfig.ENTITY_ID;
-      query['_id.entityType'] = sthTestConfig.ENTITY_TYPE;
-      query['_id.attrName'] = ATTRIBUTE.NAME;
-      query['_id.origin'] = sthUtils.getOrigin(ATTRIBUTE.RECV_TIME[originDataModel], resolution);
-      query['_id.resolution'] = resolution;
-      return query;
-    default:
-      return;
-  }
+    var query = {};
+    switch (targetDataModel) {
+        case sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH:
+            query['_id.entityId'] = sthTestConfig.ENTITY_ID;
+            query['_id.entityType'] = sthTestConfig.ENTITY_TYPE;
+            query['_id.attrName'] = ATTRIBUTE.NAME;
+            query['_id.origin'] = sthUtils.getOrigin(ATTRIBUTE.RECV_TIME[originDataModel], resolution);
+            query['_id.resolution'] = resolution;
+            return query;
+        default:
+            return;
+    }
 }
 
 /**
@@ -521,11 +607,11 @@ function getQuery4AggregatedDataMigrationTest(originDataModel, targetDataModel, 
  * @param {Number} offset The offset
  */
 function getAggregatedEntry4Offset(points, offset) {
-  for (var index = 0; index < points.length; index++) {
-    if (points[index].offset === offset) {
-      return points[index];
+    for (var index = 0; index < points.length; index++) {
+        if (points[index].offset === offset) {
+            return points[index];
+        }
     }
-  }
 }
 
 /**
@@ -549,82 +635,84 @@ function getAggregatedEntry4Offset(points, offset) {
  * @param  {Function} callback         The callback
  */
 function expectAggregatedDataMigration4Resolution(params, options, callback) {
-  params.targetCollection.find(
-    getQuery4AggregatedDataMigrationTest(params.originDataModel, params.targetDataModel, params.resolution)
-  ).toArray(function(err, results) {
-    if (err) {
-      return process.nextTick(callback.bind(this, err));
-    }
-    expect(results.length).to.equal(1);
-    var point = getAggregatedEntry4Offset(results[0].points,
-      sthUtils.getOffset(params.resolution, ATTRIBUTE.RECV_TIME[params.originDataModel]));
-    if (options.updateCollection) {
-      if (point.sum) {
-        expect(point.samples).to.equal(2);
-        expect(point.sum).to.equal(ATTRIBUTE.VALUE.NUMERIC * 2);
-        expect(point.sum2).to.equal(Math.pow(ATTRIBUTE.VALUE.NUMERIC, 2) * 2);
-        expect(point.min).to.equal(ATTRIBUTE.VALUE.NUMERIC);
-        expect(point.max).to.equal(ATTRIBUTE.VALUE.NUMERIC);
-      } else {
-        expect(point.samples).to.equal(2);
-        expect(point.occur[params.originDataModel]).to.equal(1);
-        expect(point.occur[params.targetDataModel]).to.equal(1);
-      }
-    } else {
-      if (point.sum) {
-        expect(point.samples).to.equal(1);
-        expect(point.sum).to.equal(ATTRIBUTE.VALUE.NUMERIC);
-        expect(point.sum2).to.equal(Math.pow(ATTRIBUTE.VALUE.NUMERIC, 2));
-        expect(point.min).to.equal(ATTRIBUTE.VALUE.NUMERIC);
-        expect(point.max).to.equal(ATTRIBUTE.VALUE.NUMERIC);
-      } else {
-        expect(point.samples).to.equal(1);
-        expect(point.occur[params.originDataModel]).to.equal(1);
-      }
-    }
-    return process.nextTick(callback);
-  });
+    params.targetCollection
+        .find(getQuery4AggregatedDataMigrationTest(params.originDataModel, params.targetDataModel, params.resolution))
+        .toArray(function(err, results) {
+            if (err) {
+                return process.nextTick(callback.bind(this, err));
+            }
+            expect(results.length).to.equal(1);
+            var point = getAggregatedEntry4Offset(
+                results[0].points,
+                sthUtils.getOffset(params.resolution, ATTRIBUTE.RECV_TIME[params.originDataModel])
+            );
+            if (options.updateCollection) {
+                if (point.sum) {
+                    expect(point.samples).to.equal(2);
+                    expect(point.sum).to.equal(ATTRIBUTE.VALUE.NUMERIC * 2);
+                    expect(point.sum2).to.equal(Math.pow(ATTRIBUTE.VALUE.NUMERIC, 2) * 2);
+                    expect(point.min).to.equal(ATTRIBUTE.VALUE.NUMERIC);
+                    expect(point.max).to.equal(ATTRIBUTE.VALUE.NUMERIC);
+                } else {
+                    expect(point.samples).to.equal(2);
+                    expect(point.occur[params.originDataModel]).to.equal(1);
+                    expect(point.occur[params.targetDataModel]).to.equal(1);
+                }
+            } else {
+                if (point.sum) {
+                    expect(point.samples).to.equal(1);
+                    expect(point.sum).to.equal(ATTRIBUTE.VALUE.NUMERIC);
+                    expect(point.sum2).to.equal(Math.pow(ATTRIBUTE.VALUE.NUMERIC, 2));
+                    expect(point.min).to.equal(ATTRIBUTE.VALUE.NUMERIC);
+                    expect(point.max).to.equal(ATTRIBUTE.VALUE.NUMERIC);
+                } else {
+                    expect(point.samples).to.equal(1);
+                    expect(point.occur[params.originDataModel]).to.equal(1);
+                }
+            }
+            return process.nextTick(callback);
+        });
 }
 
 /**
-* Expectations to be validated for the migration of aggregated data type
-* @param  {Object}   params  An object including the following properties:
-*                              - dataType: The data type
-*                              - aggregationType: The aggregation type
-*                              - originCollectionName: The origin collection name
-*                              - originDataModel: The origin data model
-*                              - targetCollectionName: The target collection name
-*                              - targetDataModel: The target data model
-* @param  {Object}   options An object including the following properties:
-*                              - removeCollection: Flag indicating if the origin collection should be removed after
-*                                                    the migration
-*                              - updateCollection: Flag indicating if the target collection should be updated if it
-*                                                    exists
+ * Expectations to be validated for the migration of aggregated data type
+ * @param  {Object}   params  An object including the following properties:
+ *                              - dataType: The data type
+ *                              - aggregationType: The aggregation type
+ *                              - originCollectionName: The origin collection name
+ *                              - originDataModel: The origin data model
+ *                              - targetCollectionName: The target collection name
+ *                              - targetDataModel: The target data model
+ * @param  {Object}   options An object including the following properties:
+ *                              - removeCollection: Flag indicating if the origin collection should be removed after
+ *                                                    the migration
+ *                              - updateCollection: Flag indicating if the target collection should be updated if it
+ *                                                    exists
  * @param  {Function} done  mocha's done() function
  */
 function expectAggregatedDataMigration(params, options, done) {
-  async.waterfall(
-    [
-      async.apply(sthDatabase.connection.collection.bind(sthDatabase.connection, params.targetCollectionName)),
-      function onTargetCollection(targetCollection, callback) {
-        var expect4Resolution = [];
-        sthConfig.AGGREGATION_BY.forEach(function(resolution) {
-          params.resolution = resolution;
-          params.targetCollection = targetCollection;
-          expect4Resolution.push(
-            async.apply(expectAggregatedDataMigration4Resolution, params, options));
-        });
-        async.parallel(expect4Resolution, callback);
-      },
-      function expectOriginCollectionRemoved(expect4ResolutionResult, callback) {
-        if (options.removeCollection) {
-          expectCollectionRemoved(params.originCollectionName, callback);
-        } else {
-          callback();
-        }
-      }
-    ],
-    done);
+    async.waterfall(
+        [
+            async.apply(sthDatabase.connection.collection.bind(sthDatabase.connection, params.targetCollectionName)),
+            function onTargetCollection(targetCollection, callback) {
+                var expect4Resolution = [];
+                sthConfig.AGGREGATION_BY.forEach(function(resolution) {
+                    params.resolution = resolution;
+                    params.targetCollection = targetCollection;
+                    expect4Resolution.push(async.apply(expectAggregatedDataMigration4Resolution, params, options));
+                });
+                async.parallel(expect4Resolution, callback);
+            },
+            function expectOriginCollectionRemoved(expect4ResolutionResult, callback) {
+                if (options.removeCollection) {
+                    expectCollectionRemoved(params.originCollectionName, callback);
+                } else {
+                    callback();
+                }
+            }
+        ],
+        done
+    );
 }
 
 /**
@@ -642,29 +730,30 @@ function expectAggregatedDataMigration(params, options, done) {
  * @param  {Function} done   mocha's done() function
  */
 function migrationTest(params, options, done) {
-  sthConfig.DATA_MODEL = params.originDataModel;
-  var originCollectionName = (params.dataType === sthTestConfig.DATA_TYPES.RAW ?
-    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) :
-    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS));
-  params.originCollectionName = originCollectionName;
+    sthConfig.DATA_MODEL = params.originDataModel;
+    var originCollectionName =
+        params.dataType === sthTestConfig.DATA_TYPES.RAW
+            ? sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)
+            : sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS);
+    params.originCollectionName = originCollectionName;
 
-  sthConfig.DATA_MODEL = params.targetDataModel;
-  var targetCollectionName = (params.dataType === sthTestConfig.DATA_TYPES.RAW ?
-    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) :
-    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS));
-  params.targetCollectionName = targetCollectionName;
+    sthConfig.DATA_MODEL = params.targetDataModel;
+    var targetCollectionName =
+        params.dataType === sthTestConfig.DATA_TYPES.RAW
+            ? sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)
+            : sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS);
+    params.targetCollectionName = targetCollectionName;
 
-  sthDatabaseModelTool.migrateCollection(DATABASE_NAME, originCollectionName, options,
-    function(err) {
-    if (err) {
-      return done(err);
-    }
-    if (params.dataType === sthTestConfig.DATA_TYPES.RAW) {
-      expectRawDataMigration(params, options, done);
-    } else {
-      expectAggregatedDataMigration(params, options, done);
-    }
-  });
+    sthDatabaseModelTool.migrateCollection(DATABASE_NAME, originCollectionName, options, function(err) {
+        if (err) {
+            return done(err);
+        }
+        if (params.dataType === sthTestConfig.DATA_TYPES.RAW) {
+            expectRawDataMigration(params, options, done);
+        } else {
+            expectAggregatedDataMigration(params, options, done);
+        }
+    });
 }
 
 /**
@@ -675,16 +764,17 @@ function migrationTest(params, options, done) {
  * @param  {Function} done            mocha's done() function
  */
 function noMigrationTest(dataType, originDataModel, targetDataModel, done) {
-  sthConfig.DATA_MODEL = originDataModel;
-  var originCollectionName = (dataType === sthTestConfig.DATA_TYPES.RAW ?
-    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) :
-    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS));
+    sthConfig.DATA_MODEL = originDataModel;
+    var originCollectionName =
+        dataType === sthTestConfig.DATA_TYPES.RAW
+            ? sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)
+            : sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS);
 
-  sthConfig.DATA_MODEL = targetDataModel;
-  sthDatabaseModelTool.migrateCollection(DATABASE_NAME, originCollectionName, function(err) {
-    expect(err).to.exit;
-    done();
-  });
+    sthConfig.DATA_MODEL = targetDataModel;
+    sthDatabaseModelTool.migrateCollection(DATABASE_NAME, originCollectionName, function(err) {
+        expect(err).to.exit;
+        done();
+    });
 }
 
 /**
@@ -694,27 +784,33 @@ function noMigrationTest(dataType, originDataModel, targetDataModel, done) {
  * @param  {String} aggregationType The aggregation type
  */
 function collectionPerEntityNotUpdatableMigrationTests(dataType, aggregationType) {
-  describe('collection per entity not updatable migration', function() {
-    it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' +
-      dataType + ' data collection',
-      insertData.bind(null, dataType, aggregationType,
-        sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
+    describe('collection per entity not updatable migration', function() {
+        // prettier-ignore
+        it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' +
+            dataType + ' data collection',
+            insertData.bind(null, dataType, aggregationType, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY)
+        );
 
-    it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' +
-      dataType + ' data collection',
-      insertData.bind(null, dataType, aggregationType,
-        sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
+        // prettier-ignore
+        it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' +
+            dataType + ' data collection',
+            insertData.bind(null, dataType, aggregationType, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH)
+        );
 
-    it('should not migrate the ' + dataType + ' data collection from the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
-      noMigrationTest.bind(null, dataType,
-        sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY,
-        sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH)
-    );
+        // prettier-ignore
+        it('should not migrate the ' + dataType + ' data collection from the ' + 
+            sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' to the ' +
+            sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model',
+            noMigrationTest.bind(
+                null,
+                dataType,
+                sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY,
+                sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH
+            )
+        );
 
-    cleanDatabaseTests(dataType);
-  });
+        cleanDatabaseTests(dataType);
+    });
 }
 
 /**
@@ -729,30 +825,32 @@ function collectionPerEntityNotUpdatableMigrationTests(dataType, aggregationType
  *                                                          it exists
  */
 function collectionPerEntityCleanMigrationTests(dataType, aggregationType, options) {
-  describe('collection per entity clean migration', function() {
-    it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' +
-      dataType + ' data collection',
-      insertData.bind(null, dataType, aggregationType,
-        sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
+    describe('collection per entity clean migration', function() {
+        // prettier-ignore
+        it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' + dataType + 
+            ' data collection',
+            insertData.bind(null, dataType, aggregationType, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY)
+        );
 
-    it('should migrate the ' + dataType + ' data collection from the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model' +
-      (options.removeCollection ? ' removing the original collection afterwards': ''),
-      migrationTest.bind(
-        null,
-        {
-          dataType: dataType,
-          aggregationType: aggregationType,
-          originDataModel: sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY,
-          targetDataModel: sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH
-        },
-        options
-      )
-    );
+        // prettier-ignore
+        it('should migrate the ' + dataType + ' data collection from the ' + 
+            sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' to the ' + 
+            sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model' +
+            (options.removeCollection ? ' removing the original collection afterwards' : ''),
+            migrationTest.bind(
+                null,
+                {
+                    dataType: dataType,
+                    aggregationType: aggregationType,
+                    originDataModel: sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY,
+                    targetDataModel: sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH
+                },
+                options
+            )
+        );
 
-    cleanDatabaseTests(dataType);
-  });
+        cleanDatabaseTests(dataType);
+    });
 }
 
 /**
@@ -767,106 +865,97 @@ function collectionPerEntityCleanMigrationTests(dataType, aggregationType, optio
  *                                                          it exists
  */
 function collectionPerEntityUpdateMigrationTests(dataType, aggregationType, options) {
-  describe('collection per entity updatable migration', function() {
-    it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' +
-      dataType + ' data collection',
-      insertData.bind(null, dataType, aggregationType,
-        sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY));
+    describe('collection per entity updatable migration', function() {
+        // prettier-ignore
+        it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' + dataType +
+            ' data collection',
+            insertData.bind(null, dataType, aggregationType, sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY)
+        );
 
-    it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' +
-      dataType + ' data collection',
-      insertData.bind(null, dataType, aggregationType,
-        sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH));
+        // prettier-ignore
+        it('should insert data into the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' + dataType +
+            ' data collection',
+            insertData.bind(null, dataType, aggregationType, sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH)
+        );
 
-    it('should migrate the ' + dataType + ' data collection from the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' to the ' +
-      sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' data model updating the target collection' +
-      (options.removeCollection ? ' and removing the original collection afterwards': ''),
-      migrationTest.bind(
-        null,
-        {
-          dataType: dataType,
-          aggregationType: aggregationType,
-          originDataModel: sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY,
-          targetDataModel: sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH
-        },
-        options
-      )
-    );
+        // prettier-ignore
+        it('should migrate the ' + dataType + ' data collection from the ' + 
+            sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' to the ' + 
+            sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
+            ' data model updating the target collection' +
+            (options.removeCollection ? ' and removing the original collection afterwards' : ''),
+            migrationTest.bind(
+                null,
+                {
+                    dataType: dataType,
+                    aggregationType: aggregationType,
+                    originDataModel: sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY,
+                    targetDataModel: sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH
+                },
+                options
+            )
+        );
 
-    cleanDatabaseTests(dataType);
-  });
+        cleanDatabaseTests(dataType);
+    });
 }
 
 describe('sthDatabaseModelTool tests', function() {
-  this.timeout(5000);
-  var originalDataModel = sthConfig.DATA_MODEL;
-  [sthConfig.AGGREGATIONS.NUMERIC, sthConfig.AGGREGATIONS.TEXTUAL].forEach(function(aggregationType) {
-    describe(aggregationType + ' aggregation type', function() {
-      var dataTypes = Object.keys(sthTestConfig.DATA_TYPES);
-      dataTypes.forEach(function(dataType) {
-        describe(sthTestConfig.DATA_TYPES[dataType] + ' data', function() {
-          describe('data model analysis', function() {
-            before(connectToDatabase);
+    this.timeout(5000);
+    var originalDataModel = sthConfig.DATA_MODEL;
+    [sthConfig.AGGREGATIONS.NUMERIC, sthConfig.AGGREGATIONS.TEXTUAL].forEach(function(aggregationType) {
+        describe(aggregationType + ' aggregation type', function() {
+            var dataTypes = Object.keys(sthTestConfig.DATA_TYPES);
+            dataTypes.forEach(function(dataType) {
+                describe(sthTestConfig.DATA_TYPES[dataType] + ' data', function() {
+                    describe('data model analysis', function() {
+                        before(connectToDatabase);
 
-            cleanDatabaseTests(dataType);
+                        cleanDatabaseTests(dataType);
 
-            collectionPerAttributeAnalysisTests(sthTestConfig.DATA_TYPES[dataType], aggregationType);
+                        collectionPerAttributeAnalysisTests(sthTestConfig.DATA_TYPES[dataType], aggregationType);
 
-            collectionPerEntityAnalysisTests(sthTestConfig.DATA_TYPES[dataType], aggregationType);
+                        collectionPerEntityAnalysisTests(sthTestConfig.DATA_TYPES[dataType], aggregationType);
 
-            collectionPerServicePathAnalysisTests(sthTestConfig.DATA_TYPES[dataType], aggregationType);
-          });
+                        collectionPerServicePathAnalysisTests(sthTestConfig.DATA_TYPES[dataType], aggregationType);
+                    });
 
-          describe('data model migration', function() {
-            before(connectToDatabase);
+                    describe('data model migration', function() {
+                        before(connectToDatabase);
 
-            cleanDatabaseTests(dataType);
+                        cleanDatabaseTests(dataType);
 
-            collectionPerEntityNotUpdatableMigrationTests(sthTestConfig.DATA_TYPES[dataType], aggregationType);
+                        collectionPerEntityNotUpdatableMigrationTests(
+                            sthTestConfig.DATA_TYPES[dataType],
+                            aggregationType
+                        );
 
-            collectionPerEntityCleanMigrationTests(
-              sthTestConfig.DATA_TYPES[dataType],
-              aggregationType,
-              {
-                removeCollection: false,
-                updateCollection: false
-              }
-            );
+                        collectionPerEntityCleanMigrationTests(sthTestConfig.DATA_TYPES[dataType], aggregationType, {
+                            removeCollection: false,
+                            updateCollection: false
+                        });
 
-            collectionPerEntityCleanMigrationTests(
-              sthTestConfig.DATA_TYPES[dataType],
-              aggregationType,
-              {
-                removeCollection: true,
-                updateCollection: false
-              }
-            );
+                        collectionPerEntityCleanMigrationTests(sthTestConfig.DATA_TYPES[dataType], aggregationType, {
+                            removeCollection: true,
+                            updateCollection: false
+                        });
 
-            collectionPerEntityUpdateMigrationTests(
-              sthTestConfig.DATA_TYPES[dataType],
-              aggregationType,
-              {
-                removeCollection: false,
-                updateCollection: true
-              }
-            );
+                        collectionPerEntityUpdateMigrationTests(sthTestConfig.DATA_TYPES[dataType], aggregationType, {
+                            removeCollection: false,
+                            updateCollection: true
+                        });
 
-            collectionPerEntityUpdateMigrationTests(
-              sthTestConfig.DATA_TYPES[dataType],
-              aggregationType,
-              {
-                removeCollection: true,
-                updateCollection: true
-              }
-            );
-          });
+                        collectionPerEntityUpdateMigrationTests(sthTestConfig.DATA_TYPES[dataType], aggregationType, {
+                            removeCollection: true,
+                            updateCollection: true
+                        });
+                    });
+                });
+            });
         });
-      });
     });
-  });
 
-  after(function() {
-    sthConfig.DATA_MODEL = originalDataModel;
-  });
+    after(function() {
+        sthConfig.DATA_MODEL = originalDataModel;
+    });
 });
