@@ -4,32 +4,37 @@ repo_url: https://github.com/telefonicaid/fiware-sth-comet.git
 site_description: STH (Short Time Historic) - Comet Documentation
 docs_dir: doc/manuals
 site_dir: html
-markdown_extensions: [toc,fenced_code]
+markdown_extensions: [toc, fenced_code]
 use_directory_urls: false
 theme: readthedocs
-extra_css: ["https://fiware.org/style/fiware_readthedocs.css", "https://fiware.org/style/fiware_readthedocs_core.css"]
-google_analytics: ['UA-84868354-1', 'fiware-sth-comet.readthedocs.io']
+extra_css:
+  [
+    "https://fiware.org/style/fiware_readthedocs.css",
+    "https://fiware.org/style/fiware_readthedocs_core.css",
+  ]
+google_analytics: ["UA-84868354-1", "fiware-sth-comet.readthedocs.io"]
 pages:
-  - 'Home': 'index.md'
-  - 'Getting Started': 'getting-started.md'
-  - 'Why Comet': 'why-comet.md'
-  - 'Users & Developers Manual':
-      - 'Storing historical raw and aggregated time series context information': 'data-storage.md'
-      - 'Getting historical raw context information': 'raw-data-retrieval.md'
-      - 'Getting historical aggregated time series context information': 'aggregated-data-retrieval.md'
-      - 'Removing historical raw and aggregated time series context information': 'data-removal.md'
-      - 'Unit tests coverage': 'unit-test-coverage.md'
-      - 'Performance tests coverage': 'performance-test-coverage.md'
-      - 'Additional resources': 'additional-resources.md'
-      - 'Contribution guidelines': 'contribution-guidelines.md'
-  - 'Installation & Administration Manual':
-      - 'Dependencies': 'dependencies.md'
-      - 'Installation': 'installation.md'
-      - 'Running the STH server': 'running.md'
-      - 'Migrating historical raw and aggregated time series context information': 'data-migration.md'
-      - 'Database and collection name mapping and unmapping': 'name-mapping.md'
-      - 'Database and collection name encoding and decoding': 'name-encoding.md'
-      - 'Alarm system': 'alarms.md'
-  - 'Architecture, Data Models and Schemas':
-      - 'Architecture': 'architecture.md'
-      - 'Data models & Schemas': 'data-models-schemas.md'
+  - "Home": "index.md"
+  - "Getting Started": "getting-started.md"
+  - "Why Comet": "why-comet.md"
+  - "Users & Developers Manual":
+      - "Storing historical raw and aggregated time series context information": "data-storage.md"
+      - "Getting historical raw context information": "raw-data-retrieval.md"
+      - "Getting historical aggregated time series context information": "aggregated-data-retrieval.md"
+      - "Removing historical raw and aggregated time series context information": "data-removal.md"
+      - "Unit tests coverage": "unit-test-coverage.md"
+      - "Performance tests coverage": "performance-test-coverage.md"
+      - "Additional resources": "additional-resources.md"
+      - "Contribution guidelines": "contribution-guidelines.md"
+  - "Installation & Administration Manual":
+      - "Dependencies": "dependencies.md"
+      - "Installation": "installation.md"
+      - "Running the STH server": "running.md"
+      - "Migrating historical raw and aggregated time series context information": "data-migration.md"
+      - "Database and collection name mapping and unmapping": "name-mapping.md"
+      - "Database and collection name encoding and decoding": "name-encoding.md"
+      - "Recommended database indexes": "doc/manuals/db_indexes.md"
+      - "Alarm system": "alarms.md"
+  - "Architecture, Data Models and Schemas":
+      - "Architecture": "architecture.md"
+      - "Data models & Schemas": "data-models-schemas.md"
