@@ -33,7 +33,7 @@ pages:
       - "Migrating historical raw and aggregated time series context information": "data-migration.md"
       - "Database and collection name mapping and unmapping": "name-mapping.md"
       - "Database and collection name encoding and decoding": "name-encoding.md"
-      - "Recommended database indexes": "doc/manuals/db_indexes.md"
+      - "Recommended database indexes": "db_indexes.md"
       - "Alarm system": "alarms.md"
   - "Architecture, Data Models and Schemas":
       - "Architecture": "architecture.md"
