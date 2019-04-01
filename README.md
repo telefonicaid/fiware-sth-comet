@@ -143,10 +143,11 @@ Detailed information about the performance tests included with the STH component
 
 ## Advanced topics
 
-If you are a developer, you may be interested in checking the
-[Additional resources](doc/manuals/additional-resources.md) section of the documentation as well as the
-[Contribution guidelines](doc/manuals/contribution-guidelines.md) section in case you may be interested in contributing
-to the project.
+If you are a developer, you may be interested in the following advanced topics:
+
+-   [Additional resources](doc/manuals/additional-resources.md)
+-   [Recommended database indexes](doc/manuals/db_indexes.md)
+-   [Contribution guidelines](doc/manuals/contribution-guidelines.md)
 
 [Top](#top)
 
