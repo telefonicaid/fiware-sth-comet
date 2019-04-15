@@ -25,10 +25,15 @@
 # script may fail:
 #
 # db.sth__.createIndex({entityId: 1, entityType: 1, attrName: 1})
+#
+# This can be done setting INDEX_CREATE to True
 
 __author__ = 'fermin'
 
+import json
+import sys
 from pymongo import MongoClient
+from pymongo import ASCENDING
 from pymongo import DESCENDING
 
 ##############################################################
@@ -41,6 +46,12 @@ COL = 'sth__'
 
 # The number of samples per entities to keep
 N = 10
+
+# Automaticallly creates the index that the script needs to work. In addition,
+# this is also the index recommened by STH documentation. Note that this script
+# can be used with N=0 and INDEX_CREATE=true to just create the index without
+# any actual prunning
+INDEX_CREATE = True
 
 # If dryrun is True the script doesn't touch the database, only shows a report
 DRYRUN = True
@@ -107,6 +118,15 @@ pipeline = [
     },
     { '$sort' : { 'count': -1 } }
 ]
+
+if not DRYRUN and INDEX_CREATE:
+    index = [ ('entityId', ASCENDING), ('entityType', ASCENDING), ('attrName', ASCENDING), ('recvTime', DESCENDING) ]
+    print 'Creating index on %s. Please wait, this operation may take a while...' % str(index)
+    client[DB][COL].create_index(index, background=True)
+
+# Early return
+if N == 0:
+    sys.exit(0)
 
 for doc in client[DB][COL].aggregate(pipeline):
     entityId = doc['_id']['entityId']
