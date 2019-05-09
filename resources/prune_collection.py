@@ -182,9 +182,9 @@ if not DRYRUN and INDEX_CREATE:
 if not DRYRUN and EXPIRATION > 0:
     indexForRaw = [ ('recvTime', ASCENDING) ]
     indexForAgg = [ ('_id.origin', ASCENDING) ]
-    print 'Creating index in raw collection: %s. Please wait, this operation may take a while...' % str(indexForRaw)
+    print 'Creating index in raw collection: %s with expireAfterSeconds %d. Please wait, this operation may take a while...' % (str(indexForRaw), EXPIRATION)
     client[DB][COL].create_index(indexForRaw, background=True, expireAfterSeconds=EXPIRATION)
-    print 'Creating index in agg collection: %s. Please wait, this operation may take a while...' % str(indexForAgg)
+    print 'Creating index in agg collection: %s with expireAfterSeconds %d. Please wait, this operation may take a while...' % (str(indexForAgg), EXPIRATION)
     client[DB][COL + '.aggr'].create_index(indexForAgg, background=True, expireAfterSeconds=EXPIRATION)
 
 # Early return
