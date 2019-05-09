@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: latin-1 -*-
 # Copyright 2019 Telefonica Investigacion y Desarrollo, S.A.U
 #
@@ -26,39 +26,45 @@
 #
 # db.sth__.createIndex({entityId: 1, entityType: 1, attrName: 1})
 #
-# This can be done setting INDEX_CREATE to True
+# This can be done using --createIndex
 
 __author__ = 'fermin'
 
 import json
 import sys
-from pymongo import MongoClient
-from pymongo import ASCENDING
-from pymongo import DESCENDING
+import os
+from getopt import getopt, GetoptError
+from pymongo import MongoClient, ASCENDING, DESCENDING
 
-##############################################################
-# BEGIN of the configuration part (don't touch above this line ;)
+def usage():
+    """
+    Print usage message
+    """
 
-# Database and collection to use. Only the collection with the raw samples is
-# allowed, the aggregates collection is not supported
-DB = 'sth_service'
-COL = 'sth__'
-
-# The number of samples per entities to keep
-N = 10
-
-# Automaticallly creates the index that the script needs to work. In addition,
-# this is also the index recommened by STH documentation. Note that this script
-# can be used with N=0 and INDEX_CREATE=true to just create the index without
-# any actual prunning
-INDEX_CREATE = True
-
-# If dryrun is True the script doesn't touch the database, only shows a report
-DRYRUN = True
+    print 'Usage: %s -c <conf_file> -u' % os.path.basename(__file__)
+    print ''
+    print 'Parameters:'
+    print "  --db <database>: database to use"
+    print "  --col <collection>: collection to use"
+    print "  --createIndex (optional): create index on {entityId: 1, entityType: 1, attrName: 1} for optimal performance in raw collection"
+    print "  --prune <n> (optional): prune collection so only the last <n> elements per attribute and entity are kept"
+    print "  --dryrun (optional): if used script does a dry-run pass (i.e. without doing any modification in DB"
+    print "  -u, print this usage mesage"
 
 
-# END of the configuration part (don't touch below this line ;)
-##############################################################
+def usage_and_exit(msg):
+    """
+    Print usage message and exit"
+
+    :param msg: optional error message to print
+    """
+
+    if msg != '':
+        print "ERROR: " + msg
+        print
+
+    usage()
+    sys.exit(1)
 
 
 def get_info(entityId, entityType, attrName):
@@ -106,6 +112,46 @@ def prune(entityId, entityType, attrName, last_time):
 
     return deleted
 
+
+# Get CLI arguments
+try:
+    opts, args = getopt(sys.argv[1:], 'u', ['db=', 'col=', 'createIndex', 'prune=', 'dryrun'])
+except GetoptError:
+    usage_and_exit('wrong parameter')
+
+# Defaults (to be changed by user CLI parameters)
+DB = ''
+COL = ''
+N = 0
+INDEX_CREATE = False
+DRYRUN = False
+
+for opt, arg in opts:
+    if opt == '-u':
+        usage()
+        sys.exit(0)
+    elif opt == '--db':
+        DB = arg
+    elif opt == '--col':
+        COL = arg
+    elif opt == '--prune':
+        try:
+            N = int(arg)
+            if not N > 0:
+                usage_and_exit('--prune value must be an integer greater than 0')
+        except ValueError:
+            usage_and_exit('--prune value must be an integer greater than 0')
+    elif opt == '--createIndex':
+        INDEX_CREATE = True
+    elif opt == '--dryrun':
+        DRYRUN = True
+    else:
+        usage_and_exit()
+
+if DB == '':
+    usage_and_exit('--db must be provided')
+if COL == '':
+    usage_and_exit('--col must be provided')
 
 client = MongoClient('localhost', 27017)
 

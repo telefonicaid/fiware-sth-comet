@@ -14,7 +14,7 @@ following scripts:
     on the parameters passed to the performance test run.
 -   `prune_raw_collection.py`: Script to prune the raw samples collection. It allows to reduce the number of samples
     associated to each entity-attribute to the most recent N ones, deleting the rest. In addition, it can create indexes
-    recommended [according documentation](../doc/manuals/db_indexes.md). Its configuration is provided in the script
-    itself. It requires Pymongo 3.0.3 (newer version may work but I didn't tested).
+    recommended [according documentation](../doc/manuals/db_indexes.md). Run `prune_raw_collection.py -u` for usage
+    options. It requires Pymongo 3.0.3 (newer version may work but I didn't tested).
 
 [Top](#section0)
