@@ -41,13 +41,14 @@ def usage():
     Print usage message
     """
 
-    print 'Usage: %s -c <conf_file> -u' % os.path.basename(__file__)
+    print 'Usage: %s --db <database> --col <collection> --createIndex --prune <n> --setExpiration <seconds> --dryrun -u' % os.path.basename(__file__)
     print ''
     print 'Parameters:'
     print "  --db <database>: database to use"
-    print "  --col <collection>: collection to use"
+    print "  --col <collection>: name of the raw collection to use (it is assumed that agg collection is the same plus '.aggr' suffix)"
     print "  --createIndex (optional): create index on {entityId: 1, entityType: 1, attrName: 1} for optimal performance in raw collection"
     print "  --prune <n> (optional): prune collection so only the last <n> elements per attribute and entity are kept"
+    print "  --setExpiration <seconds> (optional): set expiration in raw and agg collections to <seconds> seconds"
     print "  --dryrun (optional): if used script does a dry-run pass (i.e. without doing any modification in DB"
     print "  -u, print this usage mesage"
 
@@ -115,7 +116,7 @@ def prune(entityId, entityType, attrName, last_time):
 
 # Get CLI arguments
 try:
-    opts, args = getopt(sys.argv[1:], 'u', ['db=', 'col=', 'createIndex', 'prune=', 'dryrun'])
+    opts, args = getopt(sys.argv[1:], 'u', ['db=', 'col=', 'createIndex', 'prune=', 'setExpiration=', 'dryrun'])
 except GetoptError:
     usage_and_exit('wrong parameter')
 
@@ -123,6 +124,7 @@ except GetoptError:
 DB = ''
 COL = ''
 N = 0
+EXPIRATION = 0
 INDEX_CREATE = False
 DRYRUN = False
 
@@ -141,6 +143,13 @@ for opt, arg in opts:
                 usage_and_exit('--prune value must be an integer greater than 0')
         except ValueError:
             usage_and_exit('--prune value must be an integer greater than 0')
+    elif opt == '--setExpiration':
+        try:
+            EXPIRATION = int(arg)
+            if not EXPIRATION > 0:
+                usage_and_exit('--setExpiration value must be an integer greater than 0')
+        except ValueError:
+            usage_and_exit('--setExpiration value must be an integer greater than 0')
     elif opt == '--createIndex':
         INDEX_CREATE = True
     elif opt == '--dryrun':
@@ -167,8 +176,16 @@ pipeline = [
 
 if not DRYRUN and INDEX_CREATE:
     index = [ ('entityId', ASCENDING), ('entityType', ASCENDING), ('attrName', ASCENDING), ('recvTime', DESCENDING) ]
-    print 'Creating index on %s. Please wait, this operation may take a while...' % str(index)
+    print 'Creating index in raw collection: %s. Please wait, this operation may take a while...' % str(index)
     client[DB][COL].create_index(index, background=True)
+
+if not DRYRUN and EXPIRATION > 0:
+    indexForRaw = [ ('recvTime', ASCENDING) ]
+    indexForAgg = [ ('_id.origin', ASCENDING) ]
+    print 'Creating index in raw collection: %s. Please wait, this operation may take a while...' % str(indexForRaw)
+    client[DB][COL].create_index(indexForRaw, background=True, expireAfterSeconds=EXPIRATION)
+    print 'Creating index in agg collection: %s. Please wait, this operation may take a while...' % str(indexForAgg)
+    client[DB][COL + '.aggr'].create_index(indexForAgg, background=True, expireAfterSeconds=EXPIRATION)
 
 # Early return
 if N == 0:
