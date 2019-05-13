@@ -12,10 +12,10 @@ following scripts:
     the MongoDB shell (`mongo`), load the script (`load('performanceTestCheck.js')`) and execute:
     `assertEntriesPerCollection(expectedEntriesPerCollection)`. Obviously, the `entriesPerCollection` number will depend
     on the parameters passed to the performance test run.
--   `prune_collection.py`: Script to prune the raw samples collection. It allows to reduce the number of samples
-    associated to each entity-attribute to the most recent N ones, deleting the rest. It also allow to set expiration
-    limit. In addition, it can create indexes recommended [according documentation](../doc/manuals/db_indexes.md). Run
+-   `sth_db_fixer.py`: Script to prune the raw samples collection. It allows to reduce the number of samples associated
+    to each entity-attribute to the most recent N ones, deleting the rest. It also allow to set expiration limit. In
+    addition, it can create indexes recommended [according documentation](../doc/manuals/db_indexes.md). Run
     `prune_collection.py -u` for usage options. It requires Pymongo 3.0.3 (newer version may work but I didn't tested).
--   `prune_all.sh`: sample script that shows how to run `prune_collections.py` in all dbs and collections.
+-   `fix_all_dbs.sh`: sample script that shows how to run `sth_db_fixer.py` in all dbs and collections.
 
 [Top](#section0)

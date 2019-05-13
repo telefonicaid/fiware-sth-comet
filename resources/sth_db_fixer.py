@@ -41,9 +41,10 @@ def usage():
     Print usage message
     """
 
-    print 'Usage: %s --db <database> --col <collection> --createIndex --prune <n> --setExpiration <seconds> --dryrun -u' % os.path.basename(__file__)
+    print 'Usage: %s --mongoUri <uri> --db <database> --col <collection> --createIndex --prune <n> --setExpiration <seconds> --dryrun -u' % os.path.basename(__file__)
     print ''
     print 'Parameters:'
+    print "  --mongoUri <uri> (optional): mongo URI to connecto to DB. Default is 'http://localhost'"
     print "  --db <database>: database to use"
     print "  --col <collection>: name of the raw collection to use (it is assumed that agg collection is the same plus '.aggr' suffix)"
     print "  --createIndex (optional): create index on {entityId: 1, entityType: 1, attrName: 1} for optimal performance in raw collection"
@@ -116,11 +117,12 @@ def prune(entityId, entityType, attrName, last_time):
 
 # Get CLI arguments
 try:
-    opts, args = getopt(sys.argv[1:], 'u', ['db=', 'col=', 'createIndex', 'prune=', 'setExpiration=', 'dryrun'])
+    opts, args = getopt(sys.argv[1:], 'u', ['mongoUri=', 'db=', 'col=', 'createIndex', 'prune=', 'setExpiration=', 'dryrun'])
 except GetoptError:
     usage_and_exit('wrong parameter')
 
 # Defaults (to be changed by user CLI parameters)
+MONGO_URI= 'mongodb://localhost'
 DB = ''
 COL = ''
 N = 0
@@ -132,6 +134,8 @@ for opt, arg in opts:
     if opt == '-u':
         usage()
         sys.exit(0)
+    elif opt == '--mongoUri':
+        MONGO_URI == arg
     elif opt == '--db':
         DB = arg
     elif opt == '--col':
@@ -162,7 +166,7 @@ if DB == '':
 if COL == '':
     usage_and_exit('--col must be provided')
 
-client = MongoClient('localhost', 27017)
+client = MongoClient(MONGO_URI)
 
 pipeline = [
     {
@@ -175,9 +179,12 @@ pipeline = [
 ]
 
 if not DRYRUN and INDEX_CREATE:
-    index = [ ('entityId', ASCENDING), ('entityType', ASCENDING), ('attrName', ASCENDING), ('recvTime', DESCENDING) ]
-    print 'Creating index in raw collection: %s. Please wait, this operation may take a while...' % str(index)
-    client[DB][COL].create_index(index, background=True)
+    indexForRaw = [ ('entityId', ASCENDING), ('entityType', ASCENDING), ('attrName', ASCENDING), ('recvTime', DESCENDING) ]
+    indexForAgg = [ ('_id.entityId', ASCENDING), ('_id.entityType', ASCENDING), ('_id.attrName', ASCENDING), ('_id.resolution', ASCENDING), ('_id.origin', ASCENDING) ]
+    print 'Creating index in raw collection: %s. Please wait, this operation may take a while...' % str(indexForRaw)
+    client[DB][COL].create_index(indexForRaw, background=True)
+    print 'Creating index in raw collection: %s. Please wait, this operation may take a while...' % str(indexForAgg)
+    client[DB][COL + '.aggr'].create_index(indexForAgg, background=True)
 
 if not DRYRUN and EXPIRATION > 0:
     indexForRaw = [ ('recvTime', ASCENDING) ]

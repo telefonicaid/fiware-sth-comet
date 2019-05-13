@@ -21,15 +21,16 @@
 # For those usages not covered by this license please contact with
 # iot_support at tid dot es
 
-# This script is just an example. Ajust the prune_collections.py as you need and remove the --dryrun safeguard
+# This script is just an example. Ajust the sth_db_fixer.py as you need and remove the --dryrun safeguard
 # Expiration 1209600 corresponds to 2 weeks (2 * 7 * 24 * 60 * 60 = 1209600)
 
 for db in $(echo 'show dbs' | mongo --quiet | awk -F ' ' '{print $1}' | grep sth_)
 do
-  for col in $(echo "show collections" | mongo --quiet localhost:27017/$db | grep -v '.aggr')
+  for col in $(echo "show collections" | mongo --quiet localhost:27017/$db | grep sth_ | grep -v '.aggr')
   do
     echo "* Running script in database $db collection $col"
-    python prune_collection.py --db $db --col $col --dryrun --createIndex --setExpiration 1209600
+    #python sth_db_fixer.py --mongoUri 'mongodb://localhost' --db $db --col $col --dryrun --createIndex --setExpiration 1209600
+    python sth_db_fixer.py --mongoUri 'mongodb://localhost' --db $db --col $col --createIndex --setExpiration 1209600
   done
 done
 
