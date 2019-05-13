@@ -29,8 +29,7 @@ do
   for col in $(echo "show collections" | mongo --quiet localhost:27017/$db | grep sth_ | grep -v '.aggr')
   do
     echo "* Running script in database $db collection $col"
-    #python sth_db_fixer.py --mongoUri 'mongodb://localhost' --db $db --col $col --dryrun --createIndex --setExpiration 1209600
-    python sth_db_fixer.py --mongoUri 'mongodb://localhost' --db $db --col $col --createIndex --setExpiration 1209600
+    python sth_db_fixer.py --mongoUri 'mongodb://localhost' --db $db --col $col --dryrun --createIndex --setExpiration 1209600
   done
 done
 
