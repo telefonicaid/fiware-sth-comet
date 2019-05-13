@@ -47,7 +47,7 @@ def usage():
     print "  --mongoUri <uri> (optional): mongo URI to connecto to DB. Default is 'http://localhost'"
     print "  --db <database>: database to use"
     print "  --col <collection>: name of the raw collection to use (it is assumed that agg collection is the same plus '.aggr' suffix)"
-    print "  --createIndex (optional): create index on {entityId: 1, entityType: 1, attrName: 1} for optimal performance in raw collection"
+    print "  --createIndex (optional): create index for optimal performance in raw collection and agg collection (the ones described in https://github.com/telefonicaid/fiware-sth-comet/blob/master/resources/README.md)"
     print "  --prune <n> (optional): prune collection so only the last <n> elements per attribute and entity are kept"
     print "  --setExpiration <seconds> (optional): set expiration in raw and agg collections to <seconds> seconds"
     print "  --dryrun (optional): if used script does a dry-run pass (i.e. without doing any modification in DB"
