@@ -146,7 +146,10 @@ config.logging = {
     format: 'pipe',
     // The time in seconds between proof of life logging messages informing that the server is up and running normally.
     // Default value: "60"
-    proofOfLifeInterval: '60'
+    proofOfLifeInterval: '60',
+    // The time in seconds between proof of performance logging messages informing that the server is up and running normally.
+    // Default value: "60"
+    proofOfPerformanceInterval: '60'
 };
 
 module.exports = config;
