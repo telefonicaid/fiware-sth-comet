@@ -54,7 +54,8 @@ var DEFAULT_VALUES = {
     TRUNCATION_MAX: 0,
     IGNORE_BLANK_SPACES: true,
     NAME_ENCODING: false,
-    PROOF_OF_LIFE_INTERVAL: 60
+    PROOF_OF_LIFE_INTERVAL: 60,
+    PROOF_OF_PERFORMANCE_INTERVAL: 60
 };
 
 describe('sthConfiguration tests', function() {
@@ -709,6 +710,32 @@ describe('sthConfiguration tests', function() {
                 process.env.PROOF_OF_LIFE_INTERVAL = 'ABC';
                 sthConfig = require(STH_CONFIGURATION_PATH);
                 expect(sthConfig.PROOF_OF_LIFE_INTERVAL).to.equal(DEFAULT_VALUES.PROOF_OF_LIFE_INTERVAL);
+            }
+        );
+        
+        it("should set the proof of performance interval configuration parameter to '120'", function() {
+            process.env.PROOF_OF_PERFORMANCE_INTERVAL = '120';
+            sthConfig = require(STH_CONFIGURATION_PATH);
+            expect(sthConfig.PROOF_OF_PERFORMANCE_INTERVAL).to.equal(120);
+        });
+
+        it(
+            'should set the proof of performance interval configuration parameter to the default value if not set via ' +
+                'PROOF_OF_PERFORMANCE_INTERVAL',
+            function() {
+                delete process.env.PROOF_OF_PERFORMANCE_INTERVAL;
+                sthConfig = require(STH_CONFIGURATION_PATH);
+                expect(sthConfig.PROOF_OF_PERFORMANCE_INTERVAL).to.equal(DEFAULT_VALUES.PROOF_OF_PERFORMANCE_INTERVAL);
+            }
+        );
+
+        it(
+            'should set the proof of performance interval configuration parameter to the default value if not set to a valid ' +
+                'number',
+            function() {
+                process.env.PROOF_OF_PERFORMANCE_INTERVAL = 'ABC';
+                sthConfig = require(STH_CONFIGURATION_PATH);
+                expect(sthConfig.PROOF_OF_PERFORMANCE_INTERVAL).to.equal(DEFAULT_VALUES.PROOF_OF_PERFORMANCE_INTERVAL);
             }
         );
     });
