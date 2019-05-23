@@ -213,6 +213,7 @@ describe('sthConfiguration tests', function() {
                 expect(sthConfig.PROOF_OF_LIFE_INTERVAL).to.equal(DEFAULT_VALUES.PROOF_OF_LIFE_INTERVAL);
             });
         }
+
         if (Object.keys(process.env).indexOf('PROCESSED_REQUEST_LOG_STATISTICS_INTERVAL') === -1) {
             it('should set the processed request log statistics interval configuration parameter to its default value', function() {
                 expect(sthConfig.PROCESSED_REQUEST_LOG_STATISTICS_INTERVAL).to.equal(
