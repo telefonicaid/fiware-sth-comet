@@ -96,7 +96,8 @@ The environment variables accepted by the script (for which there exists counter
     logging, for further information please check out the [logops](https://www.npmjs.com/package/logops) npm package
     information online. Default value: "json".
 -   `PROOF_OF_LIFE_INTERVAL`: The time in seconds between proof of life logging messages informing that the server is up
-    and running normally. Default value: "60".
+    and running normally. Default value: "60". `PROCESSED_REQUEST_LOG_STATISTICS_INTERVAL`: The time in seconds between
+    processed requests statistics appear in the logs
 
 For example, to start the STH server listening on port 7777, connecting to a MongoDB instance listening on
 mymongo.com:27777 and without filtering out the empty results, use:
