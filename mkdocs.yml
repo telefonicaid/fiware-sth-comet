@@ -4,6 +4,7 @@ repo_url: https://github.com/telefonicaid/fiware-sth-comet.git
 site_description: STH (Short Time Historic) - Comet Documentation
 docs_dir: doc/manuals
 site_dir: html
+edit_uri: edit/master/doc/manuals/
 markdown_extensions: [toc, fenced_code]
 use_directory_urls: false
 theme: readthedocs
