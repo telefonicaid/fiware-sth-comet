@@ -1,6 +1,6 @@
 site_name: Fiware-STH-Comet
 site_url: https://fiware-sth-comet.readthedocs.org
-repo_url: https://github.com/telefonicaid/fiware-sth-comet.git
+repo_url: https://github.com/telefonicaid/fiware-sth-comet
 site_description: STH (Short Time Historic) - Comet Documentation
 docs_dir: doc/manuals
 site_dir: html
