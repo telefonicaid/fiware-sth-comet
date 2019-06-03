@@ -93,7 +93,4 @@ seconds (1 minute) the most, and corresponding the minimum recommended resolutio
 
 <!-- textlint-enable write-good -->
 
-Further information about the Orion Context Broker subscription API can be found in its documentation:
-
--   [Subscriptions for NGSI version 2](http://fiware-orion.readthedocs.io/en/latest/user/walkthrough_apiv2/index.html#subscriptions).
--   [Subscriptions for NGSI version 1](http://fiware-orion.readthedocs.io/en/latest/user/walkthrough_apiv1/index.html#context-subscriptions).
+Further information about the Orion Context Broker subscription API can be found in [Orion specific documentation](http://fiware-orion.readthedocs.io/en/latest/user/walkthrough_apiv2/index.html#subscriptions). Note that at the present moment STH only supports the old NGSIv1 notification format, so `"attrsFormat": "legacy"` has to be used in this case.
