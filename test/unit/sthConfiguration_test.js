@@ -54,7 +54,8 @@ var DEFAULT_VALUES = {
     TRUNCATION_MAX: 0,
     IGNORE_BLANK_SPACES: true,
     NAME_ENCODING: false,
-    PROOF_OF_LIFE_INTERVAL: 60
+    PROOF_OF_LIFE_INTERVAL: 60,
+    PROCESSED_REQUEST_LOG_STATISTICS_INTERVAL: 60
 };
 
 describe('sthConfiguration tests', function() {
@@ -210,6 +211,14 @@ describe('sthConfiguration tests', function() {
         if (Object.keys(process.env).indexOf('PROOF_OF_LIFE_INTERVAL') === -1) {
             it('should set the proof of life interval configuration parameter to its default value', function() {
                 expect(sthConfig.PROOF_OF_LIFE_INTERVAL).to.equal(DEFAULT_VALUES.PROOF_OF_LIFE_INTERVAL);
+            });
+        }
+
+        if (Object.keys(process.env).indexOf('PROCESSED_REQUEST_LOG_STATISTICS_INTERVAL') === -1) {
+            it('should set the processed request log statistics interval configuration parameter to its default value', function() {
+                expect(sthConfig.PROCESSED_REQUEST_LOG_STATISTICS_INTERVAL).to.equal(
+                    DEFAULT_VALUES.PROCESSED_REQUEST_LOG_STATISTICS_INTERVAL
+                );
             });
         }
     });
@@ -709,6 +718,36 @@ describe('sthConfiguration tests', function() {
                 process.env.PROOF_OF_LIFE_INTERVAL = 'ABC';
                 sthConfig = require(STH_CONFIGURATION_PATH);
                 expect(sthConfig.PROOF_OF_LIFE_INTERVAL).to.equal(DEFAULT_VALUES.PROOF_OF_LIFE_INTERVAL);
+            }
+        );
+
+        it("should set the processed request log statistics interval configuration parameter to '120'", function() {
+            process.env.PROCESSED_REQUEST_LOG_STATISTICS_INTERVAL = '120';
+            sthConfig = require(STH_CONFIGURATION_PATH);
+            expect(sthConfig.PROCESSED_REQUEST_LOG_STATISTICS_INTERVAL).to.equal(120);
+        });
+
+        it(
+            'should set the processed request log statistics interval configuration parameter to the default value if not set via ' +
+                'PROCESSED_REQUEST_LOG_STATISTICS_INTERVAL',
+            function() {
+                delete process.env.PROCESSED_REQUEST_LOG_STATISTICS_INTERVAL;
+                sthConfig = require(STH_CONFIGURATION_PATH);
+                expect(sthConfig.PROCESSED_REQUEST_LOG_STATISTICS_INTERVAL).to.equal(
+                    DEFAULT_VALUES.PROCESSED_REQUEST_LOG_STATISTICS_INTERVAL
+                );
+            }
+        );
+
+        it(
+            'should set the processed request log statistics interval configuration parameter to the default value if not set to a valid ' +
+                'number',
+            function() {
+                process.env.PROCESSED_REQUEST_LOG_STATISTICS_INTERVAL = 'ABC';
+                sthConfig = require(STH_CONFIGURATION_PATH);
+                expect(sthConfig.PROCESSED_REQUEST_LOG_STATISTICS_INTERVAL).to.equal(
+                    DEFAULT_VALUES.PROCESSED_REQUEST_LOG_STATISTICS_INTERVAL
+                );
             }
         );
     });
