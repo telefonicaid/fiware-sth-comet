@@ -160,6 +160,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_install_dir}
 
 %changelog
+* Tue Jun 04 2019 Fermin Galan <fermin.galanmarquez@telefonica.com> 2.6.0
+- Upgrade NodeJS version from 8.12.0 to 8.16.0 in Dockerfile due to improve security
+- Add: logging feature to count number of requests attended and number of requests processed with error (#310)
+- Fix: race condition causes erroneous count to 0 in some cases (#493)
+
 * Wed Dec 19 2018 Fermin Galan <fermin.galanmarquez@telefonica.com> 2.5.0
 - Set Nodejs 8.12.0 as minimum version in packages.json (effectively removing Nodev4 and Nodev6 as supported versions)
 - Add: use NodeJS 8 in Dockerfile
