@@ -222,7 +222,7 @@ except GetoptError:
     usage_and_exit('wrong parameter')
 
 # Defaults (to be changed by user CLI parameters)
-MONGO_URI= 'mongodb://localhost'
+MONGO_URI = 'mongodb://localhost'
 DB = ''
 COL = ''
 COL_TYPE = ''
@@ -237,7 +237,7 @@ for opt, arg in opts:
         usage()
         sys.exit(0)
     elif opt == '--mongoUri':
-        MONGO_URI == arg
+        MONGO_URI = arg
     elif opt == '--db':
         DB = arg
     elif opt == '--col':
@@ -295,9 +295,12 @@ if not pre_index[1] is None:
     if 'expireAfterSeconds' in pre_index[1].keys():
         index1_string += ' - expireAfterSeconds: %d' % pre_index[1]['expireAfterSeconds']
 
-print "- Pre-existing index in collection:"
-print "  + Optimization: %s" % str(index0_string)
-print "  + Expiration:   %s" % str(index1_string)
+count = client[DB][COL].count() 
+
+print "- Collection analysis:"
+print "  + Count: %d" % count
+print "  + Optimization index: %s" % str(index0_string)
+print "  + Expiration index:   %s" % str(index1_string)
 
 if not DRYRUN and INDEX_CREATE:
     if pre_index[0] is None:

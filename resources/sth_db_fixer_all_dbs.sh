@@ -44,9 +44,9 @@ else
   RPL_SET_OPTION=""
 fi
 
-MONGO_URI=$BASE_MONGO_URI$RPL_SET_OPTION
+MONGO_URI=$BASE_MONGO_URI/$RPL_SET_OPTION
 
-for db in $(echo 'show dbs' | mongo --quiet $MONGO_URI/$RPL_SET_OPTION | awk -F ' ' '{print $1}' | grep sth_)
+for db in $(echo 'show dbs' | mongo --quiet $MONGO_URI | awk -F ' ' '{print $1}' | grep sth_)
 do
   MONGO_URI_DB=$BASE_MONGO_URI/$db$RPL_SET_OPTION
 
