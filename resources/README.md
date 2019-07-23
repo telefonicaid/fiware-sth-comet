@@ -16,6 +16,6 @@ following scripts:
     to each entity-attribute to the most recent N ones, deleting the rest. It also allow to set expiration limit. In
     addition, it can create indexes recommended [according documentation](../doc/manuals/db_indexes.md). Run
     `prune_collection.py -u` for usage options. It requires Pymongo 3.0.3 (newer version may work but I didn't tested).
--   `fix_all_dbs.sh`: sample script that shows how to run `sth_db_fixer.py` in all dbs and collections.
+-   `sth_db_fixer_all_dbs.sh`: sample script that shows how to run `sth_db_fixer.py` in all dbs and collections.
 
 [Top](#section0)
