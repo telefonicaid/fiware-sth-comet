@@ -175,7 +175,7 @@ def createIndexRaw():
     """
 
     index = [ ('entityId', ASCENDING), ('entityType', ASCENDING), ('attrName', ASCENDING), ('recvTime', DESCENDING) ]
-    print '- Creating index in raw collection: %s. Please wait, this operation may take a while...' % odict_as_json_text(index)
+    print '- Creating index in raw collection: %s. Please wait, this operation may take a while...' % index_as_json_text(index)
     client[DB][COL].create_index(index, background=True)
 
 
@@ -185,7 +185,7 @@ def createIndexAggr():
     """
     
     index = [ ('_id.entityId', ASCENDING), ('_id.entityType', ASCENDING), ('_id.attrName', ASCENDING), ('_id.resolution', ASCENDING), ('_id.origin', ASCENDING) ]
-    print '- Creating index in aggr collection: %s. Please wait, this operation may take a while...' % odict_as_json_text(index)
+    print '- Creating index in aggr collection: %s. Please wait, this operation may take a while...' % index_as_json_text(index)
     client[DB][COL].create_index(index, background=True)
 
 
@@ -198,9 +198,9 @@ def setExpirationRaw(remove):
 
     index = [ ('recvTime', ASCENDING) ]
     if remove:
-        print '- Remove index in raw collection: %s' % odict_as_json_text(index)
+        print '- Remove index in raw collection: %s' % index_as_json_text(index)
         client[DB][COL].drop_index(index)
-    print '- Creating index in raw collection: %s with expireAfterSeconds %d. Please wait, this operation may take a while...' % (odict_as_json_text(index), EXPIRATION)
+    print '- Creating index in raw collection: %s with expireAfterSeconds %d. Please wait, this operation may take a while...' % (index_as_json_text(index), EXPIRATION)
     client[DB][COL].create_index(index, background=True, expireAfterSeconds=EXPIRATION)
 
 
@@ -213,9 +213,9 @@ def setExpirationAggr(remove):
 
     index = [ ('_id.origin', ASCENDING) ]
     if remove:
-        print '- Remove index in aggr collection: %s' % odict_as_json_text(index)
+        print '- Remove index in aggr collection: %s' % index_as_json_text(index)
         client[DB][COL].drop_index(index)
-    print '- Creating index in aggr collection: %s with expireAfterSeconds %d. Please wait, this operation may take a while...' % (odict_as_json_text(index), EXPIRATION)
+    print '- Creating index in aggr collection: %s with expireAfterSeconds %d. Please wait, this operation may take a while...' % (index_as_json_text(index), EXPIRATION)
     client[DB][COL].create_index(index, background=True, expireAfterSeconds=EXPIRATION)
 
 
@@ -233,8 +233,33 @@ def odict_as_json_text(od):
     for k in keys:
         s += k + ': ' + str(od[k])
 
-        # Add comma excpet for las telement
+        # Add comma excpet for last element
         if k != keys[len(keys) - 1]:
+            s += ', '
+
+    s += '}'
+    return s
+
+
+def index_as_json_text(ix):
+    """
+    :param ix: index to represent
+    :return: text representation of inddex as JSON text
+    """
+
+    s = '{'
+    for i in ix:
+        (k, direction) = i
+
+        if direction == ASCENDING:
+            v = '1'
+        else:
+            v = '-1'
+
+        s += k + ': ' + v 
+
+        # Add comma except for last element
+        if i != ix[len(ix) - 1]:
             s += ', '
 
     s += '}'
@@ -330,7 +355,7 @@ print "  + Optimization index: %s" % opt_string
 print "  + Expiration index:   %s" % exp_string
 
 if not DRYRUN and INDEX_CREATE:
-    if pre_index[0] is None:
+    if optIndex is None:
         if COL_TYPE == 'raw':
             createIndexRaw()
         else:
@@ -339,7 +364,7 @@ if not DRYRUN and INDEX_CREATE:
         print '- Optimization index already exists, --createIndex is ignored'
 
 if not DRYRUN and EXPIRATION > 0:
-    if pre_index[1] is None:
+    if expIndex is None:
         if COL_TYPE == 'raw':
             setExpirationRaw(False)
         else:
