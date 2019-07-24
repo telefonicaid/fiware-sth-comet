@@ -23,7 +23,7 @@
 
 # Usage: ./sth_db_fixer_all_dbs.sh <mongo_uri> <replica_set>
 #
-# - <mongo_uri>, is the base mongo URI (only hosts/ports part), e.g: "mongodb://10.0.0.19:27017,10.0.0.20:27017,10.0.0.21:27017".
+# - <mongo_uri>, is the base mongo URI (only hosts/ports part), e.g: "mongodb://10.0.0.1:27017,10.0.0.2:27017,10.0.0.2:27017".
 #   **without ending slash**. If omitted then "mongodb://localhost" is used
 # - <replica_set>, is the replica_set to use. If ommited no replica set is used
 
