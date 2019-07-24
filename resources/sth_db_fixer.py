@@ -125,12 +125,14 @@ def getRelevantIndexesRaw():
     """
     Get relevant indexes in raw collection
 
-    :return: a list of two elements (first the one for optimal queries, second the one for expiration). An element of the list can be None if the index is not found.
+    :return: a 3-uple with: total number of indexes found, optimization index (None if not found), expiration index (None if not found)
     """
 
     index0 = None
     index1 = None
+    n = 0
     for index in client[DB][COL].list_indexes():
+        n += 1
         keys = index['key'].keys()
         
         if (len(keys) == 4 and keys[0] == 'entityId' and keys[1] == 'entityType' and keys[2] == 'attrName' and keys[3] == 'recvTime' and
@@ -140,7 +142,7 @@ def getRelevantIndexesRaw():
         if len(keys) == 1 and keys[0] == 'recvTime' and index['key']['recvTime'] == 1:
             index1 = index
        
-    return [index0, index1]
+    return (n, index0, index1)
 
 
 def getRelevantIndexesAggr():
@@ -152,7 +154,9 @@ def getRelevantIndexesAggr():
 
     index0 = None
     index1 = None
+    n = 0
     for index in client[DB][COL].list_indexes():
+        n += 1
         keys = index['key'].keys()
         
         if (len(keys) == 5 and keys[0] == '_id.entityId' and keys[1] == '_id.entityType' and keys[2] == '_id.attrName' and keys[3] == '_id.resolution' and keys[4] == '_id.origin' and
@@ -162,7 +166,7 @@ def getRelevantIndexesAggr():
         if len(keys) == 1 and keys[0] == '_id.origin' and index['key']['_id.origin'] == 1:
             index1 = index
        
-    return [index0, index1]
+    return (n, index0, index1)
 
 
 def createIndexRaw():
@@ -171,7 +175,7 @@ def createIndexRaw():
     """
 
     index = [ ('entityId', ASCENDING), ('entityType', ASCENDING), ('attrName', ASCENDING), ('recvTime', DESCENDING) ]
-    print '- Creating index in raw collection: %s. Please wait, this operation may take a while...' % str(index)
+    print '- Creating index in raw collection: %s. Please wait, this operation may take a while...' % odict_as_json_text(index)
     client[DB][COL].create_index(index, background=True)
 
 
@@ -181,7 +185,7 @@ def createIndexAggr():
     """
     
     index = [ ('_id.entityId', ASCENDING), ('_id.entityType', ASCENDING), ('_id.attrName', ASCENDING), ('_id.resolution', ASCENDING), ('_id.origin', ASCENDING) ]
-    print '- Creating index in aggr collection: %s. Please wait, this operation may take a while...' % str(index)
+    print '- Creating index in aggr collection: %s. Please wait, this operation may take a while...' % odict_as_json_text(index)
     client[DB][COL].create_index(index, background=True)
 
 
@@ -194,9 +198,9 @@ def setExpirationRaw(remove):
 
     index = [ ('recvTime', ASCENDING) ]
     if remove:
-        print '- Remove index in raw collection: %s' % str(index)
+        print '- Remove index in raw collection: %s' % odict_as_json_text(index)
         client[DB][COL].drop_index(index)
-    print '- Creating index in raw collection: %s with expireAfterSeconds %d. Please wait, this operation may take a while...' % (str(index), EXPIRATION)
+    print '- Creating index in raw collection: %s with expireAfterSeconds %d. Please wait, this operation may take a while...' % (odict_as_json_text(index), EXPIRATION)
     client[DB][COL].create_index(index, background=True, expireAfterSeconds=EXPIRATION)
 
 
@@ -209,10 +213,32 @@ def setExpirationAggr(remove):
 
     index = [ ('_id.origin', ASCENDING) ]
     if remove:
-        print '- Remove index in aggr collection: %s' % str(index)
+        print '- Remove index in aggr collection: %s' % odict_as_json_text(index)
         client[DB][COL].drop_index(index)
-    print '- Creating index in aggr collection: %s with expireAfterSeconds %d. Please wait, this operation may take a while...' % (str(index), EXPIRATION)
+    print '- Creating index in aggr collection: %s with expireAfterSeconds %d. Please wait, this operation may take a while...' % (odict_as_json_text(index), EXPIRATION)
     client[DB][COL].create_index(index, background=True, expireAfterSeconds=EXPIRATION)
+
+
+def odict_as_json_text(od):
+    """
+    :param od: dict to represent
+    :return: text representation of dict as JSON text
+    """
+
+    # There is a to_dict() method so we could do something like 'json.dumps(dict.to_dict())'. However, I'm not sure if the order is kept, so I prefer
+    # to build the string myself
+
+    s = '{'
+    keys = od.keys()
+    for k in keys:
+        s += k + ': ' + str(od[k])
+
+        # Add comma excpet for las telement
+        if k != keys[len(keys) - 1]:
+            s += ', '
+
+    s += '}'
+    return s
 
 
 # Get CLI arguments
@@ -281,26 +307,27 @@ if N > 0 and COL_TYPE == 'aggr':
 client = MongoClient(MONGO_URI)
 
 if COL_TYPE == 'raw':
-    pre_index = getRelevantIndexesRaw()
+    (nIndexes, optIndex, expIndex) = getRelevantIndexesRaw()
 else:
-    pre_index = getRelevantIndexesAggr()
+    (nIndexes, optIndex, expIndex) = getRelevantIndexesAggr()
 
-index0_string = 'None'
-if not pre_index[0] is None:
-    index0_string = str(pre_index[0]['key'])
+opt_string = 'None'
+if not optIndex is None:
+    opt_string = odict_as_json_text(optIndex['key'])
 
-index1_string = 'None'
-if not pre_index[1] is None:
-    index1_string = str(pre_index[1]['key'])
-    if 'expireAfterSeconds' in pre_index[1].keys():
-        index1_string += ' - expireAfterSeconds: %d' % pre_index[1]['expireAfterSeconds']
+exp_string = 'None'
+if not expIndex is None:
+    exp_string = odict_as_json_text(expIndex['key'])
+    if 'expireAfterSeconds' in expIndex.keys():
+        exp_string += ' - expireAfterSeconds: %d' % expIndex['expireAfterSeconds']
 
 count = client[DB][COL].count() 
 
 print "- Collection analysis:"
 print "  + Count: %d" % count
-print "  + Optimization index: %s" % str(index0_string)
-print "  + Expiration index:   %s" % str(index1_string)
+print "  + Indexes: %d" % nIndexes
+print "  + Optimization index: %s" % opt_string
+print "  + Expiration index:   %s" % exp_string
 
 if not DRYRUN and INDEX_CREATE:
     if pre_index[0] is None:
