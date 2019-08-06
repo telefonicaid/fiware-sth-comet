@@ -34,7 +34,7 @@ RUN \
   echo "INFO: npm install --production..." && \
   cd /opt/sth && npm install --production && \
   mkdir temp && \
-  chmod 664 temp && \
+  chmod 777 temp && \
   # Clean apt cache
   apt-get clean && \
   apt-get remove -y git && \
