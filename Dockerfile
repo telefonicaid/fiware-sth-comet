@@ -33,6 +33,9 @@ RUN \
   npm install pm2@3.2.2 -g && \
   echo "INFO: npm install --production..." && \
   cd /opt/sth && npm install --production && \
+  # Ensure permissions over default directory used by STH to generate csv files
+  mkdir temp && \
+  chmod 777 temp && \
   # Clean apt cache
   apt-get clean && \
   apt-get remove -y git && \
