@@ -33,6 +33,8 @@ RUN \
   npm install pm2@3.2.2 -g && \
   echo "INFO: npm install --production..." && \
   cd /opt/sth && npm install --production && \
+  mkdir temp && \
+  chmod 664 temp && \
   # Clean apt cache
   apt-get clean && \
   apt-get remove -y git && \
