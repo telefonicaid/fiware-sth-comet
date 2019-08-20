@@ -19,7 +19,7 @@
 # For those usages not covered by the GNU Affero General Public License
 # please contact with: [german.torodelvalle@telefonica.com]
 
-ARG NODE_VERSION=8.16.0-slim
+ARG NODE_VERSION=8.16.1-slim
 FROM node:${NODE_VERSION}
 
 MAINTAINER FIWARE STH Team. Telefónica I+D
