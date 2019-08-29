@@ -16,7 +16,7 @@ addons:
     repo_token: 6dc47f6e0d95f643d41d7e15941b0c26c87214b4362c6aa01cf1e465eaeae0d3
   apt:
     sources:
-      - mongodb-3.2-precise
+      - mongodb-3.6-precise
     packages:
       - mongodb-org-server
 
@@ -35,6 +35,16 @@ jobs:
     - stage: test
       name: "Unit Tests: Node 10"
       node_js: 10
+
+      before_script:
+        - npm run lint
+
+      after_script:
+        - npm run test:coveralls
+        
+    - stage: test
+      name: "Unit Tests: Node 12"
+      node_js: 12
 
       before_script:
         - npm run lint
