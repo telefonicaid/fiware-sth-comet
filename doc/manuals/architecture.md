@@ -5,7 +5,7 @@ aggregated data about the values certain attributes took over time. To this rega
 so-called [Time Series Database](https://en.wikipedia.org/wiki/Time_series_database).
 
 After analysing some of the most important time series databases available in the market (such as
-[InfluxDB](https://www.influxdata.com/), [OpenTSDB](http://opentsdb.net/) or [MAPR](https://www.mapr.com/)), we ended up
+[InfluxDB](https://www.influxdata.com/), [OpenTSDB](http://opentsdb.net/) or [MAPR](https://mapr.com/)), we ended up
 to the conclusion that using any of them, although probably the most straight-forward option, was not the best one. The
 reasons which brought us to this decision were:
 
