@@ -32,7 +32,7 @@ The requests for raw context information can use the following query parameters:
     `false`. As a result response will include a new header: Fiware-Total-Count. It is an optional parameter which
     default is `false`.
 
-**NOTE**: Date is specified using the [ISO 8601](http://www.wikipedia.org/wiki/ISO_8601) standard format.
+**NOTE**: Date is specified using the [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) standard format.
 
 In order to avoid problems handing big results there is a restriction about the number of results per page that could be
 retrieved. The rule is `hLimit <= lastN <= config.maxPageSize` Where default max page is are defined to 100.
