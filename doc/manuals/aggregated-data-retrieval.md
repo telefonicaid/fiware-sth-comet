@@ -30,7 +30,7 @@ The requests for aggregated time series context information can use the followin
 -   **dateTo**: The final date and time until which the aggregated time series information is desired. It is an optional
     parameter.
 
-**NOTE**: Date is specified using the [ISO 8601](http://www.wikipedia.org/wiki/ISO_8601) standard format.
+**NOTE**: Date is specified using the [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) standard format.
 
 An example response provided by the STH component to a request such as the previous one (for a numeric attribute value)
 could be the following:
@@ -133,7 +133,7 @@ data for the specified time frame), a response with code `200` is returned inclu
 since it is a valid query.
 
 Another very important aspect is that since the strings are used as properties in the generated aggregated data, the
-[limitations to this regard imposed by MongoDB](https://docs.mongodb.org/manual/faq/developers/#dollar-sign-operator-escaping)
+[limitations to this regard imposed by MongoDB](https://stackoverflow.com/questions/40542336/mongodb-insert-key-with-dollar)
 must be respected. More concretely: "In some cases, you may wish to build a BSON object with a user-provided key. In
 these situations, keys will need to substitute the reserved $ and . characters. Any character is sufficient, but
 consider using the Unicode full width equivalents: U+FF04 (i.e. “＄”) and U+FF0E (i.e. “．”).".
