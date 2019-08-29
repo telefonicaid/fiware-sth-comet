@@ -9,7 +9,7 @@ The _formal_ option uses an additional component of the FIWARE ecosystem as it i
 [Cygnus](https://github.com/telefonicaid/fiware-cygnus/). Cygnus is the component in charge of persisting in distinct
 repositories or data storages the context information managed by an Orion Context Broker instance over time. To do it,
 Cygnus supports distinct connectors (aka., sinks) to many external repositories or data storages such as
-[Apache Hadoop](https://hadoop.apache.org), [Apache Kafka](https://kafka.apache.org), [CartoDB](https://cartodb.com),
+[Apache Hadoop](https://hadoop.apache.org), [Apache Kafka](https://kafka.apache.org), [Carto](https://carto.com/),
 [CKAN](http://ckan.org), [MySQL](https://www.mysql.com), [PostgreSQL](https://www.postgresql.org), amongst others.
 
 To register the raw and aggregated time series context information into the STH component using Cygnus, we implemented 2
