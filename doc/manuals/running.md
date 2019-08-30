@@ -46,7 +46,7 @@ The environment variables accepted by the script (for which there exists counter
 -   `COLLECTION\PREFIX`: The prefix to be added to the collections in the databases. More information below. Optional.
     Default value: "sth\_".
 -   `POOL_SIZE`: The default MongoDB pool size of database connections. Optional. Default value: "5".
--   `WRITE_CONCERN`: The [write concern policy](http://docs.mongodb.org/manual/core/write-concern/) to apply when
+-   `WRITE_CONCERN`: The [write concern policy](https://docs.mongodb.com/manual/core/write-concern/) to apply when
     writing data to the MongoDB database. Default value: "1".
 -   `SHOULD_STORE`: Flag indicating if the raw and/or aggregated data should be persisted. Valid values are: "only-raw",
     "only-aggregated" and "both". Default value: "both".
@@ -122,7 +122,7 @@ separator.
 As already mentioned, all these configuration parameters can also be adjusted using the `config.js` file whose contents
 are self-explanatory.
 
-It is important to note that there is a [limitation](http://docs.mongodb.org/manual/reference/limits/#namespaces) of 120
+It is important to note that there is a [limitation](https://docs.mongodb.com/manual/reference/limits/#namespaces) of 120
 bytes for the namespaces (concatenation of the database name and collection names) in MongoDB. Related to this, the STH
 generates the collection names using the following mechanism:
 

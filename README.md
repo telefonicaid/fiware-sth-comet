@@ -7,7 +7,7 @@
 [![Support badge](https://img.shields.io/badge/support-askbot-yellowgreen.svg)](https://ask.fiware.org/questions/scope%3Aall/tags%3Asth-comet/)
 [![Join the chat at https://gitter.im/telefonicaid/fiware-sth-comet](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/telefonicaid/fiware-sth-comet?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 <br/>
-[![Documentation badge](https://readthedocs.org/projects/fiware-sth-comet/badge/?version=latest)](http://fiware-sth-comet.rtfd.io)
+[![Documentation badge](https://readthedocs.org/projects/fiware-sth-comet/badge/?version=latest)](https://fiware-sth-comet.readthedocs.io)
 [![Build badge](https://img.shields.io/travis/telefonicaid/fiware-sth-comet.svg)](https://travis-ci.org/telefonicaid/fiware-sth-comet/)
 [![Coverage Status](https://coveralls.io/repos/github/telefonicaid/fiware-sth-comet/badge.svg?branch=master)](https://coveralls.io/github/telefonicaid/fiware-sth-comet?branch=master)
 ![Status](https://nexus.lab.fiware.org/static/badges/statuses/cygnus.svg)
@@ -24,7 +24,7 @@ interfaces.
 This project is part of [FIWARE](https://www.fiware.org/). For more information check the FIWARE Catalogue entry for the
 [Core Context Management](https://github.com/Fiware/catalogue/tree/master/core).
 
-| :books: [Documentation](https://fiware-sth-comet.rtfd.io) | :mortar_board: [Academy](https://fiware-academy.readthedocs.io/en/latest/core/sth-comet) | :whale: [Docker Hub](https://hub.docker.com/r/fiware/sth-comet/) | :dart: [Roadmap](https://github.com/telefonicaid/fiware-sth-comet/blob/master/doc/roadmap.md) |
+| :books: [Documentation](https://fiware-sth-comet.readthedocs.io) | :mortar_board: [Academy](https://fiware-academy.readthedocs.io/en/latest/core/sth-comet) | :whale: [Docker Hub](https://hub.docker.com/r/fiware/sth-comet/) | :dart: [Roadmap](https://github.com/telefonicaid/fiware-sth-comet/blob/master/doc/roadmap.md) |
 | --------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 
 
@@ -41,7 +41,6 @@ This project is part of [FIWARE](https://www.fiware.org/). For more information 
 -   [Advanced topics](#advanced-topics)
 -   [Roadmap](#roadmap)
 -   [Support](#support)
--   [Contact](#contact)
 -   [License](#license)
 
 ## Background
@@ -55,7 +54,7 @@ Any feedback on this documentation is highly welcome, including bugs, typos or t
 aren't. You can use [GitHub issues](https://github.com/telefonicaid/fiware-sth-comet/issues/new) to provide feedback.
 
 You can find the Users & Developers Manual and the Installation & Administration Manual on
-[readthedocs.org](https://fiware-sth-comet.readthedocs.org)
+[readthedocs.org](https://fiware-sth-comet.readthedocs.io)
 
 If this is your first contact with the STH component, it is highly recommended that you visit the
 [Getting started](doc/manuals/getting-started.md) guide where we introduce some basic concepts upon which the STH
@@ -168,15 +167,6 @@ questions on [FIWARE Q&A](https://ask.fiware.org). In both cases please use the 
 
 Alarms documentation for the STH component can be found at the [Alarms](doc/manuals/alarms.md) section of the
 documentation.
-
-[Top](#top)
-
-## Contact
-
--   Germán Toro del Valle ([german.torodelvalle@telefonica.com](mailto:german.torodelvalle@telefonica.com),
-    [@gtorodelvalle](http://www.twitter.com/gtorodelvalle))
--   Francisco Romero Bueno ([francisco.romerobueno@telefonica.com](mailto:francisco.romerobueno@telefonica.com))
--   Iván Arias León ([ivan.ariasleon@telefonica.com](mailto:ivan.ariasleon@telefonica.com))
 
 [Top](#top)
 

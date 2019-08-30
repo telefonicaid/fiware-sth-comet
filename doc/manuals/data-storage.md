@@ -9,7 +9,7 @@ The _formal_ option uses an additional component of the FIWARE ecosystem as it i
 [Cygnus](https://github.com/telefonicaid/fiware-cygnus/). Cygnus is the component in charge of persisting in distinct
 repositories or data storages the context information managed by an Orion Context Broker instance over time. To do it,
 Cygnus supports distinct connectors (aka., sinks) to many external repositories or data storages such as
-[Apache Hadoop](https://hadoop.apache.org), [Apache Kafka](https://kafka.apache.org), [CartoDB](https://cartodb.com),
+[Apache Hadoop](https://hadoop.apache.org), [Apache Kafka](https://kafka.apache.org), [Carto](https://carto.com/),
 [CKAN](http://ckan.org), [MySQL](https://www.mysql.com), [PostgreSQL](https://www.postgresql.org), amongst others.
 
 To register the raw and aggregated time series context information into the STH component using Cygnus, we implemented 2
@@ -43,54 +43,43 @@ one has to be sent to the Orion Context Broker instance whose raw and aggregated
 to be managed by the STH component:
 
 ```bash
-curl <orion-context-broker-host>:<orion-context-broker-port>/v1/subscribeContext -s -S --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'Fiware-Service: <service>' --header 'Fiware-ServicePath: <service-path>' -d @- <<EOF
+curl <orion-context-broker-host>:<orion-context-broker-port>/v2/subscriptions -s -S --header 'Content-Type: application/json'  --header 'Fiware-Service: <service>' --header 'Fiware-ServicePath: <service-path>' -d @- <<EOF
 {
+  "description": "STH subscription",
+  "subject": {
     "entities": [
-        {
-            "type": "<entity-type>",
-            "isPattern": "<false|true>",
-            "id": "<entity-id>"
-        }
+      {
+        "id": "<entity-id>",
+        "type": "<entity-type>"
+      }
     ],
-    "attributes": [
-        "<attribute2Notify1>",
+    "condition": {
+      "attrs": [
+        "<attribute2Observe1>",
         ...,
-        "<attribute2NotifyK>"
+        "<attribute2ObserveN>"
+      ]
+    }
+  },
+  "notification": {
+    "http": {
+      "url": "http://<sth-host>:<sth-port>/notify"
+    },
+    "attrs": [    
+      "<attribute2Notify1>",
+      ...,
+      "<attribute2NotifyK>"   
     ],
-    "reference": "http://<sth-host>:<sth-port>/notify",
-    "duration": "<duration>",
-    "notifyConditions": [
-        {
-            "type": "ONCHANGE",
-            "condValues": [
-                "<attribute2Observe1>",
-                ...,
-                "<attribute2ObserveN>"
-            ]
-        }
-    ],
-    "throttling": "<throttling>"
+    "attrsFormat": "legacy"
+  }
 }
+
 EOF
 ```
 
 Notice that in the previous subscriptions we are using templates instead of real values. These templates should be
 substituted by the desired values in each concrete case.
 
-It is important to note that the subscription expire and must be re-enabled. More concretely, the `duration` property
-sets the duration of the subscription.
-
-On the other hand, for the time being the STH component only is able to manage notifications in JSON format and
-consequently it is very important to set the `Accept` header to `application/json`.
-
-<!-- textlint-disable write-good -->
-
-Last but not least, the `throttling` makes it possible to control the frequency of the notifications. Depending on the
-resolution of the aggregated time series context information you are interested in, the `throttling` should be
-fine-tuned accordingly. For example, it may make no sense to set the minimum resolution in the STH component to `second`
-but set the throttling to `PT60s` (60 seconds), since with this configuration 1 value update will be notified every 60
-seconds (1 minute) the most, and corresponding the minimum recommended resolutions should be `minute`.
-
-<!-- textlint-enable write-good -->
-
 Further information about the Orion Context Broker subscription API can be found in [Orion specific documentation](http://fiware-orion.readthedocs.io/en/latest/user/walkthrough_apiv2/index.html#subscriptions). Note that at the present moment STH only supports the old NGSIv1 notification format, so `"attrsFormat": "legacy"` has to be used in this case.
+
+By default, STH stores the notification reception timestamp. Nevertheless, if a metadata named `TimeInstant` is notified, then such metadata value is used instead of the reception timestamp. This is useful when wanting to persist a measure generation time (which is thus notified as a `TimeInstant` metadata) instead of the reception time.
