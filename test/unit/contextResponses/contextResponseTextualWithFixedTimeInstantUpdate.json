@@ -1,29 +1,12 @@
 {
-  "contextResponses": [
-    {
-      "contextElement": {
-        "attributes": [
-          {
-            "name": "attrNameTextual",
-            "type": "attrType",
-            "value": "text222",
-            "metadatas": [
-              {
-                "name": "TimeInstant",
-                "type": "ISO8601",
-                "value": "1970-01-01T00:00:00.000Z"
-              }
-            ]
-          }
-        ],
-        "type": "entityType",
-        "isPattern": "false",
-        "id": "entityId"
-      },
-      "statusCode": {
-        "code": "200",
-        "reasonPhrase": "OK"
+  "attrNameTextual": {
+    "type": "attrType",
+    "value": "text222",
+    "metadata": {
+      "TimeInstant": {
+        "type": "ISO8601",
+        "value": "1970-01-01T00:00:00.000Z"
       }
     }
-  ]
+  }
 }

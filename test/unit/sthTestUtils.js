@@ -399,7 +399,7 @@ function getURL(type, options, attrName) {
     switch (type) {
         case sthTestConfig.API_OPERATION.READ:
             if (options && options.invalidPath) {
-                url += '/this/is/an/invalid/path';
+                url += '/STH/v1/this/is/an/invalid/path';
             } else {
                 url +=
                     '/STH/v1/contextEntities/type/' +
@@ -413,30 +413,25 @@ function getURL(type, options, attrName) {
                         '/attributes/' +
                         attrName || sthTestConfig.ATTRIBUTE_NAME;
             }
-            if (options && (options.lastN || options.lastN === 0)) {
-                url += getQuerySeparator() + 'lastN=' + options.lastN;
+            break;
+        case sthTestConfig.API_OPERATION.READ_V2:
+            if (options && options.invalidPath) {
+                url += '/STH/v2/this/is/an/invalid/path';
+            } else {
+                url +=
+                    '/STH/v2/entities/' +
+                        (options && options.changeEntityCase
+                            ? sthTestConfig.ENTITY_ID.toLowerCase()
+                            : sthTestConfig.ENTITY_ID) +
+                        '/attrs/' +
+                        attrName || sthTestConfig.ATTRIBUTE_NAME;
             }
-            if (options && (options.hLimit || options.hLimit === 0)) {
-                url += getQuerySeparator() + 'hLimit=' + options.hLimit;
-            }
-            if (options && (options.hOffset || options.hOffset === 0)) {
-                url += getQuerySeparator() + 'hOffset=' + options.hOffset;
-            }
-            if (options && options.aggrMethod) {
-                url += getQuerySeparator() + 'aggrMethod=' + options.aggrMethod;
-            }
-            if (options && options.aggrPeriod) {
-                url += getQuerySeparator() + 'aggrPeriod=' + options.aggrPeriod;
-            }
-            if (options && options.dateFrom) {
-                url += getQuerySeparator() + 'dateFrom=' + options.dateFrom;
-            }
-            if (options && options.dateTo) {
-                url += getQuerySeparator() + 'dateTo=' + options.dateTo;
-            }
-            if (options && options.count) {
-                url += getQuerySeparator() + 'count=' + options.count;
-            }
+            url +=
+                getQuerySeparator() +
+                'type=' +
+                (options && options.changeEntityCase
+                    ? sthTestConfig.ENTITY_TYPE.toLowerCase()
+                    : sthTestConfig.ENTITY_TYPE);
             break;
         case sthTestConfig.API_OPERATION.NOTIFY:
             if (options && options.invalidPath) {
@@ -473,11 +468,40 @@ function getURL(type, options, attrName) {
                 url += '/attributes/' + options.attrName;
             }
     }
+
+    if (type === sthTestConfig.API_OPERATION.READ || type === sthTestConfig.API_OPERATION.READ_V2) {
+        if (options && (options.lastN || options.lastN === 0)) {
+            url += getQuerySeparator() + 'lastN=' + options.lastN;
+        }
+        if (options && (options.hLimit || options.hLimit === 0)) {
+            url += getQuerySeparator() + 'hLimit=' + options.hLimit;
+        }
+        if (options && (options.hOffset || options.hOffset === 0)) {
+            url += getQuerySeparator() + 'hOffset=' + options.hOffset;
+        }
+        if (options && options.aggrMethod) {
+            url += getQuerySeparator() + 'aggrMethod=' + options.aggrMethod;
+        }
+        if (options && options.aggrPeriod) {
+            url += getQuerySeparator() + 'aggrPeriod=' + options.aggrPeriod;
+        }
+        if (options && options.dateFrom) {
+            url += getQuerySeparator() + 'dateFrom=' + options.dateFrom;
+        }
+        if (options && options.dateTo) {
+            url += getQuerySeparator() + 'dateTo=' + options.dateTo;
+        }
+        if (options && options.count) {
+            url += getQuerySeparator() + 'count=' + options.count;
+        }
+    }
+
     return url;
 }
 
 /**
  * A mocha test forcing the server to not to retrieve raw data from the database
+ * @param ngsiVersion NGSI version to use. Anything different from 2 (included undefined) means v1
  * @param {object} params It is an object including the following properties:
  *  - {string} service The service
  *  - {string} servicePath The service path
@@ -486,7 +510,7 @@ function getURL(type, options, attrName) {
  *  - {object} options To generate the URL
  * @param {Function} done The mocha done() callback function
  */
-function noRawDataIfEntityCaseChange(params, done) {
+function noRawDataIfEntityCaseChange(ngsiVersion, params, done) {
     var service = params.service,
         servicePath = params.servicePath,
         attrName = params.attrName,
@@ -494,33 +518,57 @@ function noRawDataIfEntityCaseChange(params, done) {
 
     options.changeEntityCase = true;
 
-    request(
-        {
-            uri: getURL(sthTestConfig.API_OPERATION.READ, options, attrName),
-            method: 'GET',
-            headers: {
-                'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
-                'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
+    if (ngsiVersion === 2) {
+        request(
+            {
+                uri: getURL(sthTestConfig.API_OPERATION.READ_V2, options, attrName),
+                method: 'GET',
+                headers: {
+                    'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
+                    'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
+                }
+            },
+            function(err, response, body) {
+                var bodyJSON = JSON.parse(body);
+                expect(err).to.equal(null);
+                expect(response.statusCode).to.equal(200);
+                expect(bodyJSON.type).to.equal('StructuredValue');
+                expect(bodyJSON.value).to.be.an(Array);
+                expect(bodyJSON.value.length).to.equal(0);
+                done();
             }
-        },
-        function(err, response, body) {
-            var bodyJSON = JSON.parse(body);
-            expect(err).to.equal(null);
-            expect(response.statusCode).to.equal(200);
-            expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).to.equal(
-                attrName || sthTestConfig.ATTRIBUTE_NAME
-            );
-            expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).to.be.an(Array);
-            expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(0);
-            expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
-            expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
-            done();
-        }
-    );
+        );
+    } else {
+        // FIXME: remove the else branch when NGSIv1 becomes obsolete
+        request(
+            {
+                uri: getURL(sthTestConfig.API_OPERATION.READ, options, attrName),
+                method: 'GET',
+                headers: {
+                    'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
+                    'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
+                }
+            },
+            function(err, response, body) {
+                var bodyJSON = JSON.parse(body);
+                expect(err).to.equal(null);
+                expect(response.statusCode).to.equal(200);
+                expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).to.equal(
+                    attrName || sthTestConfig.ATTRIBUTE_NAME
+                );
+                expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).to.be.an(Array);
+                expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(0);
+                expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
+                expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
+                done();
+            }
+        );
+    }
 }
 
 /**
  * A mocha test forcing the server to retrieve raw data from the database
+ * @param ngsiVersion NGSI version to use. Anything different from 2 (included undefined) means v1
  * @param {object} params It is an object including the following properties:
  *  - {string} service The service
  *  - {string} servicePath The service path
@@ -530,59 +578,95 @@ function noRawDataIfEntityCaseChange(params, done) {
  *  - {boolean} checkRecvTime Flag indicating of the recvTime should be checked
  * @param {Function} done The mocha done() callback function
  */
-function rawDataAvailableDateFilter(params, done) {
+function rawDataAvailableDateFilter(ngsiVersion, params, done) {
     var service = params.service,
         servicePath = params.servicePath,
         attrName = params.attrName,
         options = params.options,
         checkRecvTime = params.checkRecvTime;
 
-    request(
-        {
-            uri: getURL(sthTestConfig.API_OPERATION.READ, options, attrName),
-            method: 'GET',
-            headers: {
-                'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
-                'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
+    if (ngsiVersion === 2) {
+        request(
+            {
+                uri: getURL(sthTestConfig.API_OPERATION.READ_V2, options, attrName),
+                method: 'GET',
+                headers: {
+                    'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
+                    'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
+                }
+            },
+            function(err, response, body) {
+                var bodyJSON = JSON.parse(body);
+                expect(err).to.equal(null);
+                expect(response.statusCode).to.equal(200);
+                if (options && options.count) {
+                    // Check fiware-total-count header
+                    expect(response.headers['fiware-total-count']).to.not.be(undefined);
+                }
+                expect(bodyJSON.type).to.equal('StructuredValue');
+                expect(bodyJSON.value.length).to.equal(options.lastN ? events.length : 1);
+                expect(bodyJSON.value[options.lastN ? events.length - 1 : 0].attrValue).to.equal(
+                    events[events.length - 1].attrValue
+                );
+                if (checkRecvTime) {
+                    expect(bodyJSON.value[options.lastN ? events.length - 1 : 0].recvTime).to.equal(
+                        sthUtils.getISODateString(events[events.length - 1].recvTime)
+                    );
+                }
+                done();
             }
-        },
-        function(err, response, body) {
-            var bodyJSON = JSON.parse(body);
-            expect(err).to.equal(null);
-            expect(response.statusCode).to.equal(200);
-            if (options && options.count) {
-                // Check fiware-total-count header
-                expect(response.headers['fiware-total-count']).to.not.be(undefined);
-            }
-            expect(bodyJSON.contextResponses[0].contextElement.id).to.equal(sthTestConfig.ENTITY_ID);
-            expect(bodyJSON.contextResponses[0].contextElement.isPattern).to.equal(false);
-            expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).to.equal(
-                attrName || sthTestConfig.ATTRIBUTE_NAME
-            );
-            expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(
-                options.lastN ? events.length : 1
-            );
-            expect(
-                bodyJSON.contextResponses[0].contextElement.attributes[0].values[options.lastN ? events.length - 1 : 0]
-                    .attrValue
-            ).to.equal(events[events.length - 1].attrValue);
-            if (checkRecvTime) {
+        );
+    } else {
+        // FIXME: remove the else branch when NGSIv1 becomes obsolete
+        request(
+            {
+                uri: getURL(sthTestConfig.API_OPERATION.READ, options, attrName),
+                method: 'GET',
+                headers: {
+                    'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
+                    'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
+                }
+            },
+            function(err, response, body) {
+                var bodyJSON = JSON.parse(body);
+                expect(err).to.equal(null);
+                expect(response.statusCode).to.equal(200);
+                if (options && options.count) {
+                    // Check fiware-total-count header
+                    expect(response.headers['fiware-total-count']).to.not.be(undefined);
+                }
+                expect(bodyJSON.contextResponses[0].contextElement.id).to.equal(sthTestConfig.ENTITY_ID);
+                expect(bodyJSON.contextResponses[0].contextElement.isPattern).to.equal(false);
+                expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).to.equal(
+                    attrName || sthTestConfig.ATTRIBUTE_NAME
+                );
+                expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(
+                    options.lastN ? events.length : 1
+                );
                 expect(
                     bodyJSON.contextResponses[0].contextElement.attributes[0].values[
                         options.lastN ? events.length - 1 : 0
-                    ].recvTime
-                ).to.equal(sthUtils.getISODateString(events[events.length - 1].recvTime));
+                    ].attrValue
+                ).to.equal(events[events.length - 1].attrValue);
+                if (checkRecvTime) {
+                    expect(
+                        bodyJSON.contextResponses[0].contextElement.attributes[0].values[
+                            options.lastN ? events.length - 1 : 0
+                        ].recvTime
+                    ).to.equal(sthUtils.getISODateString(events[events.length - 1].recvTime));
+                }
+                expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
+                expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
+                done();
             }
-            expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
-            expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
-            done();
-        }
-    );
+        );
+    }
 }
 
 /**
  * A mocha test forcing the server to retrieve no aggregated data from the database for
  *  the passed aggregation method and resolution
+ * @param ngsiVersion NGSI version to use. Anything different from 2 (included undefined) means v1
  * @param {object} params It is an object including the following properties:
  *  - {string} service The service
  *  - {string} servicePath The service path
@@ -592,49 +676,81 @@ function rawDataAvailableDateFilter(params, done) {
  *  - {string} resolution The resolution
  * @param {string} done The mocha done() callback function
  */
-function noAggregatedDataIfEntityCaseChangeTest(params, done) {
+function noAggregatedDataIfEntityCaseChangeTest(ngsiVersion, params, done) {
     var service = params.service,
         servicePath = params.servicePath,
         attrName = params.attrName,
         aggrMethod = params.aggrMethod,
         resolution = params.resolution;
 
-    request(
-        {
-            uri: getURL(
-                sthTestConfig.API_OPERATION.READ,
-                {
-                    aggrMethod: aggrMethod,
-                    aggrPeriod: resolution,
-                    changeEntityCase: true
-                },
-                attrName
-            ),
-            method: 'GET',
-            headers: {
-                'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
-                'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
+    if (ngsiVersion === 2) {
+        request(
+            {
+                uri: getURL(
+                    sthTestConfig.API_OPERATION.READ_V2,
+                    {
+                        aggrMethod: aggrMethod,
+                        aggrPeriod: resolution,
+                        changeEntityCase: true
+                    },
+                    attrName
+                ),
+                method: 'GET',
+                headers: {
+                    'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
+                    'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
+                }
+            },
+            function(err, response, body) {
+                var bodyJSON = JSON.parse(body);
+                expect(err).to.equal(null);
+                expect(response.statusCode).to.equal(200);
+                expect(bodyJSON.type).to.equal('StructuredValue');
+                expect(bodyJSON.value).to.be.an(Array);
+                expect(bodyJSON.value.length).to.equal(0);
+                done();
             }
-        },
-        function(err, response, body) {
-            var bodyJSON = JSON.parse(body);
-            expect(err).to.equal(null);
-            expect(response.statusCode).to.equal(200);
-            expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).to.equal(
-                attrName || sthTestConfig.ATTRIBUTE_NAME
-            );
-            expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).to.be.an(Array);
-            expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(0);
-            expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
-            expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
-            done();
-        }
-    );
+        );
+    } else {
+        // FIXME: remove the else branch when NGSIv1 becomes obsolete
+        request(
+            {
+                uri: getURL(
+                    sthTestConfig.API_OPERATION.READ,
+                    {
+                        aggrMethod: aggrMethod,
+                        aggrPeriod: resolution,
+                        changeEntityCase: true
+                    },
+                    attrName
+                ),
+                method: 'GET',
+                headers: {
+                    'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
+                    'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
+                }
+            },
+            function(err, response, body) {
+                var bodyJSON = JSON.parse(body);
+                expect(err).to.equal(null);
+                expect(response.statusCode).to.equal(200);
+                expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).to.equal(
+                    attrName || sthTestConfig.ATTRIBUTE_NAME
+                );
+                expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).to.be.an(Array);
+                expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(0);
+                expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
+                expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
+                done();
+            }
+        );
+    }
 }
 
 /**
  * A mocha test forcing the server to retrieve no aggregated data from the database for
  *  the passed aggregation method and resolution
+ * @param ngsiVersion NGSI version to use. Anything different from 2 (included undefined) means v1
  * @param {object} params It is an object including the following properties:
  *  - {string} service The service
  *  - {string} servicePath The service path
@@ -644,7 +760,7 @@ function noAggregatedDataIfEntityCaseChangeTest(params, done) {
  *  - {string} resolution The resolution
  * @param {string} done The mocha done() callback function
  */
-function noAggregatedDataSinceDateTest(params, done) {
+function noAggregatedDataSinceDateTest(ngsiVersion, params, done) {
     var service = params.service,
         servicePath = params.servicePath,
         attrName = params.attrName,
@@ -675,46 +791,86 @@ function noAggregatedDataSinceDateTest(params, done) {
             break;
     }
 
-    request(
-        {
-            uri: getURL(
-                sthTestConfig.API_OPERATION.READ,
-                {
-                    aggrMethod: aggrMethod,
-                    aggrPeriod: resolution,
-                    dateFrom: sthUtils.getISODateString(
-                        sthUtils.getOrigin(new Date(events[events.length - 1].recvTime.getTime() + offset), resolution)
-                    )
-                },
-                attrName
-            ),
-            method: 'GET',
-            headers: {
-                'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
-                'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
+    if (ngsiVersion === 2) {
+        request(
+            {
+                uri: getURL(
+                    sthTestConfig.API_OPERATION.READ_V2,
+                    {
+                        aggrMethod: aggrMethod,
+                        aggrPeriod: resolution,
+                        dateFrom: sthUtils.getISODateString(
+                            sthUtils.getOrigin(
+                                new Date(events[events.length - 1].recvTime.getTime() + offset),
+                                resolution
+                            )
+                        )
+                    },
+                    attrName
+                ),
+                method: 'GET',
+                headers: {
+                    'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
+                    'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
+                }
+            },
+            function(err, response, body) {
+                var bodyJSON = JSON.parse(body);
+                expect(err).to.equal(null);
+                expect(response.statusCode).to.equal(200);
+                expect(bodyJSON.type).to.equal('StructuredValue');
+                expect(bodyJSON.value).to.be.an(Array);
+                expect(bodyJSON.value.length).to.equal(0);
+                done();
             }
-        },
-        function(err, response, body) {
-            var bodyJSON = JSON.parse(body);
-            expect(err).to.equal(null);
-            expect(response.statusCode).to.equal(200);
-            expect(bodyJSON.contextResponses[0].contextElement.id).to.equal(sthTestConfig.ENTITY_ID);
-            expect(bodyJSON.contextResponses[0].contextElement.isPattern).to.equal(false);
-            expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).to.equal(
-                attrName || sthTestConfig.ATTRIBUTE_NAME
-            );
-            expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).to.be.an(Array);
-            expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(0);
-            expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
-            expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
-            done();
-        }
-    );
+        );
+    } else {
+        // FIXME: remove the else branch when NGSIv1 becomes obsolete
+        request(
+            {
+                uri: getURL(
+                    sthTestConfig.API_OPERATION.READ,
+                    {
+                        aggrMethod: aggrMethod,
+                        aggrPeriod: resolution,
+                        dateFrom: sthUtils.getISODateString(
+                            sthUtils.getOrigin(
+                                new Date(events[events.length - 1].recvTime.getTime() + offset),
+                                resolution
+                            )
+                        )
+                    },
+                    attrName
+                ),
+                method: 'GET',
+                headers: {
+                    'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
+                    'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
+                }
+            },
+            function(err, response, body) {
+                var bodyJSON = JSON.parse(body);
+                expect(err).to.equal(null);
+                expect(response.statusCode).to.equal(200);
+                expect(bodyJSON.contextResponses[0].contextElement.id).to.equal(sthTestConfig.ENTITY_ID);
+                expect(bodyJSON.contextResponses[0].contextElement.isPattern).to.equal(false);
+                expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).to.equal(
+                    attrName || sthTestConfig.ATTRIBUTE_NAME
+                );
+                expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).to.be.an(Array);
+                expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(0);
+                expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
+                expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
+                done();
+            }
+        );
+    }
 }
 
 /**
  * A mocha test forcing the server to retrieve aggregated data from the database
  *  for the passed aggregation method and resolution
+ * @param ngsiVersion NGSI version to use. Anything different from 2 (included undefined) means v1
  * @param {object} param It is an object including the following properties:
  *  - {string} service The service
  *  - {string} servicePath The service path
@@ -724,7 +880,7 @@ function noAggregatedDataSinceDateTest(params, done) {
  *  - {string} resolution The resolution
  * @param {Function} done The mocha done() callback function
  */
-function aggregatedDataAvailableSinceDateTest(params, done) {
+function aggregatedDataAvailableSinceDateTest(ngsiVersion, params, done) {
     var service = params.service,
         servicePath = params.servicePath,
         attrName = params.attrName,
@@ -732,110 +888,166 @@ function aggregatedDataAvailableSinceDateTest(params, done) {
         aggrMethod = params.aggrMethod,
         resolution = params.resolution;
 
-    request(
-        {
-            uri: getURL(
-                sthTestConfig.API_OPERATION.READ,
-                {
-                    aggrMethod: aggrMethod,
-                    aggrPeriod: resolution,
-                    dateFrom: sthUtils.getISODateString(
-                        sthUtils.getOrigin(events[events.length - 1].recvTime, resolution)
-                    )
-                },
-                attrName
-            ),
-            method: 'GET',
-            headers: {
-                'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
-                'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
+    var theEvent = events[events.length - 1];
+    var index, entries;
+    switch (resolution) {
+        case 'second':
+            index = theEvent.recvTime.getUTCSeconds();
+            entries = 60;
+            break;
+        case 'minute':
+            index = theEvent.recvTime.getUTCMinutes();
+            entries = 60;
+            break;
+        case 'hour':
+            index = theEvent.recvTime.getUTCHours();
+            entries = 24;
+            break;
+        case 'day':
+            index = theEvent.recvTime.getUTCDate() - 1;
+            entries = 31;
+            break;
+        case 'month':
+            index = theEvent.recvTime.getUTCMonth();
+            entries = 12;
+            break;
+    }
+
+    var value;
+    switch (aggrMethod) {
+        case 'min':
+        case 'max':
+            value = parseFloat(theEvent.attrValue).toFixed(2);
+            break;
+        case 'sum':
+            value = (events.length * parseFloat(theEvent.attrValue)).toFixed(2);
+            break;
+        case 'sum2':
+            value = (events.length * Math.pow(parseFloat(theEvent.attrValue), 2)).toFixed(2);
+            break;
+        case 'occur':
+            value = events.length;
+            break;
+    }
+
+    if (ngsiVersion === 2) {
+        request(
+            {
+                uri: getURL(
+                    sthTestConfig.API_OPERATION.READ_V2,
+                    {
+                        aggrMethod: aggrMethod,
+                        aggrPeriod: resolution,
+                        dateFrom: sthUtils.getISODateString(
+                            sthUtils.getOrigin(events[events.length - 1].recvTime, resolution)
+                        )
+                    },
+                    attrName
+                ),
+                method: 'GET',
+                headers: {
+                    'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
+                    'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
+                }
+            },
+            function(err, response, body) {
+                var bodyJSON = JSON.parse(body);
+                expect(err).to.equal(null);
+                expect(response.statusCode).to.equal(200);
+                expect(bodyJSON.type).to.equal('StructuredValue');
+                expect(bodyJSON.value[0]._id.resolution).to.equal(resolution);
+                expect(bodyJSON.value[0]._id.origin).to.be(
+                    sthUtils.getISODateString(sthUtils.getOrigin(theEvent.recvTime, resolution))
+                );
+                expect(bodyJSON.value[0].points.length).to.equal(sthConfig.FILTER_OUT_EMPTY ? 1 : entries);
+                expect(bodyJSON.value[0].points[sthConfig.FILTER_OUT_EMPTY ? 0 : index].samples).to.equal(
+                    events.length
+                );
+                if (attrType === 'float') {
+                    expect(
+                        parseFloat(
+                            bodyJSON.value[0].points[sthConfig.FILTER_OUT_EMPTY ? 0 : index][aggrMethod]
+                        ).toFixed(2)
+                    ).to.equal(value);
+                } else if (attrType === 'string') {
+                    expect(
+                        parseFloat(
+                            bodyJSON.value[0].points[sthConfig.FILTER_OUT_EMPTY ? 0 : index][aggrMethod][
+                                'just a string'
+                            ]
+                        )
+                    ).to.equal(value);
+                }
+                done();
             }
-        },
-        function(err, response, body) {
-            var theEvent = events[events.length - 1];
-            var index, entries;
-            switch (resolution) {
-                case 'second':
-                    index = theEvent.recvTime.getUTCSeconds();
-                    entries = 60;
-                    break;
-                case 'minute':
-                    index = theEvent.recvTime.getUTCMinutes();
-                    entries = 60;
-                    break;
-                case 'hour':
-                    index = theEvent.recvTime.getUTCHours();
-                    entries = 24;
-                    break;
-                case 'day':
-                    index = theEvent.recvTime.getUTCDate() - 1;
-                    entries = 31;
-                    break;
-                case 'month':
-                    index = theEvent.recvTime.getUTCMonth();
-                    entries = 12;
-                    break;
-            }
-            var bodyJSON = JSON.parse(body);
-            expect(err).to.equal(null);
-            expect(response.statusCode).to.equal(200);
-            expect(bodyJSON.contextResponses[0].contextElement.id).to.equal(sthTestConfig.ENTITY_ID);
-            expect(bodyJSON.contextResponses[0].contextElement.isPattern).to.equal(false);
-            expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).to.equal(
-                attrName || sthTestConfig.ATTRIBUTE_NAME
-            );
-            expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0]._id.resolution).to.equal(
-                resolution
-            );
-            expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0]._id.origin).to.be(
-                sthUtils.getISODateString(sthUtils.getOrigin(theEvent.recvTime, resolution))
-            );
-            expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points.length).to.equal(
-                sthConfig.FILTER_OUT_EMPTY ? 1 : entries
-            );
-            expect(
-                bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[
-                    sthConfig.FILTER_OUT_EMPTY ? 0 : index
-                ].samples
-            ).to.equal(events.length);
-            var value;
-            switch (aggrMethod) {
-                case 'min':
-                case 'max':
-                    value = parseFloat(theEvent.attrValue).toFixed(2);
-                    break;
-                case 'sum':
-                    value = (events.length * parseFloat(theEvent.attrValue)).toFixed(2);
-                    break;
-                case 'sum2':
-                    value = (events.length * Math.pow(parseFloat(theEvent.attrValue), 2)).toFixed(2);
-                    break;
-                case 'occur':
-                    value = events.length;
-                    break;
-            }
-            if (attrType === 'float') {
+        );
+    } else {
+        // FIXME: remove the else branch when NGSIv1 becomes obsolete
+        request(
+            {
+                uri: getURL(
+                    sthTestConfig.API_OPERATION.READ,
+                    {
+                        aggrMethod: aggrMethod,
+                        aggrPeriod: resolution,
+                        dateFrom: sthUtils.getISODateString(
+                            sthUtils.getOrigin(events[events.length - 1].recvTime, resolution)
+                        )
+                    },
+                    attrName
+                ),
+                method: 'GET',
+                headers: {
+                    'Fiware-Service': service || sthConfig.DEFAULT_SERVICE,
+                    'Fiware-ServicePath': servicePath || sthConfig.DEFAULT_SERVICE_PATH
+                }
+            },
+            function(err, response, body) {
+                var bodyJSON = JSON.parse(body);
+                expect(err).to.equal(null);
+                expect(response.statusCode).to.equal(200);
+                expect(bodyJSON.contextResponses[0].contextElement.id).to.equal(sthTestConfig.ENTITY_ID);
+                expect(bodyJSON.contextResponses[0].contextElement.isPattern).to.equal(false);
+                expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).to.equal(
+                    attrName || sthTestConfig.ATTRIBUTE_NAME
+                );
+                expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0]._id.resolution).to.equal(
+                    resolution
+                );
+                expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0]._id.origin).to.be(
+                    sthUtils.getISODateString(sthUtils.getOrigin(theEvent.recvTime, resolution))
+                );
+                expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points.length).to.equal(
+                    sthConfig.FILTER_OUT_EMPTY ? 1 : entries
+                );
                 expect(
-                    parseFloat(
-                        bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[
-                            sthConfig.FILTER_OUT_EMPTY ? 0 : index
-                        ][aggrMethod]
-                    ).toFixed(2)
-                ).to.equal(value);
-            } else if (attrType === 'string') {
-                expect(
-                    parseFloat(
-                        bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[
-                            sthConfig.FILTER_OUT_EMPTY ? 0 : index
-                        ][aggrMethod]['just a string']
-                    )
-                ).to.equal(value);
+                    bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[
+                        sthConfig.FILTER_OUT_EMPTY ? 0 : index
+                    ].samples
+                ).to.equal(events.length);
+                if (attrType === 'float') {
+                    expect(
+                        parseFloat(
+                            bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[
+                                sthConfig.FILTER_OUT_EMPTY ? 0 : index
+                            ][aggrMethod]
+                        ).toFixed(2)
+                    ).to.equal(value);
+                } else if (attrType === 'string') {
+                    expect(
+                        parseFloat(
+                            bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[
+                                sthConfig.FILTER_OUT_EMPTY ? 0 : index
+                            ][aggrMethod]['just a string']
+                        )
+                    ).to.equal(value);
+                }
+                expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
+                expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
+                done();
             }
-            expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
-            expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
-            done();
-        }
-    );
+        );
+    }
 }
 
 /**
@@ -876,7 +1088,18 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
 
         it(
             'without data if entity id and entity type case does not match',
-            noRawDataIfEntityCaseChange.bind(null, {
+            noRawDataIfEntityCaseChange.bind(null, 2, {
+                service: sthConfig.DEFAULT_SERVICE,
+                servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+                attrName: attrName,
+                options: optionsForCaseSensitivity,
+                checkRecvTime: checkRecvTime
+            })
+        );
+
+        it(
+            'without data if entity id and entity type case does not match - NGSIv1',
+            noRawDataIfEntityCaseChange.bind(null, 1, {
                 service: sthConfig.DEFAULT_SERVICE,
                 servicePath: sthConfig.DEFAULT_SERVICE_PATH,
                 attrName: attrName,
@@ -887,7 +1110,18 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
 
         it(
             'with raw data if data and no dateFrom or dateTo',
-            rawDataAvailableDateFilter.bind(null, {
+            rawDataAvailableDateFilter.bind(null, 2, {
+                service: sthConfig.DEFAULT_SERVICE,
+                servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+                attrName: attrName,
+                options: optionsWithNoDates,
+                checkRecvTime: checkRecvTime
+            })
+        );
+
+        it(
+            'with raw data if data and no dateFrom or dateTo - NGSIv1',
+            rawDataAvailableDateFilter.bind(null, 1, {
                 service: sthConfig.DEFAULT_SERVICE,
                 servicePath: sthConfig.DEFAULT_SERVICE_PATH,
                 attrName: attrName,
@@ -898,7 +1132,18 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
 
         it(
             'with raw data if data since dateFrom',
-            rawDataAvailableDateFilter.bind(null, {
+            rawDataAvailableDateFilter.bind(null, 2, {
+                service: sthConfig.DEFAULT_SERVICE,
+                servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+                attrName: attrName,
+                options: optionsWithDateFrom,
+                checkRecvTime: checkRecvTime
+            })
+        );
+
+        it(
+            'with raw data if data since dateFrom - NGSIv1',
+            rawDataAvailableDateFilter.bind(null, 1, {
                 service: sthConfig.DEFAULT_SERVICE,
                 servicePath: sthConfig.DEFAULT_SERVICE_PATH,
                 attrName: attrName,
@@ -909,7 +1154,18 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
 
         it(
             'with raw data if data before dateTo',
-            rawDataAvailableDateFilter.bind(null, {
+            rawDataAvailableDateFilter.bind(null, 2, {
+                service: sthConfig.DEFAULT_SERVICE,
+                servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+                attrName: attrName,
+                options: optionsWithDateTo,
+                checkRecvTime: checkRecvTime
+            })
+        );
+
+        it(
+            'with raw data if data before dateTo - NGSIv1',
+            rawDataAvailableDateFilter.bind(null, 1, {
                 service: sthConfig.DEFAULT_SERVICE,
                 servicePath: sthConfig.DEFAULT_SERVICE_PATH,
                 attrName: attrName,
@@ -920,7 +1176,18 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
 
         it(
             'with raw data if data from dateFrom and before dateTo',
-            rawDataAvailableDateFilter.bind(null, {
+            rawDataAvailableDateFilter.bind(null, 2, {
+                service: sthConfig.DEFAULT_SERVICE,
+                servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+                attrName: attrName,
+                options: optionsWithFromAndToDate,
+                checkRecvTime: checkRecvTime
+            })
+        );
+
+        it(
+            'with raw data if data from dateFrom and before dateTo - NGSIv1',
+            rawDataAvailableDateFilter.bind(null, 1, {
                 service: sthConfig.DEFAULT_SERVICE,
                 servicePath: sthConfig.DEFAULT_SERVICE_PATH,
                 attrName: attrName,
@@ -941,7 +1208,18 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
 function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
     it(
         'should respond with empty aggregated data if entity id and entity type case does not match',
-        noAggregatedDataIfEntityCaseChangeTest.bind(null, {
+        noAggregatedDataIfEntityCaseChangeTest.bind(null, 2, {
+            service: sthConfig.DEFAULT_SERVICE,
+            servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+            attrName: attrName,
+            aggrMethod: aggrMethod,
+            resolution: sthConfig.AGGREGATION_BY[index]
+        })
+    );
+
+    it(
+        'should respond with empty aggregated data if entity id and entity type case does not match - NGSIv1',
+        noAggregatedDataIfEntityCaseChangeTest.bind(null, 1, {
             service: sthConfig.DEFAULT_SERVICE,
             servicePath: sthConfig.DEFAULT_SERVICE_PATH,
             attrName: attrName,
@@ -952,7 +1230,18 @@ function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
 
     it(
         'should respond with empty aggregated data if no data since dateFrom',
-        noAggregatedDataSinceDateTest.bind(null, {
+        noAggregatedDataSinceDateTest.bind(null, 2, {
+            service: sthConfig.DEFAULT_SERVICE,
+            servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+            attrName: attrName,
+            aggrMethod: aggrMethod,
+            resolution: sthConfig.AGGREGATION_BY[index]
+        })
+    );
+
+    it(
+        'should respond with empty aggregated data if no data since dateFrom - NGSIv1',
+        noAggregatedDataSinceDateTest.bind(null, 1, {
             service: sthConfig.DEFAULT_SERVICE,
             servicePath: sthConfig.DEFAULT_SERVICE_PATH,
             attrName: attrName,
@@ -963,7 +1252,19 @@ function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
 
     it(
         'should respond with aggregated data if data since dateFrom',
-        aggregatedDataAvailableSinceDateTest.bind(null, {
+        aggregatedDataAvailableSinceDateTest.bind(null, 2, {
+            service: sthConfig.DEFAULT_SERVICE,
+            servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+            attrName: attrName,
+            attrType: attrType,
+            aggrMethod: aggrMethod,
+            resolution: sthConfig.AGGREGATION_BY[index]
+        })
+    );
+
+    it(
+        'should respond with aggregated data if data since dateFrom - NGSIv1',
+        aggregatedDataAvailableSinceDateTest.bind(null, 1, {
             service: sthConfig.DEFAULT_SERVICE,
             servicePath: sthConfig.DEFAULT_SERVICE_PATH,
             attrName: attrName,
@@ -1394,214 +1695,377 @@ complexNotificationTest = function complexNotificationTest(params, done) {
 
 /**
  * Successful 200 status test case
+ * @param ngsiVersion NGSI version to use. Anything different from 2 (included undefined) means v1
  * @param {Object} options Options to generate the URL
  * @param {Function} done Callback
  */
-function status200Test(options, done) {
-    request(
-        {
-            uri: getURL(sthTestConfig.API_OPERATION.READ, options),
-            method: 'GET',
-            headers: {
-                'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+function status200Test(ngsiVersion, options, done) {
+    if (ngsiVersion === 2) {
+        request(
+            {
+                uri: getURL(sthTestConfig.API_OPERATION.READ_V2, options),
+                method: 'GET',
+                headers: {
+                    'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                    'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                }
+            },
+            function(err, response, body) {
+                var bodyJSON = JSON.parse(body);
+                expect(err).to.equal(null);
+                expect(response.statusCode).to.equal(200);
+                if (options && options.count) {
+                    // Check fiware-total-count header
+                    expect(response.headers['fiware-total-count']).to.not.be(undefined);
+                }
+                expect(bodyJSON.type).to.equal('StructuredValue');
+                expect(bodyJSON.value).to.be.an(Array);
+                expect(bodyJSON.value.length).to.equal(0);
+                done();
             }
-        },
-        function(err, response, body) {
-            var bodyJSON = JSON.parse(body);
-            expect(err).to.equal(null);
-            expect(response.statusCode).to.equal(200);
-            if (options && options.count) {
-                // Check fiware-total-count header
-                expect(response.headers['fiware-total-count']).to.not.be(undefined);
+        );
+    } else {
+        // FIXME: remove the else branch when NGSIv1 becomes obsolete
+        request(
+            {
+                uri: getURL(sthTestConfig.API_OPERATION.READ, options),
+                method: 'GET',
+                headers: {
+                    'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                    'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                }
+            },
+            function(err, response, body) {
+                var bodyJSON = JSON.parse(body);
+                expect(err).to.equal(null);
+                expect(response.statusCode).to.equal(200);
+                if (options && options.count) {
+                    // Check fiware-total-count header
+                    expect(response.headers['fiware-total-count']).to.not.be(undefined);
+                }
+                expect(bodyJSON.contextResponses[0].contextElement.id).to.equal(sthTestConfig.ENTITY_ID);
+                expect(bodyJSON.contextResponses[0].contextElement.type).to.equal(sthTestConfig.ENTITY_TYPE);
+                expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).to.be.an(Array);
+                expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(0);
+                done();
             }
-            expect(bodyJSON.contextResponses[0].contextElement.id).to.equal(sthTestConfig.ENTITY_ID);
-            expect(bodyJSON.contextResponses[0].contextElement.type).to.equal(sthTestConfig.ENTITY_TYPE);
-            expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values).to.be.an(Array);
-            expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(0);
-            done();
-        }
-    );
+        );
+    }
 }
 
 /**
  * Test to check that in case of updating a numeric attribute value aggregated data:
  *  - If the value of the attribute is the same, it is only aggregated once
  *  - If the value of the attribute changes, the aggregated data is properly updated
+ * @param ngsiVersion NGSI version to use. Anything different from 2 (included undefined) means v1
  * @param contextResponseFile The context response used for the notification of the update
  * @param aggrMethod The aggregation method
  * @param resolution The resolution
  * @param done The done() function
  */
-function numericAggregatedDataUpdatedTest(contextResponseFile, aggrMethod, resolution, done) {
-    var contextResponseNumericWithFixedTimeInstant = require('./contextResponses/' + contextResponseFile);
+function numericAggregatedDataUpdatedTest(ngsiVersion, contextResponseFile, aggrMethod, resolution, done) {
+    if (ngsiVersion === 2) {
+        var contextResponseNumericWithFixedTimeInstant = require('./contextResponses/' + contextResponseFile);
 
-    request(
-        {
-            uri: getURL(
-                sthTestConfig.API_OPERATION.READ,
-                {
-                    aggrMethod: aggrMethod,
-                    aggrPeriod: resolution,
-                    dateFrom:
-                        contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0]
-                            .metadatas[0].value,
-                    dateTo:
-                        contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0]
-                            .metadatas[0].value
-                },
-                contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
-            ),
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
-            }
-        },
-        function(err, response, body) {
-            var bodyJSON = JSON.parse(body);
-            expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points.length).to.equal(1);
-            expect(
-                parseInt(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].offset, 10)
-            ).to.equal(
-                sthUtils.getOffset(
-                    resolution,
-                    new Date(
-                        contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].metadatas[0].value
+        // By construction, the file only have one key and that key is the attribute name
+        var attrName = Object.keys(contextResponseNumericWithFixedTimeInstant)[0];
+
+        request(
+            {
+                uri: getURL(
+                    sthTestConfig.API_OPERATION.READ_V2,
+                    {
+                        aggrMethod: aggrMethod,
+                        aggrPeriod: resolution,
+                        dateFrom: contextResponseNumericWithFixedTimeInstant[attrName].metadata.TimeInstant.value,
+                        dateTo: contextResponseNumericWithFixedTimeInstant[attrName].metadata.TimeInstant.value
+                    },
+                    attrName
+                ),
+                method: 'GET',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                    'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                }
+            },
+            function(err, response, body) {
+                var bodyJSON = JSON.parse(body);
+                expect(bodyJSON.value[0].points.length).to.equal(1);
+                expect(parseInt(bodyJSON.value[0].points[0].offset, 10)).to.equal(
+                    sthUtils.getOffset(
+                        resolution,
+                        new Date(contextResponseNumericWithFixedTimeInstant[attrName].metadata.TimeInstant.value)
                     )
-                )
-            );
-            expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].samples).to.equal(1);
-            expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0][aggrMethod]).to.equal(
-                aggrMethod === 'sum2'
-                    ? Math.pow(
-                          parseInt(
+                );
+                expect(bodyJSON.value[0].points[0].samples).to.equal(1);
+                expect(bodyJSON.value[0].points[0][aggrMethod]).to.equal(
+                    aggrMethod === 'sum2'
+                        ? Math.pow(parseInt(contextResponseNumericWithFixedTimeInstant[attrName].value, 10), 2)
+                        : parseInt(contextResponseNumericWithFixedTimeInstant[attrName].value, 10)
+                );
+                done(err);
+            }
+        );
+    } else {
+        // FIXME: remove the else branch when NGSIv1 becomes obsolete
+        var contextResponseNumericWithFixedTimeInstant = require('./contextResponses/V1' + contextResponseFile);
+
+        request(
+            {
+                uri: getURL(
+                    sthTestConfig.API_OPERATION.READ,
+                    {
+                        aggrMethod: aggrMethod,
+                        aggrPeriod: resolution,
+                        dateFrom:
+                            contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0]
+                                .metadatas[0].value,
+                        dateTo:
+                            contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0]
+                                .metadatas[0].value
+                    },
+                    contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
+                ),
+                method: 'GET',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                    'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                }
+            },
+            function(err, response, body) {
+                var bodyJSON = JSON.parse(body);
+                expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points.length).to.equal(1);
+                expect(
+                    parseInt(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].offset, 10)
+                ).to.equal(
+                    sthUtils.getOffset(
+                        resolution,
+                        new Date(
+                            contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].metadatas[0].value
+                        )
+                    )
+                );
+                expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].samples).to.equal(
+                    1
+                );
+                expect(
+                    bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0][aggrMethod]
+                ).to.equal(
+                    aggrMethod === 'sum2'
+                        ? Math.pow(
+                              parseInt(
+                                  contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement
+                                      .attributes[0].value,
+                                  10
+                              ),
+                              2
+                          )
+                        : parseInt(
                               contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement
                                   .attributes[0].value,
                               10
-                          ),
-                          2
-                      )
-                    : parseInt(
-                          contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0]
-                              .value,
-                          10
-                      )
-            );
-            expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
-            expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
-            done(err);
-        }
-    );
+                          )
+                );
+                expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
+                expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
+                done(err);
+            }
+        );
+    }
 }
 
 /**
  * Test to check that in case of updating a textual attribute value aggregated data:
  *  - If the value of the attribute is the same, it is only aggregated once
  *  - If the value of the attribute changes, the aggregated data is properly updated
+ * @param ngsiVersion NGSI version to use. Anything different from 2 (included undefined) means v1
  * @param contextResponseFile The context response used for the notification of the update
  * @param resolution The resolution
  * @param done The done() function
  */
-function textualAggregatedDataUpdatedTest(contextResponseFile, resolution, done) {
-    var contextResponseTextualWithFixedTimeInstant = require('./contextResponses/' + contextResponseFile);
+function textualAggregatedDataUpdatedTest(ngsiVersion, contextResponseFile, resolution, done) {
+    if (ngsiVersion === 2) {
+        var contextResponseTextualWithFixedTimeInstant = require('./contextResponses/' + contextResponseFile);
 
-    request(
-        {
-            uri: getURL(
-                sthTestConfig.API_OPERATION.READ,
-                {
-                    aggrMethod: 'occur',
-                    aggrPeriod: resolution,
-                    dateFrom:
-                        contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0]
-                            .metadatas[0].value,
-                    dateTo:
-                        contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0]
-                            .metadatas[0].value
-                },
-                contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
-            ),
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
-            }
-        },
-        function(err, response, body) {
-            var bodyJSON = JSON.parse(body);
-            expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points.length).to.equal(1);
-            expect(
-                parseInt(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].offset, 10)
-            ).to.equal(
-                sthUtils.getOffset(
-                    resolution,
-                    new Date(
-                        contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].metadatas[0].value
+        // By construction, the file only have one key and that key is the attribute name
+        var attrName = Object.keys(contextResponseTextualWithFixedTimeInstant)[0];
+
+        request(
+            {
+                uri: getURL(
+                    sthTestConfig.API_OPERATION.READ_V2,
+                    {
+                        aggrMethod: 'occur',
+                        aggrPeriod: resolution,
+                        dateFrom: contextResponseTextualWithFixedTimeInstant[attrName].metadata.TimeInstant.value,
+                        dateTo: contextResponseTextualWithFixedTimeInstant[attrName].metadata.TimeInstant.value
+                    },
+                    attrName
+                ),
+                method: 'GET',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                    'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                }
+            },
+            function(err, response, body) {
+                var bodyJSON = JSON.parse(body);
+                expect(bodyJSON.value[0].points.length).to.equal(1);
+                expect(parseInt(bodyJSON.value[0].points[0].offset, 10)).to.equal(
+                    sthUtils.getOffset(
+                        resolution,
+                        new Date(contextResponseTextualWithFixedTimeInstant[attrName].metadata.TimeInstant.value)
                     )
-                )
-            );
-            expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].samples).to.equal(1);
-            expect(
-                bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].occur[
-                    contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].value
-                ]
-            ).to.equal(1);
-            expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
-            expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
-            done(err);
-        }
-    );
+                );
+                expect(bodyJSON.value[0].points[0].samples).to.equal(1);
+                expect(
+                    bodyJSON.value[0].points[0].occur[contextResponseTextualWithFixedTimeInstant[attrName].value]
+                ).to.equal(1);
+                done(err);
+            }
+        );
+    } else {
+        // FIXME: remove the else branch when NGSIv1 becomes obsolete
+        var contextResponseTextualWithFixedTimeInstant = require('./contextResponses/V1' + contextResponseFile);
+        request(
+            {
+                uri: getURL(
+                    sthTestConfig.API_OPERATION.READ,
+                    {
+                        aggrMethod: 'occur',
+                        aggrPeriod: resolution,
+                        dateFrom:
+                            contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0]
+                                .metadatas[0].value,
+                        dateTo:
+                            contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0]
+                                .metadatas[0].value
+                    },
+                    contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
+                ),
+                method: 'GET',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                    'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                }
+            },
+            function(err, response, body) {
+                var bodyJSON = JSON.parse(body);
+                expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points.length).to.equal(1);
+                expect(
+                    parseInt(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].offset, 10)
+                ).to.equal(
+                    sthUtils.getOffset(
+                        resolution,
+                        new Date(
+                            contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].metadatas[0].value
+                        )
+                    )
+                );
+                expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].samples).to.equal(
+                    1
+                );
+                expect(
+                    bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].occur[
+                        contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0]
+                            .value
+                    ]
+                ).to.equal(1);
+                expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
+                expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
+                done(err);
+            }
+        );
+    }
 }
 
 /**
  * Test to check that in case of updating a numeric attribute value aggregated data:
  *  - If the value of the attribute is the same, it is only aggregated once
  *  - If the value of the attribute changes, the aggregated data is properly updated
+ * @param ngsiVersion NGSI version to use. Anything different from 2 (included undefined) means v1
  * @param contextResponseFile The context response used for the notification of the update
  * @param aggrMethod The aggregation method
  * @param resolution The resolution
  * @param done The done() function
  */
-function aggregatedDataNonExistentTest(contextResponseFile, aggrMethod, resolution, done) {
-    var contextResponseNumericWithFixedTimeInstant = require('./contextResponses/' + contextResponseFile);
+function aggregatedDataNonExistentTest(ngsiVersion, contextResponseFile, aggrMethod, resolution, done) {
+    if (ngsiVersion === 2) {
+        var contextResponseNumericWithFixedTimeInstant = require('./contextResponses/' + contextResponseFile);
 
-    request(
-        {
-            uri: getURL(
-                sthTestConfig.API_OPERATION.READ,
-                {
-                    aggrMethod: aggrMethod,
-                    aggrPeriod: resolution,
-                    dateFrom:
-                        contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0]
-                            .metadatas[0].value,
-                    dateTo:
-                        contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0]
-                            .metadatas[0].value
-                },
-                contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
-            ),
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+        // By construction, the file only have one key and that key is the attribute name
+        var attrName = Object.keys(contextResponseNumericWithFixedTimeInstant)[0];
+
+        request(
+            {
+                uri: getURL(
+                    sthTestConfig.API_OPERATION.READ_V2,
+                    {
+                        aggrMethod: aggrMethod,
+                        aggrPeriod: resolution,
+                        dateFrom: contextResponseNumericWithFixedTimeInstant[attrName].metadata.TimeInstant.value,
+                        dateTo: contextResponseNumericWithFixedTimeInstant[attrName].metadata.TimeInstant.value
+                    },
+                    attrName
+                ),
+                method: 'GET',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                    'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                }
+            },
+            function(err, response, body) {
+                var bodyJSON = JSON.parse(body);
+                expect(bodyJSON.value.length).to.equal(0);
+                done(err);
             }
-        },
-        function(err, response, body) {
-            var bodyJSON = JSON.parse(body);
-            expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(0);
-            expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
-            expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
-            done(err);
-        }
-    );
+        );
+    } else {
+        // FIXME: remove the else branch when NGSIv1 becomes obsolete
+        var contextResponseNumericWithFixedTimeInstant = require('./contextResponses/V1' + contextResponseFile);
+        request(
+            {
+                uri: getURL(
+                    sthTestConfig.API_OPERATION.READ,
+                    {
+                        aggrMethod: aggrMethod,
+                        aggrPeriod: resolution,
+                        dateFrom:
+                            contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0]
+                                .metadatas[0].value,
+                        dateTo:
+                            contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0]
+                                .metadatas[0].value
+                    },
+                    contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
+                ),
+                method: 'GET',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                    'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                }
+            },
+            function(err, response, body) {
+                var bodyJSON = JSON.parse(body);
+                expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(0);
+                expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
+                expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
+                done(err);
+            }
+        );
+    }
 }
 
 /**
@@ -1611,8 +2075,15 @@ function aggregatedDataNonExistentTest(contextResponseFile, aggrMethod, resoluti
  */
 function dataRemovalSuite(aggregationType, removalOptions) {
     var contextResponsesObj;
+    var contextResponsesObjV1;
 
     before(function() {
+        var contextResponseFileV1 =
+            './contextResponses/V1contextResponse' +
+            (aggregationType === sthConfig.AGGREGATIONS.NUMERIC ? 'Numeric' : 'Textual') +
+            'WithFixedTimeInstant';
+        contextResponsesObjV1 = require(contextResponseFileV1);
+
         var contextResponseFile =
             './contextResponses/contextResponse' +
             (aggregationType === sthConfig.AGGREGATIONS.NUMERIC ? 'Numeric' : 'Textual') +
@@ -1635,7 +2106,7 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                 body: {
                     subscriptionId: '1234567890ABCDF123456789',
                     originator: 'orion.contextBroker.instance',
-                    contextResponses: contextResponsesObj.contextResponses
+                    contextResponses: contextResponsesObjV1.contextResponses
                 }
             },
             function(err, response, body) {
@@ -1646,6 +2117,39 @@ function dataRemovalSuite(aggregationType, removalOptions) {
     });
 
     it('should retrieve the raw data', function(done) {
+        // By construction, the file only have one key and that key is the attribute name
+        var attrName = Object.keys(contextResponsesObj)[0];
+
+        request(
+            {
+                uri: getURL(
+                    sthTestConfig.API_OPERATION.READ_V2,
+                    {
+                        lastN: 0,
+                        dateFrom: contextResponsesObj[attrName].metadata.TimeInstant.value,
+                        dateTo: contextResponsesObj[attrName].metadata.TimeInstant.value
+                    },
+                    attrName
+                ),
+                method: 'GET',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                    'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                }
+            },
+            function(err, response, body) {
+                var bodyJSON = JSON.parse(body);
+                expect(bodyJSON.type).to.equal('StructuredValue');
+                expect(bodyJSON.value.length).to.equal(1);
+                expect(bodyJSON.value[0].attrValue).to.equal(contextResponsesObj[attrName].value);
+                done(err);
+            }
+        );
+    });
+
+    it('should retrieve the raw data - NGSIv1', function(done) {
         request(
             {
                 uri: getURL(
@@ -1653,10 +2157,11 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                     {
                         lastN: 0,
                         dateFrom:
-                            contextResponsesObj.contextResponses[0].contextElement.attributes[0].metadatas[0].value,
-                        dateTo: contextResponsesObj.contextResponses[0].contextElement.attributes[0].metadatas[0].value
+                            contextResponsesObjV1.contextResponses[0].contextElement.attributes[0].metadatas[0].value,
+                        dateTo:
+                            contextResponsesObjV1.contextResponses[0].contextElement.attributes[0].metadatas[0].value
                     },
-                    contextResponsesObj.contextResponses[0].contextElement.attributes[0].name
+                    contextResponsesObjV1.contextResponses[0].contextElement.attributes[0].name
                 ),
                 method: 'GET',
                 headers: {
@@ -1670,7 +2175,7 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                 var bodyJSON = JSON.parse(body);
                 expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(1);
                 expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).to.equal(
-                    contextResponsesObj.contextResponses[0].contextElement.attributes[0].value
+                    contextResponsesObjV1.contextResponses[0].contextElement.attributes[0].value
                 );
                 expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
                 expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
@@ -1685,6 +2190,18 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                 'should retrieve the sum updated aggregated data',
                 numericAggregatedDataUpdatedTest.bind(
                     null,
+                    2,
+                    'contextResponseNumericWithFixedTimeInstant',
+                    'sum',
+                    sthConfig.AGGREGATION_BY[i]
+                )
+            );
+
+            it(
+                'should retrieve the sum updated aggregated data - NGSIv1',
+                numericAggregatedDataUpdatedTest.bind(
+                    null,
+                    1,
                     'contextResponseNumericWithFixedTimeInstant',
                     'sum',
                     sthConfig.AGGREGATION_BY[i]
@@ -1695,6 +2212,18 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                 'should retrieve the sum2 aggregated data',
                 numericAggregatedDataUpdatedTest.bind(
                     null,
+                    2,
+                    'contextResponseNumericWithFixedTimeInstant',
+                    'sum2',
+                    sthConfig.AGGREGATION_BY[i]
+                )
+            );
+
+            it(
+                'should retrieve the sum2 aggregated data - NGSIv1',
+                numericAggregatedDataUpdatedTest.bind(
+                    null,
+                    1,
                     'contextResponseNumericWithFixedTimeInstant',
                     'sum2',
                     sthConfig.AGGREGATION_BY[i]
@@ -1705,6 +2234,18 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                 'should retrieve the max aggregated data',
                 numericAggregatedDataUpdatedTest.bind(
                     null,
+                    2,
+                    'contextResponseNumericWithFixedTimeInstant',
+                    'max',
+                    sthConfig.AGGREGATION_BY[i]
+                )
+            );
+
+            it(
+                'should retrieve the max aggregated data - NGSIv1',
+                numericAggregatedDataUpdatedTest.bind(
+                    null,
+                    1,
                     'contextResponseNumericWithFixedTimeInstant',
                     'max',
                     sthConfig.AGGREGATION_BY[i]
@@ -1715,6 +2256,18 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                 'should retrieve the min aggregated data',
                 numericAggregatedDataUpdatedTest.bind(
                     null,
+                    2,
+                    'contextResponseNumericWithFixedTimeInstant',
+                    'min',
+                    sthConfig.AGGREGATION_BY[i]
+                )
+            );
+
+            it(
+                'should retrieve the min aggregated data - NGSIv1',
+                numericAggregatedDataUpdatedTest.bind(
+                    null,
+                    1,
                     'contextResponseNumericWithFixedTimeInstant',
                     'min',
                     sthConfig.AGGREGATION_BY[i]
@@ -1725,6 +2278,16 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                 'should retrieve the occur aggregated data',
                 textualAggregatedDataUpdatedTest.bind(
                     null,
+                    2,
+                    'contextResponseTextualWithFixedTimeInstant',
+                    sthConfig.AGGREGATION_BY[i]
+                )
+            );
+            it(
+                'should retrieve the occur aggregated data - NGSIv1',
+                textualAggregatedDataUpdatedTest.bind(
+                    null,
+                    1,
                     'contextResponseTextualWithFixedTimeInstant',
                     sthConfig.AGGREGATION_BY[i]
                 )
@@ -1749,7 +2312,7 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                 body: {
                     subscriptionId: '1234567890ABCDF123456789',
                     originator: 'orion.contextBroker.instance',
-                    contextResponses: contextResponsesObj.contextResponses
+                    contextResponses: contextResponsesObjV1.contextResponses
                 }
             },
             function(err, response, body) {
@@ -1760,6 +2323,39 @@ function dataRemovalSuite(aggregationType, removalOptions) {
     });
 
     it('should not retrieve the deleted raw data', function(done) {
+        // By construction, the file only have one key and that key is the attribute name
+        var attrName = Object.keys(contextResponsesObj)[0];
+
+        request(
+            {
+                uri: getURL(
+                    sthTestConfig.API_OPERATION.READ_V2,
+                    {
+                        lastN: 0,
+                        dateFrom: contextResponsesObj[attrName].metadata.TimeInstant.value,
+                        dateTo: contextResponsesObj[attrName].metadata.TimeInstant.value
+                    },
+                    attrName
+                ),
+                method: 'GET',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                    'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                }
+            },
+            function(err, response, body) {
+                var bodyJSON = JSON.parse(body);
+                expect(bodyJSON.type).to.equal('StructuredValue');
+                expect(bodyJSON.value.length).to.equal(0);
+                done(err);
+            }
+        );
+    });
+
+    it('should not retrieve the deleted raw data - NGSIv1', function(done) {
+        // FIXME: remove the else branch when NGSIv1 becomes obsolete
         request(
             {
                 uri: getURL(
@@ -1767,10 +2363,11 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                     {
                         lastN: 0,
                         dateFrom:
-                            contextResponsesObj.contextResponses[0].contextElement.attributes[0].metadatas[0].value,
-                        dateTo: contextResponsesObj.contextResponses[0].contextElement.attributes[0].metadatas[0].value
+                            contextResponsesObjV1.contextResponses[0].contextElement.attributes[0].metadatas[0].value,
+                        dateTo:
+                            contextResponsesObjV1.contextResponses[0].contextElement.attributes[0].metadatas[0].value
                     },
-                    contextResponsesObj.contextResponses[0].contextElement.attributes[0].name
+                    contextResponsesObjV1.contextResponses[0].contextElement.attributes[0].name
                 ),
                 method: 'GET',
                 headers: {
@@ -1796,6 +2393,18 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                 'should not retrieve the deleted sum updated aggregated data',
                 aggregatedDataNonExistentTest.bind(
                     null,
+                    2,
+                    'contextResponseNumericWithFixedTimeInstant',
+                    'sum',
+                    sthConfig.AGGREGATION_BY[j]
+                )
+            );
+
+            it(
+                'should not retrieve the deleted sum updated aggregated data - NGSIv1',
+                aggregatedDataNonExistentTest.bind(
+                    null,
+                    1,
                     'contextResponseNumericWithFixedTimeInstant',
                     'sum',
                     sthConfig.AGGREGATION_BY[j]
@@ -1806,6 +2415,18 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                 'should not retrieve the deleted sum2 aggregated data',
                 aggregatedDataNonExistentTest.bind(
                     null,
+                    2,
+                    'contextResponseNumericWithFixedTimeInstant',
+                    'sum2',
+                    sthConfig.AGGREGATION_BY[j]
+                )
+            );
+
+            it(
+                'should not retrieve the deleted sum2 aggregated data - NGSIv1',
+                aggregatedDataNonExistentTest.bind(
+                    null,
+                    1,
                     'contextResponseNumericWithFixedTimeInstant',
                     'sum2',
                     sthConfig.AGGREGATION_BY[j]
@@ -1816,6 +2437,18 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                 'should not retrieve the deleted max aggregated data',
                 aggregatedDataNonExistentTest.bind(
                     null,
+                    2,
+                    'contextResponseNumericWithFixedTimeInstant',
+                    'max',
+                    sthConfig.AGGREGATION_BY[j]
+                )
+            );
+
+            it(
+                'should not retrieve the deleted max aggregated data - NGSIv1',
+                aggregatedDataNonExistentTest.bind(
+                    null,
+                    1,
                     'contextResponseNumericWithFixedTimeInstant',
                     'max',
                     sthConfig.AGGREGATION_BY[j]
@@ -1826,6 +2459,18 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                 'should not retrieve the deleted min aggregated data',
                 aggregatedDataNonExistentTest.bind(
                     null,
+                    2,
+                    'contextResponseNumericWithFixedTimeInstant',
+                    'min',
+                    sthConfig.AGGREGATION_BY[j]
+                )
+            );
+
+            it(
+                'should not retrieve the deleted min aggregated data - NGSIv1',
+                aggregatedDataNonExistentTest.bind(
+                    null,
+                    1,
                     'contextResponseNumericWithFixedTimeInstant',
                     'min',
                     sthConfig.AGGREGATION_BY[j]
@@ -1836,6 +2481,18 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                 'should not retrieve the deleted occur aggregated data',
                 aggregatedDataNonExistentTest.bind(
                     null,
+                    2,
+                    'contextResponseTextualWithFixedTimeInstant',
+                    'occur',
+                    sthConfig.AGGREGATION_BY[j]
+                )
+            );
+
+            it(
+                'should not retrieve the deleted occur aggregated data - NGSIv1',
+                aggregatedDataNonExistentTest.bind(
+                    null,
+                    1,
                     'contextResponseTextualWithFixedTimeInstant',
                     'occur',
                     sthConfig.AGGREGATION_BY[j]
