@@ -1764,8 +1764,9 @@ function status200Test(ngsiVersion, options, done) {
  * @param done The done() function
  */
 function numericAggregatedDataUpdatedTest(ngsiVersion, contextResponseFile, aggrMethod, resolution, done) {
+    var contextResponseNumericWithFixedTimeInstant;
     if (ngsiVersion === 2) {
-        var contextResponseNumericWithFixedTimeInstant = require('./contextResponses/' + contextResponseFile);
+        contextResponseNumericWithFixedTimeInstant = require('./contextResponses/' + contextResponseFile);
 
         // By construction, the file only have one key and that key is the attribute name
         var attrName = Object.keys(contextResponseNumericWithFixedTimeInstant)[0];
@@ -1810,7 +1811,7 @@ function numericAggregatedDataUpdatedTest(ngsiVersion, contextResponseFile, aggr
         );
     } else {
         // FIXME: remove the else branch when NGSIv1 becomes obsolete
-        var contextResponseNumericWithFixedTimeInstant = require('./contextResponses/V1' + contextResponseFile);
+        contextResponseNumericWithFixedTimeInstant = require('./contextResponses/V1' + contextResponseFile);
 
         request(
             {
@@ -1888,8 +1889,9 @@ function numericAggregatedDataUpdatedTest(ngsiVersion, contextResponseFile, aggr
  * @param done The done() function
  */
 function textualAggregatedDataUpdatedTest(ngsiVersion, contextResponseFile, resolution, done) {
+    var contextResponseTextualWithFixedTimeInstant;
     if (ngsiVersion === 2) {
-        var contextResponseTextualWithFixedTimeInstant = require('./contextResponses/' + contextResponseFile);
+        contextResponseTextualWithFixedTimeInstant = require('./contextResponses/' + contextResponseFile);
 
         // By construction, the file only have one key and that key is the attribute name
         var attrName = Object.keys(contextResponseTextualWithFixedTimeInstant)[0];
@@ -1932,7 +1934,7 @@ function textualAggregatedDataUpdatedTest(ngsiVersion, contextResponseFile, reso
         );
     } else {
         // FIXME: remove the else branch when NGSIv1 becomes obsolete
-        var contextResponseTextualWithFixedTimeInstant = require('./contextResponses/V1' + contextResponseFile);
+        contextResponseTextualWithFixedTimeInstant = require('./contextResponses/V1' + contextResponseFile);
         request(
             {
                 uri: getURL(
@@ -1998,8 +2000,9 @@ function textualAggregatedDataUpdatedTest(ngsiVersion, contextResponseFile, reso
  * @param done The done() function
  */
 function aggregatedDataNonExistentTest(ngsiVersion, contextResponseFile, aggrMethod, resolution, done) {
+    var contextResponseNumericWithFixedTimeInstant;
     if (ngsiVersion === 2) {
-        var contextResponseNumericWithFixedTimeInstant = require('./contextResponses/' + contextResponseFile);
+        contextResponseNumericWithFixedTimeInstant = require('./contextResponses/' + contextResponseFile);
 
         // By construction, the file only have one key and that key is the attribute name
         var attrName = Object.keys(contextResponseNumericWithFixedTimeInstant)[0];
@@ -2032,7 +2035,7 @@ function aggregatedDataNonExistentTest(ngsiVersion, contextResponseFile, aggrMet
         );
     } else {
         // FIXME: remove the else branch when NGSIv1 becomes obsolete
-        var contextResponseNumericWithFixedTimeInstant = require('./contextResponses/V1' + contextResponseFile);
+        contextResponseNumericWithFixedTimeInstant = require('./contextResponses/V1' + contextResponseFile);
         request(
             {
                 uri: getURL(
