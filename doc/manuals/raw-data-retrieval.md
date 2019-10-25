@@ -6,7 +6,7 @@ information.
 A typical URL querying for this information using a `GET` request is the following:
 
 ```text
-http://<sth-host>:<sth-port>/STH/v1/contextEntities/type/<entityType>/id/<entityId>/attributes/<attrName>?hLimit=3&hOffset=0&dateFrom=2016-01-01T00:00:00.000Z&dateTo=2016-01-31T23:59:59.999Z
+http://<sth-host>:<sth-port>/STH/v2/entities/<entityId>/attrs/<attrName>?type=<entityType>&hLimit=3&hOffset=0&dateFrom=2016-01-01T00:00:00.000Z&dateTo=2016-01-31T23:59:59.999Z
 ```
 
 Notice that in the previous URL we have used some templates between `<` and `>` which should be substituted by the
@@ -38,6 +38,43 @@ In order to avoid problems handing big results there is a restriction about the 
 retrieved. The rule is `hLimit <= lastN <= config.maxPageSize` Where default max page is are defined to 100.
 
 An example response provided by the STH component to a request such as the previous one could be the following:
+
+```json
+{
+    "type": "StructuredValue",
+    "values": [
+        {
+            "recvTime": "2016-01-14T13:43:33.306Z",
+            "attrValue": "21.28"
+        },
+        {
+            "recvTime": "2016-01-14T13:43:34.636Z",
+            "attrValue": "23.42"
+        },
+        {
+            "recvTime": "2016-01-14T13:43:35.424Z",
+            "attrValue": "22.12"
+        }
+    ]
+}
+```
+
+It is important to note that if a valid query is made but it returns no data (for example because there is no raw
+context information for the specified time frame), a response with code `200` is returned including an empty `values`
+property array, since it is a valid query.
+
+## Deprecated API
+
+There is an alternative method based in old V1 API. However, this is deprecated functionality, included here for the
+sake of completeness. You are encouraged to not using it, as it can be removed in a future STH version.
+
+Alternative URL:
+
+```text
+http://<sth-host>:<sth-port>/STH/v1/contextEntities/type/<entityType>/id/<entityId>/attributes/<attrName>?hLimit=3&hOffset=0&dateFrom=2016-01-01T00:00:00.000Z&dateTo=2016-01-31T23:59:59.999Z
+```
+
+Example response:
 
 ```json
 {
@@ -74,7 +111,3 @@ An example response provided by the STH component to a request such as the previ
     ]
 }
 ```
-
-It is important to note that if a valid query is made but it returns no data (for example because there is no raw
-context information for the specified time frame), a response with code `200` is returned including an empty `values`
-property array, since it is a valid query.
