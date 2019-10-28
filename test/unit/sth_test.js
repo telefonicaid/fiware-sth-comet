@@ -73,6 +73,24 @@ describe('sth tests', function() {
         it('should respond with 404 - Not Found if invalid HTTP method', function(done) {
             request(
                 {
+                    uri: sthTestUtils.getURL(sthTestConfig.API_OPERATION.READ_V2),
+                    method: 'PUT'
+                },
+                function(err, response, body) {
+                    var bodyJSON = JSON.parse(body);
+                    expect(err).to.equal(null);
+                    expect(response.statusCode).to.equal(404);
+                    expect(bodyJSON.error).to.equal('NotFound');
+                    expect(bodyJSON.description).to.equal('invalid path');
+                    done();
+                }
+            );
+        });
+
+        it('should respond with 404 - Not Found if invalid HTTP method - NGSIv1', function(done) {
+            // FIXME: remove this case when NGSIv1 becomes obsolete
+            request(
+                {
                     uri: sthTestUtils.getURL(sthTestConfig.API_OPERATION.READ),
                     method: 'PUT'
                 },
@@ -88,6 +106,26 @@ describe('sth tests', function() {
         });
 
         it('should respond with 404 - Not Found if invalid path', function(done) {
+            request(
+                {
+                    uri: sthTestUtils.getURL(sthTestConfig.API_OPERATION.READ_V2, {
+                        invalidPath: true
+                    }),
+                    method: 'GET'
+                },
+                function(err, response, body) {
+                    var bodyJSON = JSON.parse(body);
+                    expect(err).to.equal(null);
+                    expect(response.statusCode).to.equal(404);
+                    expect(bodyJSON.error).to.equal('NotFound');
+                    expect(bodyJSON.description).to.equal('invalid path');
+                    done();
+                }
+            );
+        });
+
+        it('should respond with 404 - Not Found if invalid path - NGSIv1', function(done) {
+            // FIXME: remove this case when NGSIv1 becomes obsolete
             request(
                 {
                     uri: sthTestUtils.getURL(sthTestConfig.API_OPERATION.READ, {
@@ -109,6 +147,26 @@ describe('sth tests', function() {
         it('should respond with 400 - Bad Request if missing Fiware-Service header', function(done) {
             request(
                 {
+                    uri: sthTestUtils.getURL(sthTestConfig.API_OPERATION.READ_V2),
+                    method: 'GET'
+                },
+                function(err, response, body) {
+                    var bodyJSON = JSON.parse(body);
+                    expect(err).to.equal(null);
+                    expect(response.statusCode).to.equal(400);
+                    expect(bodyJSON.error).to.equal('BadRequest');
+                    expect(bodyJSON.description).to.equal(
+                        'child "fiware-service" fails because [fiware-service is required]'
+                    );
+                    done();
+                }
+            );
+        });
+
+        it('should respond with 400 - Bad Request if missing Fiware-Service header - NGSIv1', function(done) {
+            // FIXME: remove this case when NGSIv1 becomes obsolete
+            request(
+                {
                     uri: sthTestUtils.getURL(sthTestConfig.API_OPERATION.READ),
                     method: 'GET'
                 },
@@ -124,6 +182,29 @@ describe('sth tests', function() {
         });
 
         it('should respond with 400 - Bad Request if missing Fiware-ServicePath header', function(done) {
+            request(
+                {
+                    uri: sthTestUtils.getURL(sthTestConfig.API_OPERATION.READ_V2),
+                    method: 'GET',
+                    headers: {
+                        'Fiware-Service': sthConfig.DEFAULT_SERVICE
+                    }
+                },
+                function(err, response, body) {
+                    var bodyJSON = JSON.parse(body);
+                    expect(err).to.equal(null);
+                    expect(response.statusCode).to.equal(400);
+                    expect(bodyJSON.error).to.equal('BadRequest');
+                    expect(bodyJSON.description).to.equal(
+                        'child "fiware-servicepath" fails because [fiware-servicepath is required]'
+                    );
+                    done();
+                }
+            );
+        });
+
+        it('should respond with 400 - Bad Request if missing Fiware-ServicePath header - NGSIv1', function(done) {
+            // FIXME: remove this case when NGSIv1 becomes obsolete
             request(
                 {
                     uri: sthTestUtils.getURL(sthTestConfig.API_OPERATION.READ),
@@ -147,6 +228,34 @@ describe('sth tests', function() {
             'should respond with 400 - Bad Request if missing lastN, hLimit and hOffset or aggrMethod and aggrPeriod ' +
                 'query params',
             function(done) {
+                request(
+                    {
+                        uri: sthTestUtils.getURL(sthTestConfig.API_OPERATION.READ_V2),
+                        method: 'GET',
+                        headers: {
+                            'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                            'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                        }
+                    },
+                    function(err, response, body) {
+                        var bodyJSON = JSON.parse(body);
+                        expect(err).to.equal(null);
+                        expect(response.statusCode).to.equal(400);
+                        expect(bodyJSON.error).to.equal('BadRequest');
+                        expect(bodyJSON.description).to.equal(
+                            'A combination of the following query params is required: lastN, hLimit and hOffset, filetype, or aggrMethod and aggrPeriod'
+                        );
+                        done();
+                    }
+                );
+            }
+        );
+
+        it(
+            'should respond with 400 - Bad Request if missing lastN, hLimit and hOffset or aggrMethod and aggrPeriod ' +
+                'query params - NGSIv1',
+            function(done) {
+                // FIXME: remove this case when NGSIv1 becomes obsolete
                 request(
                     {
                         uri: sthTestUtils.getURL(sthTestConfig.API_OPERATION.READ),
@@ -175,16 +284,34 @@ describe('sth tests', function() {
             }
         );
 
-        it('should respond with 200 - OK if lastN query param', sthTestUtils.status200Test.bind(null, { lastN: 1 }));
+        it('should respond with 200 - OK if lastN query param', sthTestUtils.status200Test.bind(null, 2, { lastN: 1 }));
+
+        it(
+            'should respond with 200 - OK if lastN query param - NGSIv1',
+            sthTestUtils.status200Test.bind(null, 1, { lastN: 1 })
+        );
 
         it(
             'should respond with 200 - OK if lastN and count query params',
-            sthTestUtils.status200Test.bind(null, { lastN: 1, count: true })
+            sthTestUtils.status200Test.bind(null, 2, { lastN: 1, count: true })
+        );
+
+        it(
+            'should respond with 200 - OK if lastN and count query params - NGSIv1',
+            sthTestUtils.status200Test.bind(null, 1, { lastN: 1, count: true })
         );
 
         it(
             'should respond with 200 - OK if hLimit and hOffset query params',
-            sthTestUtils.status200Test.bind(null, {
+            sthTestUtils.status200Test.bind(null, 2, {
+                hLimit: 1,
+                hOffset: 1
+            })
+        );
+
+        it(
+            'should respond with 200 - OK if hLimit and hOffset query params - NGSIv1',
+            sthTestUtils.status200Test.bind(null, 1, {
                 hLimit: 1,
                 hOffset: 1
             })
@@ -192,7 +319,15 @@ describe('sth tests', function() {
 
         it(
             'should respond with 200 - OK if aggrMethod and aggrPeriod query params',
-            sthTestUtils.status200Test.bind(null, {
+            sthTestUtils.status200Test.bind(null, 2, {
+                aggrMethod: 'min',
+                aggrPeriod: 'second'
+            })
+        );
+
+        it(
+            'should respond with 200 - OK if aggrMethod and aggrPeriod query params - NGSIv1',
+            sthTestUtils.status200Test.bind(null, 1, {
                 aggrMethod: 'min',
                 aggrPeriod: 'second'
             })
@@ -298,10 +433,11 @@ describe('sth tests', function() {
     );
 
     describe('notification of already existent numeric data should register it only once', function() {
-        var contextResponseNumericWithFixedTimeInstant;
+        var contextResponseNumericWithFixedTimeInstant, contextResponseNumericWithFixedTimeInstantV1;
 
         before(function() {
             contextResponseNumericWithFixedTimeInstant = require('./contextResponses/contextResponseNumericWithFixedTimeInstant');
+            contextResponseNumericWithFixedTimeInstantV1 = require('./contextResponses/V1contextResponseNumericWithFixedTimeInstant');
         });
 
         it('should store the raw and aggregated data for the first time', function(done) {
@@ -319,7 +455,7 @@ describe('sth tests', function() {
                     body: {
                         subscriptionId: '1234567890ABCDF123456789',
                         originator: 'orion.contextBroker.instance',
-                        contextResponses: contextResponseNumericWithFixedTimeInstant.contextResponses
+                        contextResponses: contextResponseNumericWithFixedTimeInstantV1.contextResponses
                     }
                 },
                 function(err, response, body) {
@@ -344,7 +480,7 @@ describe('sth tests', function() {
                     body: {
                         subscriptionId: '1234567890ABCDF123456789',
                         originator: 'orion.contextBroker.instance',
-                        contextResponses: contextResponseNumericWithFixedTimeInstant.contextResponses
+                        contextResponses: contextResponseNumericWithFixedTimeInstantV1.contextResponses
                     }
                 },
                 function(err, response, body) {
@@ -355,6 +491,41 @@ describe('sth tests', function() {
         });
 
         it('should only retrieve the raw data as stored once', function(done) {
+            // By construction, the file only have one key and that key is the attribute name
+            var attrName = Object.keys(contextResponseNumericWithFixedTimeInstant)[0];
+
+            request(
+                {
+                    uri: sthTestUtils.getURL(
+                        sthTestConfig.API_OPERATION.READ_V2,
+                        {
+                            lastN: 0,
+                            dateFrom: contextResponseNumericWithFixedTimeInstant[attrName].metadata.TimeInstant.value,
+                            dateTo: contextResponseNumericWithFixedTimeInstant[attrName].metadata.TimeInstant.value
+                        },
+                        attrName
+                    ),
+                    method: 'GET',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                    }
+                },
+                function(err, response, body) {
+                    var bodyJSON = JSON.parse(body);
+                    expect(bodyJSON.value.length).to.equal(1);
+                    expect(bodyJSON.value[0].attrValue).to.equal(
+                        contextResponseNumericWithFixedTimeInstant[attrName].value
+                    );
+                    done(err);
+                }
+            );
+        });
+
+        it('should only retrieve the raw data as stored once - NGSIv1', function(done) {
+            // FIXME: remove this case when NGSIv1 becomes obsolete
             request(
                 {
                     uri: sthTestUtils.getURL(
@@ -362,13 +533,14 @@ describe('sth tests', function() {
                         {
                             lastN: 0,
                             dateFrom:
-                                contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement
+                                contextResponseNumericWithFixedTimeInstantV1.contextResponses[0].contextElement
                                     .attributes[0].metadatas[0].value,
                             dateTo:
-                                contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement
+                                contextResponseNumericWithFixedTimeInstantV1.contextResponses[0].contextElement
                                     .attributes[0].metadatas[0].value
                         },
-                        contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
+                        contextResponseNumericWithFixedTimeInstantV1.contextResponses[0].contextElement.attributes[0]
+                            .name
                     ),
                     method: 'GET',
                     headers: {
@@ -382,7 +554,7 @@ describe('sth tests', function() {
                     var bodyJSON = JSON.parse(body);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(1);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).to.equal(
-                        contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0]
+                        contextResponseNumericWithFixedTimeInstantV1.contextResponses[0].contextElement.attributes[0]
                             .value
                     );
                     expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
@@ -397,6 +569,18 @@ describe('sth tests', function() {
                 'should have only accumulated the sum aggregated data once',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(
                     null,
+                    2,
+                    'contextResponseNumericWithFixedTimeInstant',
+                    'sum',
+                    sthConfig.AGGREGATION_BY[i]
+                )
+            );
+
+            it(
+                'should have only accumulated the sum aggregated data once - NGSIv1',
+                sthTestUtils.numericAggregatedDataUpdatedTest.bind(
+                    null,
+                    1,
                     'contextResponseNumericWithFixedTimeInstant',
                     'sum',
                     sthConfig.AGGREGATION_BY[i]
@@ -407,6 +591,18 @@ describe('sth tests', function() {
                 'should have only accumulated the sum2 aggregated data once',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(
                     null,
+                    2,
+                    'contextResponseNumericWithFixedTimeInstant',
+                    'sum2',
+                    sthConfig.AGGREGATION_BY[i]
+                )
+            );
+
+            it(
+                'should have only accumulated the sum2 aggregated data once - NGSIv1',
+                sthTestUtils.numericAggregatedDataUpdatedTest.bind(
+                    null,
+                    1,
                     'contextResponseNumericWithFixedTimeInstant',
                     'sum2',
                     sthConfig.AGGREGATION_BY[i]
@@ -417,6 +613,18 @@ describe('sth tests', function() {
                 'should have only accumulated the max aggregated data once',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(
                     null,
+                    2,
+                    'contextResponseNumericWithFixedTimeInstant',
+                    'max',
+                    sthConfig.AGGREGATION_BY[i]
+                )
+            );
+
+            it(
+                'should have only accumulated the max aggregated data once- NGSIv1',
+                sthTestUtils.numericAggregatedDataUpdatedTest.bind(
+                    null,
+                    1,
                     'contextResponseNumericWithFixedTimeInstant',
                     'max',
                     sthConfig.AGGREGATION_BY[i]
@@ -427,6 +635,18 @@ describe('sth tests', function() {
                 'should have only accumulated the min aggregated data once',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(
                     null,
+                    2,
+                    'contextResponseNumericWithFixedTimeInstant',
+                    'min',
+                    sthConfig.AGGREGATION_BY[i]
+                )
+            );
+
+            it(
+                'should have only accumulated the min aggregated data once - NGSIv1',
+                sthTestUtils.numericAggregatedDataUpdatedTest.bind(
+                    null,
+                    1,
                     'contextResponseNumericWithFixedTimeInstant',
                     'min',
                     sthConfig.AGGREGATION_BY[i]
@@ -436,10 +656,11 @@ describe('sth tests', function() {
     });
 
     describe('notification of already existent textual data should register it only once', function() {
-        var contextResponseTextualWithFixedTimeInstant;
+        var contextResponseTextualWithFixedTimeInstant, contextResponseTextualWithFixedTimeInstantV1;
 
         before(function() {
             contextResponseTextualWithFixedTimeInstant = require('./contextResponses/contextResponseTextualWithFixedTimeInstant');
+            contextResponseTextualWithFixedTimeInstantV1 = require('./contextResponses/V1contextResponseTextualWithFixedTimeInstant');
         });
 
         it('should store the raw and aggregated data for the first time', function(done) {
@@ -457,7 +678,7 @@ describe('sth tests', function() {
                     body: {
                         subscriptionId: '1234567890ABCDF123456789',
                         originator: 'orion.contextBroker.instance',
-                        contextResponses: contextResponseTextualWithFixedTimeInstant.contextResponses
+                        contextResponses: contextResponseTextualWithFixedTimeInstantV1.contextResponses
                     }
                 },
                 function(err, response, body) {
@@ -482,7 +703,7 @@ describe('sth tests', function() {
                     body: {
                         subscriptionId: '1234567890ABCDF123456789',
                         originator: 'orion.contextBroker.instance',
-                        contextResponses: contextResponseTextualWithFixedTimeInstant.contextResponses
+                        contextResponses: contextResponseTextualWithFixedTimeInstantV1.contextResponses
                     }
                 },
                 function(err, response, body) {
@@ -493,6 +714,41 @@ describe('sth tests', function() {
         });
 
         it('should only retrieve the raw data as stored once', function(done) {
+            // By construction, the file only have one key and that key is the attribute name
+            var attrName = Object.keys(contextResponseTextualWithFixedTimeInstant)[0];
+
+            request(
+                {
+                    uri: sthTestUtils.getURL(
+                        sthTestConfig.API_OPERATION.READ_V2,
+                        {
+                            lastN: 0,
+                            dateFrom: contextResponseTextualWithFixedTimeInstant[attrName].metadata.TimeInstant.value,
+                            dateTo: contextResponseTextualWithFixedTimeInstant[attrName].metadata.TimeInstant.value
+                        },
+                        attrName
+                    ),
+                    method: 'GET',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                    }
+                },
+                function(err, response, body) {
+                    var bodyJSON = JSON.parse(body);
+                    expect(bodyJSON.value.length).to.equal(1);
+                    expect(bodyJSON.value[0].attrValue).to.equal(
+                        contextResponseTextualWithFixedTimeInstant[attrName].value
+                    );
+                    done(err);
+                }
+            );
+        });
+
+        it('should only retrieve the raw data as stored once - NGSIv1', function(done) {
+            // FIXME: remove this case when NGSIv1 becomes obsolete
             request(
                 {
                     uri: sthTestUtils.getURL(
@@ -500,13 +756,14 @@ describe('sth tests', function() {
                         {
                             lastN: 0,
                             dateFrom:
-                                contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement
+                                contextResponseTextualWithFixedTimeInstantV1.contextResponses[0].contextElement
                                     .attributes[0].metadatas[0].value,
                             dateTo:
-                                contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement
+                                contextResponseTextualWithFixedTimeInstantV1.contextResponses[0].contextElement
                                     .attributes[0].metadatas[0].value
                         },
-                        contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
+                        contextResponseTextualWithFixedTimeInstantV1.contextResponses[0].contextElement.attributes[0]
+                            .name
                     ),
                     method: 'GET',
                     headers: {
@@ -520,7 +777,7 @@ describe('sth tests', function() {
                     var bodyJSON = JSON.parse(body);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(1);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).to.equal(
-                        contextResponseTextualWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0]
+                        contextResponseTextualWithFixedTimeInstantV1.contextResponses[0].contextElement.attributes[0]
                             .value
                     );
                     expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
@@ -535,6 +792,17 @@ describe('sth tests', function() {
                 'should have only accumulated the aggregated data once',
                 sthTestUtils.textualAggregatedDataUpdatedTest.bind(
                     null,
+                    2,
+                    'contextResponseTextualWithFixedTimeInstant',
+                    sthConfig.AGGREGATION_BY[i]
+                )
+            );
+
+            it(
+                'should have only accumulated the aggregated data once - NGSIv1',
+                sthTestUtils.textualAggregatedDataUpdatedTest.bind(
+                    null,
+                    1,
                     'contextResponseTextualWithFixedTimeInstant',
                     sthConfig.AGGREGATION_BY[i]
                 )
@@ -543,10 +811,11 @@ describe('sth tests', function() {
     });
 
     describe('notification of an update to already existent numeric data should update the original value', function() {
-        var contextResponseNumericWithFixedTimeInstantUpdate;
+        var contextResponseNumericWithFixedTimeInstantUpdate, contextResponseNumericWithFixedTimeInstantUpdateV1;
 
         before(function() {
             contextResponseNumericWithFixedTimeInstantUpdate = require('./contextResponses/contextResponseNumericWithFixedTimeInstantUpdate');
+            contextResponseNumericWithFixedTimeInstantUpdateV1 = require('./contextResponses/V1contextResponseNumericWithFixedTimeInstantUpdate');
         });
 
         it('should store the raw and aggregated data for the first time', function(done) {
@@ -564,7 +833,7 @@ describe('sth tests', function() {
                     body: {
                         subscriptionId: '1234567890ABCDF123456789',
                         originator: 'orion.contextBroker.instance',
-                        contextResponses: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses
+                        contextResponses: contextResponseNumericWithFixedTimeInstantUpdateV1.contextResponses
                     }
                 },
                 function(err, response, body) {
@@ -589,7 +858,7 @@ describe('sth tests', function() {
                     body: {
                         subscriptionId: '1234567890ABCDF123456789',
                         originator: 'orion.contextBroker.instance',
-                        contextResponses: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses
+                        contextResponses: contextResponseNumericWithFixedTimeInstantUpdateV1.contextResponses
                     }
                 },
                 function(err, response, body) {
@@ -600,6 +869,43 @@ describe('sth tests', function() {
         });
 
         it('should retrieve the updated raw data', function(done) {
+            // By construction, the file only have one key and that key is the attribute name
+            var attrName = Object.keys(contextResponseNumericWithFixedTimeInstantUpdate)[0];
+
+            request(
+                {
+                    uri: sthTestUtils.getURL(
+                        sthTestConfig.API_OPERATION.READ_V2,
+                        {
+                            lastN: 0,
+                            dateFrom:
+                                contextResponseNumericWithFixedTimeInstantUpdate[attrName].metadata.TimeInstant.value,
+                            dateTo:
+                                contextResponseNumericWithFixedTimeInstantUpdate[attrName].metadata.TimeInstant.value
+                        },
+                        attrName
+                    ),
+                    method: 'GET',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                    }
+                },
+                function(err, response, body) {
+                    var bodyJSON = JSON.parse(body);
+                    expect(bodyJSON.value.length).to.equal(1);
+                    expect(bodyJSON.value[0].attrValue).to.equal(
+                        contextResponseNumericWithFixedTimeInstantUpdate[attrName].value
+                    );
+                    done(err);
+                }
+            );
+        });
+
+        it('should retrieve the updated raw data - NGSIv1', function(done) {
+            // FIXME: remove this case when NGSIv1 becomes obsolete
             request(
                 {
                     uri: sthTestUtils.getURL(
@@ -607,13 +913,13 @@ describe('sth tests', function() {
                         {
                             lastN: 0,
                             dateFrom:
-                                contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement
+                                contextResponseNumericWithFixedTimeInstantUpdateV1.contextResponses[0].contextElement
                                     .attributes[0].metadatas[0].value,
                             dateTo:
-                                contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement
+                                contextResponseNumericWithFixedTimeInstantUpdateV1.contextResponses[0].contextElement
                                     .attributes[0].metadatas[0].value
                         },
-                        contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement
+                        contextResponseNumericWithFixedTimeInstantUpdateV1.contextResponses[0].contextElement
                             .attributes[0].name
                     ),
                     method: 'GET',
@@ -628,7 +934,7 @@ describe('sth tests', function() {
                     var bodyJSON = JSON.parse(body);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(1);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).to.equal(
-                        contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement
+                        contextResponseNumericWithFixedTimeInstantUpdateV1.contextResponses[0].contextElement
                             .attributes[0].value
                     );
                     expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
@@ -643,6 +949,18 @@ describe('sth tests', function() {
                 'should have only accumulated the sum updated aggregated data',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(
                     null,
+                    2,
+                    'contextResponseNumericWithFixedTimeInstantUpdate',
+                    'sum',
+                    sthConfig.AGGREGATION_BY[i]
+                )
+            );
+
+            it(
+                'should have only accumulated the sum updated aggregated data - NGSIv1',
+                sthTestUtils.numericAggregatedDataUpdatedTest.bind(
+                    null,
+                    1,
                     'contextResponseNumericWithFixedTimeInstantUpdate',
                     'sum',
                     sthConfig.AGGREGATION_BY[i]
@@ -653,6 +971,18 @@ describe('sth tests', function() {
                 'should have only accumulated the sum2 aggregated data once',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(
                     null,
+                    2,
+                    'contextResponseNumericWithFixedTimeInstantUpdate',
+                    'sum2',
+                    sthConfig.AGGREGATION_BY[i]
+                )
+            );
+
+            it(
+                'should have only accumulated the sum2 aggregated data once - NGSIv1',
+                sthTestUtils.numericAggregatedDataUpdatedTest.bind(
+                    null,
+                    1,
                     'contextResponseNumericWithFixedTimeInstantUpdate',
                     'sum2',
                     sthConfig.AGGREGATION_BY[i]
@@ -663,6 +993,18 @@ describe('sth tests', function() {
                 'should have only accumulated the max aggregated data once',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(
                     null,
+                    2,
+                    'contextResponseNumericWithFixedTimeInstantUpdate',
+                    'max',
+                    sthConfig.AGGREGATION_BY[i]
+                )
+            );
+
+            it(
+                'should have only accumulated the max aggregated data once - NGSIv1',
+                sthTestUtils.numericAggregatedDataUpdatedTest.bind(
+                    null,
+                    1,
                     'contextResponseNumericWithFixedTimeInstantUpdate',
                     'max',
                     sthConfig.AGGREGATION_BY[i]
@@ -673,6 +1015,18 @@ describe('sth tests', function() {
                 'should have only accumulated the min aggregated data once',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(
                     null,
+                    2,
+                    'contextResponseNumericWithFixedTimeInstantUpdate',
+                    'min',
+                    sthConfig.AGGREGATION_BY[i]
+                )
+            );
+
+            it(
+                'should have only accumulated the min aggregated data once - NGISv1',
+                sthTestUtils.numericAggregatedDataUpdatedTest.bind(
+                    null,
+                    1,
                     'contextResponseNumericWithFixedTimeInstantUpdate',
                     'min',
                     sthConfig.AGGREGATION_BY[i]
@@ -682,10 +1036,11 @@ describe('sth tests', function() {
     });
 
     describe('notification of already existent textual data should update the original value', function() {
-        var contextResponseTextualWithFixedTimeInstantUpdate;
+        var contextResponseTextualWithFixedTimeInstantUpdate, contextResponseTextualWithFixedTimeInstantUpdateV1;
 
         before(function() {
             contextResponseTextualWithFixedTimeInstantUpdate = require('./contextResponses/contextResponseTextualWithFixedTimeInstantUpdate');
+            contextResponseTextualWithFixedTimeInstantUpdateV1 = require('./contextResponses/V1contextResponseTextualWithFixedTimeInstantUpdate');
         });
 
         it('should store the raw and aggregated data for the first time', function(done) {
@@ -703,7 +1058,7 @@ describe('sth tests', function() {
                     body: {
                         subscriptionId: '1234567890ABCDF123456789',
                         originator: 'orion.contextBroker.instance',
-                        contextResponses: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses
+                        contextResponses: contextResponseTextualWithFixedTimeInstantUpdateV1.contextResponses
                     }
                 },
                 function(err, response, body) {
@@ -728,7 +1083,7 @@ describe('sth tests', function() {
                     body: {
                         subscriptionId: '1234567890ABCDF123456789',
                         originator: 'orion.contextBroker.instance',
-                        contextResponses: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses
+                        contextResponses: contextResponseTextualWithFixedTimeInstantUpdateV1.contextResponses
                     }
                 },
                 function(err, response, body) {
@@ -739,6 +1094,43 @@ describe('sth tests', function() {
         });
 
         it('should retrieve the updated raw data', function(done) {
+            // By construction, the file only have one key and that key is the attribute name
+            var attrName = Object.keys(contextResponseTextualWithFixedTimeInstantUpdate)[0];
+
+            request(
+                {
+                    uri: sthTestUtils.getURL(
+                        sthTestConfig.API_OPERATION.READ_V2,
+                        {
+                            lastN: 0,
+                            dateFrom:
+                                contextResponseTextualWithFixedTimeInstantUpdate[attrName].metadata.TimeInstant.value,
+                            dateTo:
+                                contextResponseTextualWithFixedTimeInstantUpdate[attrName].metadata.TimeInstant.value
+                        },
+                        attrName
+                    ),
+                    method: 'GET',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                    }
+                },
+                function(err, response, body) {
+                    var bodyJSON = JSON.parse(body);
+                    expect(bodyJSON.value.length).to.equal(1);
+                    expect(bodyJSON.value[0].attrValue).to.equal(
+                        contextResponseTextualWithFixedTimeInstantUpdate[attrName].value
+                    );
+                    done(err);
+                }
+            );
+        });
+
+        it('should retrieve the updated raw data - NGSIv1', function(done) {
+            // FIXME: remove this case when NGSIv1 becomes obsolete
             request(
                 {
                     uri: sthTestUtils.getURL(
@@ -746,13 +1138,13 @@ describe('sth tests', function() {
                         {
                             lastN: 0,
                             dateFrom:
-                                contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement
+                                contextResponseTextualWithFixedTimeInstantUpdateV1.contextResponses[0].contextElement
                                     .attributes[0].metadatas[0].value,
                             dateTo:
-                                contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement
+                                contextResponseTextualWithFixedTimeInstantUpdateV1.contextResponses[0].contextElement
                                     .attributes[0].metadatas[0].value
                         },
-                        contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement
+                        contextResponseTextualWithFixedTimeInstantUpdateV1.contextResponses[0].contextElement
                             .attributes[0].name
                     ),
                     method: 'GET',
@@ -767,7 +1159,7 @@ describe('sth tests', function() {
                     var bodyJSON = JSON.parse(body);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(1);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).to.equal(
-                        contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement
+                        contextResponseTextualWithFixedTimeInstantUpdateV1.contextResponses[0].contextElement
                             .attributes[0].value
                     );
                     expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
@@ -782,6 +1174,17 @@ describe('sth tests', function() {
                 'should retrieve the updated aggregated data',
                 sthTestUtils.textualAggregatedDataUpdatedTest.bind(
                     null,
+                    2,
+                    'contextResponseTextualWithFixedTimeInstantUpdate',
+                    sthConfig.AGGREGATION_BY[i]
+                )
+            );
+
+            it(
+                'should retrieve the updated aggregated data - NGSIv1',
+                sthTestUtils.textualAggregatedDataUpdatedTest.bind(
+                    null,
+                    1,
                     'contextResponseTextualWithFixedTimeInstantUpdate',
                     sthConfig.AGGREGATION_BY[i]
                 )
@@ -790,10 +1193,11 @@ describe('sth tests', function() {
     });
 
     describe('notification of an array attribute value should register it only as raw data', function() {
-        var contextResponseArrayWithFixedTimeInstant;
+        var contextResponseArrayWithFixedTimeInstant, contextResponseArrayWithFixedTimeInstantV1;
 
         before(function() {
             contextResponseArrayWithFixedTimeInstant = require('./contextResponses/contextResponseArrayWithFixedTimeInstant');
+            contextResponseArrayWithFixedTimeInstantV1 = require('./contextResponses/V1contextResponseArrayWithFixedTimeInstant');
         });
 
         it('should store the raw data but not the aggregated data', function(done) {
@@ -811,7 +1215,7 @@ describe('sth tests', function() {
                     body: {
                         subscriptionId: '1234567890ABCDF123456789',
                         originator: 'orion.contextBroker.instance',
-                        contextResponses: contextResponseArrayWithFixedTimeInstant.contextResponses
+                        contextResponses: contextResponseArrayWithFixedTimeInstantV1.contextResponses
                     }
                 },
                 function(err, response, body) {
@@ -822,6 +1226,41 @@ describe('sth tests', function() {
         });
 
         it('should retrieve the raw data', function(done) {
+            // By construction, the file only have one key and that key is the attribute name
+            var attrName = Object.keys(contextResponseArrayWithFixedTimeInstant)[0];
+
+            request(
+                {
+                    uri: sthTestUtils.getURL(
+                        sthTestConfig.API_OPERATION.READ_V2,
+                        {
+                            lastN: 0,
+                            dateFrom: contextResponseArrayWithFixedTimeInstant[attrName].metadata.TimeInstant.value,
+                            dateTo: contextResponseArrayWithFixedTimeInstant[attrName].metadata.TimeInstant.value
+                        },
+                        attrName
+                    ),
+                    method: 'GET',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                    }
+                },
+                function(err, response, body) {
+                    var bodyJSON = JSON.parse(body);
+                    expect(bodyJSON.value.length).to.equal(1);
+                    expect(bodyJSON.value[0].attrValue).to.eql(
+                        contextResponseArrayWithFixedTimeInstant[attrName].value
+                    );
+                    done(err);
+                }
+            );
+        });
+
+        it('should retrieve the raw data - NGSIv1', function(done) {
+            // FIXME: remove this case when NGSIv1 becomes obsolete
             request(
                 {
                     uri: sthTestUtils.getURL(
@@ -829,13 +1268,13 @@ describe('sth tests', function() {
                         {
                             lastN: 0,
                             dateFrom:
-                                contextResponseArrayWithFixedTimeInstant.contextResponses[0].contextElement
+                                contextResponseArrayWithFixedTimeInstantV1.contextResponses[0].contextElement
                                     .attributes[0].metadatas[0].value,
                             dateTo:
-                                contextResponseArrayWithFixedTimeInstant.contextResponses[0].contextElement
+                                contextResponseArrayWithFixedTimeInstantV1.contextResponses[0].contextElement
                                     .attributes[0].metadatas[0].value
                         },
-                        contextResponseArrayWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
+                        contextResponseArrayWithFixedTimeInstantV1.contextResponses[0].contextElement.attributes[0].name
                     ),
                     method: 'GET',
                     headers: {
@@ -849,7 +1288,8 @@ describe('sth tests', function() {
                     var bodyJSON = JSON.parse(body);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(1);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).to.eql(
-                        contextResponseArrayWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].value
+                        contextResponseArrayWithFixedTimeInstantV1.contextResponses[0].contextElement.attributes[0]
+                            .value
                     );
                     expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
                     expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
@@ -863,6 +1303,18 @@ describe('sth tests', function() {
                 'should not retrieve the non-registered aggregated data if sum is requested',
                 sthTestUtils.aggregatedDataNonExistentTest.bind(
                     null,
+                    2,
+                    'contextResponseArrayWithFixedTimeInstant',
+                    'sum',
+                    sthConfig.AGGREGATION_BY[j]
+                )
+            );
+
+            it(
+                'should not retrieve the non-registered aggregated data if sum is requested - NGSIv1',
+                sthTestUtils.aggregatedDataNonExistentTest.bind(
+                    null,
+                    1,
                     'contextResponseArrayWithFixedTimeInstant',
                     'sum',
                     sthConfig.AGGREGATION_BY[j]
@@ -873,6 +1325,18 @@ describe('sth tests', function() {
                 'should not retrieve the non-registered aggregated data if sum2 is requested',
                 sthTestUtils.aggregatedDataNonExistentTest.bind(
                     null,
+                    2,
+                    'contextResponseArrayWithFixedTimeInstant',
+                    'sum2',
+                    sthConfig.AGGREGATION_BY[j]
+                )
+            );
+
+            it(
+                'should not retrieve the non-registered aggregated data if sum2 is requested - NGSIv1',
+                sthTestUtils.aggregatedDataNonExistentTest.bind(
+                    null,
+                    1,
                     'contextResponseArrayWithFixedTimeInstant',
                     'sum2',
                     sthConfig.AGGREGATION_BY[j]
@@ -883,6 +1347,18 @@ describe('sth tests', function() {
                 'should not retrieve the non-registered aggregated data if max is requested',
                 sthTestUtils.aggregatedDataNonExistentTest.bind(
                     null,
+                    2,
+                    'contextResponseArrayWithFixedTimeInstant',
+                    'max',
+                    sthConfig.AGGREGATION_BY[j]
+                )
+            );
+
+            it(
+                'should not retrieve the non-registered aggregated data if max is requested - NGSIv1',
+                sthTestUtils.aggregatedDataNonExistentTest.bind(
+                    null,
+                    1,
                     'contextResponseArrayWithFixedTimeInstant',
                     'max',
                     sthConfig.AGGREGATION_BY[j]
@@ -893,6 +1369,18 @@ describe('sth tests', function() {
                 'should not retrieve the non-registered aggregated data if min is requested',
                 sthTestUtils.aggregatedDataNonExistentTest.bind(
                     null,
+                    2,
+                    'contextResponseArrayWithFixedTimeInstant',
+                    'min',
+                    sthConfig.AGGREGATION_BY[j]
+                )
+            );
+
+            it(
+                'should not retrieve the non-registered aggregated data if min is requested - NGSIv1',
+                sthTestUtils.aggregatedDataNonExistentTest.bind(
+                    null,
+                    1,
                     'contextResponseArrayWithFixedTimeInstant',
                     'min',
                     sthConfig.AGGREGATION_BY[j]
@@ -903,6 +1391,18 @@ describe('sth tests', function() {
                 'should not retrieve the non-registered aggregated data if occur is requested',
                 sthTestUtils.aggregatedDataNonExistentTest.bind(
                     null,
+                    2,
+                    'contextResponseArrayWithFixedTimeInstant',
+                    'occur',
+                    sthConfig.AGGREGATION_BY[j]
+                )
+            );
+
+            it(
+                'should not retrieve the non-registered aggregated data if occur is requested - NGSIv1',
+                sthTestUtils.aggregatedDataNonExistentTest.bind(
+                    null,
+                    1,
                     'contextResponseArrayWithFixedTimeInstant',
                     'occur',
                     sthConfig.AGGREGATION_BY[j]
@@ -912,10 +1412,11 @@ describe('sth tests', function() {
     });
 
     describe('notification of an object attribute value should register it only as raw data', function() {
-        var contextResponseObjectWithFixedTimeInstant;
+        var contextResponseObjectWithFixedTimeInstant, contextResponseObjectWithFixedTimeInstantV1;
 
         before(function() {
             contextResponseObjectWithFixedTimeInstant = require('./contextResponses/contextResponseObjectWithFixedTimeInstant');
+            contextResponseObjectWithFixedTimeInstantV1 = require('./contextResponses/V1contextResponseObjectWithFixedTimeInstant');
         });
 
         it('should store the raw data but not the aggregated data', function(done) {
@@ -933,7 +1434,7 @@ describe('sth tests', function() {
                     body: {
                         subscriptionId: '1234567890ABCDF123456789',
                         originator: 'orion.contextBroker.instance',
-                        contextResponses: contextResponseObjectWithFixedTimeInstant.contextResponses
+                        contextResponses: contextResponseObjectWithFixedTimeInstantV1.contextResponses
                     }
                 },
                 function(err, response, body) {
@@ -944,6 +1445,41 @@ describe('sth tests', function() {
         });
 
         it('should retrieve the raw data', function(done) {
+            // By construction, the file only have one key and that key is the attribute name
+            var attrName = Object.keys(contextResponseObjectWithFixedTimeInstant)[0];
+
+            request(
+                {
+                    uri: sthTestUtils.getURL(
+                        sthTestConfig.API_OPERATION.READ_V2,
+                        {
+                            lastN: 0,
+                            dateFrom: contextResponseObjectWithFixedTimeInstant[attrName].metadata.TimeInstant.value,
+                            dateTo: contextResponseObjectWithFixedTimeInstant[attrName].metadata.TimeInstant.value
+                        },
+                        attrName
+                    ),
+                    method: 'GET',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                    }
+                },
+                function(err, response, body) {
+                    var bodyJSON = JSON.parse(body);
+                    expect(bodyJSON.value.length).to.equal(1);
+                    expect(bodyJSON.value[0].attrValue).to.eql(
+                        contextResponseObjectWithFixedTimeInstant[attrName].value
+                    );
+                    done(err);
+                }
+            );
+        });
+
+        it('should retrieve the raw data', function(done) {
+            // FIXME: remove this case when NGSIv1 becomes obsolete
             request(
                 {
                     uri: sthTestUtils.getURL(
@@ -951,13 +1487,14 @@ describe('sth tests', function() {
                         {
                             lastN: 0,
                             dateFrom:
-                                contextResponseObjectWithFixedTimeInstant.contextResponses[0].contextElement
+                                contextResponseObjectWithFixedTimeInstantV1.contextResponses[0].contextElement
                                     .attributes[0].metadatas[0].value,
                             dateTo:
-                                contextResponseObjectWithFixedTimeInstant.contextResponses[0].contextElement
+                                contextResponseObjectWithFixedTimeInstantV1.contextResponses[0].contextElement
                                     .attributes[0].metadatas[0].value
                         },
-                        contextResponseObjectWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].name
+                        contextResponseObjectWithFixedTimeInstantV1.contextResponses[0].contextElement.attributes[0]
+                            .name
                     ),
                     method: 'GET',
                     headers: {
@@ -971,7 +1508,8 @@ describe('sth tests', function() {
                     var bodyJSON = JSON.parse(body);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(1);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).to.eql(
-                        contextResponseObjectWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0].value
+                        contextResponseObjectWithFixedTimeInstantV1.contextResponses[0].contextElement.attributes[0]
+                            .value
                     );
                     expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
                     expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
@@ -985,6 +1523,18 @@ describe('sth tests', function() {
                 'should not retrieve the non-registered aggregated data if sum is requested',
                 sthTestUtils.aggregatedDataNonExistentTest.bind(
                     null,
+                    2,
+                    'contextResponseObjectWithFixedTimeInstant',
+                    'sum',
+                    sthConfig.AGGREGATION_BY[j]
+                )
+            );
+
+            it(
+                'should not retrieve the non-registered aggregated data if sum is requested - NGSIv1',
+                sthTestUtils.aggregatedDataNonExistentTest.bind(
+                    null,
+                    1,
                     'contextResponseObjectWithFixedTimeInstant',
                     'sum',
                     sthConfig.AGGREGATION_BY[j]
@@ -995,6 +1545,18 @@ describe('sth tests', function() {
                 'should not retrieve the non-registered aggregated data if sum2 is requested',
                 sthTestUtils.aggregatedDataNonExistentTest.bind(
                     null,
+                    2,
+                    'contextResponseObjectWithFixedTimeInstant',
+                    'sum2',
+                    sthConfig.AGGREGATION_BY[j]
+                )
+            );
+
+            it(
+                'should not retrieve the non-registered aggregated data if sum2 is requested - NGSIv1',
+                sthTestUtils.aggregatedDataNonExistentTest.bind(
+                    null,
+                    1,
                     'contextResponseObjectWithFixedTimeInstant',
                     'sum2',
                     sthConfig.AGGREGATION_BY[j]
@@ -1005,6 +1567,18 @@ describe('sth tests', function() {
                 'should not retrieve the non-registered aggregated data if max is requested',
                 sthTestUtils.aggregatedDataNonExistentTest.bind(
                     null,
+                    2,
+                    'contextResponseObjectWithFixedTimeInstant',
+                    'max',
+                    sthConfig.AGGREGATION_BY[j]
+                )
+            );
+
+            it(
+                'should not retrieve the non-registered aggregated data if max is requested - NGSIv1',
+                sthTestUtils.aggregatedDataNonExistentTest.bind(
+                    null,
+                    1,
                     'contextResponseObjectWithFixedTimeInstant',
                     'max',
                     sthConfig.AGGREGATION_BY[j]
@@ -1015,6 +1589,18 @@ describe('sth tests', function() {
                 'should not retrieve the non-registered aggregated data if min is requested',
                 sthTestUtils.aggregatedDataNonExistentTest.bind(
                     null,
+                    2,
+                    'contextResponseObjectWithFixedTimeInstant',
+                    'min',
+                    sthConfig.AGGREGATION_BY[j]
+                )
+            );
+
+            it(
+                'should not retrieve the non-registered aggregated data if min is requested - NGSIv1',
+                sthTestUtils.aggregatedDataNonExistentTest.bind(
+                    null,
+                    1,
                     'contextResponseObjectWithFixedTimeInstant',
                     'min',
                     sthConfig.AGGREGATION_BY[j]
@@ -1025,6 +1611,18 @@ describe('sth tests', function() {
                 'should not retrieve the non-registered aggregated data if occur is requested',
                 sthTestUtils.aggregatedDataNonExistentTest.bind(
                     null,
+                    2,
+                    'contextResponseObjectWithFixedTimeInstant',
+                    'occur',
+                    sthConfig.AGGREGATION_BY[j]
+                )
+            );
+
+            it(
+                'should not retrieve the non-registered aggregated data if occur is requested - NGSIv1',
+                sthTestUtils.aggregatedDataNonExistentTest.bind(
+                    null,
+                    1,
                     'contextResponseObjectWithFixedTimeInstant',
                     'occur',
                     sthConfig.AGGREGATION_BY[j]
@@ -1033,8 +1631,8 @@ describe('sth tests', function() {
         }
     });
 
-    var contextResponseNumericWithFixedTimeInstantUpdate = require('./contextResponses/contextResponseNumericWithFixedTimeInstantUpdate');
-    var contextResponseTextualWithFixedTimeInstantUpdate = require('./contextResponses/contextResponseTextualWithFixedTimeInstantUpdate');
+    var contextResponseNumericWithFixedTimeInstantUpdate = require('./contextResponses/V1contextResponseNumericWithFixedTimeInstantUpdate');
+    var contextResponseTextualWithFixedTimeInstantUpdate = require('./contextResponses/V1contextResponseTextualWithFixedTimeInstantUpdate');
 
     describe('Data removal', function() {
         describe(

@@ -45,6 +45,7 @@ module.exports = {
     CLEAN: ENV.CLEAN !== 'false',
     API_OPERATION: {
         READ: 'read',
+        READ_V2: 'read_v2',
         NOTIFY: 'notify',
         ADMIN: {
             GET_LOG_LEVEL: 'getLogLevel',

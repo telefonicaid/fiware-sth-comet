@@ -13,7 +13,169 @@ interfaces.
 # Group Raw data consumption
 The raw data stored in the STH can be consumed in the following ways:
 
-## Filtering by offset and limit [/STH/v1/contextEntities/type/{entityType}/id/{entityId}/attributes/{attrName}?hLimit=3&hOffset=0&dateFrom=2015-01-01T00:00:00.000Z&dateTo=2015-12-31T23:59:59.999Z]
+## Filtering by offset and limit [/STH/v2/entities/{entityId}/attrs/{attrName}?type={entityType}&hLimit=3&hOffset=0&dateFrom=2015-01-01T00:00:00.000Z&dateTo=2015-12-31T23:59:59.999Z]
+Gets the raw data stored by the STH from certain date onwards (or the origin of time if no starting date is provided) applying certain offset and a limit to the number of entries to be retrieved. Makes it possible to paginate over the stored raw data.
+
++ Parameters
+    + entityType (required, string) - Type of the entity whose associated raw data wants to be retrieved.
+    + entityId (required, string) - Identifier of the entity whose associated raw data wants to be retrieved.
+    + attrName (required, string) - Name of the attribute whose associated raw data wants to be retrieved.
+    + hLimit (required, number) - Maximum number of raw data entries to retrieve.
+    + hOffset (required, number) - Offset to be applied to the raw data to be retrieved.
+    + dateFrom (optional, date) - The starting date from which the raw data should be retrieved. If not provided, the origin of time is used.
+    + dateTo (optional, date) - The final date until which the raw data should be retrieved. If not provided, the current date is used.
+
+### Get raw data [GET]
++ Request (application/json)
+
+    + header
+
+            Fiware-Service: the-service
+            Fiware-ServicePath: /the-service-path
+
++ Response 200 (application/json)
+
+    + body
+
+            {
+                "type": "StructuredValue",
+                "values": [
+                    {
+                        "recvTime": "2014-02-14T13:43:33.306Z",
+                        "attrValue": "21.28"
+                    },
+                    {
+                        "recvTime": "2014-02-14T13:43:34.636Z",
+                        "attrValue": "23.42"
+                    },
+                    {
+                        "recvTime": "2014-02-14T13:43:35.424Z",
+                        "attrValue": "22.12"
+                    }
+                ]
+            }
+
+## Filtering by number of last entries [/STH/v2/entities/{entityId}/attrs/{attrName}?entityType={entityType}&lastN=5&dateFrom=2015-01-01T00:00:00.000Z&dateTo=2015-12-31T23:59:59.999Z]
+Gets the raw data stored by the STH since certain date backwards (or the current time if no final date is provided) limiting the number of results to be retrieved.
+
++ Parameters
+    + entityType (required, string) - Type of the entity whose associated raw data wants to be retrieved.
+    + entityId (required, string) - Identifier of the entity whose associated raw data wants to be retrieved.
+    + attrName (required, string) - Name of the attribute whose associated raw data wants to be retrieved.
+    + lastN (required, number) - Number of raw data entries to retrieve since the final date backwards.
+    + dateFrom (optional, date) - The starting date from which the raw data should be retrieved. If not provided, the origin of time is used.
+    + dateTo (optional, date) - The final date until which the raw data should be retrieved. If not provided, the current date is used.
+
+### Get raw data [GET]
++ Request (application/json)
+
+    + header
+
+            Fiware-Service: the-service
+            Fiware-ServicePath: /the-service-path
+
++ Response 200 (application/json)
+
+    + body
+
+            {
+               "type": "StructuredValue",
+               "values": [
+                    {
+                        "recvTime": "2014-02-14T13:43:33.306Z",
+                        "attrValue": "21.28"
+                    },
+                    {
+                        "recvTime": "2014-02-14T13:43:34.636Z",
+                        "attrValue": "23.42"
+                    },
+                    {
+                        "recvTime": "2014-02-14T13:43:35.424Z",
+                        "attrValue": "22.12"
+                    }
+                ]
+            }
+
+
+# Group Aggregated data consumption
+The aggregated data stored by the STH can be consumed in the following ways:
+
+## Filtering by aggregation method and resolution [/STH/v2/entities/{entityId}/attrs/{attrName}?type={entityType}&aggrMethod=sum&aggrPeriod=second&dateFrom=2015-01-01T00:00:00.000Z&dateTo=2015-12-31T23:59:59.999Z]
+Gets the aggregated data stored by the STH for certain aggregation method and using certain resolution. Combining the information provided by these aggregated methods with the number of samples, it is possible to calculate probabilistic values such as the average value, the variance as well as the standard deviation.
+
++ Parameters
+    + entityType (required, string) - Type of the entity whose associated raw data wants to be retrieved.
+    + entityId (required, string) - Identifier of the entity whose associated raw data wants to be retrieved.
+    + attrName (required, string) - Name of the attribute whose associated raw data wants to be retrieved.
+    + aggrMethod (required, number) - The aggregation method.  In case of numeric attribute values, the STH supports the following aggregation methods: *max* - maximum value, *min* - minimum value, *sum* - sum of all the samples, and *sum2* - sum of the square value of all the samples. On the other hand and in case of textual attribute values, the STH supports the *occur* aggregation method to count the occurrences of each string value.
+    + aggrPeriod (required, number) - The aggregation period or resolution of the aggregated data to be retrieved.
+    + dateFrom (optional, date) - The starting date from which the raw data should be retrieved. If not provided, the origin of time is used.
+    + dateTo (optional, date) - The final date until which the raw data should be retrieved. If not provided, the current date is used.
+
+### Get aggregated data [GET]
++ Request (application/json)
+
+    + header
+
+            Fiware-Service: the-service
+            Fiware-ServicePath: /the-service-path
+
++ Response 200 (application/json)
+
+    + body
+
+            {
+                "type": "StructuredValue",
+                "values": [
+                    {
+                        "_id": {
+                            "origin": "2015-02-18T02:46:00.000Z",
+                            "resolution": "second"
+                        },
+                        "points": [
+                            {
+                                "offset": 13,
+                                "samples": 1,
+                                "sum": 34.59
+                            }
+                        ]
+                    }
+                ]
+            }
+
++ Response 200 (application/json)
+
+    + body
+
+            {
+                "type": "StructuredValue",
+                "values": [
+                    {
+                        "_id": {
+                            "origin": "2015-02-18T02:46:00.000Z",
+                            "resolution": "second"
+                        },
+                        "points": [
+                            {
+                                "offset": 35,
+                                "samples": 34,
+                                "occur": {
+                                    "string01": 7,
+                                    "string02": 4,
+                                    "string03": 5,
+                                    "string04": 6,
+                                    "string05": 12
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+
+# Group Deprecated operations
+Deprecated operations using the old V1 API. You are recommeneded not using them, as they will be removed in a next version of STH.
+
+## Filtering by offset and limit using V1 API (deprecated) [/STH/v1/contextEntities/type/{entityType}/id/{entityId}/attributes/{attrName}?hLimit=3&hOffset=0&dateFrom=2015-01-01T00:00:00.000Z&dateTo=2015-12-31T23:59:59.999Z]
 Gets the raw data stored by the STH from certain date onwards (or the origin of time if no starting date is provided) applying certain offset and a limit to the number of entries to be retrieved. Makes it possible to paginate over the stored raw data.
 
 + Parameters
@@ -71,7 +233,7 @@ Gets the raw data stored by the STH from certain date onwards (or the origin of 
                 ]
             }
 
-## Filtering by number of last entries [/STH/v1/contextEntities/type/{entityType}/id/{entityId}/attributes/{attrName}?lastN=5&dateFrom=2015-01-01T00:00:00.000Z&dateTo=2015-12-31T23:59:59.999Z]
+## Filtering by number of last entries using V1 API (deprecated) [/STH/v1/contextEntities/type/{entityType}/id/{entityId}/attributes/{attrName}?lastN=5&dateFrom=2015-01-01T00:00:00.000Z&dateTo=2015-12-31T23:59:59.999Z]
 Gets the raw data stored by the STH since certain date backwards (or the current time if no final date is provided) limiting the number of results to be retrieved.
 
 + Parameters
@@ -128,10 +290,7 @@ Gets the raw data stored by the STH since certain date backwards (or the current
                 ]
             }
 
-# Group Aggregated data consumption
-The aggregated data stored by the STH can be consumed in the following ways:
-
-## Filtering by aggregation method and resolution [/STH/v1/contextEntities/type/{entityType}/id/{entityId}/attributes/{attrName}?aggrMethod=sum&aggrPeriod=second&dateFrom=2015-01-01T00:00:00.000Z&dateTo=2015-12-31T23:59:59.999Z]
+## Filtering by aggregation method and resolution using V1 API (deprecated) [/STH/v1/contextEntities/type/{entityType}/id/{entityId}/attributes/{attrName}?aggrMethod=sum&aggrPeriod=second&dateFrom=2015-01-01T00:00:00.000Z&dateTo=2015-12-31T23:59:59.999Z]
 Gets the aggregated data stored by the STH for certain aggregation method and using certain resolution. Combining the information provided by these aggregated methods with the number of samples, it is possible to calculate probabilistic values such as the average value, the variance as well as the standard deviation.
 
 + Parameters
@@ -234,3 +393,4 @@ Gets the aggregated data stored by the STH for certain aggregation method and us
                     }
                 ]
             }
+

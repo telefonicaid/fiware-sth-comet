@@ -1,3 +1,4 @@
+- Add: NGSIv2 endpoints for the raw and aggregation API operations (#118)
 - Check header response before use it (CSV response has no header)
 - Fix handler for reply a CSV: use new Hapi API (#513)
 - Ensure permissions over temp directory (used by CSV generation) in docker container (#514)
