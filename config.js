@@ -61,7 +61,7 @@ config.cors = {
             'Access-Control-Allow-Origin',
             'Access-Control-Allow-Headers',
             'Access-Control-Request-Headers',
-            'Origin, Referer, User-Ag     ent'
+            'Origin, Referer, User-Agent'
         ],
         additionalHeaders: ['fiware-servicepath', 'fiware-service'],
         credentials: 'true'
