@@ -51,6 +51,23 @@ config.server = {
     maxPageSize: '100'
 };
 
+// Cors Configuration
+config.cors = {
+    // The enabled is use to set CORS policy
+    enabled: 'false',
+    options: {
+        origin: ['*'],
+        headers: [
+            'Access-Control-Allow-Origin',
+            'Access-Control-Allow-Headers',
+            'Access-Control-Request-Headers',
+            'Origin, Referer, User-Ag     ent'
+        ],
+        additionalHeaders: ['fiware-servicepath', 'fiware-service'],
+        credentials: 'true'
+    }
+};
+
 // Database configuration
 //------------------------
 config.database = {
