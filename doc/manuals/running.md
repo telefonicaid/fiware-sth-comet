@@ -135,8 +135,8 @@ generates the collection names using the following mechanism:
 ### Configuration for CORS in config.js
 
 The STH component provides the CORS functionality to user in order to configure the CORS policy which can be used to process cross origin request:
--  `enabled`: This parameter is used to set the CORS policy true or false. Default value is 'false'.
--  `origin`: This parameter is used to allow only trusted domains to access the application.
--  `headers`: This parameter is used to set headers like 'Access-Control-Allow-Origin','Access-Control-Allow-Headers' which must be returned from the server in the request headers.
--  `additionalHeaders`: This parameter is used to set additionalHeaders like "fiware-servicepath,fiware-service" which must be returned from the server in the request headers.
--  `credentials`: This parameter is set as 'true' to allow "Access-Control-Allow-Credentials" in the request headers.
+-   `enabled`: This parameter is used to set the CORS policy true or false. Default value is 'false'.
+-   `origin`: This parameter is used to allow only trusted domains to access the application.
+-   `headers`: This parameter is used to set headers like 'Access-Control-Allow-Origin','Access-Control-Allow-Headers' which must be returned from the server in the request headers.
+-   `additionalHeaders`: This parameter is used to set additionalHeaders like "fiware-servicepath,fiware-service" which must be returned from the server in the request headers.
+-   `credentials`: This parameter is set as 'true' to allow "Access-Control-Allow-Credentials" in the request headers.
