@@ -131,3 +131,12 @@ generates the collection names using the following mechanism:
     The length of the collection name plus the `DB_PREFIX` plus the database name (or service) should not be more than
     120 bytes using UTF-8 format or MongoDB will complain and will not create the collection, and consequently no data
     would be stored by the STH. A warning message is logged in case this happens.
+
+### Configuration for CORS in config.js
+
+The STH component provides the CORS functionality to user in order to configure the CORS policy which can be used to process cross origin request:
+-   `enabled`: This parameter is used to set the CORS policy true or false. Default value is 'false'.
+-   `origin`: This parameter is used to allow only trusted domains to access the application.
+-   `headers`: This parameter is used to set headers like 'Access-Control-Allow-Origin','Access-Control-Allow-Headers' which must be returned from the server in the request headers.
+-   `additionalHeaders`: This parameter is used to set additionalHeaders like "fiware-servicepath,fiware-service" which must be returned from the server in the request headers.
+-   `credentials`: This parameter is set as 'true' to allow "Access-Control-Allow-Credentials" in the request headers.
