@@ -160,6 +160,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_install_dir}
 
 %changelog
+* Mon Nov 11 2019 Fermin Galan <fermin.galanmarquez@telefonica.com> 2.7.0
+- Add: NGSIv2 endpoints for the raw and aggregation API operations (#118)
+- Add: CORS support (#500)
+- Fix: check header response before use it (CSV response has no header)
+- Fix: handler for reply a CSV: use new Hapi API (#513)
+- Fix: Ensure permissions over temp directory (used by CSV generation) in docker container (#514)
+- Upgrade NodeJS version from 8.16.0 to 8.16.1 in Dockerfile due to security issues
+
 * Tue Jun 04 2019 Fermin Galan <fermin.galanmarquez@telefonica.com> 2.6.0
 - Upgrade NodeJS version from 8.12.0 to 8.16.0 in Dockerfile due to improve security
 - Add: logging feature to count number of requests attended and number of requests processed with error (#310)

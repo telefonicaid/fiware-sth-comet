@@ -1,6 +1,1 @@
-- Add: CORS support (#500)
-- Add: NGSIv2 endpoints for the raw and aggregation API operations (#118)
-- Check header response before use it (CSV response has no header)
-- Fix handler for reply a CSV: use new Hapi API (#513)
-- Ensure permissions over temp directory (used by CSV generation) in docker container (#514)
 - Upgrade NodeJS version from 8.16.1 to 10.17.0 in Dockerfile due to Node 8 End-of-Life 
