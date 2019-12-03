@@ -21,17 +21,17 @@
  * please contact with: [german.torodelvalle@telefonica.com]
  */
 
-'use strict';
+/* eslint-disable consistent-return */
 
-var ROOT_PATH = require('app-root-path');
-var sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
-var sthDatabaseNameMapper = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameMapper');
-var expect = require('expect.js');
+const ROOT_PATH = require('app-root-path');
+const sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
+const sthDatabaseNameMapper = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameMapper');
+const expect = require('expect.js');
 
 describe('sthDatabaseNameMapper tests', function() {
     describe('mapping tests', function() {
-        var ORIGINAL_DATA_MODEL = sthConfig.DATA_MODEL;
-        var ORIGINAL_NAME_MAPPING = sthConfig.NAME_MAPPING;
+        const ORIGINAL_DATA_MODEL = sthConfig.DATA_MODEL;
+        const ORIGINAL_NAME_MAPPING = sthConfig.NAME_MAPPING;
 
         before(function() {
             sthConfig.NAME_MAPPING = require(ROOT_PATH + '/test/unit/nameMappings/name-mapping.json');
@@ -83,7 +83,7 @@ describe('sthDatabaseNameMapper tests', function() {
 
         // prettier-ignore
         it("should map the '" + sthConfig.COLLECTION_PREFIX + "/testservicepath' collection of database '" + 
-            sthConfig.DB_PREFIX + "testservice' with the collection per service path data model as " + "'" + 
+            sthConfig.DB_PREFIX + "testservice' with the collection per service path data model as '" + 
             sthConfig.COLLECTION_PREFIX + "/mappedtestservicepath'",
             function() {
                 sthConfig.DATA_MODEL = sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH;
@@ -98,7 +98,7 @@ describe('sthDatabaseNameMapper tests', function() {
 
         // prettier-ignore
         it("should map the '" + sthConfig.COLLECTION_PREFIX + "/testservicepath.aggr' collection of database '" + 
-            sthConfig.DB_PREFIX + "testservice' with the collection per service path data model as " + "'" + 
+            sthConfig.DB_PREFIX + "testservice' with the collection per service path data model as '" + 
             sthConfig.COLLECTION_PREFIX + "/mappedtestservicepath.aggr'",
             function() {
                 sthConfig.DATA_MODEL = sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH;
@@ -113,7 +113,7 @@ describe('sthDatabaseNameMapper tests', function() {
 
         // prettier-ignore
         it("should map the '" + sthConfig.COLLECTION_PREFIX + "/testservicepath_entityId' collection of database '" + 
-            sthConfig.DB_PREFIX + "testservice' with the collection per entity data model as " + "'" + 
+            sthConfig.DB_PREFIX + "testservice' with the collection per entity data model as '" + 
             sthConfig.COLLECTION_PREFIX + "/mappedtestservicepath_mappedEntityId'",
             function() {
                 sthConfig.DATA_MODEL = sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY;
@@ -158,7 +158,7 @@ describe('sthDatabaseNameMapper tests', function() {
 
         // prettier-ignore
         it("should map the '" + sthConfig.COLLECTION_PREFIX + "/testservicepath_entityId_entityType.aggr' collection " +
-         "of database '" + sthConfig.DB_PREFIX + "testservice' with the collection per entity data model as " + "'" + 
+         "of database '" + sthConfig.DB_PREFIX + "testservice' with the collection per entity data model as '" + 
          sthConfig.COLLECTION_PREFIX + "/mappedtestservicepath_mappedEntityId_mappedEntityType.aggr'",
             function() {
                 sthConfig.DATA_MODEL = sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY;
@@ -247,8 +247,8 @@ describe('sthDatabaseNameMapper tests', function() {
     });
 
     describe('unmapping tests', function() {
-        var ORIGINAL_DATA_MODEL = sthConfig.DATA_MODEL;
-        var ORIGINAL_NAME_MAPPING = sthConfig.NAME_MAPPING;
+        const ORIGINAL_DATA_MODEL = sthConfig.DATA_MODEL;
+        const ORIGINAL_NAME_MAPPING = sthConfig.NAME_MAPPING;
 
         before(function() {
             sthConfig.NAME_MAPPING = require(ROOT_PATH + '/test/unit/nameMappings/name-mapping.json');
@@ -310,7 +310,7 @@ describe('sthDatabaseNameMapper tests', function() {
 
         // prettier-ignore
         it("should unmap the '" + sthConfig.COLLECTION_PREFIX + "/mappedtestservicepath' collection of database '" + 
-            sthConfig.DB_PREFIX + "mappedtestservice' with the collection per service path data model as " + "'" + 
+            sthConfig.DB_PREFIX + "mappedtestservice' with the collection per service path data model as '" + 
             sthConfig.COLLECTION_PREFIX + "/testservicepath'",
             function() {
                 sthConfig.DATA_MODEL = sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH;
@@ -326,7 +326,7 @@ describe('sthDatabaseNameMapper tests', function() {
         // prettier-ignore
         it("should unmap the '" + sthConfig.COLLECTION_PREFIX + 
             "/mappedtestservicepath.aggr' collection of database '" + sthConfig.DB_PREFIX + 
-            "mappedtestservice' with the collection per service path data model as " + "'" + 
+            "mappedtestservice' with the collection per service path data model as '" + 
             sthConfig.COLLECTION_PREFIX + "/testservicepath.aggr'",
             function() {
                 sthConfig.DATA_MODEL = sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH;
@@ -371,8 +371,8 @@ describe('sthDatabaseNameMapper tests', function() {
 
         // prettier-ignore
         it("should unmap the '" + sthConfig.COLLECTION_PREFIX + 
-            "/mappedtestservicepath_mappedEntityId_mappedEntityType' collection " + "of database '" + 
-            sthConfig.DB_PREFIX + "mappedtestservice' with the collection per entity data model as " + "'" + 
+            "/mappedtestservicepath_mappedEntityId_mappedEntityType' collection of database '" + 
+            sthConfig.DB_PREFIX + "mappedtestservice' with the collection per entity data model as '" + 
             sthConfig.COLLECTION_PREFIX + "/testservicepath_entityId_entityType'",
             function() {
                 sthConfig.DATA_MODEL = sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY;
@@ -388,7 +388,7 @@ describe('sthDatabaseNameMapper tests', function() {
         // prettier-ignore
         it("should unmap the '" + sthConfig.COLLECTION_PREFIX + 
             "/mappedtestservicepath_mappedEntityId_mappedEntityType.aggr' collection of database '" + 
-            sthConfig.DB_PREFIX + "mappedtestservice' with the collection per entity data model as " + "'" + 
+            sthConfig.DB_PREFIX + "mappedtestservice' with the collection per entity data model as '" + 
             sthConfig.COLLECTION_PREFIX + "/testservicepath_entityId_entityType.aggr'",
             function() {
                 sthConfig.DATA_MODEL = sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY;
@@ -403,8 +403,8 @@ describe('sthDatabaseNameMapper tests', function() {
 
         // prettier-ignore
         it("should unmap the '" + sthConfig.COLLECTION_PREFIX + 
-            "/mappedtestservicepath_mappedentityId_mappedattrName' " + "collection of database '" + 
-            sthConfig.DB_PREFIX + "mappedtestservice' with the collection per attribute " + "data model as '" + 
+            "/mappedtestservicepath_mappedentityId_mappedattrName' collection of database '" + 
+            sthConfig.DB_PREFIX + "mappedtestservice' with the collection per attribute data model as '" + 
             sthConfig.COLLECTION_PREFIX + "/testservicepath_entityId_attrName'",
             function() {
                 sthConfig.DATA_MODEL = sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE;
@@ -419,8 +419,8 @@ describe('sthDatabaseNameMapper tests', function() {
 
         // prettier-ignore
         it("should unmap the '" + sthConfig.COLLECTION_PREFIX + 
-            "/mappedtestservicepath_mappedentityId_mappedattrName.aggr' " + "collection of database '" + 
-            sthConfig.DB_PREFIX + "mappedtestservice' with the collection per attribute " + "data model as '" + 
+            "/mappedtestservicepath_mappedentityId_mappedattrName.aggr' collection of database '" + 
+            sthConfig.DB_PREFIX + "mappedtestservice' with the collection per attribute data model as '" + 
             sthConfig.COLLECTION_PREFIX + "/testservicepath_entityId_attrName.aggr'",
             function() {
                 sthConfig.DATA_MODEL = sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE;
@@ -436,7 +436,7 @@ describe('sthDatabaseNameMapper tests', function() {
         // prettier-ignore
         it("should unmap the '" + sthConfig.COLLECTION_PREFIX + 
             "/mappedtestservicepath_mappedEntityId_mappedEntityType_mappedAttrName' collection of database '" + 
-            sthConfig.DB_PREFIX + "mappedtestservice' with the collection per attribute " + "data model as '" + 
+            sthConfig.DB_PREFIX + "mappedtestservice' with the collection per attribute data model as '" + 
             sthConfig.COLLECTION_PREFIX + "/testservicepath_entityId_entityType_attrName'",
             function() {
                 sthConfig.DATA_MODEL = sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE;
@@ -453,7 +453,7 @@ describe('sthDatabaseNameMapper tests', function() {
         // prettier-ignore
         it("should unmap the '" + sthConfig.COLLECTION_PREFIX + 
             "/mappedtestservicepath_mappedEntityId_mappedEntityType_mappedAttrName.aggr' collection of database '" + 
-            sthConfig.DB_PREFIX + "mappedtestservice' with the collection per attribute " + "data model as '" + 
+            sthConfig.DB_PREFIX + "mappedtestservice' with the collection per attribute data model as '" + 
             sthConfig.COLLECTION_PREFIX + "/testservicepath_entityId_entityType_attrName.aggr'",
             function() {
                 sthConfig.DATA_MODEL = sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE;

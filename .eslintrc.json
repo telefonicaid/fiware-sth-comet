@@ -1,0 +1,14 @@
+{
+  "extends": "tamia",
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "plugins": ["mocha","prettier"],
+  "rules": {
+    "prettier/prettier": "error",
+    "valid-jsdoc": 0
+  },
+  "env": {
+  	 "mocha": true
+  }
+}

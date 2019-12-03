@@ -21,12 +21,12 @@
  * please contact with: [german.torodelvalle@telefonica.com]
  */
 
-'use strict';
+/* eslint-disable consistent-return */
 
-var ROOT_PATH = require('app-root-path');
-var sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
-var sthDatabaseNameCodec = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameCodec');
-var expect = require('expect.js');
+const ROOT_PATH = require('app-root-path');
+const sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
+const sthDatabaseNameCodec = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameCodec');
+const expect = require('expect.js');
 
 describe('sthDatabaseNameCodec tests', function() {
     describe('database name codification tests', function() {
@@ -74,7 +74,7 @@ describe('sthDatabaseNameCodec tests', function() {
         });
 
         it('should encode uppercase letters', function() {
-            for (var ii = 65; ii <= 90; ii++) {
+            for (let ii = 65; ii <= 90; ii++) {
                 expect(sthDatabaseNameCodec.encodeDatabaseName(String.fromCharCode(ii))).to.equal(
                     'x00' + ii.toString(16)
                 );
@@ -82,7 +82,7 @@ describe('sthDatabaseNameCodec tests', function() {
         });
 
         it('should not encode lowercase letters', function() {
-            for (var ii = 97; ii <= 122; ii++) {
+            for (let ii = 97; ii <= 122; ii++) {
                 expect(sthDatabaseNameCodec.encodeDatabaseName(String.fromCharCode(ii))).to.equal(
                     String.fromCharCode(ii)
                 );
@@ -176,7 +176,7 @@ describe('sthDatabaseNameCodec tests', function() {
         });
 
         it('should decode uppercase letters', function() {
-            for (var ii = 65; ii <= 90; ii++) {
+            for (let ii = 65; ii <= 90; ii++) {
                 expect(sthDatabaseNameCodec.decodeDatabaseName('x00' + ii.toString(16))).to.equal(
                     String.fromCharCode(ii)
                 );
@@ -184,7 +184,7 @@ describe('sthDatabaseNameCodec tests', function() {
         });
 
         it('should not decode lowercase letters', function() {
-            for (var ii = 97; ii <= 122; ii++) {
+            for (let ii = 97; ii <= 122; ii++) {
                 expect(sthDatabaseNameCodec.decodeDatabaseName('x00' + ii.toString(16))).to.equal(
                     String.fromCharCode(ii)
                 );
@@ -279,7 +279,7 @@ describe('sthDatabaseNameCodec tests', function() {
         });
 
         it('should not encode uppercase letters', function() {
-            for (var ii = 65; ii <= 90; ii++) {
+            for (let ii = 65; ii <= 90; ii++) {
                 expect(sthDatabaseNameCodec.encodeCollectionName(String.fromCharCode(ii))).to.equal(
                     String.fromCharCode(ii)
                 );
@@ -287,7 +287,7 @@ describe('sthDatabaseNameCodec tests', function() {
         });
 
         it('should not encode lowercase letters', function() {
-            for (var ii = 97; ii <= 122; ii++) {
+            for (let ii = 97; ii <= 122; ii++) {
                 expect(sthDatabaseNameCodec.encodeCollectionName(String.fromCharCode(ii))).to.equal(
                     String.fromCharCode(ii)
                 );
@@ -379,7 +379,7 @@ describe('sthDatabaseNameCodec tests', function() {
         });
 
         it('should not decode uppercase letters', function() {
-            for (var ii = 65; ii <= 90; ii++) {
+            for (let ii = 65; ii <= 90; ii++) {
                 expect(sthDatabaseNameCodec.decodeCollectionName(String.fromCharCode(ii))).to.equal(
                     String.fromCharCode(ii)
                 );
@@ -387,7 +387,7 @@ describe('sthDatabaseNameCodec tests', function() {
         });
 
         it('should not decode lowercase letters', function() {
-            for (var ii = 97; ii <= 122; ii++) {
+            for (let ii = 97; ii <= 122; ii++) {
                 expect(sthDatabaseNameCodec.decodeCollectionName(String.fromCharCode(ii))).to.equal(
                     String.fromCharCode(ii)
                 );

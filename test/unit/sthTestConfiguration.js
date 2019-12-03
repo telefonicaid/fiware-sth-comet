@@ -21,9 +21,7 @@
  * please contact with: [german.torodelvalle@telefonica.com]
  */
 
-'use strict';
-
-var ENV = process.env;
+const ENV = process.env;
 
 module.exports = {
     SAMPLES: ENV.SAMPLES || 1,

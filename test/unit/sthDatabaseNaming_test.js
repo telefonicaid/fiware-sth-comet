@@ -21,20 +21,18 @@
  * please contact with: [german.torodelvalle@telefonica.com]
  */
 
-'use strict';
+const ROOT_PATH = require('app-root-path');
+const sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
+const sthDatabaseNameCodec = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameCodec');
+const sthDatabaseNameMapper = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameMapper');
+const sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
+const sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
+const expect = require('expect.js');
 
-var ROOT_PATH = require('app-root-path');
-var sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
-var sthDatabaseNameCodec = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameCodec');
-var sthDatabaseNameMapper = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameMapper');
-var sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
-var sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
-var expect = require('expect.js');
-
-var INVALID_SERVICE = sthConfig.DEFAULT_SERVICE.replace(/s/g, 'S');
-var VERY_LONG_SERVICE =
+const INVALID_SERVICE = sthConfig.DEFAULT_SERVICE.replace(/s/g, 'S');
+const VERY_LONG_SERVICE =
     INVALID_SERVICE + INVALID_SERVICE + INVALID_SERVICE + INVALID_SERVICE + INVALID_SERVICE + INVALID_SERVICE;
-var COLLECTION_NAME_PARAMS = {
+const COLLECTION_NAME_PARAMS = {
     service: sthConfig.DEFAULT_SERVICE,
     servicePath: sthConfig.DEFAULT_SERVICE_PATH,
     entityId: sthTestConfig.ENTITY_ID,
@@ -42,7 +40,7 @@ var COLLECTION_NAME_PARAMS = {
     attrName: sthTestConfig.ATTRIBUTE_NAME,
     attrType: sthTestConfig.ATTRIBUTE_TYPE
 };
-var VERY_LONG_COLLECTION_NAME_PARAMS = {
+const VERY_LONG_COLLECTION_NAME_PARAMS = {
     service: sthConfig.DEFAULT_SERVICE,
     servicePath:
         sthConfig.DEFAULT_SERVICE_PATH +
@@ -64,7 +62,8 @@ var VERY_LONG_COLLECTION_NAME_PARAMS = {
  * @param  {string} databaseName The database name
  */
 function expectDatabaseName(service, databaseName) {
-    var newService, finalDatabaseName;
+    let newService;
+
     if (sthConfig.NAME_MAPPING) {
         newService = sthDatabaseNameMapper.mapService(service);
     }
@@ -73,7 +72,7 @@ function expectDatabaseName(service, databaseName) {
     }
     newService = newService || service;
 
-    finalDatabaseName =
+    const finalDatabaseName =
         (sthConfig.NAME_ENCODING ? sthDatabaseNameCodec.encodeDatabaseName(sthConfig.DB_PREFIX) : sthConfig.DB_PREFIX) +
         newService;
 
@@ -88,8 +87,12 @@ function expectDatabaseName(service, databaseName) {
  * @param  {string} dataModel            The data model
  */
 function expectCollectionName(collectionNameParams, collectionName, dataType, dataModel) {
-    var collectionName4Events, finalCollectionName;
-    var newServicePath, newEntityId, newEntityType, newAttrName;
+    let collectionName4Events;
+
+    let newServicePath;
+    let newEntityId;
+    let newEntityType;
+    let newAttrName;
     if (sthConfig.NAME_MAPPING) {
         newServicePath = sthDatabaseNameMapper.mapServicePath(
             collectionNameParams.service,
@@ -147,7 +150,7 @@ function expectCollectionName(collectionNameParams, collectionName, dataType, da
             throw new Error(dataModel + ' is not a valid data model value');
     }
 
-    finalCollectionName =
+    const finalCollectionName =
         (sthConfig.NAME_ENCODING
             ? sthDatabaseNameCodec.encodeCollectionName(sthConfig.COLLECTION_PREFIX)
             : sthConfig.COLLECTION_PREFIX) +
@@ -165,8 +168,8 @@ function expectCollectionName(collectionNameParams, collectionName, dataType, da
  * Battery of tests to check the database name generation
  */
 function databaseNameTests() {
-    var ORIGINAL_NAME_MAPPING = sthConfig.NAME_MAPPING,
-        ORIGINAL_NAME_ENCODING = sthConfig.NAME_ENCODING;
+    const ORIGINAL_NAME_MAPPING = sthConfig.NAME_MAPPING;
+    const ORIGINAL_NAME_ENCODING = sthConfig.NAME_ENCODING;
 
     ['name mapping and encoding', 'name mapping', 'name encoding', 'no mapping or encoding'].forEach(function(
         mechanism
@@ -194,13 +197,13 @@ function databaseNameTests() {
             });
 
             it('should compose the database name', function(done) {
-                var databaseName = sthDatabaseNaming.getDatabaseName(INVALID_SERVICE);
+                const databaseName = sthDatabaseNaming.getDatabaseName(INVALID_SERVICE);
                 expectDatabaseName(INVALID_SERVICE, databaseName);
                 done();
             });
 
             it('should not compose the database name for a very long service', function(done) {
-                var databaseName = sthDatabaseNaming.getDatabaseName(VERY_LONG_SERVICE);
+                const databaseName = sthDatabaseNaming.getDatabaseName(VERY_LONG_SERVICE);
                 expect(databaseName).to.be(null);
                 done();
             });
@@ -217,11 +220,11 @@ function databaseNameTests() {
  * Battery of tests to check the collection name generation
  */
 function collectionNameTests() {
-    var ORIGINAL_DATA_MODEL = sthConfig.DATA_MODEL,
-        ORIGINAL_NAME_MAPPING = sthConfig.NAME_MAPPING,
-        ORIGINAL_NAME_ENCODING = sthConfig.NAME_ENCODING,
-        dataTypes = Object.keys(sthTestConfig.DATA_TYPES),
-        dataModels = Object.keys(sthConfig.DATA_MODELS);
+    const ORIGINAL_DATA_MODEL = sthConfig.DATA_MODEL;
+    const ORIGINAL_NAME_MAPPING = sthConfig.NAME_MAPPING;
+    const ORIGINAL_NAME_ENCODING = sthConfig.NAME_ENCODING;
+    const dataTypes = Object.keys(sthTestConfig.DATA_TYPES);
+    const dataModels = Object.keys(sthConfig.DATA_MODELS);
 
     dataModels.forEach(function(dataModel) {
         describe(sthConfig.DATA_MODELS[dataModel] + ' data model', function() {
@@ -261,7 +264,7 @@ function collectionNameTests() {
                                     sthTestConfig.DATA_TYPES[dataType] +
                                     ' data',
                                 function(done) {
-                                    var collectionName =
+                                    const collectionName =
                                         sthTestConfig.DATA_TYPES[dataType] === sthTestConfig.DATA_TYPES.RAW
                                             ? sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)
                                             : sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS);
@@ -280,7 +283,7 @@ function collectionNameTests() {
                                     sthTestConfig.DATA_TYPES[dataType] +
                                     ' data if very long service path',
                                 function(done) {
-                                    var collectionName =
+                                    const collectionName =
                                         sthTestConfig.DATA_TYPES[dataType] === sthTestConfig.DATA_TYPES.RAW
                                             ? sthDatabaseNaming.getRawCollectionName(VERY_LONG_COLLECTION_NAME_PARAMS)
                                             : sthDatabaseNaming.getAggregatedCollectionName(

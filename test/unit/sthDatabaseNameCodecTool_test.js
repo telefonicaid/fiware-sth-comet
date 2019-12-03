@@ -21,29 +21,29 @@
  * please contact with: [german.torodelvalle@telefonica.com]
  */
 
-'use strict';
+/* eslint-disable consistent-return */
 
-var ROOT_PATH = require('app-root-path');
-var async = require('async');
-var expect = require('expect.js');
-var sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
-var sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
-var sthDatabaseNameCodec = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameCodec');
-var sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
-var sthDatabaseNameCodecTool = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameCodecTool');
-var sthErrors = require(ROOT_PATH + '/lib/errors/sthErrors');
-var sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
+const ROOT_PATH = require('app-root-path');
+const async = require('async');
+const expect = require('expect.js');
+const sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
+const sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
+const sthDatabaseNameCodec = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameCodec');
+const sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
+const sthDatabaseNameCodecTool = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameCodecTool');
+const sthErrors = require(ROOT_PATH + '/lib/errors/sthErrors');
+const sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
 
-var DEFAULT_SERVICE = sthConfig.DEFAULT_SERVICE.replace(/s/g, 'S');
-var DATABASE_NAME = sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE);
-var DATABASE_CONNECTION_PARAMS = {
+const DEFAULT_SERVICE = sthConfig.DEFAULT_SERVICE.replace(/s/g, 'S');
+const DATABASE_NAME = sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE);
+const DATABASE_CONNECTION_PARAMS = {
     authentication: sthConfig.DB_AUTHENTICATION,
     dbURI: sthConfig.DB_URI,
     replicaSet: sthConfig.REPLICA_SET,
     database: DATABASE_NAME,
     poolSize: sthConfig.POOL_SIZE
 };
-var COLLECTION_NAME_PARAMS = {
+const COLLECTION_NAME_PARAMS = {
     service: DEFAULT_SERVICE,
     servicePath: sthConfig.DEFAULT_SERVICE_PATH,
     entityId: sthTestConfig.ENTITY_ID,
@@ -203,9 +203,9 @@ function shouldNotDetectCollectionTest(encodingFlag, databaseName, callback) {
  * @param  {Function} callback     The callback
  */
 function checkDatabaseExists(databaseName, callback) {
-    var adminDB = sthDatabase.connection.admin();
+    const adminDB = sthDatabase.connection.admin();
     adminDB.listDatabases(function(err, databases) {
-        var databaseFound = false;
+        let databaseFound = false;
         databases.databases.forEach(function(database) {
             if (database.name === databaseName) {
                 databaseFound = true;
@@ -304,8 +304,8 @@ function shouldEncodeOrDecodeCollectionTest(databaseName, collectionName, encodi
 
 describe('sthDatabaseNameCodecTool tests', function() {
     this.timeout(5000);
-    var ORIGINAL_NAME_ENCODING = sthConfig.NAME_ENCODING,
-        ORIGINAL_NAME_SEPARATOR = sthConfig.NAME_SEPARATOR;
+    const ORIGINAL_NAME_ENCODING = sthConfig.NAME_ENCODING;
+    const ORIGINAL_NAME_SEPARATOR = sthConfig.NAME_SEPARATOR;
 
     describe('getEncodingAnalysis tests', function() {
         describe('name encoding disabled', function() {

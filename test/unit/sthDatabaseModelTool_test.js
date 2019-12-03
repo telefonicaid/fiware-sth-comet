@@ -21,34 +21,34 @@
  * please contact with: [german.torodelvalle@telefonica.com]
  */
 
-'use strict';
+/* eslint-disable consistent-return */
 
-var ROOT_PATH = require('app-root-path');
-var sthDatabaseModelTool = require(ROOT_PATH + '/lib/database/model/sthDatabaseModelTool');
-var sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
-var sthUtils = require(ROOT_PATH + '/lib/utils/sthUtils');
-var sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
-var sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
-var sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
-var expect = require('expect.js');
-var async = require('async');
+const ROOT_PATH = require('app-root-path');
+const sthDatabaseModelTool = require(ROOT_PATH + '/lib/database/model/sthDatabaseModelTool');
+const sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
+const sthUtils = require(ROOT_PATH + '/lib/utils/sthUtils');
+const sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
+const sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
+const sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
+const expect = require('expect.js');
+const async = require('async');
 
-var DATABASE_NAME = sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE);
-var DATABASE_CONNECTION_PARAMS = {
+const DATABASE_NAME = sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE);
+const DATABASE_CONNECTION_PARAMS = {
     authentication: sthConfig.DB_AUTHENTICATION,
     dbURI: sthConfig.DB_URI,
     replicaSet: sthConfig.REPLICA_SET,
     database: DATABASE_NAME,
     poolSize: sthConfig.POOL_SIZE
 };
-var COLLECTION_NAME_PARAMS = {
+const COLLECTION_NAME_PARAMS = {
     service: sthConfig.DEFAULT_SERVICE,
     servicePath: sthConfig.DEFAULT_SERVICE_PATH,
     entityId: sthTestConfig.ENTITY_ID,
     entityType: sthTestConfig.ENTITY_TYPE,
     attrName: sthTestConfig.ATTRIBUTE_NAME
 };
-var ATTRIBUTE = {
+const ATTRIBUTE = {
     NAME: 'attrName',
     TYPE: 'attrType',
     VALUE: {
@@ -82,7 +82,7 @@ function connectToDatabase(callback) {
  */
 function dropCollection(type, dataModel, callback) {
     sthConfig.DATA_MODEL = dataModel;
-    var collectionName =
+    const collectionName =
         type === sthTestConfig.DATA_TYPES.RAW
             ? sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)
             : sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS);
@@ -101,9 +101,9 @@ function dropCollection(type, dataModel, callback) {
  * @param  {String} dataType The data type
  */
 function cleanDatabaseTests(dataType) {
-    var dataModelsKeys = Object.keys(sthConfig.DATA_MODELS);
+    const dataModelsKeys = Object.keys(sthConfig.DATA_MODELS);
     describe('database clean up', function() {
-        for (var index1 = 0; index1 < dataModelsKeys.length; index1++) {
+        for (let index1 = 0; index1 < dataModelsKeys.length; index1++) {
             // prettier-ignore
             it('should drop the ' + sthConfig.DATA_MODELS[dataModelsKeys[index1]] + ' ' + dataType + 
                 ' data collection if it exists',
@@ -121,16 +121,16 @@ function cleanDatabaseTests(dataType) {
  * @param  {Function} callback        The callback
  */
 function insertData(dataType, aggregationType, dataModel, callback) {
-    var INSERTION_PARAMS,
-        collectionName,
-        attribute = {};
+    let INSERTION_PARAMS;
+
+    const attribute = {};
 
     attribute.name = ATTRIBUTE.NAME;
     attribute.type = ATTRIBUTE.TYPE;
     attribute.value = aggregationType === sthConfig.AGGREGATIONS.NUMERIC ? ATTRIBUTE.VALUE.NUMERIC : dataModel;
 
     sthConfig.DATA_MODEL = dataModel;
-    collectionName =
+    const collectionName =
         dataType === sthTestConfig.DATA_TYPES.RAW
             ? sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)
             : sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS);
@@ -141,11 +141,11 @@ function insertData(dataType, aggregationType, dataModel, callback) {
         }
 
         INSERTION_PARAMS = {
-            collection: collection,
+            collection,
             recvTime: ATTRIBUTE.RECV_TIME[dataModel],
             entityId: sthTestConfig.ENTITY_ID,
             entityType: sthTestConfig.ENTITY_TYPE,
-            attribute: attribute,
+            attribute,
             notificationInfo: { inserts: true }
         };
 
@@ -164,7 +164,7 @@ function insertData(dataType, aggregationType, dataModel, callback) {
  * @return {Boolean}              True if the database is included in the analysis result, false otherwise
  */
 function isDatabaseIncluded(analysis, databaseName) {
-    for (var index = 0; index < analysis.result.length; index++) {
+    for (let index = 0; index < analysis.result.length; index++) {
         if (analysis.result[index].databaseName === databaseName) {
             return true;
         }
@@ -180,9 +180,9 @@ function isDatabaseIncluded(analysis, databaseName) {
  * @return {Boolean}                True if the collection is included in the analysis result, false otherwise
  */
 function isCollectionIncluded(analysis, databaseName, collectionName) {
-    for (var index1 = 0; index1 < analysis.result.length; index1++) {
+    for (let index1 = 0; index1 < analysis.result.length; index1++) {
         if (analysis.result[index1].databaseName === databaseName) {
-            for (var index2 = 0; index2 < analysis.result[index1].collections2Migrate.length; index2++) {
+            for (let index2 = 0; index2 < analysis.result[index1].collections2Migrate.length; index2++) {
                 if (analysis.result[index1].collections2Migrate[index2].collectionName === collectionName) {
                     return true;
                 }
@@ -262,9 +262,9 @@ function systemCollectionNotIncludedTest(targetDataModel, done) {
         if (err) {
             return done(err);
         }
-        for (var index1 = 0; index1 < analysis.result.length; index1++) {
+        for (let index1 = 0; index1 < analysis.result.length; index1++) {
             if (analysis.result[index1].databaseName === DATABASE_NAME) {
-                for (var index2 = 0; index2 < analysis.result[index1].collections2Migrate.length; index2++) {
+                for (let index2 = 0; index2 < analysis.result[index1].collections2Migrate.length; index2++) {
                     expect(
                         analysis.result[index1].collections2Migrate[index2].collectionName.indexOf('system.')
                     ).not.to.equal(0);
@@ -332,7 +332,7 @@ function collectionPerAttributeAnalysisTests(dataType, aggregationType) {
 
         // prettier-ignore
         it('should detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + ' ' + dataType + 
-            ' data collection needs ' + 'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
+            ' data collection needs migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
             ' data model',
             analysisInclusionTest.bind(
                 null,
@@ -390,7 +390,7 @@ function collectionPerEntityAnalysisTests(dataType, aggregationType) {
 
         // prettier-ignore
         it('should detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' + dataType +
-            ' data collection needs ' + 'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE +
+            ' data collection needs migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE +
             ' data model',
             analysisInclusionTest.bind(
                 null,
@@ -402,7 +402,7 @@ function collectionPerEntityAnalysisTests(dataType, aggregationType) {
 
         // prettier-ignore
         it('should detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY + ' ' + dataType +
-           ' data collection needs ' + 'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
+           ' data collection needs migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
            ' data model',
             analysisInclusionTest.bind(
                 null,
@@ -449,7 +449,7 @@ function collectionPerServicePathAnalysisTests(dataType, aggregationType) {
 
         // prettier-ignore
         it('should not detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' + dataType +
-            ' data collection needs ' + 'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
+            ' data collection needs migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH +
             ' data model',
             analysisExclusionTest.bind(
                 null,
@@ -461,7 +461,7 @@ function collectionPerServicePathAnalysisTests(dataType, aggregationType) {
 
         // prettier-ignore
         it('should detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' + dataType +
-            ' data collection needs ' + 'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + 
+            ' data collection needs migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE + 
             ' data model',
             analysisInclusionTest.bind(
                 null,
@@ -473,7 +473,7 @@ function collectionPerServicePathAnalysisTests(dataType, aggregationType) {
 
         // prettier-ignore
         it('should detect the ' + sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH + ' ' + dataType +
-            ' data collection needs ' + 'migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +
+            ' data collection needs migration to the ' + sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY +
             ' data model',
             analysisInclusionTest.bind(
                 null,
@@ -494,7 +494,7 @@ function collectionPerServicePathAnalysisTests(dataType, aggregationType) {
  * @return {Object}                 The query
  */
 function getQuery4RawDataMigrationTest(originDataModel, targetDataModel) {
-    var query = {};
+    const query = {};
     switch (targetDataModel) {
         case sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH:
             query.entityId = sthTestConfig.ENTITY_ID;
@@ -504,7 +504,6 @@ function getQuery4RawDataMigrationTest(originDataModel, targetDataModel) {
             query.recvTime = ATTRIBUTE.RECV_TIME[originDataModel];
             return query;
         default:
-            return;
     }
 }
 
@@ -515,7 +514,7 @@ function getQuery4RawDataMigrationTest(originDataModel, targetDataModel) {
  */
 function expectCollectionRemoved(collectionName, callback) {
     sthDatabase.connection.collection(collectionName, { strict: true }, function(err) {
-        var error;
+        let error;
         if (err.message.indexOf('does not exist') === -1) {
             error = err;
         }
@@ -587,7 +586,7 @@ function expectRawDataMigration(params, options, done) {
  * @return {Object}                 The query
  */
 function getQuery4AggregatedDataMigrationTest(originDataModel, targetDataModel, resolution) {
-    var query = {};
+    const query = {};
     switch (targetDataModel) {
         case sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH:
             query['_id.entityId'] = sthTestConfig.ENTITY_ID;
@@ -597,7 +596,6 @@ function getQuery4AggregatedDataMigrationTest(originDataModel, targetDataModel, 
             query['_id.resolution'] = resolution;
             return query;
         default:
-            return;
     }
 }
 
@@ -607,7 +605,7 @@ function getQuery4AggregatedDataMigrationTest(originDataModel, targetDataModel, 
  * @param {Number} offset The offset
  */
 function getAggregatedEntry4Offset(points, offset) {
-    for (var index = 0; index < points.length; index++) {
+    for (let index = 0; index < points.length; index++) {
         if (points[index].offset === offset) {
             return points[index];
         }
@@ -642,7 +640,7 @@ function expectAggregatedDataMigration4Resolution(params, options, callback) {
                 return process.nextTick(callback.bind(this, err));
             }
             expect(results.length).to.equal(1);
-            var point = getAggregatedEntry4Offset(
+            const point = getAggregatedEntry4Offset(
                 results[0].points,
                 sthUtils.getOffset(params.resolution, ATTRIBUTE.RECV_TIME[params.originDataModel])
             );
@@ -658,17 +656,15 @@ function expectAggregatedDataMigration4Resolution(params, options, callback) {
                     expect(point.occur[params.originDataModel]).to.equal(1);
                     expect(point.occur[params.targetDataModel]).to.equal(1);
                 }
+            } else if (point.sum) {
+                expect(point.samples).to.equal(1);
+                expect(point.sum).to.equal(ATTRIBUTE.VALUE.NUMERIC);
+                expect(point.sum2).to.equal(Math.pow(ATTRIBUTE.VALUE.NUMERIC, 2));
+                expect(point.min).to.equal(ATTRIBUTE.VALUE.NUMERIC);
+                expect(point.max).to.equal(ATTRIBUTE.VALUE.NUMERIC);
             } else {
-                if (point.sum) {
-                    expect(point.samples).to.equal(1);
-                    expect(point.sum).to.equal(ATTRIBUTE.VALUE.NUMERIC);
-                    expect(point.sum2).to.equal(Math.pow(ATTRIBUTE.VALUE.NUMERIC, 2));
-                    expect(point.min).to.equal(ATTRIBUTE.VALUE.NUMERIC);
-                    expect(point.max).to.equal(ATTRIBUTE.VALUE.NUMERIC);
-                } else {
-                    expect(point.samples).to.equal(1);
-                    expect(point.occur[params.originDataModel]).to.equal(1);
-                }
+                expect(point.samples).to.equal(1);
+                expect(point.occur[params.originDataModel]).to.equal(1);
             }
             return process.nextTick(callback);
         });
@@ -695,7 +691,7 @@ function expectAggregatedDataMigration(params, options, done) {
         [
             async.apply(sthDatabase.connection.collection.bind(sthDatabase.connection, params.targetCollectionName)),
             function onTargetCollection(targetCollection, callback) {
-                var expect4Resolution = [];
+                const expect4Resolution = [];
                 sthConfig.AGGREGATION_BY.forEach(function(resolution) {
                     params.resolution = resolution;
                     params.targetCollection = targetCollection;
@@ -731,14 +727,14 @@ function expectAggregatedDataMigration(params, options, done) {
  */
 function migrationTest(params, options, done) {
     sthConfig.DATA_MODEL = params.originDataModel;
-    var originCollectionName =
+    const originCollectionName =
         params.dataType === sthTestConfig.DATA_TYPES.RAW
             ? sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)
             : sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS);
     params.originCollectionName = originCollectionName;
 
     sthConfig.DATA_MODEL = params.targetDataModel;
-    var targetCollectionName =
+    const targetCollectionName =
         params.dataType === sthTestConfig.DATA_TYPES.RAW
             ? sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)
             : sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS);
@@ -765,13 +761,14 @@ function migrationTest(params, options, done) {
  */
 function noMigrationTest(dataType, originDataModel, targetDataModel, done) {
     sthConfig.DATA_MODEL = originDataModel;
-    var originCollectionName =
+    const originCollectionName =
         dataType === sthTestConfig.DATA_TYPES.RAW
             ? sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS)
             : sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS);
 
     sthConfig.DATA_MODEL = targetDataModel;
     sthDatabaseModelTool.migrateCollection(DATABASE_NAME, originCollectionName, function(err) {
+        /* eslint-disable-next-line no-unused-expressions */
         expect(err).to.exit;
         done();
     });
@@ -840,8 +837,8 @@ function collectionPerEntityCleanMigrationTests(dataType, aggregationType, optio
             migrationTest.bind(
                 null,
                 {
-                    dataType: dataType,
-                    aggregationType: aggregationType,
+                    dataType,
+                    aggregationType,
                     originDataModel: sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY,
                     targetDataModel: sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH
                 },
@@ -887,8 +884,8 @@ function collectionPerEntityUpdateMigrationTests(dataType, aggregationType, opti
             migrationTest.bind(
                 null,
                 {
-                    dataType: dataType,
-                    aggregationType: aggregationType,
+                    dataType,
+                    aggregationType,
                     originDataModel: sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY,
                     targetDataModel: sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH
                 },
@@ -902,10 +899,10 @@ function collectionPerEntityUpdateMigrationTests(dataType, aggregationType, opti
 
 describe('sthDatabaseModelTool tests', function() {
     this.timeout(5000);
-    var originalDataModel = sthConfig.DATA_MODEL;
+    const originalDataModel = sthConfig.DATA_MODEL;
     [sthConfig.AGGREGATIONS.NUMERIC, sthConfig.AGGREGATIONS.TEXTUAL].forEach(function(aggregationType) {
         describe(aggregationType + ' aggregation type', function() {
-            var dataTypes = Object.keys(sthTestConfig.DATA_TYPES);
+            const dataTypes = Object.keys(sthTestConfig.DATA_TYPES);
             dataTypes.forEach(function(dataType) {
                 describe(sthTestConfig.DATA_TYPES[dataType] + ' data', function() {
                     describe('data model analysis', function() {

@@ -21,17 +21,15 @@
  * please contact with: [german.torodelvalle@telefonica.com]
  */
 
-'use strict';
-
-var ROOT_PATH = require('app-root-path');
-var sth = require(ROOT_PATH + '/lib/sth');
-var sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
-var sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
-var sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
-var sthTestHelper = require(ROOT_PATH + '/test/unit/sthTestUtils.js');
-var hapi = require('hapi');
-var expect = require('expect.js');
-var request = require('request');
+const ROOT_PATH = require('app-root-path');
+const sth = require(ROOT_PATH + '/lib/sth');
+const sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
+const sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
+const sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
+const sthTestHelper = require(ROOT_PATH + '/test/unit/sthTestUtils.js');
+const hapi = require('hapi');
+const expect = require('expect.js');
+const request = require('request');
 
 describe('sthGetLogLevelHandler tests', function() {
     describe('database connection', function() {
