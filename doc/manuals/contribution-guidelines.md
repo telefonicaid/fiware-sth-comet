@@ -53,7 +53,7 @@ release process is explained in the **Releasing** section below.
 
 ## Coding guidelines
 
-eslint
+ESLint
 
 Uses the provided `.eslintrc.json` flag files. To check source code style, type
 
