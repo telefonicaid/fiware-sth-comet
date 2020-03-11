@@ -13,7 +13,7 @@ guidelines only, and this section may be revised to provide newer information at
 
 Disclaimer:
 
--   This section has been last updated in January 2019. Please take into account its content could be obsolete.
+-   This section has been last updated in March 2020. Please take into account its content could be obsolete.
 -   Note we develop this software in Agile way, so development plan is continuously under review. Thus, this roadmap has
     to be understood as rough plan of features to be done along time which is fully valid only at the time of writing
     it. This roadmap has not be understood as a commitment on features and/or dates.
@@ -34,8 +34,7 @@ the product in the short term:
 The following list of features are planned to be addressed in the medium term, typically within the subsequent
 release(s) generated in the next **9 months** after next planned release:
 
--   NGSI v2 notification reception endpoint
--   Align raw and aggregated data API with NGSI v2
+-   Improve aggrMethod (see details at #432)
 
 ## Long term
 
@@ -43,5 +42,4 @@ The following list of features are proposals regarding the longer-term evolution
 of these features has not yet been scheduled for a release in the near future. Please feel free to contact us if you
 wish to get involved in the implementation or influence the roadmap
 
--   Improve aggrMethod (see details at #432)
 -   Support structured attributes
