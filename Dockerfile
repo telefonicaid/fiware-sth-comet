@@ -24,6 +24,10 @@ FROM node:${NODE_VERSION}
 
 MAINTAINER FIWARE STH Team. Telefónica I+D
 
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends ca-certificates curl wget \
+	&& rm -rf /var/lib/apt/lists/*
+
 COPY . /opt/sth/
 WORKDIR /opt/sth
 
