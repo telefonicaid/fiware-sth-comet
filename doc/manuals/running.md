@@ -40,6 +40,7 @@ The environment variables accepted by the script (for which there exists counter
 -   `DB_PASSWORD`: The password to use for the database connection. Optional. Default value: "".
 -   `DB_URI`: The URI to use for the database connection. This does not include the 'mongo://' protocol part (see a
     couple of examples below). Optional. Default value: "localhost:27017".
+-   `DB_AUTH_SOURCE`: The auth source to use for the database connection. Optional. Default value "".
 -   `REPLICA_SET`: The name of the replica set to connect to, if any. Default value: "".
 -   `DB_PREFIX`: The prefix to be added to the service for the creation of the databases. More information below.
     Optional. Default value: "sth\_".
@@ -96,9 +97,8 @@ The environment variables accepted by the script (for which there exists counter
     logging, for further information please check out the [logops](https://www.npmjs.com/package/logops) npm package
     information online. Default value: "json".
 -   `PROOF_OF_LIFE_INTERVAL`: The time in seconds between proof of life logging messages informing that the server is up
-    and running normally. Default value: "60".
-    `PROCESSED_REQUEST_LOG_STATISTICS_INTERVAL`: The time in seconds between
-    processed requests statistics appear in the logs. Default value: "60".  
+    and running normally. Default value: "60". `PROCESSED_REQUEST_LOG_STATISTICS_INTERVAL`: The time in seconds between
+    processed requests statistics appear in the logs. Default value: "60".
 
 For example, to start the STH server listening on port 7777, connecting to a MongoDB instance listening on
 mymongo.com:27777 and without filtering out the empty results, use:
@@ -122,9 +122,9 @@ separator.
 As already mentioned, all these configuration parameters can also be adjusted using the `config.js` file whose contents
 are self-explanatory.
 
-It is important to note that there is a [limitation](https://docs.mongodb.com/manual/reference/limits/#namespaces) of 120
-bytes for the namespaces (concatenation of the database name and collection names) in MongoDB. Related to this, the STH
-generates the collection names using the following mechanism:
+It is important to note that there is a [limitation](https://docs.mongodb.com/manual/reference/limits/#namespaces) of
+120 bytes for the namespaces (concatenation of the database name and collection names) in MongoDB. Related to this, the
+STH generates the collection names using the following mechanism:
 
 -   The collection names are generated as a concatenation of the `COLLECTION_PREFIX` configuration parameter, the
     service path, the entity id, the entity type and the suffix ".aggr" for the collections storing the aggregated data.
@@ -134,9 +134,13 @@ generates the collection names using the following mechanism:
 
 ### Configuration for CORS in config.js
 
-The STH component provides the CORS functionality to user in order to configure the CORS policy which can be used to process cross origin request:
+The STH component provides the CORS functionality to user in order to configure the CORS policy which can be used to
+process cross origin request:
+
 -   `enabled`: This parameter is used to set the CORS policy true or false. Default value is 'false'.
 -   `origin`: This parameter is used to allow only trusted domains to access the application.
--   `headers`: This parameter is used to set headers like 'Access-Control-Allow-Origin','Access-Control-Allow-Headers' which must be returned from the server in the request headers.
--   `additionalHeaders`: This parameter is used to set additionalHeaders like "fiware-servicepath,fiware-service" which must be returned from the server in the request headers.
+-   `headers`: This parameter is used to set headers like 'Access-Control-Allow-Origin','Access-Control-Allow-Headers'
+    which must be returned from the server in the request headers.
+-   `additionalHeaders`: This parameter is used to set additionalHeaders like "fiware-servicepath,fiware-service" which
+    must be returned from the server in the request headers.
 -   `credentials`: This parameter is set as 'true' to allow "Access-Control-Allow-Credentials" in the request headers.
