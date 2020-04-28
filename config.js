@@ -81,6 +81,8 @@ config.database = {
     user: '',
     // The password to use for the database connection. Default value: "".
     password: '',
+    // The auth source to use for the database connection. Default value: "".
+    authSource: '',
     // The URI to use for the database connection. It supports replica set URIs. This does not
     // include the "mongo://" protocol part. Default value: "localhost:27017"
     URI: 'localhost:27017',
