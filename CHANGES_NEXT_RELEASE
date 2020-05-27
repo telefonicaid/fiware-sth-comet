@@ -1,5 +1,1 @@
-- Fix: Filetype issue fixed for hLimit and hOffset (#539)
-- Fix: Updated temporary csv filename for uniqueness (#532)
-- Upgrade NodeJS version from 8.16.1 to 10.19.0 in Dockerfile due to Node 8 End-of-Life 
-- Make optional PM2 usage in docker entrypoint
-- Add: MongoDB auth source configuration (env var DB_AUTH_SOURCE)
+
