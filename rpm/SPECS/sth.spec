@@ -160,6 +160,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_install_dir}
 
 %changelog
+* Wed May 27 2020 Alvaro Vega <alvaro.vegagarcia@telefonica.com> 2.8.0
+- Fix: Filetype issue fixed for hLimit and hOffset (#539)
+- Fix: Updated temporary csv filename for uniqueness (#532)
+- Upgrade NodeJS version from 8.16.1 to 10.19.0 in Dockerfile due to Node 8 End-of-Life
+- Make optional PM2 usage in docker entrypoint
+- Add: MongoDB auth source configuration (env var DB_AUTH_SOURCE)
+
 * Mon Nov 11 2019 Fermin Galan <fermin.galanmarquez@telefonica.com> 2.7.0
 - Add: NGSIv2 endpoints for the raw and aggregation API operations (#118)
 - Add: CORS support (#500)
