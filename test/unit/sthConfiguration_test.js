@@ -21,15 +21,13 @@
  * please contact with: [german.torodelvalle@telefonica.com]
  */
 
-'use strict';
+const ROOT_PATH = require('app-root-path');
+const STH_CONFIGURATION_PATH = ROOT_PATH + '/lib/configuration/sthConfiguration';
+let sthConfig = require(STH_CONFIGURATION_PATH);
+const expect = require('expect.js');
+const clearRequire = require('clear-require');
 
-var ROOT_PATH = require('app-root-path');
-var STH_CONFIGURATION_PATH = ROOT_PATH + '/lib/configuration/sthConfiguration';
-var sthConfig = require(STH_CONFIGURATION_PATH);
-var expect = require('expect.js');
-var clearRequire = require('clear-require');
-
-var DEFAULT_VALUES = {
+const DEFAULT_VALUES = {
     LOGOPS_LEVEL: 'INFO',
     LOGOPS_FORMAT: 'pipe',
     STH_HOST: 'localhost',
@@ -384,14 +382,11 @@ describe('sthConfiguration tests', function() {
             expect(sthConfig.DATA_MODEL).to.equal('collection-per-service-path');
         });
 
-        it(
-            'should set the data model configuration parameter to the default value if not set via ' + 'DATA_MODEL',
-            function() {
-                delete process.env.DATA_MODEL;
-                sthConfig = require(STH_CONFIGURATION_PATH);
-                expect(sthConfig.DATA_MODEL).to.equal(DEFAULT_VALUES.DATA_MODEL);
-            }
-        );
+        it('should set the data model configuration parameter to the default value if not set via DATA_MODEL', function() {
+            delete process.env.DATA_MODEL;
+            sthConfig = require(STH_CONFIGURATION_PATH);
+            expect(sthConfig.DATA_MODEL).to.equal(DEFAULT_VALUES.DATA_MODEL);
+        });
 
         it('should set the data model configuration parameter to the default value if set to an invalid value', function() {
             process.env.DATA_MODEL = 'collection-per-invalid-value'; // Not starting with '/'.
@@ -405,14 +400,11 @@ describe('sthConfiguration tests', function() {
             expect(sthConfig.DB_USERNAME).to.equal('db-user');
         });
 
-        it(
-            'should set the database user configuration parameter to the default value ' + 'if not set via DB_USERNAME',
-            function() {
-                delete process.env.DB_USERNAME;
-                sthConfig = require(STH_CONFIGURATION_PATH);
-                expect(sthConfig.DB_USERNAME).to.equal(DEFAULT_VALUES.DB_USERNAME);
-            }
-        );
+        it('should set the database user configuration parameter to the default value if not set via DB_USERNAME', function() {
+            delete process.env.DB_USERNAME;
+            sthConfig = require(STH_CONFIGURATION_PATH);
+            expect(sthConfig.DB_USERNAME).to.equal(DEFAULT_VALUES.DB_USERNAME);
+        });
 
         it("should set the database password configuration parameter to 'db-password'", function() {
             process.env.DB_PASSWORD = 'db-password';
@@ -442,14 +434,11 @@ describe('sthConfiguration tests', function() {
             expect(sthConfig.DB_URI).to.equal('mongodb1:27017,mongodb2:27017,mongodb3:27017');
         });
 
-        it(
-            'should set the database URI configuration parameter to the default value ' + 'if not set via DB_URI',
-            function() {
-                delete process.env.DB_URI;
-                sthConfig = require(STH_CONFIGURATION_PATH);
-                expect(sthConfig.DB_URI).to.equal(DEFAULT_VALUES.DB_URI);
-            }
-        );
+        it('should set the database URI configuration parameter to the default value if not set via DB_URI', function() {
+            delete process.env.DB_URI;
+            sthConfig = require(STH_CONFIGURATION_PATH);
+            expect(sthConfig.DB_URI).to.equal(DEFAULT_VALUES.DB_URI);
+        });
 
         it("should set the database replica set configuration parameter to 'the-replica-set'", function() {
             process.env.REPLICA_SET = 'the-replica-set';

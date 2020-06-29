@@ -21,29 +21,29 @@
  * please contact with: [german.torodelvalle@telefonica.com]
  */
 
-'use strict';
+/* eslint-disable consistent-return */
 
-var ROOT_PATH = require('app-root-path');
-var async = require('async');
-var expect = require('expect.js');
-var sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
-var sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
-var sthDatabaseNameMapper = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameMapper');
-var sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
-var sthDatabaseNameMapperTool = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameMapperTool');
-var sthErrors = require(ROOT_PATH + '/lib/errors/sthErrors');
-var sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
+const ROOT_PATH = require('app-root-path');
+const async = require('async');
+const expect = require('expect.js');
+const sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
+const sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
+const sthDatabaseNameMapper = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameMapper');
+const sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
+const sthDatabaseNameMapperTool = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameMapperTool');
+const sthErrors = require(ROOT_PATH + '/lib/errors/sthErrors');
+const sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
 
-var DEFAULT_SERVICE = sthConfig.DEFAULT_SERVICE;
-var DATABASE_NAME = sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE);
-var DATABASE_CONNECTION_PARAMS = {
+const DEFAULT_SERVICE = sthConfig.DEFAULT_SERVICE;
+const DATABASE_NAME = sthDatabaseNaming.getDatabaseName(DEFAULT_SERVICE);
+const DATABASE_CONNECTION_PARAMS = {
     authentication: sthConfig.DB_AUTHENTICATION,
     dbURI: sthConfig.DB_URI,
     replicaSet: sthConfig.REPLICA_SET,
     database: DATABASE_NAME,
     poolSize: sthConfig.POOL_SIZE
 };
-var COLLECTION_NAME_PARAMS = {
+const COLLECTION_NAME_PARAMS = {
     service: DEFAULT_SERVICE,
     servicePath: sthConfig.DEFAULT_SERVICE_PATH,
     entityId: sthTestConfig.ENTITY_ID,
@@ -206,9 +206,9 @@ function shouldNotDetectCollectionTest(mappingFlag, databaseName, collectionName
  * @param  {Function} callback     The callback
  */
 function checkDatabaseExists(databaseName, callback) {
-    var adminDB = sthDatabase.connection.admin();
+    const adminDB = sthDatabase.connection.admin();
     adminDB.listDatabases(function(err, databases) {
-        var databaseFound = false;
+        let databaseFound = false;
         databases.databases.forEach(function(database) {
             if (database.name === databaseName) {
                 databaseFound = true;
@@ -371,7 +371,7 @@ function shouldNotMapOrUnmapCollectionTest(databaseName, collectionName, mapping
 }
 
 describe('sthDatabaseNameMapperTool tests', function() {
-    var ORIGINAL_NAME_MAPPING = sthConfig.NAME_MAPPING;
+    const ORIGINAL_NAME_MAPPING = sthConfig.NAME_MAPPING;
 
     describe('getMappingAnalysis tests', function() {
         describe('name mapping disabled', function() {

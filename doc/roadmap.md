@@ -22,8 +22,8 @@ Disclaimer:
 
 ## Short term
 
-The following list of features are planned to be addressed in the short term, and incorporated in a next release of
-the product in the short term:
+The following list of features are planned to be addressed in the short term, and incorporated in a next release of the
+product in the short term:
 
 -   Make this GE compatible with
     [FIWARE GE requirements](https://docs.google.com/spreadsheets/d/13Pzhbq-xwd8gTCvYqeNkfaoDt-iGCedc1zlb_elxv2M/edit#gid=0)

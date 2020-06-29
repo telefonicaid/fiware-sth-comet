@@ -177,8 +177,8 @@ To do it, follow the next steps once you have installed Docker in your machine:
 
 ### Using PM2
 
-The STH within the Docker image can be run encapsulated within the [pm2](http://pm2.keymetrics.io/) Process
-Manager by adding the `PM2_ENABLED` environment variable.
+The STH within the Docker image can be run encapsulated within the [pm2](http://pm2.keymetrics.io/) Process Manager by
+adding the `PM2_ENABLED` environment variable.
 
 ```console
 docker run --name sth -e PM2_ENABLED=true -d fiware/fiware-sth-comet

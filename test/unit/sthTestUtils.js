@@ -21,18 +21,16 @@
  * please contact with: [german.torodelvalle@telefonica.com]
  */
 
-'use strict';
+const ROOT_PATH = require('app-root-path');
+const sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
+const sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
+const sthUtils = require(ROOT_PATH + '/lib/utils/sthUtils');
+const sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
+const sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
+const request = require('request');
+const expect = require('expect.js');
 
-var ROOT_PATH = require('app-root-path');
-var sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
-var sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
-var sthUtils = require(ROOT_PATH + '/lib/utils/sthUtils');
-var sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
-var sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
-var request = require('request');
-var expect = require('expect.js');
-
-var events = [];
+let events = [];
 
 /**
  * Returns a new random Date in the range defined by the passed dates
@@ -52,8 +50,8 @@ function getRandomDate(start, end) {
  * @returns {Object} The created raw event
  */
 function createEvent(attrName, attrType, recvTime) {
-    var theEvent;
-    var attrValue =
+    let theEvent;
+    const attrValue =
         attrType !== 'string'
             ? (
                   Math.random() * (parseFloat(sthTestConfig.MAX_VALUE) - parseFloat(sthTestConfig.MIN_VALUE)) -
@@ -63,30 +61,30 @@ function createEvent(attrName, attrType, recvTime) {
     switch (sthConfig.DATA_MODEL) {
         case sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH:
             theEvent = {
-                recvTime: recvTime,
+                recvTime,
                 entityId: sthTestConfig.ENTITY_ID,
                 entityType: sthTestConfig.ENTITY_TYPE,
-                attrName: attrName,
-                attrType: attrType,
-                attrValue: attrValue
+                attrName,
+                attrType,
+                attrValue
             };
             break;
         case sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY:
             theEvent = {
-                recvTime: recvTime,
-                attrName: attrName,
-                attrType: attrType,
-                attrValue: attrValue
+                recvTime,
+                attrName,
+                attrType,
+                attrValue
             };
             break;
         case sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE:
             theEvent = {
-                recvTime: recvTime,
+                recvTime,
                 // This property is not really stored for the collections per attribute model.
                 //  It is included just to ease its recovery
-                attrName: attrName,
-                attrType: attrType,
-                attrValue: attrValue
+                attrName,
+                attrType,
+                attrValue
             };
             break;
     }
@@ -103,9 +101,9 @@ function cleanEvents() {
  * @returns {number} The day of the year (a number between 1 and 366)
  */
 function getDayOfYear(date) {
-    var start = new Date(date.getFullYear(), 0, 0);
-    var diff = date - start;
-    var oneDay = 1000 * 60 * 60 * 24;
+    const start = new Date(date.getFullYear(), 0, 0);
+    const diff = date - start;
+    const oneDay = 1000 * 60 * 60 * 24;
     return Math.ceil(diff / oneDay);
 }
 
@@ -133,51 +131,49 @@ function addEventTest(anEvent, includeTimeInstantMetadata, done) {
         function(err, collection) {
             if (err) {
                 done(err);
+            } else if (includeTimeInstantMetadata) {
+                sthDatabase.storeRawData(
+                    {
+                        collection,
+                        recvTime: null,
+                        entityId: sthTestConfig.ENTITY_ID,
+                        entityType: sthTestConfig.ENTITY_TYPE,
+                        attribute: {
+                            name: anEvent.attrName,
+                            type: anEvent.attrType,
+                            value: anEvent.attrValue,
+                            metadatas: [
+                                {
+                                    name: 'TimeInstant',
+                                    type: 'ISO8601',
+                                    value: anEvent.recvTime
+                                }
+                            ]
+                        },
+                        notificationInfo: {
+                            inserts: true
+                        }
+                    },
+                    done
+                );
             } else {
-                if (includeTimeInstantMetadata) {
-                    sthDatabase.storeRawData(
-                        {
-                            collection: collection,
-                            recvTime: null,
-                            entityId: sthTestConfig.ENTITY_ID,
-                            entityType: sthTestConfig.ENTITY_TYPE,
-                            attribute: {
-                                name: anEvent.attrName,
-                                type: anEvent.attrType,
-                                value: anEvent.attrValue,
-                                metadatas: [
-                                    {
-                                        name: 'TimeInstant',
-                                        type: 'ISO8601',
-                                        value: anEvent.recvTime
-                                    }
-                                ]
-                            },
-                            notificationInfo: {
-                                inserts: true
-                            }
+                sthDatabase.storeRawData(
+                    {
+                        collection,
+                        recvTime: anEvent.recvTime,
+                        entityId: sthTestConfig.ENTITY_ID,
+                        entityType: sthTestConfig.ENTITY_TYPE,
+                        attribute: {
+                            name: anEvent.attrName,
+                            type: anEvent.attrType,
+                            value: anEvent.attrValue
                         },
-                        done
-                    );
-                } else {
-                    sthDatabase.storeRawData(
-                        {
-                            collection: collection,
-                            recvTime: anEvent.recvTime,
-                            entityId: sthTestConfig.ENTITY_ID,
-                            entityType: sthTestConfig.ENTITY_TYPE,
-                            attribute: {
-                                name: anEvent.attrName,
-                                type: anEvent.attrType,
-                                value: anEvent.attrValue
-                            },
-                            notificationInfo: {
-                                inserts: true
-                            }
-                        },
-                        done
-                    );
-                }
+                        notificationInfo: {
+                            inserts: true
+                        }
+                    },
+                    done
+                );
             }
         }
     );
@@ -190,8 +186,8 @@ function addEventTest(anEvent, includeTimeInstantMetadata, done) {
  * @param {Function} done The mocha done() callback function
  */
 function addAggregatedDataTest(anEvent, done) {
-    var counter = 0;
-    var callback = function(err) {
+    let counter = 0;
+    const callback = function(err) {
         if (err) {
             done(err);
         }
@@ -219,7 +215,7 @@ function addAggregatedDataTest(anEvent, done) {
             } else {
                 sthDatabase.storeAggregatedData4Resolution(
                     {
-                        collection: collection,
+                        collection,
                         entityId: sthTestConfig.ENTITY_ID,
                         entityType: sthTestConfig.ENTITY_TYPE,
                         attrName: anEvent.attrName,
@@ -235,7 +231,7 @@ function addAggregatedDataTest(anEvent, done) {
                 );
                 sthDatabase.storeAggregatedData4Resolution(
                     {
-                        collection: collection,
+                        collection,
                         entityId: sthTestConfig.ENTITY_ID,
                         entityType: sthTestConfig.ENTITY_TYPE,
                         attrName: anEvent.attrName,
@@ -251,7 +247,7 @@ function addAggregatedDataTest(anEvent, done) {
                 );
                 sthDatabase.storeAggregatedData4Resolution(
                     {
-                        collection: collection,
+                        collection,
                         entityId: sthTestConfig.ENTITY_ID,
                         entityType: sthTestConfig.ENTITY_TYPE,
                         attrName: anEvent.attrName,
@@ -267,7 +263,7 @@ function addAggregatedDataTest(anEvent, done) {
                 );
                 sthDatabase.storeAggregatedData4Resolution(
                     {
-                        collection: collection,
+                        collection,
                         entityId: sthTestConfig.ENTITY_ID,
                         entityType: sthTestConfig.ENTITY_TYPE,
                         attrName: anEvent.attrName,
@@ -283,7 +279,7 @@ function addAggregatedDataTest(anEvent, done) {
                 );
                 sthDatabase.storeAggregatedData4Resolution(
                     {
-                        collection: collection,
+                        collection,
                         entityId: sthTestConfig.ENTITY_ID,
                         entityType: sthTestConfig.ENTITY_TYPE,
                         attrName: anEvent.attrName,
@@ -309,7 +305,7 @@ function addAggregatedDataTest(anEvent, done) {
  * @param {boolean} includeTimeInstantMetadata The test case should include a TimeInstant metadata
  */
 function eachEventTestSuite(attrName, attrType, includeTimeInstantMetadata) {
-    var anEvent;
+    let anEvent;
 
     before(function() {
         if (events.length === sthTestConfig.SAMPLES) {
@@ -319,6 +315,7 @@ function eachEventTestSuite(attrName, attrType, includeTimeInstantMetadata) {
             events[0] ||
             createEvent(attrName, attrType, getRandomDate(sthTestConfig.START_DATE, sthTestConfig.END_DATE));
         events.push(anEvent);
+        /* eslint-disable-next-line no-console */
         console.log('New event: %s', JSON.stringify(anEvent));
     });
 
@@ -336,13 +333,14 @@ function eachEventTestSuite(attrName, attrType, includeTimeInstantMetadata) {
  * @param {Function} done The mocha done() callback function
  */
 function dropRawEventCollectionTest(done) {
-    var collectionName4Events = sthDatabaseNaming.getRawCollectionName({
+    const collectionName4Events = sthDatabaseNaming.getRawCollectionName({
         service: sthConfig.DEFAULT_SERVICE,
         servicePath: sthConfig.DEFAULT_SERVICE_PATH,
         entityId: sthTestConfig.ENTITY_ID,
         entityType: sthTestConfig.ENTITY_TYPE,
         attrName: sthTestConfig.ATTRIBUTE_NAME
     });
+    /* eslint-disable-next-line no-console */
     console.log(collectionName4Events);
     sthDatabase.connection.dropCollection(collectionName4Events, function(err) {
         if (err && err.message === 'ns not found') {
@@ -357,7 +355,7 @@ function dropRawEventCollectionTest(done) {
  * @param {Function} done The mocha done() callback function
  */
 function dropAggregatedDataCollectionTest(done) {
-    var collectionName4Aggregated = sthDatabaseNaming.getAggregatedCollectionName({
+    const collectionName4Aggregated = sthDatabaseNaming.getAggregatedCollectionName({
         service: sthConfig.DEFAULT_SERVICE,
         servicePath: sthConfig.DEFAULT_SERVICE_PATH,
         entityId: sthTestConfig.ENTITY_ID,
@@ -382,11 +380,11 @@ function dropAggregatedDataCollectionTest(done) {
  * @returns {string}
  */
 function getURL(type, options, attrName) {
-    var url = 'http://' + sthConfig.STH_HOST + ':' + sthConfig.STH_PORT,
-        isParams = false;
+    let url = 'http://' + sthConfig.STH_HOST + ':' + sthConfig.STH_PORT;
+    let isParams = false;
 
     function getQuerySeparator() {
-        var separator;
+        let separator;
         if (!isParams) {
             separator = '?';
             isParams = true;
@@ -511,10 +509,10 @@ function getURL(type, options, attrName) {
  * @param {Function} done The mocha done() callback function
  */
 function noRawDataIfEntityCaseChange(ngsiVersion, params, done) {
-    var service = params.service,
-        servicePath = params.servicePath,
-        attrName = params.attrName,
-        options = params.options;
+    const service = params.service;
+    const servicePath = params.servicePath;
+    const attrName = params.attrName;
+    const options = params.options;
 
     options.changeEntityCase = true;
 
@@ -529,7 +527,7 @@ function noRawDataIfEntityCaseChange(ngsiVersion, params, done) {
                 }
             },
             function(err, response, body) {
-                var bodyJSON = JSON.parse(body);
+                const bodyJSON = JSON.parse(body);
                 expect(err).to.equal(null);
                 expect(response.statusCode).to.equal(200);
                 expect(bodyJSON.type).to.equal('StructuredValue');
@@ -550,7 +548,7 @@ function noRawDataIfEntityCaseChange(ngsiVersion, params, done) {
                 }
             },
             function(err, response, body) {
-                var bodyJSON = JSON.parse(body);
+                const bodyJSON = JSON.parse(body);
                 expect(err).to.equal(null);
                 expect(response.statusCode).to.equal(200);
                 expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).to.equal(
@@ -579,11 +577,11 @@ function noRawDataIfEntityCaseChange(ngsiVersion, params, done) {
  * @param {Function} done The mocha done() callback function
  */
 function rawDataAvailableDateFilter(ngsiVersion, params, done) {
-    var service = params.service,
-        servicePath = params.servicePath,
-        attrName = params.attrName,
-        options = params.options,
-        checkRecvTime = params.checkRecvTime;
+    const service = params.service;
+    const servicePath = params.servicePath;
+    const attrName = params.attrName;
+    const options = params.options;
+    const checkRecvTime = params.checkRecvTime;
 
     if (ngsiVersion === 2) {
         request(
@@ -596,7 +594,7 @@ function rawDataAvailableDateFilter(ngsiVersion, params, done) {
                 }
             },
             function(err, response, body) {
-                var bodyJSON = JSON.parse(body);
+                const bodyJSON = JSON.parse(body);
                 expect(err).to.equal(null);
                 expect(response.statusCode).to.equal(200);
                 if (options && options.count) {
@@ -628,7 +626,7 @@ function rawDataAvailableDateFilter(ngsiVersion, params, done) {
                 }
             },
             function(err, response, body) {
-                var bodyJSON = JSON.parse(body);
+                const bodyJSON = JSON.parse(body);
                 expect(err).to.equal(null);
                 expect(response.statusCode).to.equal(200);
                 if (options && options.count) {
@@ -677,11 +675,11 @@ function rawDataAvailableDateFilter(ngsiVersion, params, done) {
  * @param {string} done The mocha done() callback function
  */
 function noAggregatedDataIfEntityCaseChangeTest(ngsiVersion, params, done) {
-    var service = params.service,
-        servicePath = params.servicePath,
-        attrName = params.attrName,
-        aggrMethod = params.aggrMethod,
-        resolution = params.resolution;
+    const service = params.service;
+    const servicePath = params.servicePath;
+    const attrName = params.attrName;
+    const aggrMethod = params.aggrMethod;
+    const resolution = params.resolution;
 
     if (ngsiVersion === 2) {
         request(
@@ -689,7 +687,7 @@ function noAggregatedDataIfEntityCaseChangeTest(ngsiVersion, params, done) {
                 uri: getURL(
                     sthTestConfig.API_OPERATION.READ_V2,
                     {
-                        aggrMethod: aggrMethod,
+                        aggrMethod,
                         aggrPeriod: resolution,
                         changeEntityCase: true
                     },
@@ -702,7 +700,7 @@ function noAggregatedDataIfEntityCaseChangeTest(ngsiVersion, params, done) {
                 }
             },
             function(err, response, body) {
-                var bodyJSON = JSON.parse(body);
+                const bodyJSON = JSON.parse(body);
                 expect(err).to.equal(null);
                 expect(response.statusCode).to.equal(200);
                 expect(bodyJSON.type).to.equal('StructuredValue');
@@ -718,7 +716,7 @@ function noAggregatedDataIfEntityCaseChangeTest(ngsiVersion, params, done) {
                 uri: getURL(
                     sthTestConfig.API_OPERATION.READ,
                     {
-                        aggrMethod: aggrMethod,
+                        aggrMethod,
                         aggrPeriod: resolution,
                         changeEntityCase: true
                     },
@@ -731,7 +729,7 @@ function noAggregatedDataIfEntityCaseChangeTest(ngsiVersion, params, done) {
                 }
             },
             function(err, response, body) {
-                var bodyJSON = JSON.parse(body);
+                const bodyJSON = JSON.parse(body);
                 expect(err).to.equal(null);
                 expect(response.statusCode).to.equal(200);
                 expect(bodyJSON.contextResponses[0].contextElement.attributes[0].name).to.equal(
@@ -761,13 +759,13 @@ function noAggregatedDataIfEntityCaseChangeTest(ngsiVersion, params, done) {
  * @param {string} done The mocha done() callback function
  */
 function noAggregatedDataSinceDateTest(ngsiVersion, params, done) {
-    var service = params.service,
-        servicePath = params.servicePath,
-        attrName = params.attrName,
-        aggrMethod = params.aggrMethod,
-        resolution = params.resolution;
+    const service = params.service;
+    const servicePath = params.servicePath;
+    const attrName = params.attrName;
+    const aggrMethod = params.aggrMethod;
+    const resolution = params.resolution;
 
-    var offset;
+    let offset;
     switch (resolution) {
         case 'second':
             // 1 minute offset
@@ -797,7 +795,7 @@ function noAggregatedDataSinceDateTest(ngsiVersion, params, done) {
                 uri: getURL(
                     sthTestConfig.API_OPERATION.READ_V2,
                     {
-                        aggrMethod: aggrMethod,
+                        aggrMethod,
                         aggrPeriod: resolution,
                         dateFrom: sthUtils.getISODateString(
                             sthUtils.getOrigin(
@@ -815,7 +813,7 @@ function noAggregatedDataSinceDateTest(ngsiVersion, params, done) {
                 }
             },
             function(err, response, body) {
-                var bodyJSON = JSON.parse(body);
+                const bodyJSON = JSON.parse(body);
                 expect(err).to.equal(null);
                 expect(response.statusCode).to.equal(200);
                 expect(bodyJSON.type).to.equal('StructuredValue');
@@ -831,7 +829,7 @@ function noAggregatedDataSinceDateTest(ngsiVersion, params, done) {
                 uri: getURL(
                     sthTestConfig.API_OPERATION.READ,
                     {
-                        aggrMethod: aggrMethod,
+                        aggrMethod,
                         aggrPeriod: resolution,
                         dateFrom: sthUtils.getISODateString(
                             sthUtils.getOrigin(
@@ -849,7 +847,7 @@ function noAggregatedDataSinceDateTest(ngsiVersion, params, done) {
                 }
             },
             function(err, response, body) {
-                var bodyJSON = JSON.parse(body);
+                const bodyJSON = JSON.parse(body);
                 expect(err).to.equal(null);
                 expect(response.statusCode).to.equal(200);
                 expect(bodyJSON.contextResponses[0].contextElement.id).to.equal(sthTestConfig.ENTITY_ID);
@@ -881,15 +879,16 @@ function noAggregatedDataSinceDateTest(ngsiVersion, params, done) {
  * @param {Function} done The mocha done() callback function
  */
 function aggregatedDataAvailableSinceDateTest(ngsiVersion, params, done) {
-    var service = params.service,
-        servicePath = params.servicePath,
-        attrName = params.attrName,
-        attrType = params.attrType,
-        aggrMethod = params.aggrMethod,
-        resolution = params.resolution;
+    const service = params.service;
+    const servicePath = params.servicePath;
+    const attrName = params.attrName;
+    const attrType = params.attrType;
+    const aggrMethod = params.aggrMethod;
+    const resolution = params.resolution;
 
-    var theEvent = events[events.length - 1];
-    var index, entries;
+    const theEvent = events[events.length - 1];
+    let index;
+    let entries;
     switch (resolution) {
         case 'second':
             index = theEvent.recvTime.getUTCSeconds();
@@ -913,7 +912,7 @@ function aggregatedDataAvailableSinceDateTest(ngsiVersion, params, done) {
             break;
     }
 
-    var value;
+    let value;
     switch (aggrMethod) {
         case 'min':
         case 'max':
@@ -936,7 +935,7 @@ function aggregatedDataAvailableSinceDateTest(ngsiVersion, params, done) {
                 uri: getURL(
                     sthTestConfig.API_OPERATION.READ_V2,
                     {
-                        aggrMethod: aggrMethod,
+                        aggrMethod,
                         aggrPeriod: resolution,
                         dateFrom: sthUtils.getISODateString(
                             sthUtils.getOrigin(events[events.length - 1].recvTime, resolution)
@@ -951,7 +950,7 @@ function aggregatedDataAvailableSinceDateTest(ngsiVersion, params, done) {
                 }
             },
             function(err, response, body) {
-                var bodyJSON = JSON.parse(body);
+                const bodyJSON = JSON.parse(body);
                 expect(err).to.equal(null);
                 expect(response.statusCode).to.equal(200);
                 expect(bodyJSON.type).to.equal('StructuredValue');
@@ -988,7 +987,7 @@ function aggregatedDataAvailableSinceDateTest(ngsiVersion, params, done) {
                 uri: getURL(
                     sthTestConfig.API_OPERATION.READ,
                     {
-                        aggrMethod: aggrMethod,
+                        aggrMethod,
                         aggrPeriod: resolution,
                         dateFrom: sthUtils.getISODateString(
                             sthUtils.getOrigin(events[events.length - 1].recvTime, resolution)
@@ -1003,7 +1002,7 @@ function aggregatedDataAvailableSinceDateTest(ngsiVersion, params, done) {
                 }
             },
             function(err, response, body) {
-                var bodyJSON = JSON.parse(body);
+                const bodyJSON = JSON.parse(body);
                 expect(err).to.equal(null);
                 expect(response.statusCode).to.equal(200);
                 expect(bodyJSON.contextResponses[0].contextElement.id).to.equal(sthTestConfig.ENTITY_ID);
@@ -1060,14 +1059,14 @@ function aggregatedDataAvailableSinceDateTest(ngsiVersion, params, done) {
  */
 function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
     describe('should respond', function() {
-        var optionsForCaseSensitivity = {},
-            optionsWithNoDates = {},
-            optionsWithDateFrom = {},
-            optionsWithDateTo = {},
-            optionsWithFromAndToDate = {};
+        const optionsForCaseSensitivity = {};
+        const optionsWithNoDates = {};
+        const optionsWithDateFrom = {};
+        const optionsWithDateTo = {};
+        const optionsWithFromAndToDate = {};
 
         before(function() {
-            for (var prop in options) {
+            for (const prop in options) {
                 optionsForCaseSensitivity[prop] = options[prop];
                 optionsWithNoDates[prop] = options[prop];
                 optionsWithDateFrom[prop] = options[prop];
@@ -1091,9 +1090,9 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
             noRawDataIfEntityCaseChange.bind(null, 2, {
                 service: sthConfig.DEFAULT_SERVICE,
                 servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-                attrName: attrName,
+                attrName,
                 options: optionsForCaseSensitivity,
-                checkRecvTime: checkRecvTime
+                checkRecvTime
             })
         );
 
@@ -1102,9 +1101,9 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
             noRawDataIfEntityCaseChange.bind(null, 1, {
                 service: sthConfig.DEFAULT_SERVICE,
                 servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-                attrName: attrName,
+                attrName,
                 options: optionsForCaseSensitivity,
-                checkRecvTime: checkRecvTime
+                checkRecvTime
             })
         );
 
@@ -1113,9 +1112,9 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
             rawDataAvailableDateFilter.bind(null, 2, {
                 service: sthConfig.DEFAULT_SERVICE,
                 servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-                attrName: attrName,
+                attrName,
                 options: optionsWithNoDates,
-                checkRecvTime: checkRecvTime
+                checkRecvTime
             })
         );
 
@@ -1124,9 +1123,9 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
             rawDataAvailableDateFilter.bind(null, 1, {
                 service: sthConfig.DEFAULT_SERVICE,
                 servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-                attrName: attrName,
+                attrName,
                 options: optionsWithNoDates,
-                checkRecvTime: checkRecvTime
+                checkRecvTime
             })
         );
 
@@ -1135,9 +1134,9 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
             rawDataAvailableDateFilter.bind(null, 2, {
                 service: sthConfig.DEFAULT_SERVICE,
                 servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-                attrName: attrName,
+                attrName,
                 options: optionsWithDateFrom,
-                checkRecvTime: checkRecvTime
+                checkRecvTime
             })
         );
 
@@ -1146,9 +1145,9 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
             rawDataAvailableDateFilter.bind(null, 1, {
                 service: sthConfig.DEFAULT_SERVICE,
                 servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-                attrName: attrName,
+                attrName,
                 options: optionsWithDateFrom,
-                checkRecvTime: checkRecvTime
+                checkRecvTime
             })
         );
 
@@ -1157,9 +1156,9 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
             rawDataAvailableDateFilter.bind(null, 2, {
                 service: sthConfig.DEFAULT_SERVICE,
                 servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-                attrName: attrName,
+                attrName,
                 options: optionsWithDateTo,
-                checkRecvTime: checkRecvTime
+                checkRecvTime
             })
         );
 
@@ -1168,9 +1167,9 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
             rawDataAvailableDateFilter.bind(null, 1, {
                 service: sthConfig.DEFAULT_SERVICE,
                 servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-                attrName: attrName,
+                attrName,
                 options: optionsWithDateTo,
-                checkRecvTime: checkRecvTime
+                checkRecvTime
             })
         );
 
@@ -1179,9 +1178,9 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
             rawDataAvailableDateFilter.bind(null, 2, {
                 service: sthConfig.DEFAULT_SERVICE,
                 servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-                attrName: attrName,
+                attrName,
                 options: optionsWithFromAndToDate,
-                checkRecvTime: checkRecvTime
+                checkRecvTime
             })
         );
 
@@ -1190,9 +1189,9 @@ function rawDataRetrievalSuite(options, attrName, attrType, checkRecvTime) {
             rawDataAvailableDateFilter.bind(null, 1, {
                 service: sthConfig.DEFAULT_SERVICE,
                 servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-                attrName: attrName,
+                attrName,
                 options: optionsWithFromAndToDate,
-                checkRecvTime: checkRecvTime
+                checkRecvTime
             })
         );
     });
@@ -1211,8 +1210,8 @@ function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
         noAggregatedDataIfEntityCaseChangeTest.bind(null, 2, {
             service: sthConfig.DEFAULT_SERVICE,
             servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-            attrName: attrName,
-            aggrMethod: aggrMethod,
+            attrName,
+            aggrMethod,
             resolution: sthConfig.AGGREGATION_BY[index]
         })
     );
@@ -1222,8 +1221,8 @@ function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
         noAggregatedDataIfEntityCaseChangeTest.bind(null, 1, {
             service: sthConfig.DEFAULT_SERVICE,
             servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-            attrName: attrName,
-            aggrMethod: aggrMethod,
+            attrName,
+            aggrMethod,
             resolution: sthConfig.AGGREGATION_BY[index]
         })
     );
@@ -1233,8 +1232,8 @@ function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
         noAggregatedDataSinceDateTest.bind(null, 2, {
             service: sthConfig.DEFAULT_SERVICE,
             servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-            attrName: attrName,
-            aggrMethod: aggrMethod,
+            attrName,
+            aggrMethod,
             resolution: sthConfig.AGGREGATION_BY[index]
         })
     );
@@ -1244,8 +1243,8 @@ function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
         noAggregatedDataSinceDateTest.bind(null, 1, {
             service: sthConfig.DEFAULT_SERVICE,
             servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-            attrName: attrName,
-            aggrMethod: aggrMethod,
+            attrName,
+            aggrMethod,
             resolution: sthConfig.AGGREGATION_BY[index]
         })
     );
@@ -1255,9 +1254,9 @@ function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
         aggregatedDataAvailableSinceDateTest.bind(null, 2, {
             service: sthConfig.DEFAULT_SERVICE,
             servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-            attrName: attrName,
-            attrType: attrType,
-            aggrMethod: aggrMethod,
+            attrName,
+            attrType,
+            aggrMethod,
             resolution: sthConfig.AGGREGATION_BY[index]
         })
     );
@@ -1267,9 +1266,9 @@ function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
         aggregatedDataAvailableSinceDateTest.bind(null, 1, {
             service: sthConfig.DEFAULT_SERVICE,
             servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-            attrName: attrName,
-            attrType: attrType,
-            aggrMethod: aggrMethod,
+            attrName,
+            attrType,
+            aggrMethod,
             resolution: sthConfig.AGGREGATION_BY[index]
         })
     );
@@ -1284,7 +1283,7 @@ function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
  */
 function aggregatedDataRetrievalSuite(attrName, attrType, aggrMethod) {
     describe('with aggrMethod as ' + aggrMethod, function() {
-        for (var i = 0; i < sthConfig.AGGREGATION_BY.length; i++) {
+        for (let i = 0; i < sthConfig.AGGREGATION_BY.length; i++) {
             describe(
                 'and aggrPeriod as ' + sthConfig.AGGREGATION_BY[i],
                 aggregatedDataRetrievalTests.bind(null, i, attrName, attrType, aggrMethod)
@@ -1386,7 +1385,7 @@ function noAttributesTest(service, servicePath, done) {
  * @param done The test case callback function
  */
 function nonAggregatableAttributeValuesTest(service, servicePath, done) {
-    var body = {
+    const body = {
         subscriptionId: '1234567890ABCDF123456789',
         originator: 'orion.contextBroker.instance',
         contextResponses: [
@@ -1499,7 +1498,7 @@ function nonAggregatableAttributeValuesTest(service, servicePath, done) {
                 'Fiware-ServicePath': servicePath || sthConfig.SERVICE_PATH
             },
             json: true,
-            body: body
+            body
         },
         function(err, response) {
             expect(err).to.equal(null);
@@ -1513,7 +1512,8 @@ function nonAggregatableAttributeValuesTest(service, servicePath, done) {
  * To avoid needing to set the 'jslint latedef: true' option to true for the whole file, we declare the
  *  complexNotificationTest function before its definition and before the complexNotificationSuite() function definition
  */
-var complexNotificationTest;
+/* eslint-disable-next-line prefer-const */
+let complexNotificationTest;
 
 /**
  * Complex notification suite
@@ -1533,9 +1533,9 @@ function complexNotificationSuite(attrName, attrType, includeTimeInstantMetadata
                 complexNotificationTest.bind(null, {
                     service: sthConfig.DEFAULT_SERVICE,
                     servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-                    attrName: attrName,
-                    attrType: attrType,
-                    includeTimeInstantMetadata: includeTimeInstantMetadata
+                    attrName,
+                    attrType,
+                    includeTimeInstantMetadata
                 })
             );
         });
@@ -1626,15 +1626,15 @@ function eventNotificationSuite(attrName, attrType, includeTimeInstantMetadata) 
  * @param {Function} done The mocha done() callback function
  */
 complexNotificationTest = function complexNotificationTest(params, done) {
-    var service = params.service,
-        servicePath = params.servicePath,
-        attrName = params.attrName,
-        attrType = params.attrType,
-        includeTimeInstantMetadata = params.includeTimeInstantMetadata;
-    var now = new Date();
-    var anEvent = createEvent(attrName, attrType, now);
-    var contextResponses = [];
-    var attribute = {
+    const service = params.service;
+    const servicePath = params.servicePath;
+    const attrName = params.attrName;
+    const attrType = params.attrType;
+    const includeTimeInstantMetadata = params.includeTimeInstantMetadata;
+    const now = new Date();
+    const anEvent = createEvent(attrName, attrType, now);
+    const contextResponses = [];
+    const attribute = {
         name: anEvent.attrName,
         type: anEvent.attrType,
         value: anEvent.attrValue
@@ -1650,7 +1650,7 @@ complexNotificationTest = function complexNotificationTest(params, done) {
         ];
     }
 
-    for (var i = 0; i < sthTestConfig.EVENT_NOTIFICATION_CONTEXT_ELEMENTS; i++) {
+    for (let i = 0; i < sthTestConfig.EVENT_NOTIFICATION_CONTEXT_ELEMENTS; i++) {
         contextResponses.push({
             contextElement: {
                 attributes: [attribute],
@@ -1678,11 +1678,11 @@ complexNotificationTest = function complexNotificationTest(params, done) {
             body: {
                 subscriptionId: '1234567890ABCDF123456789',
                 originator: 'orion.contextBroker.instance',
-                contextResponses: contextResponses
+                contextResponses
             }
         },
         function(err, response, body) {
-            for (var i = 0; i < 3; i++) {
+            for (let i = 0; i < 3; i++) {
                 if (events.indexOf(anEvent) < 0) {
                     events.push(anEvent);
                 }
@@ -1711,7 +1711,7 @@ function status200Test(ngsiVersion, options, done) {
                 }
             },
             function(err, response, body) {
-                var bodyJSON = JSON.parse(body);
+                const bodyJSON = JSON.parse(body);
                 expect(err).to.equal(null);
                 expect(response.statusCode).to.equal(200);
                 if (options && options.count) {
@@ -1736,7 +1736,7 @@ function status200Test(ngsiVersion, options, done) {
                 }
             },
             function(err, response, body) {
-                var bodyJSON = JSON.parse(body);
+                const bodyJSON = JSON.parse(body);
                 expect(err).to.equal(null);
                 expect(response.statusCode).to.equal(200);
                 if (options && options.count) {
@@ -1764,19 +1764,19 @@ function status200Test(ngsiVersion, options, done) {
  * @param done The done() function
  */
 function numericAggregatedDataUpdatedTest(ngsiVersion, contextResponseFile, aggrMethod, resolution, done) {
-    var contextResponseNumericWithFixedTimeInstant;
+    let contextResponseNumericWithFixedTimeInstant;
     if (ngsiVersion === 2) {
         contextResponseNumericWithFixedTimeInstant = require('./contextResponses/' + contextResponseFile);
 
         // By construction, the file only have one key and that key is the attribute name
-        var attrName = Object.keys(contextResponseNumericWithFixedTimeInstant)[0];
+        const attrName = Object.keys(contextResponseNumericWithFixedTimeInstant)[0];
 
         request(
             {
                 uri: getURL(
                     sthTestConfig.API_OPERATION.READ_V2,
                     {
-                        aggrMethod: aggrMethod,
+                        aggrMethod,
                         aggrPeriod: resolution,
                         dateFrom: contextResponseNumericWithFixedTimeInstant[attrName].metadata.TimeInstant.value,
                         dateTo: contextResponseNumericWithFixedTimeInstant[attrName].metadata.TimeInstant.value
@@ -1792,7 +1792,7 @@ function numericAggregatedDataUpdatedTest(ngsiVersion, contextResponseFile, aggr
                 }
             },
             function(err, response, body) {
-                var bodyJSON = JSON.parse(body);
+                const bodyJSON = JSON.parse(body);
                 expect(bodyJSON.value[0].points.length).to.equal(1);
                 expect(parseInt(bodyJSON.value[0].points[0].offset, 10)).to.equal(
                     sthUtils.getOffset(
@@ -1818,7 +1818,7 @@ function numericAggregatedDataUpdatedTest(ngsiVersion, contextResponseFile, aggr
                 uri: getURL(
                     sthTestConfig.API_OPERATION.READ,
                     {
-                        aggrMethod: aggrMethod,
+                        aggrMethod,
                         aggrPeriod: resolution,
                         dateFrom:
                             contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0]
@@ -1838,7 +1838,7 @@ function numericAggregatedDataUpdatedTest(ngsiVersion, contextResponseFile, aggr
                 }
             },
             function(err, response, body) {
-                var bodyJSON = JSON.parse(body);
+                const bodyJSON = JSON.parse(body);
                 expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points.length).to.equal(1);
                 expect(
                     parseInt(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].offset, 10)
@@ -1889,12 +1889,12 @@ function numericAggregatedDataUpdatedTest(ngsiVersion, contextResponseFile, aggr
  * @param done The done() function
  */
 function textualAggregatedDataUpdatedTest(ngsiVersion, contextResponseFile, resolution, done) {
-    var contextResponseTextualWithFixedTimeInstant;
+    let contextResponseTextualWithFixedTimeInstant;
     if (ngsiVersion === 2) {
         contextResponseTextualWithFixedTimeInstant = require('./contextResponses/' + contextResponseFile);
 
         // By construction, the file only have one key and that key is the attribute name
-        var attrName = Object.keys(contextResponseTextualWithFixedTimeInstant)[0];
+        const attrName = Object.keys(contextResponseTextualWithFixedTimeInstant)[0];
 
         request(
             {
@@ -1917,7 +1917,7 @@ function textualAggregatedDataUpdatedTest(ngsiVersion, contextResponseFile, reso
                 }
             },
             function(err, response, body) {
-                var bodyJSON = JSON.parse(body);
+                const bodyJSON = JSON.parse(body);
                 expect(bodyJSON.value[0].points.length).to.equal(1);
                 expect(parseInt(bodyJSON.value[0].points[0].offset, 10)).to.equal(
                     sthUtils.getOffset(
@@ -1960,7 +1960,7 @@ function textualAggregatedDataUpdatedTest(ngsiVersion, contextResponseFile, reso
                 }
             },
             function(err, response, body) {
-                var bodyJSON = JSON.parse(body);
+                const bodyJSON = JSON.parse(body);
                 expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points.length).to.equal(1);
                 expect(
                     parseInt(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[0].offset, 10)
@@ -2000,19 +2000,19 @@ function textualAggregatedDataUpdatedTest(ngsiVersion, contextResponseFile, reso
  * @param done The done() function
  */
 function aggregatedDataNonExistentTest(ngsiVersion, contextResponseFile, aggrMethod, resolution, done) {
-    var contextResponseNumericWithFixedTimeInstant;
+    let contextResponseNumericWithFixedTimeInstant;
     if (ngsiVersion === 2) {
         contextResponseNumericWithFixedTimeInstant = require('./contextResponses/' + contextResponseFile);
 
         // By construction, the file only have one key and that key is the attribute name
-        var attrName = Object.keys(contextResponseNumericWithFixedTimeInstant)[0];
+        const attrName = Object.keys(contextResponseNumericWithFixedTimeInstant)[0];
 
         request(
             {
                 uri: getURL(
                     sthTestConfig.API_OPERATION.READ_V2,
                     {
-                        aggrMethod: aggrMethod,
+                        aggrMethod,
                         aggrPeriod: resolution,
                         dateFrom: contextResponseNumericWithFixedTimeInstant[attrName].metadata.TimeInstant.value,
                         dateTo: contextResponseNumericWithFixedTimeInstant[attrName].metadata.TimeInstant.value
@@ -2028,7 +2028,7 @@ function aggregatedDataNonExistentTest(ngsiVersion, contextResponseFile, aggrMet
                 }
             },
             function(err, response, body) {
-                var bodyJSON = JSON.parse(body);
+                const bodyJSON = JSON.parse(body);
                 expect(bodyJSON.value.length).to.equal(0);
                 done(err);
             }
@@ -2041,7 +2041,7 @@ function aggregatedDataNonExistentTest(ngsiVersion, contextResponseFile, aggrMet
                 uri: getURL(
                     sthTestConfig.API_OPERATION.READ,
                     {
-                        aggrMethod: aggrMethod,
+                        aggrMethod,
                         aggrPeriod: resolution,
                         dateFrom:
                             contextResponseNumericWithFixedTimeInstant.contextResponses[0].contextElement.attributes[0]
@@ -2061,7 +2061,7 @@ function aggregatedDataNonExistentTest(ngsiVersion, contextResponseFile, aggrMet
                 }
             },
             function(err, response, body) {
-                var bodyJSON = JSON.parse(body);
+                const bodyJSON = JSON.parse(body);
                 expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(0);
                 expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
                 expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
@@ -2077,17 +2077,17 @@ function aggregatedDataNonExistentTest(ngsiVersion, contextResponseFile, aggrMet
  * @param removalOptions The removal options
  */
 function dataRemovalSuite(aggregationType, removalOptions) {
-    var contextResponsesObj;
-    var contextResponsesObjV1;
+    let contextResponsesObj;
+    let contextResponsesObjV1;
 
     before(function() {
-        var contextResponseFileV1 =
+        const contextResponseFileV1 =
             './contextResponses/V1contextResponse' +
             (aggregationType === sthConfig.AGGREGATIONS.NUMERIC ? 'Numeric' : 'Textual') +
             'WithFixedTimeInstant';
         contextResponsesObjV1 = require(contextResponseFileV1);
 
-        var contextResponseFile =
+        const contextResponseFile =
             './contextResponses/contextResponse' +
             (aggregationType === sthConfig.AGGREGATIONS.NUMERIC ? 'Numeric' : 'Textual') +
             'WithFixedTimeInstant';
@@ -2121,7 +2121,7 @@ function dataRemovalSuite(aggregationType, removalOptions) {
 
     it('should retrieve the raw data', function(done) {
         // By construction, the file only have one key and that key is the attribute name
-        var attrName = Object.keys(contextResponsesObj)[0];
+        const attrName = Object.keys(contextResponsesObj)[0];
 
         request(
             {
@@ -2143,7 +2143,7 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                 }
             },
             function(err, response, body) {
-                var bodyJSON = JSON.parse(body);
+                const bodyJSON = JSON.parse(body);
                 expect(bodyJSON.type).to.equal('StructuredValue');
                 expect(bodyJSON.value.length).to.equal(1);
                 expect(bodyJSON.value[0].attrValue).to.equal(contextResponsesObj[attrName].value);
@@ -2175,7 +2175,7 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                 }
             },
             function(err, response, body) {
-                var bodyJSON = JSON.parse(body);
+                const bodyJSON = JSON.parse(body);
                 expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(1);
                 expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).to.equal(
                     contextResponsesObjV1.contextResponses[0].contextElement.attributes[0].value
@@ -2187,7 +2187,7 @@ function dataRemovalSuite(aggregationType, removalOptions) {
         );
     });
 
-    for (var i = 0; i < sthConfig.AGGREGATION_BY.length; i++) {
+    for (let i = 0; i < sthConfig.AGGREGATION_BY.length; i++) {
         if (aggregationType === sthConfig.AGGREGATIONS.NUMERIC) {
             it(
                 'should retrieve the sum updated aggregated data',
@@ -2327,7 +2327,7 @@ function dataRemovalSuite(aggregationType, removalOptions) {
 
     it('should not retrieve the deleted raw data', function(done) {
         // By construction, the file only have one key and that key is the attribute name
-        var attrName = Object.keys(contextResponsesObj)[0];
+        const attrName = Object.keys(contextResponsesObj)[0];
 
         request(
             {
@@ -2349,7 +2349,7 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                 }
             },
             function(err, response, body) {
-                var bodyJSON = JSON.parse(body);
+                const bodyJSON = JSON.parse(body);
                 expect(bodyJSON.type).to.equal('StructuredValue');
                 expect(bodyJSON.value.length).to.equal(0);
                 done(err);
@@ -2381,7 +2381,7 @@ function dataRemovalSuite(aggregationType, removalOptions) {
                 }
             },
             function(err, response, body) {
-                var bodyJSON = JSON.parse(body);
+                const bodyJSON = JSON.parse(body);
                 expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(0);
                 expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
                 expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
@@ -2390,7 +2390,7 @@ function dataRemovalSuite(aggregationType, removalOptions) {
         );
     });
 
-    for (var j = 0; j < sthConfig.AGGREGATION_BY.length; j++) {
+    for (let j = 0; j < sthConfig.AGGREGATION_BY.length; j++) {
         if (aggregationType === sthConfig.AGGREGATIONS.NUMERIC) {
             it(
                 'should not retrieve the deleted sum updated aggregated data',
@@ -2514,7 +2514,7 @@ function validLogLevelChangeTest(level, done) {
     request(
         {
             uri: getURL(sthTestConfig.API_OPERATION.ADMIN.SET_LOG_LEVEL, {
-                level: level
+                level
             }),
             method: 'PUT'
         },
@@ -2527,20 +2527,20 @@ function validLogLevelChangeTest(level, done) {
 }
 
 module.exports = {
-    getDayOfYear: getDayOfYear,
-    addEventTest: addEventTest,
-    eachEventTestSuite: eachEventTestSuite,
-    dropRawEventCollectionTest: dropRawEventCollectionTest,
-    dropAggregatedDataCollectionTest: dropAggregatedDataCollectionTest,
-    getURL: getURL,
-    rawDataRetrievalSuite: rawDataRetrievalSuite,
-    aggregatedDataRetrievalSuite: aggregatedDataRetrievalSuite,
-    cleanDatabaseSuite: cleanDatabaseSuite,
-    eventNotificationSuite: eventNotificationSuite,
-    status200Test: status200Test,
-    numericAggregatedDataUpdatedTest: numericAggregatedDataUpdatedTest,
-    textualAggregatedDataUpdatedTest: textualAggregatedDataUpdatedTest,
-    aggregatedDataNonExistentTest: aggregatedDataNonExistentTest,
-    dataRemovalSuite: dataRemovalSuite,
-    validLogLevelChangeTest: validLogLevelChangeTest
+    getDayOfYear,
+    addEventTest,
+    eachEventTestSuite,
+    dropRawEventCollectionTest,
+    dropAggregatedDataCollectionTest,
+    getURL,
+    rawDataRetrievalSuite,
+    aggregatedDataRetrievalSuite,
+    cleanDatabaseSuite,
+    eventNotificationSuite,
+    status200Test,
+    numericAggregatedDataUpdatedTest,
+    textualAggregatedDataUpdatedTest,
+    aggregatedDataNonExistentTest,
+    dataRemovalSuite,
+    validLogLevelChangeTest
 };

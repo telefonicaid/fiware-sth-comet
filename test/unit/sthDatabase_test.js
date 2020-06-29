@@ -21,27 +21,27 @@
  * please contact with: [german.torodelvalle@telefonica.com]
  */
 
-'use strict';
+/* eslint-disable consistent-return */
 
-var ROOT_PATH = require('app-root-path');
-var sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
-var sthDatabaseNameCodec = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameCodec');
-var sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
-var sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
-var sthUtils = require(ROOT_PATH + '/lib/utils/sthUtils');
-var sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
-var expect = require('expect.js');
-var _ = require('lodash');
+const ROOT_PATH = require('app-root-path');
+const sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
+const sthDatabaseNameCodec = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameCodec');
+const sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
+const sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
+const sthUtils = require(ROOT_PATH + '/lib/utils/sthUtils');
+const sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
+const expect = require('expect.js');
+const _ = require('lodash');
 
-var DATABASE_NAME = sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE);
-var DATABASE_CONNECTION_PARAMS = {
+const DATABASE_NAME = sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE);
+const DATABASE_CONNECTION_PARAMS = {
     authentication: sthConfig.DB_AUTHENTICATION,
     dbURI: sthConfig.DB_URI,
     replicaSet: sthConfig.REPLICA_SET,
     database: DATABASE_NAME,
     poolSize: sthConfig.POOL_SIZE
 };
-var COLLECTION_NAME_PARAMS = {
+const COLLECTION_NAME_PARAMS = {
     service: sthConfig.DEFAULT_SERVICE,
     servicePath: sthConfig.DEFAULT_SERVICE_PATH,
     entityId: sthTestConfig.ENTITY_ID,
@@ -49,7 +49,7 @@ var COLLECTION_NAME_PARAMS = {
     attrName: sthTestConfig.ATTRIBUTE_NAME,
     attrType: sthTestConfig.ATTRIBUTE_TYPE
 };
-var NUMERIC_COLLECTION_NAME_PARAMS = {
+const NUMERIC_COLLECTION_NAME_PARAMS = {
     service: sthConfig.DEFAULT_SERVICE,
     servicePath: sthConfig.DEFAULT_SERVICE_PATH,
     entityId: sthTestConfig.ENTITY_ID,
@@ -57,7 +57,7 @@ var NUMERIC_COLLECTION_NAME_PARAMS = {
     attrName: sthTestConfig.ATTRIBUTE_NAME + sthConfig.AGGREGATIONS.NUMERIC,
     attrType: sthTestConfig.ATTRIBUTE_TYPE
 };
-var TEXTUAL_COLLECTION_NAME_PARAMS = {
+const TEXTUAL_COLLECTION_NAME_PARAMS = {
     service: sthConfig.DEFAULT_SERVICE,
     servicePath: sthConfig.DEFAULT_SERVICE_PATH,
     entityId: sthTestConfig.ENTITY_ID,
@@ -65,7 +65,7 @@ var TEXTUAL_COLLECTION_NAME_PARAMS = {
     attrName: sthTestConfig.ATTRIBUTE_NAME + sthConfig.AGGREGATIONS.TEXTUAL,
     attrType: sthTestConfig.ATTRIBUTE_TYPE
 };
-var VERY_LONG_COLLECTION_NAME_PARAMS = {
+const VERY_LONG_COLLECTION_NAME_PARAMS = {
     service: sthConfig.DEFAULT_SERVICE,
     servicePath:
         sthConfig.DEFAULT_SERVICE_PATH +
@@ -80,16 +80,16 @@ var VERY_LONG_COLLECTION_NAME_PARAMS = {
     attrName: sthTestConfig.ATTRIBUTE_NAME,
     attrType: sthTestConfig.ATTRIBUTE_TYPE
 };
-var DATE = new Date(Date.UTC(1970, 1, 3, 4, 5, 6, 777));
-var DELAY = 100;
-var LIMIT = 10;
-var PAGINATION = 0;
-var ATTRIBUTE = {
+const DATE = new Date(Date.UTC(1970, 1, 3, 4, 5, 6, 777));
+const DELAY = 100;
+const LIMIT = 10;
+const PAGINATION = 0;
+const ATTRIBUTE = {
     VALUE: {
         NUMERIC: 666
     }
 };
-var STORE_DATA_PARAMS = {
+const STORE_DATA_PARAMS = {
     recvTime: DATE,
     entityId: sthTestConfig.ENTITY_ID,
     entityType: sthTestConfig.ENTITY_TYPE,
@@ -98,7 +98,7 @@ var STORE_DATA_PARAMS = {
         type: sthTestConfig.ATTRIBUTE_TYPE
     }
 };
-var RETRIEVAL_DATA_PARAMS = {
+const RETRIEVAL_DATA_PARAMS = {
     entityId: sthTestConfig.ENTITY_ID,
     entityType: sthTestConfig.ENTITY_TYPE,
     attrName: sthTestConfig.ATTRIBUTE_NAME
@@ -127,7 +127,7 @@ function connectToDatabase(callback) {
  */
 function dropCollection(collectionNameParams, dataType, dataModel, callback) {
     sthConfig.DATA_MODEL = dataModel;
-    var collectionName =
+    const collectionName =
         dataType === sthTestConfig.DATA_TYPES.RAW
             ? sthDatabaseNaming.getRawCollectionName(collectionNameParams)
             : sthDatabaseNaming.getAggregatedCollectionName(collectionNameParams);
@@ -149,8 +149,8 @@ function dropCollection(collectionNameParams, dataType, dataModel, callback) {
  * Set of tests to drop the test collections from the database
  */
 function cleanDatabaseTests() {
-    var dataModelsKeys = Object.keys(sthConfig.DATA_MODELS),
-        dataTypeKeys = Object.keys(sthTestConfig.DATA_TYPES);
+    const dataModelsKeys = Object.keys(sthConfig.DATA_MODELS);
+    const dataTypeKeys = Object.keys(sthTestConfig.DATA_TYPES);
 
     describe('database clean up', function() {
         dataModelsKeys.forEach(function(dataModel) {
@@ -207,9 +207,9 @@ function cleanDatabaseTests() {
  * Battery of tests to check that the access to the collections works as expected
  */
 function collectionAccessTests() {
-    var ORIGINAL_DATA_MODEL = sthConfig.DATA_MODEL,
-        dataTypes = Object.keys(sthTestConfig.DATA_TYPES),
-        dataModels = Object.keys(sthConfig.DATA_MODELS);
+    const ORIGINAL_DATA_MODEL = sthConfig.DATA_MODEL;
+    const dataTypes = Object.keys(sthTestConfig.DATA_TYPES);
+    const dataModels = Object.keys(sthConfig.DATA_MODELS);
 
     cleanDatabaseTests();
 
@@ -278,7 +278,7 @@ function collectionAccessTests() {
  * @param {Number} offset The offset
  */
 function getAggregatedEntry4Offset(points, offset) {
-    for (var index = 0; index < points.length; index++) {
+    for (let index = 0; index < points.length; index++) {
         if (points[index].offset === offset) {
             return points[index];
         }
@@ -298,12 +298,10 @@ function getQuery4ExpectDataStored(dataType, aggregation) {
     ) {
         if (dataType === sthTestConfig.DATA_TYPES.RAW) {
             return { attrName: STORE_DATA_PARAMS.attribute.name + aggregation };
-        } else {
-            return { '_id.attrName': STORE_DATA_PARAMS.attribute.name + aggregation };
         }
-    } else {
-        return {};
+        return { '_id.attrName': STORE_DATA_PARAMS.attribute.name + aggregation };
     }
+    return {};
 }
 
 /**
@@ -327,95 +325,94 @@ function expectResult(params, count, result, callback) {
     if (count === 0) {
         expect(result.length).to.be(0);
         return callback();
-    } else {
-        if (params.dataType === sthTestConfig.DATA_TYPES.RAW) {
-            expect(result.length).to.equal(params.limit ? Math.min(params.limit, count) : count);
-            for (var i = 0; i < count; i++) {
-                switch (sthConfig.DATA_MODEL) {
-                    case sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH:
-                        if (params.collection) {
-                            expect(result[i].entityId).to.equal(STORE_DATA_PARAMS.entityId);
-                            expect(result[i].entityType).to.equal(STORE_DATA_PARAMS.entityType);
-                        }
-                    /* falls through */
-                    case sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY:
-                        if (params.collection) {
-                            expect(result[i].attrName).to.equal(STORE_DATA_PARAMS.attribute.name + params.aggregation);
-                        }
-                        expect(result[i].attrType).to.equal(STORE_DATA_PARAMS.attribute.type);
-                    /* falls through */
-                    case sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE:
-                        expect(result[i].recvTime.getTime()).to.equal(DATE.getTime() + i * DELAY);
-                        expect(result[i].attrValue).to.equal(
-                            params.aggregation === sthConfig.AGGREGATIONS.NUMERIC
-                                ? ATTRIBUTE.VALUE.NUMERIC
-                                : sthConfig.DATA_MODEL
-                        );
+    }
+    if (params.dataType === sthTestConfig.DATA_TYPES.RAW) {
+        expect(result.length).to.equal(params.limit ? Math.min(params.limit, count) : count);
+        for (let i = 0; i < count; i++) {
+            switch (sthConfig.DATA_MODEL) {
+                case sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH:
+                    if (params.collection) {
+                        expect(result[i].entityId).to.equal(STORE_DATA_PARAMS.entityId);
+                        expect(result[i].entityType).to.equal(STORE_DATA_PARAMS.entityType);
+                    }
+                /* falls through */
+                case sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY:
+                    if (params.collection) {
+                        expect(result[i].attrName).to.equal(STORE_DATA_PARAMS.attribute.name + params.aggregation);
+                    }
+                    expect(result[i].attrType).to.equal(STORE_DATA_PARAMS.attribute.type);
+                /* falls through */
+                case sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE:
+                    expect(result[i].recvTime.getTime()).to.equal(DATE.getTime() + i * DELAY);
+                    expect(result[i].attrValue).to.equal(
+                        params.aggregation === sthConfig.AGGREGATIONS.NUMERIC
+                            ? ATTRIBUTE.VALUE.NUMERIC
+                            : sthConfig.DATA_MODEL
+                    );
+                    break;
+                default:
+                    return callback(new Error('Invalid data model: ' + sthConfig.DATA_MODEL));
+            }
+        }
+        return callback();
+    }
+    let point;
+    expect(result.length).to.equal(!params.resolution ? sthConfig.AGGREGATION_BY.length : 1);
+    for (let j = 0; j < result.length; j++) {
+        switch (sthConfig.DATA_MODEL) {
+            case sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH:
+                expect(result[j]._id.entityId).to.equal(STORE_DATA_PARAMS.entityId);
+                expect(result[j]._id.entityType).to.equal(STORE_DATA_PARAMS.entityType);
+            /* falls through */
+            case sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY:
+                expect(result[j]._id.attrName).to.equal(STORE_DATA_PARAMS.attribute.name + params.aggregation);
+                if (params.collection) {
+                    expect(result[j].attrType).to.equal(STORE_DATA_PARAMS.attribute.type);
+                    // The previous line should be substituted by the next one when this bug is solved:
+                    // expect(result[i]._id.attrType).to.equal(STORE_DATA_PARAMS.attribute.type);
+                }
+            /* falls through */
+            case sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE:
+                expect(result[j]._id.origin.getTime()).to.equal(
+                    sthUtils.getOrigin(STORE_DATA_PARAMS.recvTime, result[j]._id.resolution).getTime()
+                );
+                point = getAggregatedEntry4Offset(
+                    result[j].points,
+                    sthUtils.getOffset(result[j]._id.resolution, STORE_DATA_PARAMS.recvTime)
+                );
+                expect(point.samples).to.equal(count);
+                switch (params.aggregatedFunction) {
+                    case 'sum':
+                        expect(point.sum).to.equal(ATTRIBUTE.VALUE.NUMERIC * count);
+                        break;
+                    case 'sum2':
+                        expect(point.sum2).to.equal(Math.pow(ATTRIBUTE.VALUE.NUMERIC, 2) * count);
+                        break;
+                    case 'min':
+                        expect(point.min).to.equal(ATTRIBUTE.VALUE.NUMERIC);
+                        break;
+                    case 'max':
+                        expect(point.max).to.equal(ATTRIBUTE.VALUE.NUMERIC);
+                        break;
+                    case 'occur':
+                        expect(point.occur[sthConfig.DATA_MODEL]).to.equal(count);
                         break;
                     default:
-                        return callback(new Error('Invalid data model: ' + sthConfig.DATA_MODEL));
-                }
-            }
-            return callback();
-        } else {
-            expect(result.length).to.equal(!params.resolution ? sthConfig.AGGREGATION_BY.length : 1);
-            for (var j = 0; j < result.length; j++) {
-                switch (sthConfig.DATA_MODEL) {
-                    case sthConfig.DATA_MODELS.COLLECTION_PER_SERVICE_PATH:
-                        expect(result[j]._id.entityId).to.equal(STORE_DATA_PARAMS.entityId);
-                        expect(result[j]._id.entityType).to.equal(STORE_DATA_PARAMS.entityType);
-                    /* falls through */
-                    case sthConfig.DATA_MODELS.COLLECTION_PER_ENTITY:
-                        expect(result[j]._id.attrName).to.equal(STORE_DATA_PARAMS.attribute.name + params.aggregation);
-                        if (params.collection) {
-                            expect(result[j].attrType).to.equal(STORE_DATA_PARAMS.attribute.type);
-                            // The previous line should be substituted by the next one when this bug is solved:
-                            // expect(result[i]._id.attrType).to.equal(STORE_DATA_PARAMS.attribute.type);
+                        if (params.aggregation === sthConfig.AGGREGATIONS.NUMERIC) {
+                            expect(point.sum).to.equal(ATTRIBUTE.VALUE.NUMERIC * count);
+                            expect(point.sum2).to.equal(Math.pow(ATTRIBUTE.VALUE.NUMERIC, 2) * count);
+                            expect(point.min).to.equal(ATTRIBUTE.VALUE.NUMERIC);
+                            expect(point.max).to.equal(ATTRIBUTE.VALUE.NUMERIC);
+                        } else {
+                            expect(point.occur[sthConfig.DATA_MODEL]).to.equal(count);
                         }
-                    /* falls through */
-                    case sthConfig.DATA_MODELS.COLLECTION_PER_ATTRIBUTE:
-                        expect(result[j]._id.origin.getTime()).to.equal(
-                            sthUtils.getOrigin(STORE_DATA_PARAMS.recvTime, result[j]._id.resolution).getTime()
-                        );
-                        var point = getAggregatedEntry4Offset(
-                            result[j].points,
-                            sthUtils.getOffset(result[j]._id.resolution, STORE_DATA_PARAMS.recvTime)
-                        );
-                        expect(point.samples).to.equal(count);
-                        switch (params.aggregatedFunction) {
-                            case 'sum':
-                                expect(point.sum).to.equal(ATTRIBUTE.VALUE.NUMERIC * count);
-                                break;
-                            case 'sum2':
-                                expect(point.sum2).to.equal(Math.pow(ATTRIBUTE.VALUE.NUMERIC, 2) * count);
-                                break;
-                            case 'min':
-                                expect(point.min).to.equal(ATTRIBUTE.VALUE.NUMERIC);
-                                break;
-                            case 'max':
-                                expect(point.max).to.equal(ATTRIBUTE.VALUE.NUMERIC);
-                                break;
-                            case 'occur':
-                                expect(point.occur[sthConfig.DATA_MODEL]).to.equal(count);
-                                break;
-                            default:
-                                if (params.aggregation === sthConfig.AGGREGATIONS.NUMERIC) {
-                                    expect(point.sum).to.equal(ATTRIBUTE.VALUE.NUMERIC * count);
-                                    expect(point.sum2).to.equal(Math.pow(ATTRIBUTE.VALUE.NUMERIC, 2) * count);
-                                    expect(point.min).to.equal(ATTRIBUTE.VALUE.NUMERIC);
-                                    expect(point.max).to.equal(ATTRIBUTE.VALUE.NUMERIC);
-                                } else {
-                                    expect(point.occur[sthConfig.DATA_MODEL]).to.equal(count);
-                                }
-                        }
-                        break;
-                    default:
-                        return callback(new Error('Invalid data model: ' + sthConfig.DATA_MODEL));
                 }
-            }
-            return callback();
+                break;
+            default:
+                return callback(new Error('Invalid data model: ' + sthConfig.DATA_MODEL));
         }
     }
+    return callback();
 }
 
 /**
@@ -444,7 +441,7 @@ function expectDataStored(params, count, callback) {
  * @param  {string} aggregation The aggregation type
  */
 function getDataStoreParams(collection, aggregation) {
-    var dataStoreParams = _.cloneDeep(STORE_DATA_PARAMS);
+    const dataStoreParams = _.cloneDeep(STORE_DATA_PARAMS);
     dataStoreParams.collection = collection;
     dataStoreParams.attribute.name += aggregation;
     dataStoreParams.attribute.value =
@@ -525,7 +522,7 @@ function shouldStoreTest(aggregation, dataType, position, done) {
             if (err) {
                 return done(err);
             }
-            var storeDataParams = getDataStoreParams(collection, aggregation);
+            const storeDataParams = getDataStoreParams(collection, aggregation);
             storeDataParams.recvTime = new Date(DATE.getTime() + (position - 1) * DELAY);
             storeDataParams.notificationInfo = { inserts: true };
             if (dataType === sthTestConfig.DATA_TYPES.RAW) {
@@ -535,9 +532,9 @@ function shouldStoreTest(aggregation, dataType, position, done) {
                     }
                     expectDataStored(
                         {
-                            collection: collection,
-                            dataType: dataType,
-                            aggregation: aggregation
+                            collection,
+                            dataType,
+                            aggregation
                         },
                         position,
                         done
@@ -550,9 +547,9 @@ function shouldStoreTest(aggregation, dataType, position, done) {
                     }
                     expectDataStored(
                         {
-                            collection: collection,
-                            dataType: dataType,
-                            aggregation: aggregation
+                            collection,
+                            dataType,
+                            aggregation
                         },
                         position,
                         done
@@ -567,11 +564,11 @@ function shouldStoreTest(aggregation, dataType, position, done) {
  * Battery of tests to check that the storage of raw and aggregated data works as expected
  */
 function storageTests() {
-    var ORIGINAL_DATA_MODEL,
-        dataTypes = Object.keys(sthTestConfig.DATA_TYPES),
-        dataModels = Object.keys(sthConfig.DATA_MODELS),
-        aggregations = Object.keys(sthConfig.AGGREGATIONS),
-        collection;
+    let ORIGINAL_DATA_MODEL;
+    const dataTypes = Object.keys(sthTestConfig.DATA_TYPES);
+    const dataModels = Object.keys(sthConfig.DATA_MODELS);
+    const aggregations = Object.keys(sthConfig.AGGREGATIONS);
+    let collection;
 
     before(function() {
         ORIGINAL_DATA_MODEL = sthConfig.DATA_MODEL;
@@ -616,7 +613,7 @@ function storageTests() {
                                         sthConfig.AGGREGATIONS[aggregation] +
                                         ' attribute value notification is susceptible of being inserted',
                                     function(done) {
-                                        var notificationInfoParams = getDataStoreParams(
+                                        const notificationInfoParams = getDataStoreParams(
                                             collection,
                                             sthConfig.AGGREGATIONS[aggregation]
                                         );
@@ -646,7 +643,7 @@ function storageTests() {
                                 it('should detect an already inserted ' +  sthConfig.AGGREGATIONS[aggregation] +
                                     ' attribute value notification already exists',
                                     function(done) {
-                                        var notificationInfoParams = getDataStoreParams(
+                                        const notificationInfoParams = getDataStoreParams(
                                             collection,
                                             sthConfig.AGGREGATIONS[aggregation]
                                         );
@@ -679,11 +676,11 @@ function storageTests() {
                                 it('should detect as updatable an updated ' + sthConfig.AGGREGATIONS[aggregation] + 
                                     ' attribute value',
                                     function(done) {
-                                        var notificationInfoParams = getDataStoreParams(
+                                        const notificationInfoParams = getDataStoreParams(
                                             collection,
                                             sthConfig.AGGREGATIONS[aggregation]
                                         );
-                                        var updatedNotificationInfoParams = getDataStoreParams(
+                                        const updatedNotificationInfoParams = getDataStoreParams(
                                             collection,
                                             sthConfig.AGGREGATIONS[aggregation]
                                         );
@@ -725,7 +722,7 @@ function storageTests() {
  * @param  {string} aggregation The aggregation type
  */
 function getDataRetrievalParams(collection, aggregation) {
-    var dataRetrievalParams = _.cloneDeep(RETRIEVAL_DATA_PARAMS);
+    const dataRetrievalParams = _.cloneDeep(RETRIEVAL_DATA_PARAMS);
     dataRetrievalParams.collection = collection;
     dataRetrievalParams.attrName += aggregation;
     return dataRetrievalParams;
@@ -754,7 +751,7 @@ function retrievalTest(params, options, count, done) {
             if (err) {
                 return done(err);
             }
-            var retrievalDataParams = getDataRetrievalParams(collection, params.aggregation);
+            const retrievalDataParams = getDataRetrievalParams(collection, params.aggregation);
             if (params.dataType === sthTestConfig.DATA_TYPES.RAW) {
                 if (options) {
                     retrievalDataParams.lastN = options.lastN;
@@ -805,8 +802,8 @@ function shouldRetrieveTests(count, aggregation, dataType) {
             retrievalTest.bind(
                 null,
                 {
-                    aggregation: aggregation,
-                    dataType: dataType
+                    aggregation,
+                    dataType
                 },
                 null,
                 count
@@ -819,8 +816,8 @@ function shouldRetrieveTests(count, aggregation, dataType) {
             retrievalTest.bind(
                 null,
                 {
-                    aggregation: aggregation,
-                    dataType: dataType
+                    aggregation,
+                    dataType
                 },
                 {
                     lastN: LIMIT
@@ -835,8 +832,8 @@ function shouldRetrieveTests(count, aggregation, dataType) {
             retrievalTest.bind(
                 null,
                 {
-                    aggregation: aggregation,
-                    dataType: dataType
+                    aggregation,
+                    dataType
                 },
                 {
                     hLimit: LIMIT,
@@ -852,8 +849,8 @@ function shouldRetrieveTests(count, aggregation, dataType) {
             retrievalTest.bind(
                 null,
                 {
-                    aggregation: aggregation,
-                    dataType: dataType
+                    aggregation,
+                    dataType
                 },
                 {
                     dateFrom: DATE
@@ -868,8 +865,8 @@ function shouldRetrieveTests(count, aggregation, dataType) {
             retrievalTest.bind(
                 null,
                 {
-                    aggregation: aggregation,
-                    dataType: dataType
+                    aggregation,
+                    dataType
                 },
                 {
                     dateFrom: new Date(DATE.getTime() + 1000 * 60 * 60)
@@ -884,8 +881,8 @@ function shouldRetrieveTests(count, aggregation, dataType) {
             retrievalTest.bind(
                 null,
                 {
-                    aggregation: aggregation,
-                    dataType: dataType
+                    aggregation,
+                    dataType
                 },
                 {
                     dateTo: new Date()
@@ -900,8 +897,8 @@ function shouldRetrieveTests(count, aggregation, dataType) {
             retrievalTest.bind(
                 null,
                 {
-                    aggregation: aggregation,
-                    dataType: dataType
+                    aggregation,
+                    dataType
                 },
                 {
                     dateTo: new Date(DATE.getTime() - 1000 * 60 * 60)
@@ -916,8 +913,8 @@ function shouldRetrieveTests(count, aggregation, dataType) {
             retrievalTest.bind(
                 null,
                 {
-                    aggregation: aggregation,
-                    dataType: dataType
+                    aggregation,
+                    dataType
                 },
                 {
                     filetype: 'csv'
@@ -934,8 +931,8 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                     retrievalTest.bind(
                         null,
                         {
-                            aggregation: aggregation,
-                            dataType: dataType
+                            aggregation,
+                            dataType
                         },
                         {
                             aggrMethod: 'sum',
@@ -952,8 +949,8 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                     retrievalTest.bind(
                         null,
                         {
-                            aggregation: aggregation,
-                            dataType: dataType
+                            aggregation,
+                            dataType
                         },
                         {
                             aggrMethod: 'sum',
@@ -971,8 +968,8 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                     retrievalTest.bind(
                         null,
                         {
-                            aggregation: aggregation,
-                            dataType: dataType
+                            aggregation,
+                            dataType
                         },
                         {
                             aggrMethod: 'sum',
@@ -989,8 +986,8 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                     retrievalTest.bind(
                         null,
                         {
-                            aggregation: aggregation,
-                            dataType: dataType
+                            aggregation,
+                            dataType
                         },
                         {
                             aggrMethod: 'sum2',
@@ -1006,8 +1003,8 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                     retrievalTest.bind(
                         null,
                         {
-                            aggregation: aggregation,
-                            dataType: dataType
+                            aggregation,
+                            dataType
                         },
                         {
                             aggrMethod: 'min',
@@ -1023,8 +1020,8 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                     retrievalTest.bind(
                         null,
                         {
-                            aggregation: aggregation,
-                            dataType: dataType
+                            aggregation,
+                            dataType
                         },
                         {
                             aggrMethod: 'max',
@@ -1040,8 +1037,8 @@ function shouldRetrieveTests(count, aggregation, dataType) {
                     retrievalTest.bind(
                         null,
                         {
-                            aggregation: aggregation,
-                            dataType: dataType
+                            aggregation,
+                            dataType
                         },
                         {
                             aggrMethod: 'occur',
@@ -1059,10 +1056,10 @@ function shouldRetrieveTests(count, aggregation, dataType) {
  * Battery of tests to check that the retrieval of raw and aggregated data works as expected
  */
 function retrievalTests() {
-    var ORIGINAL_DATA_MODEL,
-        dataTypes = Object.keys(sthTestConfig.DATA_TYPES),
-        dataModels = Object.keys(sthConfig.DATA_MODELS),
-        aggregations = Object.keys(sthConfig.AGGREGATIONS);
+    let ORIGINAL_DATA_MODEL;
+    const dataTypes = Object.keys(sthTestConfig.DATA_TYPES);
+    const dataModels = Object.keys(sthConfig.DATA_MODELS);
+    const aggregations = Object.keys(sthConfig.AGGREGATIONS);
 
     before(function() {
         ORIGINAL_DATA_MODEL = sthConfig.DATA_MODEL;
@@ -1086,7 +1083,7 @@ function retrievalTests() {
                                 sthTestConfig.DATA_TYPES[dataType]
                             );
 
-                            for (var i = 1; i <= 5; i++) {
+                            for (let i = 1; i <= 5; i++) {
                                 //prettier-ignore
                                 it('should store ' + (i === 1 ? i : 'another (' + i + ')') + ' ' +  
                                     sthConfig.AGGREGATIONS[aggregation] + ' ' +  sthTestConfig.DATA_TYPES[dataType] + 
@@ -1140,11 +1137,12 @@ describe('sthDatabase tests', function() {
         });
 
         it('should notify as error the aim to connect to the database at an unavailable host', function(done) {
-            var INVALID_DATABASE_CONNECTION_PARAMS = _.clone(DATABASE_CONNECTION_PARAMS);
+            const INVALID_DATABASE_CONNECTION_PARAMS = _.clone(DATABASE_CONNECTION_PARAMS);
             INVALID_DATABASE_CONNECTION_PARAMS.dbURI = 'unavailable_localhost:27017';
             sthDatabase.connect(
                 INVALID_DATABASE_CONNECTION_PARAMS,
                 function(err, connection) {
+                    /* eslint-disable-next-line no-unused-expressions */
                     expect(err).to.exist;
                     expect(err.name).to.equal('MongoError');
                     expect(
@@ -1159,11 +1157,12 @@ describe('sthDatabase tests', function() {
         });
 
         it('should notify as error the aim to connect to the database at an unavailable port', function(done) {
-            var INVALID_DATABASE_CONNECTION_PARAMS = _.clone(DATABASE_CONNECTION_PARAMS);
+            const INVALID_DATABASE_CONNECTION_PARAMS = _.clone(DATABASE_CONNECTION_PARAMS);
             INVALID_DATABASE_CONNECTION_PARAMS.dbURI = 'localhost:12345';
             sthDatabase.connect(
                 INVALID_DATABASE_CONNECTION_PARAMS,
                 function(err, connection) {
+                    /* eslint-disable-next-line no-unused-expressions */
                     expect(err).to.exist;
                     expect(err.name).to.equal('MongoError');
                     expect(
@@ -1180,7 +1179,7 @@ describe('sthDatabase tests', function() {
 
     describe('helper functions', function() {
         it('should return the database name for a service', function() {
-            var databaseName = sthConfig.DB_PREFIX + sthConfig.DEFAULT_SERVICE;
+            const databaseName = sthConfig.DB_PREFIX + sthConfig.DEFAULT_SERVICE;
             expect(sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE)).to.equal(
                 sthConfig.NAME_ENCODING ? sthDatabaseNameCodec.encodeDatabaseName(databaseName) : databaseName
             );

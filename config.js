@@ -21,7 +21,7 @@
  * please contact with: [german.torodelvalle@telefonica.com]
  */
 
-var config = {};
+const config = {};
 
 // STH server configuration
 //--------------------------

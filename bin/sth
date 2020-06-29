@@ -23,9 +23,7 @@
  * please contact with: [german.torodelvalle@telefonica.com]
  */
 
-'use strict';
-
-var ROOT_PATH = require('app-root-path');
-var sth = require(ROOT_PATH + '/lib/sth');
+const ROOT_PATH = require('app-root-path');
+const sth = require(ROOT_PATH + '/lib/sth');
 
 sth.startup();

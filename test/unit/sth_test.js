@@ -21,18 +21,17 @@
  * please contact with: [german.torodelvalle@telefonica.com]
  */
 
-'use strict';
+const ROOT_PATH = require('app-root-path');
+const sth = require(ROOT_PATH + '/lib/sth');
+const sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
+const sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
+const sthTestUtils = require(ROOT_PATH + '/test/unit/sthTestUtils.js');
+const sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
+const hapi = require('hapi');
+const request = require('request');
+const expect = require('expect.js');
 
-var ROOT_PATH = require('app-root-path');
-var sth = require(ROOT_PATH + '/lib/sth');
-var sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
-var sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
-var sthTestUtils = require(ROOT_PATH + '/test/unit/sthTestUtils.js');
-var sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
-var hapi = require('hapi');
-var request = require('request');
-var expect = require('expect.js');
-
+/* eslint-disable no-console */
 console.log('*** Running the server tests with the following environment variables:');
 console.log('\n***** STH app environment variables:');
 console.log(sthConfig);
@@ -77,7 +76,7 @@ describe('sth tests', function() {
                     method: 'PUT'
                 },
                 function(err, response, body) {
-                    var bodyJSON = JSON.parse(body);
+                    const bodyJSON = JSON.parse(body);
                     expect(err).to.equal(null);
                     expect(response.statusCode).to.equal(404);
                     expect(bodyJSON.error).to.equal('NotFound');
@@ -95,7 +94,7 @@ describe('sth tests', function() {
                     method: 'PUT'
                 },
                 function(err, response, body) {
-                    var bodyJSON = JSON.parse(body);
+                    const bodyJSON = JSON.parse(body);
                     expect(err).to.equal(null);
                     expect(response.statusCode).to.equal(404);
                     expect(bodyJSON.statusCode).to.equal(404);
@@ -114,7 +113,7 @@ describe('sth tests', function() {
                     method: 'GET'
                 },
                 function(err, response, body) {
-                    var bodyJSON = JSON.parse(body);
+                    const bodyJSON = JSON.parse(body);
                     expect(err).to.equal(null);
                     expect(response.statusCode).to.equal(404);
                     expect(bodyJSON.error).to.equal('NotFound');
@@ -134,7 +133,7 @@ describe('sth tests', function() {
                     method: 'GET'
                 },
                 function(err, response, body) {
-                    var bodyJSON = JSON.parse(body);
+                    const bodyJSON = JSON.parse(body);
                     expect(err).to.equal(null);
                     expect(response.statusCode).to.equal(404);
                     expect(bodyJSON.statusCode).to.equal(404);
@@ -151,7 +150,7 @@ describe('sth tests', function() {
                     method: 'GET'
                 },
                 function(err, response, body) {
-                    var bodyJSON = JSON.parse(body);
+                    const bodyJSON = JSON.parse(body);
                     expect(err).to.equal(null);
                     expect(response.statusCode).to.equal(400);
                     expect(bodyJSON.error).to.equal('BadRequest');
@@ -171,7 +170,7 @@ describe('sth tests', function() {
                     method: 'GET'
                 },
                 function(err, response, body) {
-                    var bodyJSON = JSON.parse(body);
+                    const bodyJSON = JSON.parse(body);
                     expect(err).to.equal(null);
                     expect(response.statusCode).to.equal(400);
                     expect(bodyJSON.statusCode).to.equal(400);
@@ -191,7 +190,7 @@ describe('sth tests', function() {
                     }
                 },
                 function(err, response, body) {
-                    var bodyJSON = JSON.parse(body);
+                    const bodyJSON = JSON.parse(body);
                     expect(err).to.equal(null);
                     expect(response.statusCode).to.equal(400);
                     expect(bodyJSON.error).to.equal('BadRequest');
@@ -214,7 +213,7 @@ describe('sth tests', function() {
                     }
                 },
                 function(err, response, body) {
-                    var bodyJSON = JSON.parse(body);
+                    const bodyJSON = JSON.parse(body);
                     expect(err).to.equal(null);
                     expect(response.statusCode).to.equal(400);
                     expect(bodyJSON.statusCode).to.equal(400);
@@ -238,7 +237,7 @@ describe('sth tests', function() {
                         }
                     },
                     function(err, response, body) {
-                        var bodyJSON = JSON.parse(body);
+                        const bodyJSON = JSON.parse(body);
                         expect(err).to.equal(null);
                         expect(response.statusCode).to.equal(400);
                         expect(bodyJSON.error).to.equal('BadRequest');
@@ -266,7 +265,7 @@ describe('sth tests', function() {
                         }
                     },
                     function(err, response, body) {
-                        var bodyJSON = JSON.parse(body);
+                        const bodyJSON = JSON.parse(body);
                         expect(err).to.equal(null);
                         expect(response.statusCode).to.equal(400);
                         expect(bodyJSON.statusCode).to.equal(400);
@@ -341,7 +340,7 @@ describe('sth tests', function() {
         );
     }
 
-    for (var i = 0; i < sthTestConfig.SAMPLES; i++) {
+    for (let i = 0; i < sthTestConfig.SAMPLES; i++) {
         describe('data storage', eachEventTestSuiteContainer.bind(null, 'attribute-float', 'float', i % 2));
 
         describe(
@@ -393,7 +392,7 @@ describe('sth tests', function() {
         );
     }
 
-    for (var j = 0; j < sthTestConfig.SAMPLES; j++) {
+    for (let j = 0; j < sthTestConfig.SAMPLES; j++) {
         describe('data storage', eachEventTestSuiteContainer.bind(null, 'attribute-string', 'string', j % 2));
 
         describe(
@@ -433,7 +432,8 @@ describe('sth tests', function() {
     );
 
     describe('notification of already existent numeric data should register it only once', function() {
-        var contextResponseNumericWithFixedTimeInstant, contextResponseNumericWithFixedTimeInstantV1;
+        let contextResponseNumericWithFixedTimeInstant;
+        let contextResponseNumericWithFixedTimeInstantV1;
 
         before(function() {
             contextResponseNumericWithFixedTimeInstant = require('./contextResponses/contextResponseNumericWithFixedTimeInstant');
@@ -492,7 +492,7 @@ describe('sth tests', function() {
 
         it('should only retrieve the raw data as stored once', function(done) {
             // By construction, the file only have one key and that key is the attribute name
-            var attrName = Object.keys(contextResponseNumericWithFixedTimeInstant)[0];
+            const attrName = Object.keys(contextResponseNumericWithFixedTimeInstant)[0];
 
             request(
                 {
@@ -514,7 +514,7 @@ describe('sth tests', function() {
                     }
                 },
                 function(err, response, body) {
-                    var bodyJSON = JSON.parse(body);
+                    const bodyJSON = JSON.parse(body);
                     expect(bodyJSON.value.length).to.equal(1);
                     expect(bodyJSON.value[0].attrValue).to.equal(
                         contextResponseNumericWithFixedTimeInstant[attrName].value
@@ -551,7 +551,7 @@ describe('sth tests', function() {
                     }
                 },
                 function(err, response, body) {
-                    var bodyJSON = JSON.parse(body);
+                    const bodyJSON = JSON.parse(body);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(1);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).to.equal(
                         contextResponseNumericWithFixedTimeInstantV1.contextResponses[0].contextElement.attributes[0]
@@ -564,7 +564,7 @@ describe('sth tests', function() {
             );
         });
 
-        for (var i = 0; i < sthConfig.AGGREGATION_BY.length; i++) {
+        for (let i = 0; i < sthConfig.AGGREGATION_BY.length; i++) {
             it(
                 'should have only accumulated the sum aggregated data once',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(
@@ -656,7 +656,8 @@ describe('sth tests', function() {
     });
 
     describe('notification of already existent textual data should register it only once', function() {
-        var contextResponseTextualWithFixedTimeInstant, contextResponseTextualWithFixedTimeInstantV1;
+        let contextResponseTextualWithFixedTimeInstant;
+        let contextResponseTextualWithFixedTimeInstantV1;
 
         before(function() {
             contextResponseTextualWithFixedTimeInstant = require('./contextResponses/contextResponseTextualWithFixedTimeInstant');
@@ -715,7 +716,7 @@ describe('sth tests', function() {
 
         it('should only retrieve the raw data as stored once', function(done) {
             // By construction, the file only have one key and that key is the attribute name
-            var attrName = Object.keys(contextResponseTextualWithFixedTimeInstant)[0];
+            const attrName = Object.keys(contextResponseTextualWithFixedTimeInstant)[0];
 
             request(
                 {
@@ -737,7 +738,7 @@ describe('sth tests', function() {
                     }
                 },
                 function(err, response, body) {
-                    var bodyJSON = JSON.parse(body);
+                    const bodyJSON = JSON.parse(body);
                     expect(bodyJSON.value.length).to.equal(1);
                     expect(bodyJSON.value[0].attrValue).to.equal(
                         contextResponseTextualWithFixedTimeInstant[attrName].value
@@ -774,7 +775,7 @@ describe('sth tests', function() {
                     }
                 },
                 function(err, response, body) {
-                    var bodyJSON = JSON.parse(body);
+                    const bodyJSON = JSON.parse(body);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(1);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).to.equal(
                         contextResponseTextualWithFixedTimeInstantV1.contextResponses[0].contextElement.attributes[0]
@@ -787,7 +788,7 @@ describe('sth tests', function() {
             );
         });
 
-        for (var i = 0; i < sthConfig.AGGREGATION_BY.length; i++) {
+        for (let i = 0; i < sthConfig.AGGREGATION_BY.length; i++) {
             it(
                 'should have only accumulated the aggregated data once',
                 sthTestUtils.textualAggregatedDataUpdatedTest.bind(
@@ -811,7 +812,8 @@ describe('sth tests', function() {
     });
 
     describe('notification of an update to already existent numeric data should update the original value', function() {
-        var contextResponseNumericWithFixedTimeInstantUpdate, contextResponseNumericWithFixedTimeInstantUpdateV1;
+        let contextResponseNumericWithFixedTimeInstantUpdate;
+        let contextResponseNumericWithFixedTimeInstantUpdateV1;
 
         before(function() {
             contextResponseNumericWithFixedTimeInstantUpdate = require('./contextResponses/contextResponseNumericWithFixedTimeInstantUpdate');
@@ -870,7 +872,7 @@ describe('sth tests', function() {
 
         it('should retrieve the updated raw data', function(done) {
             // By construction, the file only have one key and that key is the attribute name
-            var attrName = Object.keys(contextResponseNumericWithFixedTimeInstantUpdate)[0];
+            const attrName = Object.keys(contextResponseNumericWithFixedTimeInstantUpdate)[0];
 
             request(
                 {
@@ -894,7 +896,7 @@ describe('sth tests', function() {
                     }
                 },
                 function(err, response, body) {
-                    var bodyJSON = JSON.parse(body);
+                    const bodyJSON = JSON.parse(body);
                     expect(bodyJSON.value.length).to.equal(1);
                     expect(bodyJSON.value[0].attrValue).to.equal(
                         contextResponseNumericWithFixedTimeInstantUpdate[attrName].value
@@ -931,7 +933,7 @@ describe('sth tests', function() {
                     }
                 },
                 function(err, response, body) {
-                    var bodyJSON = JSON.parse(body);
+                    const bodyJSON = JSON.parse(body);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(1);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).to.equal(
                         contextResponseNumericWithFixedTimeInstantUpdateV1.contextResponses[0].contextElement
@@ -944,7 +946,7 @@ describe('sth tests', function() {
             );
         });
 
-        for (var i = 0; i < sthConfig.AGGREGATION_BY.length; i++) {
+        for (let i = 0; i < sthConfig.AGGREGATION_BY.length; i++) {
             it(
                 'should have only accumulated the sum updated aggregated data',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(
@@ -1036,7 +1038,8 @@ describe('sth tests', function() {
     });
 
     describe('notification of already existent textual data should update the original value', function() {
-        var contextResponseTextualWithFixedTimeInstantUpdate, contextResponseTextualWithFixedTimeInstantUpdateV1;
+        let contextResponseTextualWithFixedTimeInstantUpdate;
+        let contextResponseTextualWithFixedTimeInstantUpdateV1;
 
         before(function() {
             contextResponseTextualWithFixedTimeInstantUpdate = require('./contextResponses/contextResponseTextualWithFixedTimeInstantUpdate');
@@ -1095,7 +1098,7 @@ describe('sth tests', function() {
 
         it('should retrieve the updated raw data', function(done) {
             // By construction, the file only have one key and that key is the attribute name
-            var attrName = Object.keys(contextResponseTextualWithFixedTimeInstantUpdate)[0];
+            const attrName = Object.keys(contextResponseTextualWithFixedTimeInstantUpdate)[0];
 
             request(
                 {
@@ -1119,7 +1122,7 @@ describe('sth tests', function() {
                     }
                 },
                 function(err, response, body) {
-                    var bodyJSON = JSON.parse(body);
+                    const bodyJSON = JSON.parse(body);
                     expect(bodyJSON.value.length).to.equal(1);
                     expect(bodyJSON.value[0].attrValue).to.equal(
                         contextResponseTextualWithFixedTimeInstantUpdate[attrName].value
@@ -1156,7 +1159,7 @@ describe('sth tests', function() {
                     }
                 },
                 function(err, response, body) {
-                    var bodyJSON = JSON.parse(body);
+                    const bodyJSON = JSON.parse(body);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(1);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).to.equal(
                         contextResponseTextualWithFixedTimeInstantUpdateV1.contextResponses[0].contextElement
@@ -1169,7 +1172,7 @@ describe('sth tests', function() {
             );
         });
 
-        for (var i = 0; i < sthConfig.AGGREGATION_BY.length; i++) {
+        for (let i = 0; i < sthConfig.AGGREGATION_BY.length; i++) {
             it(
                 'should retrieve the updated aggregated data',
                 sthTestUtils.textualAggregatedDataUpdatedTest.bind(
@@ -1193,7 +1196,8 @@ describe('sth tests', function() {
     });
 
     describe('notification of an array attribute value should register it only as raw data', function() {
-        var contextResponseArrayWithFixedTimeInstant, contextResponseArrayWithFixedTimeInstantV1;
+        let contextResponseArrayWithFixedTimeInstant;
+        let contextResponseArrayWithFixedTimeInstantV1;
 
         before(function() {
             contextResponseArrayWithFixedTimeInstant = require('./contextResponses/contextResponseArrayWithFixedTimeInstant');
@@ -1227,7 +1231,7 @@ describe('sth tests', function() {
 
         it('should retrieve the raw data', function(done) {
             // By construction, the file only have one key and that key is the attribute name
-            var attrName = Object.keys(contextResponseArrayWithFixedTimeInstant)[0];
+            const attrName = Object.keys(contextResponseArrayWithFixedTimeInstant)[0];
 
             request(
                 {
@@ -1249,7 +1253,7 @@ describe('sth tests', function() {
                     }
                 },
                 function(err, response, body) {
-                    var bodyJSON = JSON.parse(body);
+                    const bodyJSON = JSON.parse(body);
                     expect(bodyJSON.value.length).to.equal(1);
                     expect(bodyJSON.value[0].attrValue).to.eql(
                         contextResponseArrayWithFixedTimeInstant[attrName].value
@@ -1285,7 +1289,7 @@ describe('sth tests', function() {
                     }
                 },
                 function(err, response, body) {
-                    var bodyJSON = JSON.parse(body);
+                    const bodyJSON = JSON.parse(body);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(1);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).to.eql(
                         contextResponseArrayWithFixedTimeInstantV1.contextResponses[0].contextElement.attributes[0]
@@ -1298,7 +1302,7 @@ describe('sth tests', function() {
             );
         });
 
-        for (var j = 0; j < sthConfig.AGGREGATION_BY.length; j++) {
+        for (let j = 0; j < sthConfig.AGGREGATION_BY.length; j++) {
             it(
                 'should not retrieve the non-registered aggregated data if sum is requested',
                 sthTestUtils.aggregatedDataNonExistentTest.bind(
@@ -1412,7 +1416,8 @@ describe('sth tests', function() {
     });
 
     describe('notification of an object attribute value should register it only as raw data', function() {
-        var contextResponseObjectWithFixedTimeInstant, contextResponseObjectWithFixedTimeInstantV1;
+        let contextResponseObjectWithFixedTimeInstant;
+        let contextResponseObjectWithFixedTimeInstantV1;
 
         before(function() {
             contextResponseObjectWithFixedTimeInstant = require('./contextResponses/contextResponseObjectWithFixedTimeInstant');
@@ -1446,7 +1451,7 @@ describe('sth tests', function() {
 
         it('should retrieve the raw data', function(done) {
             // By construction, the file only have one key and that key is the attribute name
-            var attrName = Object.keys(contextResponseObjectWithFixedTimeInstant)[0];
+            const attrName = Object.keys(contextResponseObjectWithFixedTimeInstant)[0];
 
             request(
                 {
@@ -1468,7 +1473,7 @@ describe('sth tests', function() {
                     }
                 },
                 function(err, response, body) {
-                    var bodyJSON = JSON.parse(body);
+                    const bodyJSON = JSON.parse(body);
                     expect(bodyJSON.value.length).to.equal(1);
                     expect(bodyJSON.value[0].attrValue).to.eql(
                         contextResponseObjectWithFixedTimeInstant[attrName].value
@@ -1505,7 +1510,7 @@ describe('sth tests', function() {
                     }
                 },
                 function(err, response, body) {
-                    var bodyJSON = JSON.parse(body);
+                    const bodyJSON = JSON.parse(body);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values.length).to.equal(1);
                     expect(bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].attrValue).to.eql(
                         contextResponseObjectWithFixedTimeInstantV1.contextResponses[0].contextElement.attributes[0]
@@ -1518,7 +1523,7 @@ describe('sth tests', function() {
             );
         });
 
-        for (var j = 0; j < sthConfig.AGGREGATION_BY.length; j++) {
+        for (let j = 0; j < sthConfig.AGGREGATION_BY.length; j++) {
             it(
                 'should not retrieve the non-registered aggregated data if sum is requested',
                 sthTestUtils.aggregatedDataNonExistentTest.bind(
@@ -1631,8 +1636,8 @@ describe('sth tests', function() {
         }
     });
 
-    var contextResponseNumericWithFixedTimeInstantUpdate = require('./contextResponses/V1contextResponseNumericWithFixedTimeInstantUpdate');
-    var contextResponseTextualWithFixedTimeInstantUpdate = require('./contextResponses/V1contextResponseTextualWithFixedTimeInstantUpdate');
+    const contextResponseNumericWithFixedTimeInstantUpdate = require('./contextResponses/V1contextResponseNumericWithFixedTimeInstantUpdate');
+    const contextResponseTextualWithFixedTimeInstantUpdate = require('./contextResponses/V1contextResponseTextualWithFixedTimeInstantUpdate');
 
     describe('Data removal', function() {
         describe(
@@ -1723,7 +1728,7 @@ describe('sth tests', function() {
                     method: 'GET'
                 },
                 function(err, response, body) {
-                    var bodyJSON = JSON.parse(body);
+                    const bodyJSON = JSON.parse(body);
                     expect(err).to.equal(null);
                     expect(bodyJSON.version).not.to.be(undefined);
                     done();
