@@ -4,3 +4,4 @@
     -  Add esLint using standard tamia presets
     -  Replace var with let/const
     -  Fix or disable eslint errors
+Set Nodejs 10 as minimum version in packages.json (effectively removing Nodev8 from supported versions)
