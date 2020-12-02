@@ -8,7 +8,7 @@
 [![Join the chat at https://gitter.im/telefonicaid/fiware-sth-comet](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/telefonicaid/fiware-sth-comet?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 <br/>
 [![Documentation badge](https://readthedocs.org/projects/fiware-sth-comet/badge/?version=latest)](https://fiware-sth-comet.readthedocs.io)
-[![CI](https://github.com/telefonicaid/lightweightm2m-iotagent/workflows/CI/badge.svg)](https://github.com/telefonicaid/lightweightm2m-iotagent/actions?query=workflow%3ACI)
+[![CI](https://github.com/telefonicaid/fiware-sth-comet/workflows/CI/badge.svg)](https://github.com/telefonicaid/fiware-sth-comet/actions?query=workflow%3ACI)
 [![Coverage Status](https://coveralls.io/repos/github/telefonicaid/fiware-sth-comet/badge.svg?branch=master)](https://coveralls.io/github/telefonicaid/fiware-sth-comet?branch=master)
 ![Status](https://nexus.lab.fiware.org/static/badges/statuses/cygnus.svg)
 
