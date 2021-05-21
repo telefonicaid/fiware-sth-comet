@@ -11,6 +11,7 @@
 [![CI](https://github.com/telefonicaid/fiware-sth-comet/workflows/CI/badge.svg)](https://github.com/telefonicaid/fiware-sth-comet/actions?query=workflow%3ACI)
 [![Coverage Status](https://coveralls.io/repos/github/telefonicaid/fiware-sth-comet/badge.svg?branch=master)](https://coveralls.io/github/telefonicaid/fiware-sth-comet?branch=master)
 ![Status](https://nexus.lab.fiware.org/static/badges/statuses/cygnus.svg)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4878/badge)](https://bestpractices.coreinfrastructure.org/projects/4878)
 
 The **FIWARE Short Time Historic (STH) - Comet** is in charge of managing (storing and retrieving) historical raw and
 aggregated time series context information about the evolution in time of context data (i.e., entity attribute values)
