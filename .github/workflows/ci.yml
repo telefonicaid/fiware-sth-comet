@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       mongodb:
-        image: mongo:3.6
+        image: mongo:4.4
         ports:
         - 27017:27017
     strategy:
@@ -83,7 +83,7 @@ jobs:
     needs: unit-test
     services:
       mongodb:
-        image: mongo:3.6
+        image: mongo:4.4
         ports:
         - 27017:27017
     steps:

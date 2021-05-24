@@ -9,4 +9,4 @@ fiware-sth-comet:
     - DB_URI=mongo:27017
 
 mongo:
-  image: mongo:3.2
+  image: mongo:4.4
