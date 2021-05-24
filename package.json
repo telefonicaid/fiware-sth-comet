@@ -71,7 +71,7 @@
     "lodash": "~4.17.5",
     "logops": "2.1.0",
     "mkdirp": "~0.5.1",
-    "mongodb": "~3.6.1",
+    "mongodb": "~3.6.3",
     "object-assign": "~4.1.0",
     "progress": "~1.1.8",
     "rfc5987-value-chars": "~1.0.0",
