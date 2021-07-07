@@ -76,7 +76,7 @@ config.database = {
     // 3) one collection per service path. The possible values are: "collection-per-attribute",
     // "collection-per-entity" and "collection-per-service-path" respectively. Default value:
     // "collection-per-entity".
-    dataModel: 'collection-per-entity',
+    dataModel: 'collection-per-service-path',
     // The username to use for the database connection. Default value: "".
     user: '',
     // The password to use for the database connection. Default value: "".
