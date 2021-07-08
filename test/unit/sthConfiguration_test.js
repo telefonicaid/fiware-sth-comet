@@ -37,7 +37,7 @@ const DEFAULT_VALUES = {
     DEFAULT_SERVICE_PATH: '/testservicepath',
     AGGREGATION_BY: ['day', 'hour', 'minute'],
     TEMPORAL_DIR: 'temp',
-    DATA_MODEL: 'collection-per-entity',
+    DATA_MODEL: 'collection-per-service-path',
     DB_USERNAME: '',
     DB_PASSWORD: '',
     DB_URI: 'localhost:27017',
