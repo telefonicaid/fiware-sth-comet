@@ -1,3 +1,4 @@
+-  Update logs about get raw and aggregated data (#556)
 -  Update codebase to use ES6
     -  Remove JSHint and jshint overrides
     -  Add esLint using standard tamia presets
