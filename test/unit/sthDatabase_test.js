@@ -273,6 +273,50 @@ function collectionAccessTests() {
 }
 
 /**
+ * Tests to check that the access to the collections works as expected after reconnect with DB
+ */
+function collectionAccessReconnectTests() {
+    const ORIGINAL_DATA_MODEL = sthConfig.DATA_MODEL;
+    const dataTypes = Object.keys(sthTestConfig.DATA_TYPES);
+    const dataModels = Object.keys(sthConfig.DATA_MODELS);
+
+    dataModels.forEach(function(dataModel) {
+        describe(sthConfig.DATA_MODELS[dataModel] + ' data model', function() {
+            before(function() {
+                sthConfig.DATA_MODEL = sthConfig.DATA_MODELS[dataModel];
+            });
+
+            dataTypes.forEach(function(dataType) {
+                //prettier-ignore
+                it('should notify as error a non-existent ' + sthTestConfig.DATA_TYPES[dataType] + 
+                    ' data collection if it should not be created',
+                    function(done) {
+                        sthDatabase.getCollection(
+                            COLLECTION_NAME_PARAMS,
+                            {
+                                shouldCreate: true,
+                                isAggregated:
+                                    sthTestConfig.DATA_TYPES[dataType] === sthTestConfig.DATA_TYPES.AGGREGATED,
+                                shouldTruncate: false
+                            },
+                            function(err, collection) {
+                                expect(err).to.be(null);
+                                expect(collection).to.be.ok();
+                                return done();
+                            }
+                        );
+                    }
+                );
+            });
+
+            after(function() {
+                sthConfig.DATA_MODEL = ORIGINAL_DATA_MODEL;
+            });
+        });
+    });
+}
+
+/**
  * Returns the aggregated entry or point for certain offset
  * @param {Array} points The array of points
  * @param {Number} offset The offset
@@ -1191,6 +1235,14 @@ describe('sthDatabase tests', function() {
             });
 
             describe('access', collectionAccessTests);
+        });
+
+	describe('collection access reconnect', function() {
+            before(function(done) {
+                sthDatabase.closeConnection(done);
+            });
+
+            describe('access', collectionAccessReconnectTests);
         });
     });
 

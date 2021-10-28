@@ -4,3 +4,4 @@
     -  Add esLint using standard tamia presets
     -  Replace var with let/const
     -  Fix or disable eslint errors
+-  Update codebase to reconnect database if database disconnects (#559)
