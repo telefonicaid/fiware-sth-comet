@@ -150,7 +150,9 @@ config.database = {
     //    encoded as xsystem.myData.
     // Default value: "true" (although we will set it to false until the Cygnus counterpart is ready and landed)
     nameEncoding: 'false',
+    // Server attempt to reconnect #times
     reconnectTries: 1e3,
+    // Server will wait # milliseconds between retries.
     reconnectInterval: 5e3
 };
 
