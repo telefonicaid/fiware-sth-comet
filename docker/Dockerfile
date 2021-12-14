@@ -86,6 +86,9 @@ RUN \
 	apt-get install -y git && \
 	echo "INFO: npm install --production..." && \
 	npm install --production && \
+	# Ensure permissions over default directory used by STH to generate csv files
+	mkdir temp && \
+	chmod 777 temp && \
 	# Remove Git and clean apt cache
 	apt-get clean && \
 	apt-get remove -y git && \
