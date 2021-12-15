@@ -1144,7 +1144,7 @@ describe('sthDatabase tests', function() {
                 function(err, connection) {
                     /* eslint-disable-next-line no-unused-expressions */
                     expect(err).to.exist;
-                    expect(err.name).to.equal('MongoError');
+                    expect(err.name).to.equal('MongoNetworkError');
                     expect(
                         err.message.indexOf(
                             'failed to connect to server [' + INVALID_DATABASE_CONNECTION_PARAMS.dbURI + ']'
@@ -1164,7 +1164,7 @@ describe('sthDatabase tests', function() {
                 function(err, connection) {
                     /* eslint-disable-next-line no-unused-expressions */
                     expect(err).to.exist;
-                    expect(err.name).to.equal('MongoError');
+                    expect(err.name).to.equal('MongoNetworkError');
                     expect(
                         err.message.indexOf(
                             'failed to connect to server [' + INVALID_DATABASE_CONNECTION_PARAMS.dbURI + ']'
