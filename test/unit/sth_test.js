@@ -1625,55 +1625,55 @@ describe('sth tests', function() {
     const contextResponseNumericWithFixedTimeInstantUpdate = require('./contextResponses/V1contextResponseNumericWithFixedTimeInstantUpdate');
     const contextResponseTextualWithFixedTimeInstantUpdate = require('./contextResponses/V1contextResponseTextualWithFixedTimeInstantUpdate');
 
-    // describe('Data removal', function() {
-    //     describe(
-    //         'Removal of concrete attributes of entities including numeric data',
-    //         sthTestUtils.dataRemovalSuite.bind(null, sthConfig.AGGREGATIONS.NUMERIC, {
-    //             entityId: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.id,
-    //             entityType: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.type,
-    //             attrName:
-    //                 contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.attributes[0]
-    //                     .name
-    //         })
-    //     );
+    describe('Data removal', function() {
+        describe(
+            'Removal of concrete attributes of entities including numeric data',
+            sthTestUtils.dataRemovalSuite.bind(null, sthConfig.AGGREGATIONS.NUMERIC, {
+                entityId: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.id,
+                entityType: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.type,
+                attrName:
+                    contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.attributes[0]
+                        .name
+            })
+        );
 
-    //     describe(
-    //         'Removal of concrete entities including numeric data',
-    //         sthTestUtils.dataRemovalSuite.bind(null, sthConfig.AGGREGATIONS.NUMERIC, {
-    //             entityId: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.id,
-    //             entityType: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.type
-    //         })
-    //     );
+        // describe(
+        //     'Removal of concrete entities including numeric data',
+        //     sthTestUtils.dataRemovalSuite.bind(null, sthConfig.AGGREGATIONS.NUMERIC, {
+        //         entityId: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.id,
+        //         entityType: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.type
+        //     })
+        // );
 
-    //     describe(
-    //         'Removal of all the entities for certain service and service path including numeric data',
-    //         sthTestUtils.dataRemovalSuite.bind(null, sthConfig.AGGREGATIONS.NUMERIC)
-    //     );
+        // describe(
+        //     'Removal of all the entities for certain service and service path including numeric data',
+        //     sthTestUtils.dataRemovalSuite.bind(null, sthConfig.AGGREGATIONS.NUMERIC)
+        // );
 
-    //     describe(
-    //         'Removal of concrete attributes of entities including textual data',
-    //         sthTestUtils.dataRemovalSuite.bind(null, sthConfig.AGGREGATIONS.TEXTUAL, {
-    //             entityId: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement.id,
-    //             entityType: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement.type,
-    //             attrName:
-    //                 contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement.attributes[0]
-    //                     .name
-    //         })
-    //     );
+        describe(
+            'Removal of concrete attributes of entities including textual data',
+            sthTestUtils.dataRemovalSuite.bind(null, sthConfig.AGGREGATIONS.TEXTUAL, {
+                entityId: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement.id,
+                entityType: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement.type,
+                attrName:
+                    contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement.attributes[0]
+                        .name
+            })
+        );
 
-    //     describe(
-    //         'Removal of concrete entities including textual data',
-    //         sthTestUtils.dataRemovalSuite.bind(null, sthConfig.AGGREGATIONS.TEXTUAL, {
-    //             entityId: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.id,
-    //             entityType: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement.type
-    //         })
-    //     );
+        // describe(
+        //     'Removal of concrete entities including textual data',
+        //     sthTestUtils.dataRemovalSuite.bind(null, sthConfig.AGGREGATIONS.TEXTUAL, {
+        //         entityId: contextResponseNumericWithFixedTimeInstantUpdate.contextResponses[0].contextElement.id,
+        //         entityType: contextResponseTextualWithFixedTimeInstantUpdate.contextResponses[0].contextElement.type
+        //     })
+        // );
 
-    //     describe(
-    //         'Removal of all the entities for certain service and service path including textual data',
-    //         sthTestUtils.dataRemovalSuite.bind(null, sthConfig.AGGREGATIONS.TEXTUAL)
-    //     );
-    //});
+        //     describe(
+        //         'Removal of all the entities for certain service and service path including textual data',
+        //         sthTestUtils.dataRemovalSuite.bind(null, sthConfig.AGGREGATIONS.TEXTUAL)
+        //     );
+    });
 
     describe('PUT /admin/log', function() {
         it('should accept FATAL as a valid logging level', sthTestUtils.validLogLevelChangeTest.bind(null, 'FATAL'));
