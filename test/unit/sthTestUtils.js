@@ -1227,52 +1227,51 @@ function aggregatedDataRetrievalTests(index, attrName, attrType, aggrMethod) {
         })
     );
 
-    // it(
-    //     'should respond with empty aggregated data if no data since dateFrom',
-    //     noAggregatedDataSinceDateTest.bind(null, 2, {
-    //         service: sthConfig.DEFAULT_SERVICE,
-    //         servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-    //         attrName,
-    //         aggrMethod,
-    //         resolution: sthConfig.AGGREGATION_BY[index]
-    //     })
-    // );
+    it(
+        'should respond with empty aggregated data if no data since dateFrom',
+        noAggregatedDataSinceDateTest.bind(null, 2, {
+            service: sthConfig.DEFAULT_SERVICE,
+            servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+            attrName,
+            aggrMethod,
+            resolution: sthConfig.AGGREGATION_BY[index]
+        })
+    );
 
-    // it(
-    //     'should respond with empty aggregated data if no data since dateFrom - NGSIv1',
-    //     noAggregatedDataSinceDateTest.bind(null, 1, {
-    //         service: sthConfig.DEFAULT_SERVICE,
-    //         servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-    //         attrName,
-    //         aggrMethod,
-    //         resolution: sthConfig.AGGREGATION_BY[index]
-    //     })
-    // );
+    it(
+        'should respond with empty aggregated data if no data since dateFrom - NGSIv1',
+        noAggregatedDataSinceDateTest.bind(null, 1, {
+            service: sthConfig.DEFAULT_SERVICE,
+            servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+            attrName,
+            aggrMethod,
+            resolution: sthConfig.AGGREGATION_BY[index]
+        })
+    );
 
-    // ///////
-    // it(
-    //     'should respond with aggregated data if data since dateFrom',
-    //     aggregatedDataAvailableSinceDateTest.bind(null, 2, {
-    //         service: sthConfig.DEFAULT_SERVICE,
-    //         servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-    //         attrName,
-    //         attrType,
-    //         aggrMethod,
-    //         resolution: sthConfig.AGGREGATION_BY[index]
-    //     })
-    // );
+    it(
+        'should respond with aggregated data if data since dateFrom',
+        aggregatedDataAvailableSinceDateTest.bind(null, 2, {
+            service: sthConfig.DEFAULT_SERVICE,
+            servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+            attrName,
+            attrType,
+            aggrMethod,
+            resolution: sthConfig.AGGREGATION_BY[index]
+        })
+    );
 
-    // it(
-    //     'should respond with aggregated data if data since dateFrom - NGSIv1',
-    //     aggregatedDataAvailableSinceDateTest.bind(null, 1, {
-    //         service: sthConfig.DEFAULT_SERVICE,
-    //         servicePath: sthConfig.DEFAULT_SERVICE_PATH,
-    //         attrName,
-    //         attrType,
-    //         aggrMethod,
-    //         resolution: sthConfig.AGGREGATION_BY[index]
-    //     })
-    // );
+    it(
+        'should respond with aggregated data if data since dateFrom - NGSIv1',
+        aggregatedDataAvailableSinceDateTest.bind(null, 1, {
+            service: sthConfig.DEFAULT_SERVICE,
+            servicePath: sthConfig.DEFAULT_SERVICE_PATH,
+            attrName,
+            attrType,
+            aggrMethod,
+            resolution: sthConfig.AGGREGATION_BY[index]
+        })
+    );
 }
 
 /**
