@@ -575,7 +575,6 @@ describe('sth tests', function() {
                     sthConfig.AGGREGATION_BY[i]
                 )
             );
-
             it(
                 'should have only accumulated the sum aggregated data once - NGSIv1',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(
@@ -586,7 +585,6 @@ describe('sth tests', function() {
                     sthConfig.AGGREGATION_BY[i]
                 )
             );
-
             it(
                 'should have only accumulated the sum2 aggregated data once',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(
@@ -597,7 +595,6 @@ describe('sth tests', function() {
                     sthConfig.AGGREGATION_BY[i]
                 )
             );
-
             it(
                 'should have only accumulated the sum2 aggregated data once - NGSIv1',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(
@@ -608,7 +605,6 @@ describe('sth tests', function() {
                     sthConfig.AGGREGATION_BY[i]
                 )
             );
-
             it(
                 'should have only accumulated the max aggregated data once',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(
@@ -619,7 +615,6 @@ describe('sth tests', function() {
                     sthConfig.AGGREGATION_BY[i]
                 )
             );
-
             it(
                 'should have only accumulated the max aggregated data once- NGSIv1',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(
@@ -630,7 +625,6 @@ describe('sth tests', function() {
                     sthConfig.AGGREGATION_BY[i]
                 )
             );
-
             it(
                 'should have only accumulated the min aggregated data once',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(
@@ -641,7 +635,6 @@ describe('sth tests', function() {
                     sthConfig.AGGREGATION_BY[i]
                 )
             );
-
             it(
                 'should have only accumulated the min aggregated data once - NGSIv1',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(
@@ -957,7 +950,6 @@ describe('sth tests', function() {
                     sthConfig.AGGREGATION_BY[i]
                 )
             );
-
             it(
                 'should have only accumulated the sum updated aggregated data - NGSIv1',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(
@@ -968,7 +960,6 @@ describe('sth tests', function() {
                     sthConfig.AGGREGATION_BY[i]
                 )
             );
-
             it(
                 'should have only accumulated the sum2 aggregated data once',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(
@@ -979,7 +970,6 @@ describe('sth tests', function() {
                     sthConfig.AGGREGATION_BY[i]
                 )
             );
-
             it(
                 'should have only accumulated the sum2 aggregated data once - NGSIv1',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(
@@ -990,7 +980,6 @@ describe('sth tests', function() {
                     sthConfig.AGGREGATION_BY[i]
                 )
             );
-
             it(
                 'should have only accumulated the max aggregated data once',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(
@@ -1001,7 +990,6 @@ describe('sth tests', function() {
                     sthConfig.AGGREGATION_BY[i]
                 )
             );
-
             it(
                 'should have only accumulated the max aggregated data once - NGSIv1',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(
@@ -1012,7 +1000,6 @@ describe('sth tests', function() {
                     sthConfig.AGGREGATION_BY[i]
                 )
             );
-
             it(
                 'should have only accumulated the min aggregated data once',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(
@@ -1023,7 +1010,6 @@ describe('sth tests', function() {
                     sthConfig.AGGREGATION_BY[i]
                 )
             );
-
             it(
                 'should have only accumulated the min aggregated data once - NGISv1',
                 sthTestUtils.numericAggregatedDataUpdatedTest.bind(

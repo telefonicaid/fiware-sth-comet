@@ -91,7 +91,7 @@ function createRawAndAggregatedCollections(callback) {
  * @param  {Function} callback       The callback
  */
 function checkCollectionExists(databaseName, collectionName, callback) {
-    sthDatabase.connection
+    sthDatabase.client
         .db(databaseName)
         .listCollections({ name: collectionName })
         .toArray(function(err, collections) {
@@ -107,15 +107,15 @@ function checkCollectionExists(databaseName, collectionName, callback) {
  * @param  {Function} callback The callback
  */
 function dropDatabases(callback) {
-    sthDatabase.connection.db(DATABASE_NAME.toLowerCase()).dropDatabase(function(err) {
+    sthDatabase.client.db(DATABASE_NAME.toLowerCase()).dropDatabase(function(err) {
         if (err) {
             return process.nextTick(callback.bind(null, err));
         }
-        sthDatabase.connection.db(DATABASE_NAME).dropDatabase(function(err) {
+        sthDatabase.client.db(DATABASE_NAME).dropDatabase(function(err) {
             if (err) {
                 return process.nextTick(callback.bind(null, err));
             }
-            sthDatabase.connection.db(sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME)).dropDatabase(callback);
+            sthDatabase.client.db(sthDatabaseNameMapper.mapDatabaseName(DATABASE_NAME)).dropDatabase(callback);
         });
     });
 }
