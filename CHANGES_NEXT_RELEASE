@@ -1,4 +1,4 @@
--  Upgrade: mongodb dependence from ~2.2.35 to ~3.6.12
+-  Upgrade: mongodb dependence from ~2.2.35 to ~3.6.12 (#567)
 -  Add config (reconnectTries, reconnectInterval) to allow mongo driver reconnect (#559)
 -  Allow connect with mongo uri without auth
 -  Ensure permissions over temp directory (used by CSV generation) in docker container (issue re-introduced in 2.8.0)
