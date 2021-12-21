@@ -59,13 +59,13 @@
     "watch": "~1.0.2"
   },
   "dependencies": {
+    "@hapi/hapi": "17.9.0",
     "app-root-path": "~1.2.1",
     "async": "~2.0.0-rc.5",
     "boom": "7.2.2",
     "bytes-counter": "~1.0.0",
     "commander": "~2.9.0",
     "csv-parser": "~1.9.3",
-    "hapi": "17.8.5",
     "joi": "14.0.6",
     "json-csv": "1.5.0",
     "lodash": "~4.17.5",
