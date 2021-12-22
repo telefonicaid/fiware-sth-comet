@@ -103,3 +103,6 @@ EXPOSE ${STH_PORT:-8666}
 
 ENTRYPOINT ["docker/entrypoint.sh"]
 CMD ["-- ", "config.js"]
+
+HEALTHCHECK --interval=60s --start-period=10s \
+            CMD curl --fail http://localhost:${STH_PORT}/version  || exit 1
