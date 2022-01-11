@@ -9,4 +9,5 @@
     -  Add esLint using standard tamia presets
     -  Replace var with let/const
     -  Fix or disable eslint errors
-    -  Return 500 when DB is not connected
+- Upgrade logops dep from 2.1.0 to 2.1.2 due to colors dependency corruption
+- Return 500 when DB is not connected
