@@ -300,8 +300,8 @@ function collectionAccessReconnectTests() {
                                 shouldTruncate: false
                             },
                             function(err, collection) {
-                                expect(err).to.be(null);
-                                expect(collection).to.be.ok();
+                                expect(err).to.have.status(500);
+                                expect(collection).to.include('DataBase is not connected');
                                 return done();
                             }
                         );
