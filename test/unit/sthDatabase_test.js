@@ -299,9 +299,9 @@ function collectionAccessReconnectTests() {
                                     sthTestConfig.DATA_TYPES[dataType] === sthTestConfig.DATA_TYPES.AGGREGATED,
                                 shouldTruncate: false
                             },
-                            function(err, collection) {
+                            function(err) {
                                 expect(err).to.have.status(500);
-                                expect(collection).to.include('DataBase is not connected');
+                                expect(err).to.include('DataBase is not connected');
                                 return done();
                             }
                         );
