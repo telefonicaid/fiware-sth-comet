@@ -121,8 +121,9 @@ function connectToDatabase(callback) {
 /**
  * Check DB status and return error 500 if DB is not connected
  */
-function CheckDatabaseStatus(callback) {
-    if (!client.isConnected()) {
+function CheckDatabaseStatus() {
+    let client;
+    if (db===null || (client && !client.isConnected()) {
         client.connect(function(err) { 
             expect(err).to.have.status(500);
             expect(err.message).to.include('DataBase is not connected');
@@ -1205,7 +1206,14 @@ describe('sthDatabase tests', function() {
             describe('access', collectionAccessTests);
         });
     });
-
+ 
+    describe('collection access', function() {
+            before(function(done) {
+                CheckDatabaseStatus(done);
+            });
+        });
+    });
+    
     describe('storage and retrieval', function() {
         before(function(done) {
             connectToDatabase(done);
