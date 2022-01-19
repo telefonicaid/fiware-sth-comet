@@ -1205,9 +1205,8 @@ describe('sthDatabase tests', function() {
 
             describe('access', collectionAccessTests);
         });
-    });
- 
-    describe('collection access', function() {
+        
+        describe('collection access', function() {
             before(function(done) {
                 CheckDatabaseStatus(done);
             });
