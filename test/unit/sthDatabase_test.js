@@ -123,7 +123,7 @@ function connectToDatabase(callback) {
  */
 function CheckDatabaseStatus() {
     let client;
-    if (!client.isConnected())) {
+    if (!client.isConnected()) {
         client.connect(function(err) { 
             expect(err).to.have.status(500);
             expect(err.message).to.include('DataBase is not connected');
@@ -1212,7 +1212,7 @@ describe('sthDatabase tests', function() {
             });
         });
     });
-    
+
     describe('storage and retrieval', function() {
         before(function(done) {
             connectToDatabase(done);
