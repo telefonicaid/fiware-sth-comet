@@ -291,7 +291,7 @@ function collectionAccessReconnectTests() {
                 it('should notify as error a non-existent ' + sthTestConfig.DATA_TYPES[dataType] + 
                     ' data collection if it should not be created',
                     function(done) {
-                        sthDatabase.getCollection(
+                        !sthDatabase.connect(
                             COLLECTION_NAME_PARAMS,
                             {
                                 shouldCreate: true,
