@@ -119,6 +119,18 @@ function connectToDatabase(callback) {
 }
 
 /**
+ * Check DB status and return error 500 if DB is not connected
+ */
+function CheckDatabaseStatus(callback) {
+    if (!client.isConnected()) {
+        client.connect(function(err) { 
+            expect(err).to.have.status(500);
+            expect(err.message).to.include('DataBase is not connected');
+        });
+    }
+}
+
+/**
  * Drops a database collection for the provided data type and model asynchronously
  * @param  {object}   collectionNameParams The collection name params
  * @param  {string}   dataType             The data type
@@ -258,50 +270,6 @@ function collectionAccessTests() {
                             function(err, collection) {
                                 expect(err).to.be(null);
                                 expect(collection).to.be.ok();
-                                return done();
-                            }
-                        );
-                    }
-                );
-            });
-
-            after(function() {
-                sthConfig.DATA_MODEL = ORIGINAL_DATA_MODEL;
-            });
-        });
-    });
-}
-
-/**
- * Tests to check that the access to the collections works as expected after reconnect with DB
- */
-function collectionAccessReconnectTests() {
-    const ORIGINAL_DATA_MODEL = sthConfig.DATA_MODEL;
-    const dataTypes = Object.keys(sthTestConfig.DATA_TYPES);
-    const dataModels = Object.keys(sthConfig.DATA_MODELS);
-
-    dataModels.forEach(function(dataModel) {
-        describe(sthConfig.DATA_MODELS[dataModel] + ' data model', function() {
-            before(function() {
-                sthConfig.DATA_MODEL = sthConfig.DATA_MODELS[dataModel];
-            });
-
-            dataTypes.forEach(function(dataType) {
-                //prettier-ignore
-                it('should notify as error a non-existent ' + sthTestConfig.DATA_TYPES[dataType] + 
-                    ' data collection if it should not be created',
-                    function(done) {
-                        !sthDatabase.connect(
-                            COLLECTION_NAME_PARAMS,
-                            {
-                                shouldCreate: true,
-                                isAggregated:
-                                    sthTestConfig.DATA_TYPES[dataType] === sthTestConfig.DATA_TYPES.AGGREGATED,
-                                shouldTruncate: false
-                            },
-                            function(err) {
-                                expect(err).to.have.status(500);
-                                expect(err).to.include('DataBase is not connected');
                                 return done();
                             }
                         );
@@ -1235,14 +1203,6 @@ describe('sthDatabase tests', function() {
             });
 
             describe('access', collectionAccessTests);
-        });
-        
-        describe('collection access reconnect', function() {
-            before(function(done) {
-                sthDatabase.closeConnection(done);
-            });
-
-            describe('access', collectionAccessReconnectTests);
         });
     });
 
