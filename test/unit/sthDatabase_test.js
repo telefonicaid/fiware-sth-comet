@@ -123,7 +123,7 @@ function connectToDatabase(callback) {
  */
 function CheckDatabaseStatus() {
     let client;
-    if (db===null || (client && !client.isConnected())) {
+    if (!client.isConnected())) {
         client.connect(function(err) { 
             expect(err).to.have.status(500);
             expect(err.message).to.include('DataBase is not connected');
