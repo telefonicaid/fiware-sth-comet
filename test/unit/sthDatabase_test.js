@@ -1213,9 +1213,9 @@ describe('sthDatabase tests', function() {
         describe('When the database is not connected', function() {
             before(function(done) {
                 sth.sthServer.startServer(sthConfig.STH_HOST, sthConfig.STH_PORT, function(err, server) {
-                    // sthDatabase.closeConnection(function() {
-                    done();
-                    // });
+                    sthDatabase.closeConnection(function() {
+                        done();
+                    });
                 });
             });
             it('should return 500', function(done) {
@@ -1225,7 +1225,6 @@ describe('sthDatabase tests', function() {
                     ':' +
                     sthConfig.STH_PORT +
                     '/STH/v2/entities/entityId/attrs/attrName?type=entityType&lastN=1';
-                console.log('*****HOLA*******' + url_sth);
                 request(
                     {
                         uri: url_sth,
@@ -1247,21 +1246,23 @@ describe('sthDatabase tests', function() {
 
             after(function(done) {
                 // Reconnect DB
-                connectToDatabase(done);
+                // connectToDatabase(function(){
+                sth.exitGracefully(null, done);
+                // });
             });
         });
     });
 
-    // describe('storage and retrieval', function() {
-    //     before(function(done) {
-    //         connectToDatabase(done);
-    //     });
+    describe('storage and retrieval', function() {
+        before(function(done) {
+            connectToDatabase(done);
+        });
 
-    //     describe('storage', storageTests);
+        describe('storage', storageTests);
 
-    //     describe('retrieval', retrievalTests);
+        describe('retrieval', retrievalTests);
 
-    //     describe('final clean up', cleanDatabaseTests);
-    // });
+        describe('final clean up', cleanDatabaseTests);
+    });
     /*eslint-enable */
 });
