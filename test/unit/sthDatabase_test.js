@@ -121,14 +121,15 @@ function connectToDatabase(callback) {
 /**
  * Check DB status and return error 500 if DB is not connected
  */
-function CheckDatabaseStatus() {
+function checkDatabaseStatus() {
     let client;
-    if (!client.isConnected()) {
-        client.connect(function(err) { 
-            expect(err).to.have.status(500);
-            expect(err.message).to.include('DataBase is not connected');
-        });
+    if (client.isConnected()) {
+        client.close()
     }
+    client.connect(function(err) { 
+        expect(err).to.have.status(500);
+        expect(err.message).to.include('DataBase is not connected');
+    });
 }
 
 /**
@@ -1206,9 +1207,9 @@ describe('sthDatabase tests', function() {
             describe('access', collectionAccessTests);
         });
         
-        describe('collection access', function() {
+        describe('database not connected', function() {
             before(function(done) {
-                CheckDatabaseStatus(done);
+                checkDatabaseStatus(done);
             });
         });
     });
