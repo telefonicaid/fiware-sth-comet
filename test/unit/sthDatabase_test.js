@@ -21,8 +21,7 @@
  * please contact with: [german.torodelvalle@telefonica.com]
  */
 
-/* eslint-disable consistent-return */
-/* eslint no-use-before-define: 0 */ // --> OFF
+/*eslint-disable */
 
 const ROOT_PATH = require('app-root-path');
 const sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
@@ -1264,5 +1263,5 @@ describe('sthDatabase tests', function() {
 
     //     describe('final clean up', cleanDatabaseTests);
     // });
-    /* eslint no-use-before-define: 2 */ // --> ON
+    /*eslint-enable */
 });
