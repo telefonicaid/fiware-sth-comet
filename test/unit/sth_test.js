@@ -1725,6 +1725,38 @@ describe('sth tests', function() {
 
     describe('should clean the data if requested', sthTestUtils.cleanDatabaseSuite);
 
+    describe('DB disconnect', function() {
+        it('should disconnect from the database', function(done) {
+            sth.sthDatabase.closeConnection(function() {
+                done();
+            });
+        });
+    });
+
+    describe('When the database is not connected', function() {
+        it('should return 500', function(done) {
+            let url_sth =
+                'http://' +
+                sthConfig.STH_HOST +
+                ':' +
+                sthConfig.STH_PORT +
+                '/STH/v2/entities/entityId/attrs/attrName?type=entityType&lastN=1';
+            let req_options = {
+                uri: url_sth,
+                method: 'GET',
+                headers: {
+                    'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                    'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                }
+            };
+            request(req_options, function(err, response, body) {
+                expect(err).to.equal(null);
+                expect(response.statusCode).to.equal(500);
+                done(err);
+            });
+        });
+    });
+
     describe('server stop', function() {
         it('should stop gracefully', function(done) {
             sth.exitGracefully(null, done);

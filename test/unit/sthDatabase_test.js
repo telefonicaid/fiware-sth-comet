@@ -21,7 +21,7 @@
  * please contact with: [german.torodelvalle@telefonica.com]
  */
 
-/*eslint-disable */
+/* eslint-disable consistent-return */
 
 const ROOT_PATH = require('app-root-path');
 const sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
@@ -32,9 +32,6 @@ const sthUtils = require(ROOT_PATH + '/lib/utils/sthUtils');
 const sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
 const expect = require('expect.js');
 const _ = require('lodash');
-const request = require('request');
-const sthTestHelper = require(ROOT_PATH + '/test/unit/sthTestUtils.js');
-const sth = require(ROOT_PATH + '/lib/sth');
 
 const DATABASE_NAME = sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE);
 const DATABASE_CONNECTION_PARAMS = {
@@ -1209,48 +1206,6 @@ describe('sthDatabase tests', function() {
 
             describe('access', collectionAccessTests);
         });
-
-        describe('When the database is not connected', function() {
-            before(function(done) {
-                sth.sthServer.startServer(sthConfig.STH_HOST, sthConfig.STH_PORT, function(err, server) {
-                    sthDatabase.closeConnection(function() {
-                        done();
-                    });
-                });
-            });
-            it('should return 500', function(done) {
-                let url_sth =
-                    'http://' +
-                    sthConfig.STH_HOST +
-                    ':' +
-                    sthConfig.STH_PORT +
-                    '/STH/v2/entities/entityId/attrs/attrName?type=entityType&lastN=1';
-                request(
-                    {
-                        uri: url_sth,
-                        method: 'GET',
-                        headers: {
-                            'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                            'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
-                        }
-                    },
-                    function(err, response, body) {
-                        console.log(body);
-                        console.log(response.statusCode);
-                        //console.log(err);
-                        expect(response.statusCode).to.equal(500);
-                        done();
-                    }
-                );
-            });
-
-            after(function(done) {
-                // Reconnect DB
-                // connectToDatabase(function(){
-                sth.exitGracefully(null, done);
-                // });
-            });
-        });
     });
 
     describe('storage and retrieval', function() {
@@ -1264,5 +1219,4 @@ describe('sthDatabase tests', function() {
 
         describe('final clean up', cleanDatabaseTests);
     });
-    /*eslint-enable */
 });
