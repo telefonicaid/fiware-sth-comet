@@ -33,7 +33,6 @@ const sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
 const expect = require('expect.js');
 const _ = require('lodash');
 const request = require('request');
-const sthTestHelper = require(ROOT_PATH + '/test/unit/sthTestUtils.js');
 const sth = require(ROOT_PATH + '/lib/sth');
 
 const DATABASE_NAME = sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE);
@@ -1204,7 +1203,7 @@ describe('sthDatabase tests', function() {
                 });
             });
             it('should return 500', function(done) {
-                let url_sth =
+                let urlSth =
                     'http://' +
                     sthConfig.STH_HOST +
                     ':' +
@@ -1212,7 +1211,7 @@ describe('sthDatabase tests', function() {
                     '/STH/v2/entities/entityId/attrs/attrName?type=entityType&lastN=1';
                 request(
                     {
-                        uri: url_sth,
+                        uri: urlSth,
                         method: 'GET',
                         headers: {
                             'Fiware-Service': sthConfig.DEFAULT_SERVICE,
