@@ -65,6 +65,7 @@ jobs:
         node-version:
           - 10.x
           - 12.x
+          - 17.x
     steps:
       - name: Git checkout
         uses: actions/checkout@v2
