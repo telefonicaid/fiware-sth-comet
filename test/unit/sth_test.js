@@ -1735,21 +1735,21 @@ describe('sth tests', function() {
 
     describe('When the database is not connected', function() {
         it('should return 500', function(done) {
-            let url_sth =
+            let urlSth =
                 'http://' +
                 sthConfig.STH_HOST +
                 ':' +
                 sthConfig.STH_PORT +
                 '/STH/v2/entities/entityId/attrs/attrName?type=entityType&lastN=1';
-            let req_options = {
-                uri: url_sth,
+            let reqOptions = {
+                uri: urlSth,
                 method: 'GET',
                 headers: {
                     'Fiware-Service': sthConfig.DEFAULT_SERVICE,
                     'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
                 }
             };
-            request(req_options, function(err, response, body) {
+            request(reqOptions, function(err, response) {
                 expect(err).to.equal(null);
                 expect(response.statusCode).to.equal(500);
                 done(err);

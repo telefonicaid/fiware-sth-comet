@@ -119,20 +119,6 @@ function connectToDatabase(callback) {
 }
 
 /**
- * Check DB status and return error 500 if DB is not connected
- */
-function checkDatabaseStatus() {
-    let client;
-    if (client.isConnected()) {
-        client.close();
-    }
-    client.connect(function(err) {
-        expect(err).to.have.status(500);
-        expect(err.message).to.include('DataBase is not connected');
-    });
-}
-
-/**
  * Drops a database collection for the provided data type and model asynchronously
  * @param  {object}   collectionNameParams The collection name params
  * @param  {string}   dataType             The data type
