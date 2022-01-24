@@ -32,6 +32,9 @@ const sthUtils = require(ROOT_PATH + '/lib/utils/sthUtils');
 const sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
 const expect = require('expect.js');
 const _ = require('lodash');
+const request = require('request');
+const sthTestHelper = require(ROOT_PATH + '/test/unit/sthTestUtils.js');
+const sth = require(ROOT_PATH + '/lib/sth');
 
 const DATABASE_NAME = sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE);
 const DATABASE_CONNECTION_PARAMS = {
@@ -116,20 +119,6 @@ function connectToDatabase(callback) {
         DATABASE_CONNECTION_PARAMS,
         callback
     );
-}
-
-/**
- * Check DB status and return error 500 if DB is not connected
- */
-function checkDatabaseStatus() {
-    let client;
-    if (client.isConnected()) {
-        client.close()
-    }
-    client.connect(function(err) { 
-        expect(err).to.have.status(500);
-        expect(err.message).to.include('DataBase is not connected');
-    });
 }
 
 /**
@@ -1206,10 +1195,45 @@ describe('sthDatabase tests', function() {
 
             describe('access', collectionAccessTests);
         });
-        
-        describe('database not connected', function() {
+        describe('When the database is not connected', function() {
             before(function(done) {
-                checkDatabaseStatus(done);
+                sth.sthServer.startServer(sthConfig.STH_HOST, sthConfig.STH_PORT, function(err, server) {
+                    sthDatabase.closeConnection(function() {
+                        done();
+                    });
+                });
+            });
+            it('should return 500', function(done) {
+                let url_sth =
+                    'http://' +
+                    sthConfig.STH_HOST +
+                    ':' +
+                    sthConfig.STH_PORT +
+                    '/STH/v2/entities/entityId/attrs/attrName?type=entityType&lastN=1';
+                request(
+                    {
+                        uri: url_sth,
+                        method: 'GET',
+                        headers: {
+                            'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                            'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                        }
+                    },
+                    function(err, response, body) {
+                        console.log(body);
+                        console.log('statusCode:', response && response.statusCode);
+                        //console.log(err);
+                        expect(response.statusCode).to.equal(500);
+                        done();
+                    }
+                );
+            });
+
+            after(function(done) {
+                // Reconnect DB
+                // connectToDatabase(function(){
+                sth.exitGracefully(null, done);
+                // });
             });
         });
     });
