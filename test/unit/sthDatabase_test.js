@@ -1196,7 +1196,7 @@ describe('sthDatabase tests', function() {
         });
         describe('When the database is not connected', function() {
             before(function(done) {
-                sth.sthServer.startServer(sthConfig.STH_HOST, sthConfig.STH_PORT, function(err, server) {
+                sth.sthServer.startServer(sthConfig.STH_HOST, sthConfig.STH_PORT, function() {
                     sthDatabase.closeConnection(function() {
                         done();
                     });
@@ -1218,11 +1218,9 @@ describe('sthDatabase tests', function() {
                             'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
                         }
                     },
-                    function(err, response, body) {
-                        console.log(body);
-                        console.log('statusCode:', response && response.statusCode);
-                        //console.log(err);
-                        expect(response.statusCode).to.equal(500);
+                    function(err) {
+                        expect(err).to.have.status(500);
+                        expect(err.message).to.include('DataBase is not connected');
                         done();
                     }
                 );
