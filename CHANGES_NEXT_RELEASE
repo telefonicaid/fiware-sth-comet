@@ -9,4 +9,6 @@
     -  Add esLint using standard tamia presets
     -  Replace var with let/const
     -  Fix or disable eslint errors
+- Upgrade logops dep from 2.1.0 to 2.1.2 due to colors dependency corruption
+- Add: graceful shutdown listening to SIGTERM and SIGHUP signals (#576)
 - Fixed undefined value of reconnectTries and reconnectInterval
