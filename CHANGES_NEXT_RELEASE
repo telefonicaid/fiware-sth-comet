@@ -9,3 +9,4 @@
     -  Add esLint using standard tamia presets
     -  Replace var with let/const
     -  Fix or disable eslint errors
+- Fixed undefined value of reconnectTries and reconnectInterval
