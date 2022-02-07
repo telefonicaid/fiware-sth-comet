@@ -32,8 +32,6 @@ const sthUtils = require(ROOT_PATH + '/lib/utils/sthUtils');
 const sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
 const expect = require('expect.js');
 const _ = require('lodash');
-const request = require('request');
-const sth = require(ROOT_PATH + '/lib/sth');
 
 const DATABASE_NAME = sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE);
 const DATABASE_CONNECTION_PARAMS = {
@@ -1116,6 +1114,46 @@ function retrievalTests() {
     });
 }
 
+describe('return 500 test', function() {
+    this.timeout(5000);
+    describe('database connection', function() {
+        it('should connect to the database', function(done) {
+            sthDatabase.connect(
+                DATABASE_CONNECTION_PARAMS,
+                function(err, connection) {
+                    expect(err).to.be(null);
+                    expect(connection).to.equal(sthDatabase.connection);
+                    done();
+                }
+            );
+        });
+
+        it('should disconnect from the database', function(done) {
+            sthDatabase.closeConnection(function(err) {
+                expect(err).to.be(null);
+                expect(sthDatabase.connection).to.be(null);
+                done();
+            });
+        });
+        
+        it('should return error 500', function(done) {
+            sthDatabase.getCollection(
+                COLLECTION_NAME_PARAMS,
+                {
+                    isAggregated: false,
+                    shouldCreate: true,
+                    shouldTruncate: true
+                }  
+                function(err, response) {
+                expect(err.name).to.equal('MongoNetworkError');
+                expect(response.statusCode).to.equal(500);
+                done(err);
+                }
+            );
+        });
+    });
+});
+
 describe('sthDatabase tests', function() {
     this.timeout(5000);
     describe('database connection', function() {
@@ -1193,48 +1231,9 @@ describe('sthDatabase tests', function() {
             });
 
             describe('access', collectionAccessTests);
-        });
-        describe('When the database is not connected', function() {
-            before(function(done) {
-                sth.sthServer.startServer(sthConfig.STH_HOST, sthConfig.STH_PORT, function() {
-                    sthDatabase.closeConnection(function() {
-                        done();
-                    });
-                });
-            });
-            it('should return 500', function(done) {
-                let urlSth =
-                    'http://' +
-                    sthConfig.STH_HOST +
-                    ':' +
-                    sthConfig.STH_PORT +
-                    '/STH/v2/entities/entityId/attrs/attrName?type=entityType&lastN=1';
-                request(
-                    {
-                        uri: urlSth,
-                        method: 'GET',
-                        headers: {
-                            'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-                            'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
-                        }
-                    },
-                    function(err) {
-                        expect(err).to.have.status(500);
-                        expect(err.message).to.include('DataBase is not connected');
-                        done();
-                    }
-                );
-            });
-
-            after(function(done) {
-                // Reconnect DB
-                // connectToDatabase(function(){
-                sth.exitGracefully(null, done);
-                // });
-            });
-        });
+         });
     });
-
+    
     describe('storage and retrieval', function() {
         before(function(done) {
             connectToDatabase(done);
