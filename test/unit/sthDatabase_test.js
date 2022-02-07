@@ -1143,7 +1143,7 @@ describe('return 500 test', function() {
                     isAggregated: false,
                     shouldCreate: true,
                     shouldTruncate: true
-                }  
+                },  
                 function(err, response) {
                 expect(err.name).to.equal('MongoNetworkError');
                 expect(response.statusCode).to.equal(500);
@@ -1233,7 +1233,7 @@ describe('sthDatabase tests', function() {
             describe('access', collectionAccessTests);
          });
     });
-    
+
     describe('storage and retrieval', function() {
         before(function(done) {
             connectToDatabase(done);
