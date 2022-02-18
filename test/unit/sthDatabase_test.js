@@ -26,12 +26,16 @@
 const ROOT_PATH = require('app-root-path');
 const sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
 const sthDatabaseNameCodec = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameCodec');
+const sthGetDataHandler = require(ROOT_PATH + '/lib/server/handlers/sthGetDataHandler');
+const sthRemoveDataHandler = require(ROOT_PATH + '/lib/server/handlers/sthRemoveDataHandler');
+const sthTestUtils = require(ROOT_PATH + '/test/unit/sthTestUtils.js');
 const sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
 const sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
 const sthUtils = require(ROOT_PATH + '/lib/utils/sthUtils');
 const sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
 const expect = require('expect.js');
 const _ = require('lodash');
+const INVALID_HOST = 'localhosttest';
 
 const DATABASE_NAME = sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE);
 const DATABASE_CONNECTION_PARAMS = {
@@ -79,6 +83,22 @@ const VERY_LONG_COLLECTION_NAME_PARAMS = {
     entityType: sthTestConfig.ENTITY_TYPE,
     attrName: sthTestConfig.ATTRIBUTE_NAME,
     attrType: sthTestConfig.ATTRIBUTE_TYPE
+};
+const GET_AND_REMOVE_HANDLER_QUERY = {
+    lastN: sthTestConfig.MIN_VALUE,
+    hLimit: sthTestConfig.MIN_VALUE,
+    hOffset: sthTestConfig.MIN_VALUE,
+    filetype: 'csv'
+};
+const GET_AND_REMOVE_HANDLER_REQUEST = {
+    uri: sthTestUtils.getURL(sthTestConfig.API_OPERATION.READ),
+    method: 'GET',
+    query: GET_AND_REMOVE_HANDLER_QUERY,
+    params: COLLECTION_NAME_PARAMS,
+    headers: {
+        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+    }
 };
 const DATE = new Date(Date.UTC(1970, 1, 3, 4, 5, 6, 777));
 const DELAY = 100;
@@ -1114,6 +1134,54 @@ function retrievalTests() {
     });
 }
 
+describe('return 500 test', function() {
+    this.timeout(5000);
+    describe('database connection', function() {
+        it('should connect to the database', function(done) {
+            sthDatabase.connect(
+                DATABASE_CONNECTION_PARAMS,
+                function(err, connection) {
+                    expect(err).to.be(null);
+                    expect(connection).to.equal(sthDatabase.connection);
+                    done();
+                }
+            );
+        });
+
+        it('should disconnect from the database', function(done) {
+            sthDatabase.closeConnection(function(err) {
+                expect(err).to.be(null);
+                expect(sthDatabase.connection).to.be(null);
+                done();
+            });
+        });
+
+        it('should return error 500 from get request', function(done) {
+            const url = { url: { path: sthConfig.DEFAULT_SERVICE_PATH } };
+            const req = { ...GET_AND_REMOVE_HANDLER_REQUEST, ...url };
+            sthDatabase.client.s.options.servers[0].host = INVALID_HOST;
+
+            sthGetDataHandler(req, function(err, response) {
+                expect(err.name).to.equal('MongoNetworkError');
+                expect(response.statusCode).to.equal(500);
+                done();
+            });
+        });
+
+        it('should return error 500 from remove request', function(done) {
+            const url = { url: { path: sthConfig.DEFAULT_SERVICE_PATH } };
+            const req = { ...GET_AND_REMOVE_HANDLER_REQUEST, ...url };
+            sthDatabase.client.s.options.servers[0].host = INVALID_HOST;
+
+            sthRemoveDataHandler(req, function(err, response) {
+                expect(err.name).to.equal('MongoNetworkError');
+                expect(response.statusCode).to.equal(500);
+                done();
+            });
+        });
+    });
+});
+
 describe('sthDatabase tests', function() {
     this.timeout(5000);
     describe('database connection', function() {
@@ -1191,7 +1259,7 @@ describe('sthDatabase tests', function() {
             });
 
             describe('access', collectionAccessTests);
-        });
+         });
     });
 
     describe('storage and retrieval', function() {
