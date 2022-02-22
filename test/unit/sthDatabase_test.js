@@ -1148,7 +1148,7 @@ describe('return 500 test', function() {
                     expect(err).to.be(null);
                     expect(connection).to.equal(sthDatabase.connection);
                     // It is needed to start the server for e2e test using HTTP endpoint. Otherwise, this step is not needed
-                    sth.sthServer.startServer(sthConfig.STH_HOST, sthConfig.STH_PORT, function(err, server) {
+                    sth.sthServer.startServer(sthConfig.STH_HOST, sthConfig.STH_PORT, function() {
                         sthDatabase.closeConnection(function(err) {
                             expect(err).to.be(null);
                             expect(sthDatabase.connection).to.be(null);
@@ -1219,95 +1219,95 @@ describe('return 500 test', function() {
     });
 });
 
-describe('sthDatabase tests', function() {
-    this.timeout(5000);
-    describe('database connection', function() {
-        it('should connect to the database', function(done) {
-            sthDatabase.connect(
-                DATABASE_CONNECTION_PARAMS,
-                function(err, connection) {
-                    expect(err).to.be(null);
-                    expect(connection).to.equal(sthDatabase.connection);
-                    done();
-                }
-            );
-        });
+// describe('sthDatabase tests', function() {
+//     this.timeout(5000);
+//     describe('database connection', function() {
+//         it('should connect to the database', function(done) {
+//             sthDatabase.connect(
+//                 DATABASE_CONNECTION_PARAMS,
+//                 function(err, connection) {
+//                     expect(err).to.be(null);
+//                     expect(connection).to.equal(sthDatabase.connection);
+//                     done();
+//                 }
+//             );
+//         });
 
-        it('should disconnect from the database', function(done) {
-            sthDatabase.closeConnection(function(err) {
-                expect(err).to.be(null);
-                expect(sthDatabase.connection).to.be(null);
-                done();
-            });
-        });
+//         it('should disconnect from the database', function(done) {
+//             sthDatabase.closeConnection(function(err) {
+//                 expect(err).to.be(null);
+//                 expect(sthDatabase.connection).to.be(null);
+//                 done();
+//             });
+//         });
 
-        it('should notify as error the aim to connect to the database at an unavailable host', function(done) {
-            const INVALID_DATABASE_CONNECTION_PARAMS = _.clone(DATABASE_CONNECTION_PARAMS);
-            INVALID_DATABASE_CONNECTION_PARAMS.dbURI = 'unavailable_localhost:27017';
-            sthDatabase.connect(
-                INVALID_DATABASE_CONNECTION_PARAMS,
-                function(err, connection) {
-                    /* eslint-disable-next-line no-unused-expressions */
-                    expect(err).to.exist;
-                    expect(err.name).to.equal('MongoNetworkError');
-                    expect(
-                        err.message.indexOf(
-                            'failed to connect to server [' + INVALID_DATABASE_CONNECTION_PARAMS.dbURI + ']'
-                        )
-                    ).to.equal(0);
-                    expect(connection).to.equal(null);
-                    done();
-                }
-            );
-        });
+//         it('should notify as error the aim to connect to the database at an unavailable host', function(done) {
+//             const INVALID_DATABASE_CONNECTION_PARAMS = _.clone(DATABASE_CONNECTION_PARAMS);
+//             INVALID_DATABASE_CONNECTION_PARAMS.dbURI = 'unavailable_localhost:27017';
+//             sthDatabase.connect(
+//                 INVALID_DATABASE_CONNECTION_PARAMS,
+//                 function(err, connection) {
+//                     /* eslint-disable-next-line no-unused-expressions */
+//                     expect(err).to.exist;
+//                     expect(err.name).to.equal('MongoNetworkError');
+//                     expect(
+//                         err.message.indexOf(
+//                             'failed to connect to server [' + INVALID_DATABASE_CONNECTION_PARAMS.dbURI + ']'
+//                         )
+//                     ).to.equal(0);
+//                     expect(connection).to.equal(null);
+//                     done();
+//                 }
+//             );
+//         });
 
-        it('should notify as error the aim to connect to the database at an unavailable port', function(done) {
-            const INVALID_DATABASE_CONNECTION_PARAMS = _.clone(DATABASE_CONNECTION_PARAMS);
-            INVALID_DATABASE_CONNECTION_PARAMS.dbURI = 'localhost:12345';
-            sthDatabase.connect(
-                INVALID_DATABASE_CONNECTION_PARAMS,
-                function(err, connection) {
-                    /* eslint-disable-next-line no-unused-expressions */
-                    expect(err).to.exist;
-                    expect(err.name).to.equal('MongoNetworkError');
-                    expect(
-                        err.message.indexOf(
-                            'failed to connect to server [' + INVALID_DATABASE_CONNECTION_PARAMS.dbURI + ']'
-                        )
-                    ).to.equal(0);
-                    expect(connection).to.equal(null);
-                    done();
-                }
-            );
-        });
-    });
+//         it('should notify as error the aim to connect to the database at an unavailable port', function(done) {
+//             const INVALID_DATABASE_CONNECTION_PARAMS = _.clone(DATABASE_CONNECTION_PARAMS);
+//             INVALID_DATABASE_CONNECTION_PARAMS.dbURI = 'localhost:12345';
+//             sthDatabase.connect(
+//                 INVALID_DATABASE_CONNECTION_PARAMS,
+//                 function(err, connection) {
+//                     /* eslint-disable-next-line no-unused-expressions */
+//                     expect(err).to.exist;
+//                     expect(err.name).to.equal('MongoNetworkError');
+//                     expect(
+//                         err.message.indexOf(
+//                             'failed to connect to server [' + INVALID_DATABASE_CONNECTION_PARAMS.dbURI + ']'
+//                         )
+//                     ).to.equal(0);
+//                     expect(connection).to.equal(null);
+//                     done();
+//                 }
+//             );
+//         });
+//     });
 
-    describe('helper functions', function() {
-        it('should return the database name for a service', function() {
-            const databaseName = sthConfig.DB_PREFIX + sthConfig.DEFAULT_SERVICE;
-            expect(sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE)).to.equal(
-                sthConfig.NAME_ENCODING ? sthDatabaseNameCodec.encodeDatabaseName(databaseName) : databaseName
-            );
-        });
+//     describe('helper functions', function() {
+//         it('should return the database name for a service', function() {
+//             const databaseName = sthConfig.DB_PREFIX + sthConfig.DEFAULT_SERVICE;
+//             expect(sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE)).to.equal(
+//                 sthConfig.NAME_ENCODING ? sthDatabaseNameCodec.encodeDatabaseName(databaseName) : databaseName
+//             );
+//         });
 
-        describe('collection access', function() {
-            before(function(done) {
-                connectToDatabase(done);
-            });
+//         describe('collection access', function() {
+//             before(function(done) {
+//                 connectToDatabase(done);
+//             });
 
-            describe('access', collectionAccessTests);
-        });
-    });
+//             describe('access', collectionAccessTests);
+//         });
+//     });
 
-    describe('storage and retrieval', function() {
-        before(function(done) {
-            connectToDatabase(done);
-        });
+//     describe('storage and retrieval', function() {
+//         before(function(done) {
+//             connectToDatabase(done);
+//         });
 
-        describe('storage', storageTests);
+//         describe('storage', storageTests);
 
-        describe('retrieval', retrievalTests);
+//         describe('retrieval', retrievalTests);
 
-        describe('final clean up', cleanDatabaseTests);
-    });
-});
+//         describe('final clean up', cleanDatabaseTests);
+//     });
+// });
