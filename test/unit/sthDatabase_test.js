@@ -36,6 +36,8 @@ const sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
 const expect = require('expect.js');
 const _ = require('lodash');
 const INVALID_HOST = 'localhosttest';
+const request = require('request');
+const sth = require(ROOT_PATH + '/lib/sth');
 
 const DATABASE_NAME = sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE);
 const DATABASE_CONNECTION_PARAMS = {
@@ -1137,23 +1139,25 @@ function retrievalTests() {
 describe('return 500 test', function() {
     this.timeout(5000);
     describe('database connection', function() {
-        it('should connect to the database', function(done) {
+        let contextResponseNumericWithFixedTimeInstantV1;
+
+        before(function(done) {
             sthDatabase.connect(
                 DATABASE_CONNECTION_PARAMS,
                 function(err, connection) {
                     expect(err).to.be(null);
                     expect(connection).to.equal(sthDatabase.connection);
-                    done();
+                    // It is needed to start the server for e2e test using HTTP endpoint. Otherwise, this step is not needed
+                    sth.sthServer.startServer(sthConfig.STH_HOST, sthConfig.STH_PORT, function(err, server) {
+                        sthDatabase.closeConnection(function(err) {
+                            expect(err).to.be(null);
+                            expect(sthDatabase.connection).to.be(null);
+                            contextResponseNumericWithFixedTimeInstantV1 = require('./contextResponses/V1contextResponseNumericWithFixedTimeInstant');
+                            done();
+                        });
+                    });
                 }
             );
-        });
-
-        it('should disconnect from the database', function(done) {
-            sthDatabase.closeConnection(function(err) {
-                expect(err).to.be(null);
-                expect(sthDatabase.connection).to.be(null);
-                done();
-            });
         });
 
         it('should return error 500 from get request', function(done) {
@@ -1178,6 +1182,39 @@ describe('return 500 test', function() {
                 expect(response.statusCode).to.equal(500);
                 done();
             });
+        });
+
+        it('should return 500 when http request (e2e)', function(done) {
+            request(
+                {
+                    uri: sthTestUtils.getURL(
+                        sthTestConfig.API_OPERATION.READ,
+                        {
+                            lastN: 0,
+                            dateFrom:
+                                contextResponseNumericWithFixedTimeInstantV1.contextResponses[0].contextElement
+                                    .attributes[0].metadatas[0].value,
+                            dateTo:
+                                contextResponseNumericWithFixedTimeInstantV1.contextResponses[0].contextElement
+                                    .attributes[0].metadatas[0].value
+                        },
+                        contextResponseNumericWithFixedTimeInstantV1.contextResponses[0].contextElement.attributes[0]
+                            .name
+                    ),
+                    method: 'GET',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                    }
+                },
+                function(err, response) {
+                    expect(err).to.equal(null);
+                    expect(response.statusCode).to.equal(500);
+                    done(err);
+                }
+            );
         });
     });
 });
@@ -1259,7 +1296,7 @@ describe('sthDatabase tests', function() {
             });
 
             describe('access', collectionAccessTests);
-         });
+        });
     });
 
     describe('storage and retrieval', function() {
