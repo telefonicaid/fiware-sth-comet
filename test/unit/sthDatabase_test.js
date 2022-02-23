@@ -1144,18 +1144,22 @@ describe('return 500 test', function() {
         before(function(done) {
             sthDatabase.connect(
                 DATABASE_CONNECTION_PARAMS,
-                function(err, connection) {
-                    expect(err).to.be(null);
-                    expect(connection).to.equal(sthDatabase.connection);
-                    // It is needed to start the server for e2e test using HTTP endpoint. Otherwise, this step is not needed
-                    sth.sthServer.startServer(sthConfig.STH_HOST, sthConfig.STH_PORT, function() {
-                        sthDatabase.closeConnection(function(err) {
-                            expect(err).to.be(null);
-                            expect(sthDatabase.connection).to.be(null);
-                            contextResponseNumericWithFixedTimeInstantV1 = require('./contextResponses/V1contextResponseNumericWithFixedTimeInstant');
-                            done();
+                function(err) {
+                    if (err) {
+                        return done(err);
+                    } else {
+                        // It is needed to start the server for e2e test using HTTP endpoint. Otherwise, this step is not needed
+                        sth.sthServer.startServer(sthConfig.STH_HOST, sthConfig.STH_PORT, function() {
+                            sthDatabase.closeConnection(function(err) {
+                                if (err) {
+                                    return done(err);
+                                } else {
+                                    contextResponseNumericWithFixedTimeInstantV1 = require('./contextResponses/V1contextResponseNumericWithFixedTimeInstant');
+                                    done();
+                                }
+                            });
                         });
-                    });
+                    }
                 }
             );
         });
