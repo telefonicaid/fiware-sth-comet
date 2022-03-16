@@ -41,6 +41,8 @@ The environment variables accepted by the script (for which there exists counter
 -   `DB_URI`: The URI to use for the database connection. This does not include the 'mongo://' protocol part (see a
     couple of examples below). Optional. Default value: "localhost:27017".
 -   `DB_AUTH_SOURCE`: The auth source to use for the database connection. Optional. Default value "".
+-   `DB_RECONNECT_TRIES`: MongoDB server attempts to reconnect. Default value 30.
+-   `DB_RECONNECT_INTERVAL`: time to wait in milliseconds between MongoDB reconnection attemps. Default value 1000.
 -   `REPLICA_SET`: The name of the replica set to connect to, if any. Default value: "".
 -   `DB_PREFIX`: The prefix to be added to the service for the creation of the databases. More information below.
     Optional. Default value: "sth\_".
