@@ -1176,7 +1176,7 @@ describe('return 500 test', function() {
             sthDatabase.client.s.options.servers[0].host = INVALID_HOST;
 
             sthGetDataHandler(req, function(err, response) {
-                expect(err.name).to.equal('MongoNetworkError');
+                expect(err.name).to.equal('Not connected');
                 expect(response.statusCode).to.equal(500);
                 done();
             });
@@ -1188,7 +1188,7 @@ describe('return 500 test', function() {
             sthDatabase.client.s.options.servers[0].host = INVALID_HOST;
 
             sthRemoveDataHandler(req, function(err, response) {
-                expect(err.name).to.equal('MongoNetworkError');
+                expect(err.name).to.equal('Not connected');
                 expect(response.statusCode).to.equal(500);
                 done();
             });
