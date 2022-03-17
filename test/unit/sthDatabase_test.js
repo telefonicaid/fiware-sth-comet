@@ -1147,19 +1147,17 @@ describe('return 500 test', function() {
                 function(err) {
                     if (err) {
                         return done(err);
-                    } else {
-                        // It is needed to start the server for e2e test using HTTP endpoint. Otherwise, this step is not needed
-                        sth.sthServer.startServer(sthConfig.STH_HOST, sthConfig.STH_PORT, function() {
-                            sthDatabase.closeConnection(function(err) {
-                                if (err) {
-                                    return done(err);
-                                } else {
-                                    contextResponseNumericWithFixedTimeInstantV1 = require('./contextResponses/V1contextResponseNumericWithFixedTimeInstant');
-                                    done();
-                                }
-                            });
-                        });
                     }
+                    // It is needed to start the server for e2e test using HTTP endpoint. Otherwise, this step is not needed
+                    sth.sthServer.startServer(sthConfig.STH_HOST, sthConfig.STH_PORT, function() {
+                        sthDatabase.closeConnection(function(err) {
+                            if (err) {
+                                return done(err);
+                            }
+                            contextResponseNumericWithFixedTimeInstantV1 = require('./contextResponses/V1contextResponseNumericWithFixedTimeInstant');
+                            done();
+                        });
+                    });
                 }
             );
         });
