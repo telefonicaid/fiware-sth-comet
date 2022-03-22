@@ -42,8 +42,6 @@ const DATABASE_CONNECTION_PARAMS = {
     poolSize: sthConfig.POOL_SIZE
 };
 
-// FIXME: refactor to move this to sthE2E_test.js or something like that.
-// THe sthDatabase_test.js file should appear without changes in the PR after that
 describe('return 500 test', function() {
     this.timeout(5000);
     describe('database connection', function() {
