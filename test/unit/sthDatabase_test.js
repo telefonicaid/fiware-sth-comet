@@ -26,18 +26,12 @@
 const ROOT_PATH = require('app-root-path');
 const sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
 const sthDatabaseNameCodec = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameCodec');
-const sthGetDataHandler = require(ROOT_PATH + '/lib/server/handlers/sthGetDataHandler');
-const sthRemoveDataHandler = require(ROOT_PATH + '/lib/server/handlers/sthRemoveDataHandler');
-const sthTestUtils = require(ROOT_PATH + '/test/unit/sthTestUtils.js');
 const sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
 const sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
 const sthUtils = require(ROOT_PATH + '/lib/utils/sthUtils');
 const sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
 const expect = require('expect.js');
 const _ = require('lodash');
-const INVALID_HOST = 'localhosttest';
-const request = require('request');
-const sth = require(ROOT_PATH + '/lib/sth');
 
 const DATABASE_NAME = sthDatabaseNaming.getDatabaseName(sthConfig.DEFAULT_SERVICE);
 const DATABASE_CONNECTION_PARAMS = {
@@ -85,22 +79,6 @@ const VERY_LONG_COLLECTION_NAME_PARAMS = {
     entityType: sthTestConfig.ENTITY_TYPE,
     attrName: sthTestConfig.ATTRIBUTE_NAME,
     attrType: sthTestConfig.ATTRIBUTE_TYPE
-};
-const GET_AND_REMOVE_HANDLER_QUERY = {
-    lastN: sthTestConfig.MIN_VALUE,
-    hLimit: sthTestConfig.MIN_VALUE,
-    hOffset: sthTestConfig.MIN_VALUE,
-    filetype: 'csv'
-};
-const GET_AND_REMOVE_HANDLER_REQUEST = {
-    uri: sthTestUtils.getURL(sthTestConfig.API_OPERATION.READ),
-    method: 'GET',
-    query: GET_AND_REMOVE_HANDLER_QUERY,
-    params: COLLECTION_NAME_PARAMS,
-    headers: {
-        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
-        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
-    }
 };
 const DATE = new Date(Date.UTC(1970, 1, 3, 4, 5, 6, 777));
 const DELAY = 100;
