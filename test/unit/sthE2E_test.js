@@ -25,17 +25,11 @@
 
 const ROOT_PATH = require('app-root-path');
 const sthDatabase = require(ROOT_PATH + '/lib/database/sthDatabase');
-const sthDatabaseNameCodec = require(ROOT_PATH + '/lib/database/model/sthDatabaseNameCodec');
-const sthGetDataHandler = require(ROOT_PATH + '/lib/server/handlers/sthGetDataHandler');
-const sthRemoveDataHandler = require(ROOT_PATH + '/lib/server/handlers/sthRemoveDataHandler');
 const sthTestUtils = require(ROOT_PATH + '/test/unit/sthTestUtils.js');
 const sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
 const sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
-const sthUtils = require(ROOT_PATH + '/lib/utils/sthUtils');
 const sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
 const expect = require('expect.js');
-const _ = require('lodash');
-const INVALID_HOST = 'localhosttest';
 const request = require('request');
 const sth = require(ROOT_PATH + '/lib/sth');
 
