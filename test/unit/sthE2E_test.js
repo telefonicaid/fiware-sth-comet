@@ -119,8 +119,7 @@ describe('return 500 test', function() {
                             entityType: 'T',
                             entityId: 'E',
                             attrName: 'A'
-                        },
-                        'A' // maybe unneeded in API_OPERATION.DELETE case (see getURL method)
+                        }
                     ),
                     method: 'DELETE',
                     headers: {
