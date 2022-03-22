@@ -104,6 +104,8 @@ describe('return 500 test', function() {
                 function(err, response) {
                     expect(err).to.equal(null);
                     expect(response.statusCode).to.equal(500);
+                    expect(JSON.parse(response.body).statusCode).to.equal(500);
+                    expect(JSON.parse(response.body).error).to.equal('Internat Server Error');
                     expect(JSON.parse(response.body).message).to.equal('DB not connected');
                     done(err);
                 }
@@ -133,6 +135,8 @@ describe('return 500 test', function() {
                 function(err, response) {
                     expect(err).to.equal(null);
                     expect(response.statusCode).to.equal(500);
+                    expect(JSON.parse(response.body).statusCode).to.equal(500);
+                    expect(JSON.parse(response.body).error).to.equal('Internat Server Error');
                     expect(JSON.parse(response.body).message).to.equal('DB not connected');
                     done(err);
                 }
