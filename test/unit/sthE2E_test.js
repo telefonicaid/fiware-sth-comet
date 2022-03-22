@@ -104,7 +104,7 @@ describe('return 500 test', function() {
                 function(err, response) {
                     expect(err).to.equal(null);
                     expect(response.statusCode).to.equal(500);
-                    // FIXME: it would be great to add payload fields expectations
+                    expect(JSON.parse(response.body).message).to.equal('DB not connected');
                     done(err);
                 }
             );
@@ -133,7 +133,7 @@ describe('return 500 test', function() {
                 function(err, response) {
                     expect(err).to.equal(null);
                     expect(response.statusCode).to.equal(500);
-                    // FIXME: it would be great to add payload fields expectations
+                    expect(JSON.parse(response.body).message).to.equal('DB not connected');
                     done(err);
                 }
             );
