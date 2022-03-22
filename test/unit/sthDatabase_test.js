@@ -1136,6 +1136,8 @@ function retrievalTests() {
     });
 }
 
+// FIXME: refactor to move this to sthE2E_test.js or something like that.
+// THe sthDatabase_test.js file should appear without changes in the PR after that
 describe('return 500 test', function() {
     this.timeout(5000);
     describe('database connection', function() {
@@ -1168,7 +1170,8 @@ describe('return 500 test', function() {
             });
         });
 
-        it('should return error 500 from get request', function(done) {
+        // FIXME: remove
+        xit('should return error 500 from get request', function(done) {
             const url = { url: { path: sthConfig.DEFAULT_SERVICE_PATH } };
             const req = { ...GET_AND_REMOVE_HANDLER_REQUEST, ...url };
             sthDatabase.client.s.options.servers[0].host = INVALID_HOST;
@@ -1180,7 +1183,8 @@ describe('return 500 test', function() {
             });
         });
 
-        it('should return error 500 from remove request', function(done) {
+        // FIXME: remove
+        xit('should return error 500 from remove request', function(done) {
             const url = { url: { path: sthConfig.DEFAULT_SERVICE_PATH } };
             const req = { ...GET_AND_REMOVE_HANDLER_REQUEST, ...url };
             sthDatabase.client.s.options.servers[0].host = INVALID_HOST;
@@ -1192,7 +1196,7 @@ describe('return 500 test', function() {
             });
         });
 
-        it('should return 500 when http request (e2e)', function(done) {
+        it('should return 500 when GET http request (e2e)', function(done) {
             request(
                 {
                     uri: sthTestUtils.getURL(
@@ -1220,6 +1224,36 @@ describe('return 500 test', function() {
                 function(err, response) {
                     expect(err).to.equal(null);
                     expect(response.statusCode).to.equal(500);
+                    // FIXME: it would be great to add payload fields expectations
+                    done(err);
+                }
+            );
+        });
+
+        it('should return 500 when DELETE http request (e2e)', function(done) {
+            request(
+                {
+                    uri: sthTestUtils.getURL(
+                        sthTestConfig.API_OPERATION.DELETE,
+                        {
+                            entityType: 'T',
+                            entityId: 'E',
+                            attrName: 'A'
+                        },
+                        'A' // maybe unneeded in API_OPERATION.DELETE case (see getURL method)
+                    ),
+                    method: 'DELETE',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                    }
+                },
+                function(err, response) {
+                    expect(err).to.equal(null);
+                    expect(response.statusCode).to.equal(500);
+                    // FIXME: it would be great to add payload fields expectations
                     done(err);
                 }
             );
