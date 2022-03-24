@@ -74,7 +74,7 @@ describe('return 500 test', function() {
             });
         });
 
-        it('should return 500 when GET http request (e2e)', function(done) {
+        it('should return 500 when GET http request V1 (e2e)', function(done) {
             request(
                 {
                     uri: sthTestUtils.getURL(
@@ -103,24 +103,21 @@ describe('return 500 test', function() {
                     expect(err).to.equal(null);
                     expect(response.statusCode).to.equal(500);
                     expect(JSON.parse(response.body).statusCode).to.equal(500);
-                    expect(JSON.parse(response.body).error).to.equal('Internat Server Error');
-                    expect(JSON.parse(response.body).message).to.equal('DB not connected');
+                    expect(JSON.parse(response.body).error).to.equal('Internal Server Error');
+                    expect(JSON.parse(response.body).message).to.equal('MongoDB is not connected');
                     done(err);
                 }
             );
         });
 
-        it('should return 500 when DELETE http request (e2e)', function(done) {
+        it('should return 500 when DELETE http request V1 (e2e)', function(done) {
             request(
                 {
-                    uri: sthTestUtils.getURL(
-                        sthTestConfig.API_OPERATION.DELETE,
-                        {
-                            entityType: 'T',
-                            entityId: 'E',
-                            attrName: 'A'
-                        }
-                    ),
+                    uri: sthTestUtils.getURL(sthTestConfig.API_OPERATION.DELETE, {
+                        entityType: 'T',
+                        entityId: 'E',
+                        attrName: 'A'
+                    }),
                     method: 'DELETE',
                     headers: {
                         Accept: 'application/json',
@@ -133,8 +130,40 @@ describe('return 500 test', function() {
                     expect(err).to.equal(null);
                     expect(response.statusCode).to.equal(500);
                     expect(JSON.parse(response.body).statusCode).to.equal(500);
-                    expect(JSON.parse(response.body).error).to.equal('Internat Server Error');
-                    expect(JSON.parse(response.body).message).to.equal('DB not connected');
+                    expect(JSON.parse(response.body).error).to.equal('Internal Server Error');
+                    expect(JSON.parse(response.body).message).to.equal('MongoDB is not connected');
+                    done(err);
+                }
+            );
+        });
+
+        it('should return 500 when GET http request V2 (e2e)', function(done) {
+            let url = sthTestUtils.getURL(
+                sthTestConfig.API_OPERATION.READ_V2,
+                {
+                    hLimit: 3,
+                    hOffset: 0,
+                    dateFrom: '2022-03-24T00:00:00.000Z',
+                    dateTo: '2022-03-31T00:00:00.000Z'
+                },
+                'A'
+            );
+            request(
+                {
+                    uri: url,
+                    method: 'GET',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                        'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                        'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                    }
+                },
+                function(err, response) {
+                    expect(err).to.equal(null);
+                    expect(response.statusCode).to.equal(500);
+                    expect(JSON.parse(response.body).error).to.equal('InternalServer Error');
+                    expect(JSON.parse(response.body).description).to.equal('MongoDB is not connected');
                     done(err);
                 }
             );
