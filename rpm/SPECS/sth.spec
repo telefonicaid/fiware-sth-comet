@@ -160,6 +160,23 @@ rm -rf $RPM_BUILD_ROOT
 %{_install_dir}
 
 %changelog
+* Fri Mar 25 2022 Fermin Galan <fermin.galanmarquez@telefonica.com> 2.9.0
+- Add: graceful shutdown listening to SIGTERM and SIGHUP signals (#576)
+- Add: Docker healthcheck for STH API
+- Add: config reconnectTries and reconnectInterval configuration (env vars DB_RECONNECT_TRIES and DB_RECONNECT_INTERVAL) to allow mongo driver reconnect (#559)
+- Add: allow connect with mongo uri without auth
+- Fix: return 500 when DB is not connected (#570)
+- Fix: ensure permissions over temp directory (used by CSV generation) in docker container (issue re-introduced in 2.8.0)
+- Fix: update logs about get raw and aggregated data (#556)
+- Update codebase to use ES6
+    -  Remove JSHint and jshint overrides
+    -  Add esLint using standard tamia presets
+    -  Replace var with let/const
+    -  Fix or disable eslint errors
+- Upgrade logops dep from 2.1.0 to 2.1.2 due to colors dependency corruption
+- Upgrade: mongodb dependence from ~2.2.35 to ~3.6.12 (#567)
+- Upgrade NodeJS version from 10.19.0 to 14-slim in Dockerfile
+
 * Wed May 27 2020 Alvaro Vega <alvaro.vegagarcia@telefonica.com> 2.8.0
 - Fix: Filetype issue fixed for hLimit and hOffset (#539)
 - Fix: Updated temporary csv filename for uniqueness (#532)
