@@ -53,8 +53,8 @@ MAINTAINER FIWARE STH . Telefónica I+D
 # COPY . /opt/sth/
 #
 RUN apt-get update && \
-        # Install security updates
-        apt-get -y upgrade && \
+	# Install security updates
+	apt-get -y upgrade && \
 	# Ensure that unzip, wget and curl are installed
 	apt-get install -y --no-install-recommends unzip ca-certificates curl wget && \
 	if [ "${DOWNLOAD}" = "latest" ] ; \
