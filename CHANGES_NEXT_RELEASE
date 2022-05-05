@@ -1,13 +1,1 @@
--  Add: Docker healthcheck for STH API
--  Upgrade: mongodb dependence from ~2.2.35 to ~3.6.12 (#567)
--  Add config (reconnectTries, reconnectInterval) to allow mongo driver reconnect (#559)
--  Allow connect with mongo uri without auth
--  Ensure permissions over temp directory (used by CSV generation) in docker container (issue re-introduced in 2.8.0)
--  Update logs about get raw and aggregated data (#556)
--  Update codebase to use ES6
-    -  Remove JSHint and jshint overrides
-    -  Add esLint using standard tamia presets
-    -  Replace var with let/const
-    -  Fix or disable eslint errors
-- Upgrade logops dep from 2.1.0 to 2.1.2 due to colors dependency corruption
-- Add: graceful shutdown listening to SIGTERM and SIGHUP signals (#576)
+- Set Nodejs 12 as minimum version in packages.json (effectively removing Nodev8 and Nodev10 from supported versions)
