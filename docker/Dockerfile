@@ -26,6 +26,7 @@ ARG GITHUB_ACCOUNT=telefonicaid
 ARG GITHUB_REPOSITORY=fiware-sth-comet
 ARG DOWNLOAD=latest
 ARG SOURCE_BRANCH=master
+ARG STH_PORT=8666
 
 # Copying Build time arguments to environment variables so they are persisted at run time and can be 
 # inspected within a running container.
@@ -100,12 +101,10 @@ RUN \
 USER node
 ENV NODE_ENV=production
 
-# Expose 8082 for SERVER PORT
-ENV STH_PORT_EXPOSED = ${STH_PORT:-8666}
-EXPOSE ${STH_PORT_EXPOSED}
+EXPOSE ${STH_PORT}
 
 ENTRYPOINT ["docker/entrypoint.sh"]
 CMD ["-- ", "config.js"]
 
 HEALTHCHECK --interval=60s --start-period=10s \
-            CMD curl --fail http://localhost:${STH_PORT_EXPOSED}/version  || exit 1
+            CMD curl --fail http://localhost:${STH_PORT}/version  || exit 1
