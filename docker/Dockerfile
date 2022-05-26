@@ -101,10 +101,11 @@ USER node
 ENV NODE_ENV=production
 
 # Expose 8082 for SERVER PORT
-EXPOSE ${STH_PORT:-8666}
+ENV STH_PORT_EXPOSED = ${STH_PORT:-8666}
+EXPOSE ${STH_PORT_EXPOSED}
 
 ENTRYPOINT ["docker/entrypoint.sh"]
 CMD ["-- ", "config.js"]
 
 HEALTHCHECK --interval=60s --start-period=10s \
-            CMD curl --fail http://localhost:${STH_PORT}/version  || exit 1
+            CMD curl --fail http://localhost:${STH_PORT_EXPOSED}/version  || exit 1
