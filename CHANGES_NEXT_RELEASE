@@ -1,3 +1,4 @@
 - Fix: healthcheck over sth exposed port 
 - Fix: Dockerfile to include initial packages upgrade
 - Set Nodejs 12 as minimum version in packages.json (effectively removing Nodev8 and Nodev10 from supported versions)
+- Upgrade NodeJS version from 14-slim to 16-slim in Dockerfile
