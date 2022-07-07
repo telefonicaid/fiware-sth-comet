@@ -175,7 +175,7 @@ def createIndexRaw():
     Create index in raw collection
     """
 
-    index = [ ('entityId', ASCENDING), ('entityType', ASCENDING), ('attrName', ASCENDING), ('recvTime', DESCENDING) ]
+    index = [ ('entityId', ASCENDING), ('entityType', ASCENDING), ('attrName', ASCENDING), ('recvTime', ASCENDING) ]
     print '- Creating index in raw collection: %s. Please wait, this operation may take a while...' % index_as_json_text(index)
     client[DB][COL].create_index(index, background=True)
 
