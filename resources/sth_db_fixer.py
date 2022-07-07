@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python
 # -*- coding: latin-1 -*-
 # Copyright 2019 Telefonica Investigacion y Desarrollo, S.A.U
@@ -136,10 +137,10 @@ def getRelevantIndexesRaw():
         keys = index['key'].keys()
         
         if (len(keys) == 4 and keys[0] == 'entityId' and keys[1] == 'entityType' and keys[2] == 'attrName' and keys[3] == 'recvTime' and
-           index['key']['entityId'] == 1 and index['key']['entityType'] == 1 and index['key']['attrName'] == 1 and index['key']['recvTime'] == -1):
+           index['key']['entityId'] == 1 and index['key']['entityType'] == 1 and index['key']['attrName'] == 1 and index['key']['recvTime'] == 1):
             index0 = index
        
-        if len(keys) == 1 and keys[0] == 'recvTime' and index['key']['recvTime'] == 1:
+        if len(keys) == 1 and keys[0] == 'recvTime' and index['key']['recvTime'] == -1:
             index1 = index
        
     return (n, index0, index1)
