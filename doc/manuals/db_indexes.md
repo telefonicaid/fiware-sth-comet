@@ -10,7 +10,7 @@ STH uses one database per service (name pattern: `sth_<service>`) with two colle
 It is recommended to create the following index in this collection:
 
 ```
-{entityId: 1, entityType: 1, attrName: 1, recvTime: -1}
+{entityId: 1, entityType: 1, attrName: 1, recvTime: 1}
 ```
 
 The performance difference can be dramatic for large sets of data. For instance, for a collection with around ~3000000
