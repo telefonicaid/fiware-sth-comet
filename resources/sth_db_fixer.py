@@ -140,7 +140,7 @@ def getRelevantIndexesRaw():
            index['key']['entityId'] == 1 and index['key']['entityType'] == 1 and index['key']['attrName'] == 1 and index['key']['recvTime'] == 1):
             index0 = index
        
-        if len(keys) == 1 and keys[0] == 'recvTime' and index['key']['recvTime'] == -1:
+        if len(keys) == 1 and keys[0] == 'recvTime' and index['key']['recvTime'] == 1:
             index1 = index
        
     return (n, index0, index1)
