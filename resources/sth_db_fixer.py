@@ -136,7 +136,7 @@ def getRelevantIndexesRaw():
         keys = index['key'].keys()
         
         if (len(keys) == 4 and keys[0] == 'entityId' and keys[1] == 'entityType' and keys[2] == 'attrName' and keys[3] == 'recvTime' and
-           index['key']['entityId'] == 1 and index['key']['entityType'] == 1 and index['key']['attrName'] == 1 and index['key']['recvTime'] == -1):
+           index['key']['entityId'] == 1 and index['key']['entityType'] == 1 and index['key']['attrName'] == 1 and index['key']['recvTime'] == 1):
             index0 = index
        
         if len(keys) == 1 and keys[0] == 'recvTime' and index['key']['recvTime'] == 1:
@@ -174,7 +174,7 @@ def createIndexRaw():
     Create index in raw collection
     """
 
-    index = [ ('entityId', ASCENDING), ('entityType', ASCENDING), ('attrName', ASCENDING), ('recvTime', DESCENDING) ]
+    index = [ ('entityId', ASCENDING), ('entityType', ASCENDING), ('attrName', ASCENDING), ('recvTime', ASCENDING) ]
     print '- Creating index in raw collection: %s. Please wait, this operation may take a while...' % index_as_json_text(index)
     client[DB][COL].create_index(index, background=True)
 
