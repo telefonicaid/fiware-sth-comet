@@ -160,7 +160,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_install_dir}
 
 %changelog
-* Fri Oct 28 2022 Alvaro Vega <alvaro.vegagarcia@telefonica.com> 2.10.0
+* Web Nov 02 2022 Alvaro Vega <alvaro.vegagarcia@telefonica.com> 2.10.0
 - Fix: healthcheck over sth exposed port 
 - Fix: Dockerfile to include initial packages upgrade
 - Set Nodejs 12 as minimum version in packages.json (effectively removing Nodev8 and Nodev10 from supported versions)
