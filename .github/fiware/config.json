@@ -1,0 +1,19 @@
+{
+    "enabler": "FIWARE Short Time Historic (STH) - Comet",
+    "chapter": "core",
+    "academy": "core/sth-comet",
+    "readthedocs": "fiware-sth-comet", 
+    "helpdesk": "",
+    "coveralls": "https://coveralls.io/github/telefonicaid/fiware-sth-comet",
+    "github": ["telefonicaid/fiware-sth-comet"],
+    "dockerregistry": ["hub.docker.com"],
+    "docker": ["telefonicaiot/fiware-sth-comet"],
+    "email": "",
+    "status": "full",
+    "compose": "https://github.com/telefonicaid/fiware-sth-comet/blob/master/docker-compose.yml",
+    "exclude": ["mongo"],
+    "stackexchange": [""],
+    "unit-test": "",
+    "smoke-test": "",
+    "dockerfile": "https://github.com/telefonicaid/fiware-sth-comet/blob/master/docker/Dockerfile"
+}
