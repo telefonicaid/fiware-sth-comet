@@ -325,9 +325,41 @@ describe('sth tests', function() {
         );
 
         it(
+            'should respond with 200 - OK if aggrMethod are multiple and aggrPeriod query params',
+            sthTestUtils.status200Test.bind(null, 2, {
+                aggrMethod: 'min,max',
+                aggrPeriod: 'second'
+            })
+        );
+
+        it(
+            'should respond with 200 - OK if aggrMethod are multiple and aggrPeriod query params',
+            sthTestUtils.status200Test.bind(null, 2, {
+                aggrMethod: 'all',
+                aggrPeriod: 'second'
+            })
+        );
+
+        it(
             'should respond with 200 - OK if aggrMethod and aggrPeriod query params - NGSIv1',
             sthTestUtils.status200Test.bind(null, 1, {
                 aggrMethod: 'min',
+                aggrPeriod: 'second'
+            })
+        );
+
+        it(
+            'should respond with 200 - OK if aggrMethod are multiple and aggrPeriod query params - NGSIv1',
+            sthTestUtils.status200Test.bind(null, 1, {
+                aggrMethod: 'min,max',
+                aggrPeriod: 'second'
+            })
+        );
+
+        it(
+            'should respond with 200 - OK if aggrMethod are multiple and aggrPeriod query params - NGSIv1',
+            sthTestUtils.status200Test.bind(null, 1, {
+                aggrMethod: 'all',
                 aggrPeriod: 'second'
             })
         );
@@ -389,6 +421,16 @@ describe('sth tests', function() {
         describe(
             'aggregated data retrieval',
             sthTestUtils.aggregatedDataRetrievalSuite.bind(null, 'attribute-float', 'float', 'sum2')
+        );
+
+        describe(
+            'aggregated data retrieval',
+            sthTestUtils.aggregatedDataRetrievalSuite.bind(null, 'attribute-float', 'float', 'max,sum2')
+        );
+
+        describe(
+            'aggregated data retrieval',
+            sthTestUtils.aggregatedDataRetrievalSuite.bind(null, 'attribute-float', 'float', 'all')
         );
     }
 

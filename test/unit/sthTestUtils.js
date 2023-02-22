@@ -912,21 +912,22 @@ function aggregatedDataAvailableSinceDateTest(ngsiVersion, params, done) {
             break;
     }
 
-    let value;
-    switch (aggrMethod) {
-        case 'min':
-        case 'max':
+    let value,valueSum,valueSum2,valueOccur;
+    const aggrMethods=aggrMethod.split(',');
+
+    for (let i=0;i<aggrMethods.length;i++) {
+        if (aggrMethods[i] === 'min' || aggrMethods[i] === 'max') {
             value = parseFloat(theEvent.attrValue).toFixed(2);
-            break;
-        case 'sum':
-            value = (events.length * parseFloat(theEvent.attrValue)).toFixed(2);
-            break;
-        case 'sum2':
-            value = (events.length * Math.pow(parseFloat(theEvent.attrValue), 2)).toFixed(2);
-            break;
-        case 'occur':
-            value = events.length;
-            break;
+        }
+        if (aggrMethods[i] === 'sum') {
+            valueSum = (events.length * parseFloat(theEvent.attrValue)).toFixed(2);
+        }
+        if (aggrMethods[i] === 'sum2') {
+            valueSum2 = (events.length * Math.pow(parseFloat(theEvent.attrValue), 2)).toFixed(2);
+        }
+        if (aggrMethods[i] === 'occur') {
+            valueOccur = events.length;
+        }
     }
 
     if (ngsiVersion === 2) {
@@ -963,11 +964,29 @@ function aggregatedDataAvailableSinceDateTest(ngsiVersion, params, done) {
                     events.length
                 );
                 if (attrType === 'float') {
-                    expect(
-                        parseFloat(
-                            bodyJSON.value[0].points[sthConfig.FILTER_OUT_EMPTY ? 0 : index][aggrMethod]
-                        ).toFixed(2)
-                    ).to.equal(value);
+                    for (let j=0;j<aggrMethods.length;j++) {
+                        if (aggrMethods[j] === 'min' || aggrMethods[j] === 'max') {
+                            expect(
+                                parseFloat(
+                                    bodyJSON.value[0].points[sthConfig.FILTER_OUT_EMPTY ? 0 : index][aggrMethods[j]]
+                                ).toFixed(2)
+                            ).to.equal(value);
+                        }
+                        if (aggrMethods[j] === 'sum') {
+                            expect(
+                                parseFloat(
+                                    bodyJSON.value[0].points[sthConfig.FILTER_OUT_EMPTY ? 0 : index][aggrMethods[j]]
+                                ).toFixed(2)
+                             ).to.equal(valueSum);
+                        }
+                        if (aggrMethods[j] === 'sum2') {
+                            expect(
+                                parseFloat(
+                                    bodyJSON.value[0].points[sthConfig.FILTER_OUT_EMPTY ? 0 : index][aggrMethods[j]]
+                                ).toFixed(2)
+                            ).to.equal(valueSum2);
+                        }
+                    }
                 } else if (attrType === 'string') {
                     expect(
                         parseFloat(
@@ -975,7 +994,7 @@ function aggregatedDataAvailableSinceDateTest(ngsiVersion, params, done) {
                                 'just a string'
                             ]
                         )
-                    ).to.equal(value);
+                    ).to.equal(valueOccur);
                 }
                 done();
             }
@@ -1025,13 +1044,35 @@ function aggregatedDataAvailableSinceDateTest(ngsiVersion, params, done) {
                     ].samples
                 ).to.equal(events.length);
                 if (attrType === 'float') {
-                    expect(
-                        parseFloat(
-                            bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[
-                                sthConfig.FILTER_OUT_EMPTY ? 0 : index
-                            ][aggrMethod]
-                        ).toFixed(2)
-                    ).to.equal(value);
+                    for (let j=0;j<aggrMethods.length;j++) {
+                        if (aggrMethods[j] === 'min' || aggrMethods[j] === 'max') {
+                            expect(
+                                parseFloat(
+                                    bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[
+                                        sthConfig.FILTER_OUT_EMPTY ? 0 : index
+                                    ][aggrMethods[j]]
+                                ).toFixed(2)
+                            ).to.equal(value);
+                        }
+                        if (aggrMethods[j] === 'sum') {
+                            expect(
+                                parseFloat(
+                                    bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[
+                                        sthConfig.FILTER_OUT_EMPTY ? 0 : index
+                                    ][aggrMethods[j]]
+                                ).toFixed(2)
+                            ).to.equal(valueSum);
+                        }
+                        if (aggrMethods[j] === 'sum2') {
+                            expect(
+                                parseFloat(
+                                    bodyJSON.contextResponses[0].contextElement.attributes[0].values[0].points[
+                                        sthConfig.FILTER_OUT_EMPTY ? 0 : index
+                                    ][aggrMethods[j]]
+                                ).toFixed(2)
+                            ).to.equal(valueSum2);
+                        }
+                    }
                 } else if (attrType === 'string') {
                     expect(
                         parseFloat(
@@ -1039,7 +1080,7 @@ function aggregatedDataAvailableSinceDateTest(ngsiVersion, params, done) {
                                 sthConfig.FILTER_OUT_EMPTY ? 0 : index
                             ][aggrMethod]['just a string']
                         )
-                    ).to.equal(value);
+                    ).to.equal(valueOccur);
                 }
                 expect(bodyJSON.contextResponses[0].statusCode.code).to.equal('200');
                 expect(bodyJSON.contextResponses[0].statusCode.reasonPhrase).to.equal('OK');
