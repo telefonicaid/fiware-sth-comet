@@ -20,7 +20,7 @@
 # For those usages not covered by the GNU Affero General Public License
 # please contact with: sc_support at telefonica dot com
 
-ARG NODE_VERSION=14-slim
+ARG NODE_VERSION=16
 FROM node:${NODE_VERSION}
 ARG GITHUB_ACCOUNT=telefonicaid
 ARG GITHUB_REPOSITORY=fiware-sth-comet
