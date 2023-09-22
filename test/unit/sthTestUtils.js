@@ -1795,6 +1795,47 @@ function status200Test(ngsiVersion, options, done) {
 }
 
 /**
+ * Bad Request 400 status test case
+ * @param ngsiVersion NGSI version to use. Anything different from 2 (included undefined) means v1
+ * @param {Object} options Options to generate the URL
+ * @param {Function} done Callback
+ */
+function status400Test(ngsiVersion, options, done) {
+    if (ngsiVersion === 2) {
+        request(
+            {
+                uri: getURL(sthTestConfig.API_OPERATION.READ_V2, options),
+                method: 'GET',
+                headers: {
+                    'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                    'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                }
+            },
+            function(err, response, body) {
+                expect(response.statusCode).to.equal(400);
+                done();
+            }
+        );
+    } else {
+        // FIXME: remove the else branch when NGSIv1 becomes obsolete
+        request(
+            {
+                uri: getURL(sthTestConfig.API_OPERATION.READ, options),
+                method: 'GET',
+                headers: {
+                    'Fiware-Service': sthConfig.DEFAULT_SERVICE,
+                    'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
+                }
+            },
+            function(err, response, body) {
+                expect(response.statusCode).to.equal(400);
+                done();
+            }
+        );
+    }
+}
+
+/**
  * Test to check that in case of updating a numeric attribute value aggregated data:
  *  - If the value of the attribute is the same, it is only aggregated once
  *  - If the value of the attribute changes, the aggregated data is properly updated
@@ -2579,6 +2620,7 @@ module.exports = {
     cleanDatabaseSuite,
     eventNotificationSuite,
     status200Test,
+    status400Test,
     numericAggregatedDataUpdatedTest,
     textualAggregatedDataUpdatedTest,
     aggregatedDataNonExistentTest,

@@ -341,6 +341,22 @@ describe('sth tests', function() {
         );
 
         it(
+            'should respond with 400 - Bad Request if aggrMethod is not from [min,max,sum,sum2,occur,all]',
+            sthTestUtils.status400Test.bind(null, 2, {
+                aggrMethod: 'foo',
+                aggrPeriod: 'second'
+            })
+        );
+
+        it(
+            'should respond with 400 - Bad Request if aggrMethod are multiple and not from [min,max,sum,sum2,occur,all]',
+            sthTestUtils.status400Test.bind(null, 2, {
+                aggrMethod: 'foo,all',
+                aggrPeriod: 'second'
+            })
+        );
+
+        it(
             'should respond with 200 - OK if aggrMethod and aggrPeriod query params - NGSIv1',
             sthTestUtils.status200Test.bind(null, 1, {
                 aggrMethod: 'min',
@@ -360,6 +376,22 @@ describe('sth tests', function() {
             'should respond with 200 - OK if aggrMethod are multiple and aggrPeriod query params - NGSIv1',
             sthTestUtils.status200Test.bind(null, 1, {
                 aggrMethod: 'all',
+                aggrPeriod: 'second'
+            })
+        );
+
+        it(
+            'should respond with 400 - Bad Request if aggrMethod is not from [min,max,sum,sum2,occur,all]  - NGSIv1',
+            sthTestUtils.status400Test.bind(null, 1, {
+                aggrMethod: 'foo',
+                aggrPeriod: 'second'
+            })
+        );
+
+        it(
+            'should respond with 400 - Bad Request if aggrMethod are multiple and not from [min,max,sum,sum2,occur,all] - NGSIv1',
+            sthTestUtils.status400Test.bind(null, 1, {
+                aggrMethod: 'foo,all',
                 aggrPeriod: 'second'
             })
         );
