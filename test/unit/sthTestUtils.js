@@ -912,10 +912,10 @@ function aggregatedDataAvailableSinceDateTest(ngsiVersion, params, done) {
             break;
     }
 
-    let value,valueSum,valueSum2,valueOccur;
-    const aggrMethods=aggrMethod.split(',');
+    let value, valueSum, valueSum2, valueOccur;
+    const aggrMethods = aggrMethod.split(',');
 
-    for (let i=0;i<aggrMethods.length;i++) {
+    for (let i = 0; i < aggrMethods.length; i++) {
         if (aggrMethods[i] === 'min' || aggrMethods[i] === 'max') {
             value = parseFloat(theEvent.attrValue).toFixed(2);
         }
@@ -964,7 +964,7 @@ function aggregatedDataAvailableSinceDateTest(ngsiVersion, params, done) {
                     events.length
                 );
                 if (attrType === 'float') {
-                    for (let j=0;j<aggrMethods.length;j++) {
+                    for (let j = 0; j < aggrMethods.length; j++) {
                         if (aggrMethods[j] === 'min' || aggrMethods[j] === 'max') {
                             expect(
                                 parseFloat(
@@ -977,7 +977,7 @@ function aggregatedDataAvailableSinceDateTest(ngsiVersion, params, done) {
                                 parseFloat(
                                     bodyJSON.value[0].points[sthConfig.FILTER_OUT_EMPTY ? 0 : index][aggrMethods[j]]
                                 ).toFixed(2)
-                             ).to.equal(valueSum);
+                            ).to.equal(valueSum);
                         }
                         if (aggrMethods[j] === 'sum2') {
                             expect(
@@ -1044,7 +1044,7 @@ function aggregatedDataAvailableSinceDateTest(ngsiVersion, params, done) {
                     ].samples
                 ).to.equal(events.length);
                 if (attrType === 'float') {
-                    for (let j=0;j<aggrMethods.length;j++) {
+                    for (let j = 0; j < aggrMethods.length; j++) {
                         if (aggrMethods[j] === 'min' || aggrMethods[j] === 'max') {
                             expect(
                                 parseFloat(
@@ -1811,7 +1811,7 @@ function status400Test(ngsiVersion, options, done) {
                     'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
                 }
             },
-            function(err, response, body) {
+            function(err, response) {
                 expect(response.statusCode).to.equal(400);
                 done();
             }
@@ -1827,7 +1827,7 @@ function status400Test(ngsiVersion, options, done) {
                     'Fiware-ServicePath': sthConfig.DEFAULT_SERVICE_PATH
                 }
             },
-            function(err, response, body) {
+            function(err, response) {
                 expect(response.statusCode).to.equal(400);
                 done();
             }
