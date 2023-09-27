@@ -2,10 +2,12 @@
 
 [![](https://nexus.lab.fiware.org/repository/raw/public/badges/chapters/core.svg)](https://www.fiware.org/developers/catalogue/)
 [![License](https://img.shields.io/github/license/telefonicaid/fiware-sth-comet.svg)](https://opensource.org/licenses/AGPL-3.0)
-[![Docker badge](https://img.shields.io/docker/pulls/fiware/sth-comet.svg)](https://hub.docker.com/r/fiware/sth-comet-ngsi/)
 [![](https://img.shields.io/badge/tag-fiware--sth-comet-orange.svg?logo=stackoverflow)](http://stackoverflow.com/questions/tagged/fiware-sth-comet)
 [![Support badge](https://img.shields.io/badge/support-askbot-yellowgreen.svg)](https://ask.fiware.org/questions/scope%3Aall/tags%3Asth-comet/)
 [![Join the chat at https://gitter.im/telefonicaid/fiware-sth-comet](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/telefonicaid/fiware-sth-comet?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+<br/>
+[![Quay badge](https://img.shields.io/badge/quay.io-fiware%2Fsth--comet-grey?logo=red%20hat&labelColor=EE0000)](https://quay.io/repository/fiware/sth-comet)
+[![Docker badge](https://img.shields.io/badge/docker-telefonicaiot%2Ffiware--sth--comet-blue?logo=docker)](https://registry.hub.docker.com/r/telefonicaiot/fiware-sth-comet)
 <br/>
 [![Documentation badge](https://readthedocs.org/projects/fiware-sth-comet/badge/?version=latest)](https://fiware-sth-comet.readthedocs.io)
 [![CI](https://github.com/telefonicaid/fiware-sth-comet/workflows/CI/badge.svg)](https://github.com/telefonicaid/fiware-sth-comet/actions?query=workflow%3ACI)
