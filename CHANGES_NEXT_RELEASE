@@ -1,1 +1,1 @@
-- Add CORS_ENABLED env var (boolean) to enable the cors configuration (of config.js file) in your docker image
+- Add: CORS_ENABLED env var (boolean) to enable the cors configuration (of config.js file) in your docker image (#608)
