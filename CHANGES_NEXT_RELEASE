@@ -1,1 +1,2 @@
-- Add CORS_ENABLED env var (boolean) to enable the cors configuration (of config.js file) in your docker image
+- Set Nodejs 14 as minimum version in packages.json (effectively removing Nodev12 from supported versions)
+- Add: CORS_ENABLED env var (boolean) to enable the cors configuration (of config.js file) in your docker image (#608)
