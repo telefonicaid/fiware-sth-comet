@@ -16,6 +16,15 @@ It is recommended to create the following index in this collection:
 The performance difference can be dramatic for large sets of data. For instance, for a collection with around ~3000000
 query execution time can drop from 3 seconds to 1 millisecond.
 
+Since version 3.0.0 of cygnus an index named `cyg_raw_opt` is created in this way but depending on datamodel:
+
+| datamodel       | keys                                                             |
+| :-------------- | :--------------------------------------------------------------- |
+| DMBYSERVICEPATH | recvTime, entityId, entityType, attrName, attrType, attrValue    |
+| DMBYENTITY      | recvTime, attrName, attrType, attrValue                          |
+| DMBYATTRIBUTE   | recvTime, attrType, attrValue                                    |
+
+
 ## Indexes in the aggregated data collection
 
 It is recommended to create the following index in this collection:
@@ -26,3 +35,11 @@ It is recommended to create the following index in this collection:
 
 The performance difference can be dramatic for large sets of data. For instance, for a collection with around ~6000000
 query execution time can drop from 28 seconds to 20 millisecond.
+
+Since version 3.0.0 of cygnus index named `cyg_agg_opt` is created in this way but depending on datamodel:
+
+| datamodel        | keys                                               |
+| :--------------- | :------------------------------------------------- |
+| DMBYSERVICEPATH  | entityId, entityType, attrName, resolution, origin |
+| DMBYENTITY       | attrName, resolution, origin                       |
+| DMBYATTRIBUTE    | resolution, origin                                 |
