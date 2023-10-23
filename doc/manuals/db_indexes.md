@@ -18,12 +18,13 @@ query execution time can drop from 3 seconds to 1 millisecond.
 
 Since version 3.0.0 of cygnus an index named `cyg_raw_opt` is created in this way but depending on datamodel:
 
-| datamodel       | keys                                                             |
-| :-------------- | :--------------------------------------------------------------- |
-| DMBYSERVICEPATH | recvTime, entityId, entityType, attrName, attrType, attrValue    |
-| DMBYENTITY      | recvTime, attrName, attrType, attrValue                          |
-| DMBYATTRIBUTE   | recvTime, attrType, attrValue                                    |
+| datamodel         | keys                                                             |
+| :---------------- | :--------------------------------------------------------------- |
+| dm-by-servicepath | recvTime, entityId, entityType, attrName, attrType, attrValue    |
+| dm-by-entity      | recvTime, attrName, attrType, attrValue                          |
+| dm-by-attribute   | recvTime, attrType, attrValue                                    |
 
+Note that datamodel others that the ones above are not allowed by Cygnus.
 
 ## Indexes in the aggregated data collection
 
@@ -38,8 +39,10 @@ query execution time can drop from 28 seconds to 20 millisecond.
 
 Since version 3.0.0 of cygnus index named `cyg_agg_opt` is created in this way but depending on datamodel:
 
-| datamodel        | keys                                               |
-| :--------------- | :------------------------------------------------- |
-| DMBYSERVICEPATH  | entityId, entityType, attrName, resolution, origin |
-| DMBYENTITY       | attrName, resolution, origin                       |
-| DMBYATTRIBUTE    | resolution, origin                                 |
+| datamodel          | keys                                               |
+| :----------------- | :------------------------------------------------- |
+| dm-by-servicepath  | entityId, entityType, attrName, resolution, origin |
+| dm-by-entity       | attrName, resolution, origin                       |
+| dm-by-attribute    | resolution, origin                                 |
+
+Note that datamodel others that the ones above are not allowed by Cygnus.
