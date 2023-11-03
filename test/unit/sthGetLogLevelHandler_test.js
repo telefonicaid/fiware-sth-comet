@@ -27,7 +27,6 @@ const sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
 const sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
 const sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
 const sthTestHelper = require(ROOT_PATH + '/test/unit/sthTestUtils.js');
-const hapi = require('@hapi/hapi');
 const expect = require('expect.js');
 const request = require('request');
 
