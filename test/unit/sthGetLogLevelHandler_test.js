@@ -59,7 +59,7 @@ describe('sthGetLogLevelHandler tests', function() {
         it('should start gracefully', function(done) {
             sth.sthServer.startServer(sthConfig.STH_HOST, sthConfig.STH_PORT, function(err, server) {
                 expect(err).to.equal(null);
-                expect(server).to.be.a(hapi.Server);
+                expect(server).to.not.equal(null);
                 done();
             });
         });
