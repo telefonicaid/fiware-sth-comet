@@ -41,6 +41,8 @@ The environment variables accepted by the script (for which there exists counter
 -   `DB_URI`: The URI to use for the database connection. This does not include the 'mongo://' protocol part (see a
     couple of examples below). Optional. Default value: "localhost:27017".
 -   `DB_AUTH_SOURCE`: The auth source to use for the database connection. Optional. Default value "".
+-   `DB_RECONNECT_TRIES`: MongoDB server attempts to reconnect. Default value 30.
+-   `DB_RECONNECT_INTERVAL`: time to wait in milliseconds between MongoDB reconnection attemps. Default value 1000.
 -   `REPLICA_SET`: The name of the replica set to connect to, if any. Default value: "".
 -   `DB_PREFIX`: The prefix to be added to the service for the creation of the databases. More information below.
     Optional. Default value: "sth\_".
@@ -99,6 +101,7 @@ The environment variables accepted by the script (for which there exists counter
 -   `PROOF_OF_LIFE_INTERVAL`: The time in seconds between proof of life logging messages informing that the server is up
     and running normally. Default value: "60". `PROCESSED_REQUEST_LOG_STATISTICS_INTERVAL`: The time in seconds between
     processed requests statistics appear in the logs. Default value: "60".
+-   `CORS_ENABLED`: Boolean attribute (`true`|`false`) to enable cors configuration. Optional. Default value: "false".
 
 For example, to start the STH server listening on port 7777, connecting to a MongoDB instance listening on
 mymongo.com:27777 and without filtering out the empty results, use:

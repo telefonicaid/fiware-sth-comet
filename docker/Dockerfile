@@ -20,12 +20,13 @@
 # For those usages not covered by the GNU Affero General Public License
 # please contact with: sc_support at telefonica dot com
 
-ARG NODE_VERSION=10.19.0-slim
+ARG NODE_VERSION=14-slim
 FROM node:${NODE_VERSION}
 ARG GITHUB_ACCOUNT=telefonicaid
 ARG GITHUB_REPOSITORY=fiware-sth-comet
 ARG DOWNLOAD=latest
 ARG SOURCE_BRANCH=master
+ARG STH_PORT=8666
 
 # Copying Build time arguments to environment variables so they are persisted at run time and can be 
 # inspected within a running container.
@@ -34,6 +35,7 @@ ARG SOURCE_BRANCH=master
 ENV GITHUB_ACCOUNT=${GITHUB_ACCOUNT}
 ENV GITHUB_REPOSITORY=${GITHUB_REPOSITORY}
 ENV DOWNLOAD=${DOWNLOAD}
+ENV STH_PORT=${STH_PORT}
 
 MAINTAINER FIWARE STH . Telefónica I+D
 
@@ -53,6 +55,8 @@ MAINTAINER FIWARE STH . Telefónica I+D
 # COPY . /opt/sth/
 #
 RUN apt-get update && \
+	# Install security updates
+	apt-get upgrade -y && \
 	# Ensure that unzip, wget and curl are installed
 	apt-get install -y --no-install-recommends unzip ca-certificates curl wget && \
 	if [ "${DOWNLOAD}" = "latest" ] ; \
@@ -98,8 +102,10 @@ RUN \
 USER node
 ENV NODE_ENV=production
 
-# Expose 8082 for SERVER PORT
-EXPOSE ${STH_PORT:-8666}
+EXPOSE ${STH_PORT}
 
 ENTRYPOINT ["docker/entrypoint.sh"]
 CMD ["-- ", "config.js"]
+
+HEALTHCHECK --interval=60s --start-period=10s \
+            CMD curl --fail http://localhost:${STH_PORT}/version  || exit 1

@@ -2,10 +2,12 @@
 
 [![](https://nexus.lab.fiware.org/repository/raw/public/badges/chapters/core.svg)](https://www.fiware.org/developers/catalogue/)
 [![License](https://img.shields.io/github/license/telefonicaid/fiware-sth-comet.svg)](https://opensource.org/licenses/AGPL-3.0)
-[![Docker badge](https://img.shields.io/docker/pulls/fiware/sth-comet.svg)](https://hub.docker.com/r/fiware/sth-comet-ngsi/)
 [![](https://img.shields.io/badge/tag-fiware--sth-comet-orange.svg?logo=stackoverflow)](http://stackoverflow.com/questions/tagged/fiware-sth-comet)
 [![Support badge](https://img.shields.io/badge/support-askbot-yellowgreen.svg)](https://ask.fiware.org/questions/scope%3Aall/tags%3Asth-comet/)
 [![Join the chat at https://gitter.im/telefonicaid/fiware-sth-comet](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/telefonicaid/fiware-sth-comet?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+<br/>
+[![Quay badge](https://img.shields.io/badge/quay.io-fiware%2Fsth--comet-grey?logo=red%20hat&labelColor=EE0000)](https://quay.io/repository/fiware/sth-comet)
+[![Docker badge](https://img.shields.io/badge/docker-telefonicaiot%2Ffiware--sth--comet-blue?logo=docker)](https://registry.hub.docker.com/r/telefonicaiot/fiware-sth-comet)
 <br/>
 [![Documentation badge](https://readthedocs.org/projects/fiware-sth-comet/badge/?version=latest)](https://fiware-sth-comet.readthedocs.io)
 [![CI](https://github.com/telefonicaid/fiware-sth-comet/workflows/CI/badge.svg)](https://github.com/telefonicaid/fiware-sth-comet/actions?query=workflow%3ACI)
@@ -25,8 +27,8 @@ interfaces.
 This project is part of [FIWARE](https://www.fiware.org/). For more information check the FIWARE Catalogue entry for the
 [Core Context Management](https://github.com/Fiware/catalogue/tree/master/core).
 
-| :books: [Documentation](https://fiware-sth-comet.readthedocs.io) | :mortar_board: [Academy](https://fiware-academy.readthedocs.io/en/latest/core/sth-comet) | :whale: [Docker Hub](https://hub.docker.com/r/fiware/sth-comet/) | :dart: [Roadmap](https://github.com/telefonicaid/fiware-sth-comet/blob/master/doc/roadmap.md) |
-| --------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| :books: [Documentation](https://fiware-sth-comet.readthedocs.io) | :mortar_board: [Academy](https://fiware-academy.readthedocs.io/en/latest/core/sth-comet) | <img style="height:1em" src="https://quay.io/static/img/quay_favicon.png"/> [quay.io](https://quay.io/repository/fiware/sth-comet) | :whale: [Docker Hub](https://registry.hub.docker.com/r/telefonicaiot/fiware-sth-comet) | :dart: [Roadmap](https://github.com/telefonicaid/fiware-sth-comet/blob/master/doc/roadmap.md) |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | --- |
 
 
 # Contents
@@ -178,7 +180,7 @@ documentation.
 STH-Comet is licensed under Affero General Public License (GPL) version 3. You can find a
 [copy of this license in the repository](./LICENSE).
 
-© 2019 Telefonica Investigación y Desarrollo, S.A.U
+© 2022 Telefonica Investigación y Desarrollo, S.A.U
 
 ### Are there any legal issues with AGPL 3.0? Is it safe for me to use?
 
