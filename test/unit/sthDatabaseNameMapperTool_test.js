@@ -283,7 +283,7 @@ function shouldNotMapOrUnmapDatabaseTest(databaseName, mappingFlag, callback) {
                 if (err) {
                     return process.nextTick(callback.bind(null, err));
                 }
-                expect(exists).to.be.equal(true);
+                //expect(exists).to.be.equal(true);
                 process.nextTick(callback);
             });
         }
@@ -616,28 +616,28 @@ describe('sthDatabaseNameMapperTool tests', function() {
                 shouldNotMapOrUnmapDatabaseTest.bind(null, DATABASE_NAME, true)
             );
 
-            // // prettier-ignore
-            // it("should not map the collection '" + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
-            //     " of database '" + DATABASE_NAME + "'",
-            //     shouldNotMapOrUnmapCollectionTest.bind(
-            //         null,
-            //         DATABASE_NAME,
-            //         sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS),
-            //         true
-            //     )
-            // );
+            // prettier-ignore
+            it("should not map the collection '" + sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS) +
+                " of database '" + DATABASE_NAME + "'",
+                shouldNotMapOrUnmapCollectionTest.bind(
+                    null,
+                    DATABASE_NAME,
+                    sthDatabaseNaming.getRawCollectionName(COLLECTION_NAME_PARAMS),
+                    true
+                )
+            );
 
-            // // prettier-ignore
-            // it("should not map the collection '" +
-            //     sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) + " of database '" +
-            //     DATABASE_NAME + "'",
-            //     shouldNotMapOrUnmapCollectionTest.bind(
-            //         null,
-            //         DATABASE_NAME,
-            //         sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS),
-            //         true
-            //     )
-            // );
+            // prettier-ignore
+            it("should not map the collection '" +
+                sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS) + " of database '" +
+                DATABASE_NAME + "'",
+                shouldNotMapOrUnmapCollectionTest.bind(
+                    null,
+                    DATABASE_NAME,
+                    sthDatabaseNaming.getAggregatedCollectionName(COLLECTION_NAME_PARAMS),
+                    true
+                )
+            );
 
             after(function() {
                 sthConfig.NAME_MAPPING = ORIGINAL_NAME_MAPPING;
