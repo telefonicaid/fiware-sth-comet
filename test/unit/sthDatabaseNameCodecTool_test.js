@@ -93,7 +93,7 @@ function createRawAndAggregatedCollections(callback) {
 function checkCollectionExists(databaseName, collectionName, callback) {
     sthDatabase.client
         .db(databaseName)
-        .listCollections({ name: collectionName, nameOnly: true })
+        .listCollections({ name: collectionName }, { nameOnly: true })
         .toArray(function(err, collections) {
             if (err) {
                 return process.nextTick(callback.bind(null, err));
