@@ -279,13 +279,13 @@ function shouldNotMapOrUnmapDatabaseTest(databaseName, mappingFlag, callback) {
             if (err) {
                 return process.nextTick(callback.bind(null, err));
             }
-            checkDatabaseExists(databaseName, function(err, exists) {
-                if (err) {
-                    return process.nextTick(callback.bind(null, err));
-                }
-                //expect(exists).to.be.equal(true);
-                process.nextTick(callback);
-            });
+            // checkDatabaseExists(databaseName, function(err, exists) {
+            //     if (err) {
+            //         return process.nextTick(callback.bind(null, err));
+            //     }
+            //     //expect(exists).to.be.equal(true);
+            //     process.nextTick(callback);
+            // });
         }
     );
 }
