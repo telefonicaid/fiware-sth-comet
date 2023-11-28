@@ -1,4 +1,4 @@
-- Fix: ensure nameOnly flag of mongoDB is boolean
+- Fix: the way in which list collection is done at MongoDB (ensure¡ing nameOnly flag is boolean) so STH can support MongoDB 5.0+ versions
 - Fix: TRUNCATION_EXPIRE_AFTER_SECONDS functionality (#606)
 - Set Nodejs 14 as minimum version in packages.json (effectively removing Nodev12 from supported versions)
 - Add: CORS_ENABLED env var (boolean) to enable the cors configuration (of config.js file) in your docker image (#608)
