@@ -261,34 +261,34 @@ function shouldMapOrUnmapDatabaseTest(databaseName, mappingFlag, callback) {
     );
 }
 
-// /**
-//  * Test to check a collection name mapping is not made
-//  * @param  {String}   databaseName   The database name
-//  * @param  {String}   collectionName The collection name
-//  * @param  {String}   mappingFlag    Flag indicating if the test is for the mapping or unmapping process
-//  * @param  {Function} callback       The callback
-//  */
-// function shouldNotMapOrUnmapDatabaseTest(databaseName, mappingFlag, callback) {
-//     sthDatabaseNameMapperTool.mapOrUnmap(
-//         {
-//             map: !!mappingFlag,
-//             unmap: !mappingFlag,
-//             database: databaseName
-//         },
-//         function(err) {
-//             if (err) {
-//                 return process.nextTick(callback.bind(null, err));
-//             }
-//             // checkDatabaseExists(databaseName, function(err, exists) {
-//             //     if (err) {
-//             //         return process.nextTick(callback.bind(null, err));
-//             //     }
-//             //     //expect(exists).to.be.equal(true);
-//             //     process.nextTick(callback);
-//             // });
-//         }
-//     );
-// }
+/**
+ * Test to check a collection name mapping is not made
+ * @param  {String}   databaseName   The database name
+ * @param  {String}   collectionName The collection name
+ * @param  {String}   mappingFlag    Flag indicating if the test is for the mapping or unmapping process
+ * @param  {Function} callback       The callback
+ */
+function shouldNotMapOrUnmapDatabaseTest(databaseName, mappingFlag, callback) {
+    sthDatabaseNameMapperTool.mapOrUnmap(
+        {
+            map: !!mappingFlag,
+            unmap: !mappingFlag,
+            database: databaseName
+        },
+        function(err) {
+            if (err) {
+                return process.nextTick(callback.bind(null, err));
+            }
+            checkDatabaseExists(databaseName, function(err, exists) {
+                if (err) {
+                    return process.nextTick(callback.bind(null, err));
+                }
+                expect(exists).to.be.equal(true);
+                process.nextTick(callback);
+            });
+        }
+    );
+}
 
 /**
  * Test to check a collection name mapping
@@ -340,35 +340,35 @@ function shouldMapOrUnmapCollectionTest(databaseName, collectionName, mappingFla
     );
 }
 
-/**
- * Test to check a collection name mapping it not made
- * @param  {String}   databaseName   The database name
- * @param  {String}   collectionName The collection name
- * @param  {String}   mappingFlag    Flag indicating if the test is for the mapping or unmapping process
- * @param  {Function} callback       The callback
- */
-function shouldNotMapOrUnmapCollectionTest(databaseName, collectionName, mappingFlag, callback) {
-    sthDatabaseNameMapperTool.mapOrUnmap(
-        {
-            map: !!mappingFlag,
-            unmap: !mappingFlag,
-            database: databaseName,
-            collection: collectionName
-        },
-        function(err) {
-            if (err) {
-                return process.nextTick(callback.bind(null, err));
-            }
-            checkCollectionExists(databaseName, collectionName, function(err, exists) {
-                if (err) {
-                    return process.nextTick(callback.bind(null, err));
-                }
-                expect(exists).to.be.equal(true);
-                process.nextTick(callback);
-            });
-        }
-    );
-}
+// /**
+//  * Test to check a collection name mapping it not made
+//  * @param  {String}   databaseName   The database name
+//  * @param  {String}   collectionName The collection name
+//  * @param  {String}   mappingFlag    Flag indicating if the test is for the mapping or unmapping process
+//  * @param  {Function} callback       The callback
+//  */
+// function shouldNotMapOrUnmapCollectionTest(databaseName, collectionName, mappingFlag, callback) {
+//     sthDatabaseNameMapperTool.mapOrUnmap(
+//         {
+//             map: !!mappingFlag,
+//             unmap: !mappingFlag,
+//             database: databaseName,
+//             collection: collectionName
+//         },
+//         function(err) {
+//             if (err) {
+//                 return process.nextTick(callback.bind(null, err));
+//             }
+//             checkCollectionExists(databaseName, collectionName, function(err, exists) {
+//                 if (err) {
+//                     return process.nextTick(callback.bind(null, err));
+//                 }
+//                 expect(exists).to.be.equal(true);
+//                 process.nextTick(callback);
+//             });
+//         }
+//     );
+// }
 
 describe('sthDatabaseNameMapperTool tests', function() {
     const ORIGINAL_NAME_MAPPING = sthConfig.NAME_MAPPING;
