@@ -160,6 +160,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_install_dir}
 
 %changelog
+* Tue Nov 28 2023 Alvaro Vega <alvaro.vegagarcia@telefonica.com> 2.11.0
+- Add: CORS_ENABLED env var (boolean) to enable the cors configuration (of config.js file) in your docker image (#608)
+- Set Nodejs 14 as minimum version in packages.json (effectively removing Nodev12 from supported versions)
+- Fix: the way in which list collection is done at MongoDB (ensure¡ing nameOnly flag is boolean) so STH can support MongoDB 5.0+ versions
+- Fix: TRUNCATION_EXPIRE_AFTER_SECONDS functionality (#606)
+
 * Wed Nov 02 2022 Alvaro Vega <alvaro.vegagarcia@telefonica.com> 2.10.0
 - Fix: healthcheck over sth exposed port 
 - Fix: Dockerfile to include initial packages upgrade
