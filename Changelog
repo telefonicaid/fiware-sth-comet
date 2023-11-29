@@ -1,0 +1,81 @@
+2.11.0 (November 28th, 2023)
+
+- Add: CORS_ENABLED env var (boolean) to enable the cors configuration (of config.js file) in your docker image (#608)
+- Set Nodejs 14 as minimum version in packages.json (effectively removing Nodev12 from supported versions)
+- Fix: the way in which list collection is done at MongoDB (ensure�ing nameOnly flag is boolean) so STH can support MongoDB 5.0+ versions
+- Fix: TRUNCATION_EXPIRE_AFTER_SECONDS functionality (#606)
+
+2.10.0 (November 2nd, 2022)
+
+- Fix: healthcheck over sth exposed port 
+- Fix: Dockerfile to include initial packages upgrade
+- Set Nodejs 12 as minimum version in packages.json (effectively removing Nodev8 and Nodev10 from supported versions)
+
+2.9.0 (March 25th, 2022)
+
+- Add: graceful shutdown listening to SIGTERM and SIGHUP signals (#576)
+- Add: Docker healthcheck for STH API
+- Add: config reconnectTries and reconnectInterval configuration (env vars DB_RECONNECT_TRIES and DB_RECONNECT_INTERVAL) to allow mongo driver reconnect (#559)
+- Add: allow connect with mongo uri without auth
+- Fix: return 500 when DB is not connected (#570)
+- Fix: ensure permissions over temp directory (used by CSV generation) in docker container (issue re-introduced in 2.8.0)
+- Fix: update logs about get raw and aggregated data (#556)
+- Update codebase to use ES6
+    -  Remove JSHint and jshint overrides
+    -  Add esLint using standard tamia presets
+    -  Replace var with let/const
+    -  Fix or disable eslint errors
+- Upgrade logops dep from 2.1.0 to 2.1.2 due to colors dependency corruption
+- Upgrade: mongodb dependence from ~2.2.35 to ~3.6.12 (#567)
+- Upgrade NodeJS version from 10.19.0 to 14-slim in Dockerfile
+
+2.8.0 (May 27th, 2020)
+
+- Fix: Filetype issue fixed for hLimit and hOffset (#539)
+- Fix: Updated temporary csv filename for uniqueness (#532)
+- Upgrade NodeJS version from 8.16.1 to 10.19.0 in Dockerfile due to Node 8 End-of-Life
+- Make optional PM2 usage in docker entrypoint
+- Add: MongoDB auth source configuration (env var DB_AUTH_SOURCE)
+
+2.7.0 (November 11th, 2019)
+
+- Add: NGSIv2 endpoints for the raw and aggregation API operations (#118)
+- Add: CORS support (#500)
+- Fix: check header response before use it (CSV response has no header)
+- Fix: handler for reply a CSV: use new Hapi API (#513)
+- Fix: Ensure permissions over temp directory (used by CSV generation) in docker container (#514)
+- Upgrade NodeJS version from 8.16.0 to 8.16.1 in Dockerfile due to security issues
+
+2.6.0 (June 4th, 2019)
+
+- Upgrade NodeJS version from 8.12.0 to 8.16.0 in Dockerfile due to improve security
+- Add: logging feature to count number of requests attended and number of requests processed with error (#310)
+- Fix: race condition causes erroneous count to 0 in some cases (#493)
+
+2.5.0 (December 19th, 2018)
+
+- Set Nodejs 8.12.0 as minimum version in packages.json (effectively removing Nodev4 and Nodev6 as supported versions)
+- Add: use NodeJS 8 in Dockerfile
+- Add: use PM2 in Dockerfile
+- Upgrade: hapi dependence from ~11.1.3 to ~16.7.0
+- Upgrade: logops dependence from ~1.0.5 to 2.1.0
+- Upgrade: joi dependence from ~5.1.0 to 14.0.6
+- Upgrade: boom dependence from ~2.7.2 to 7.2.2
+- Upgrade: json-csv dependence from ~1.2.0 to 1.5.0
+- Upgrade: request development dependence from ~2.79.0 to 2.88.0
+- Upgrade: mocha development depencence from ~3.2.0 to 5.2.0
+- Remove: old unused development dependencies (chai, sinon, sinon-chai, grunt and grunt related module)
+
+2.4.0 (August 16th, 2018)
+
+- Upgrade lodash dependence to 4.17.5
+- Upgrade mongodb dependence to 2.2.35
+- Check & ensure hLimit<=lastN<=config.maxPageSize for raw data query. [#431]
+- Fix: Content Disposition header encoding issue (#433)
+- Add count to query and related fiware-total-count header [#428]
+- Using precise dependencies (~=) in packages.json
+- Upgrade hapi to 11.1.3
+
+2.3.0 (October 18th, 2017)
+
+- FEATURE update node version to 4.8.4
