@@ -9,7 +9,7 @@ To run the STH server, please execute the following command from the directory w
 The STH component provides the user with 2 mechanisms to configure the component to the concrete needs of the user:
 
 -   Environment variables, which can be set assigning values to them or using the
-    [`sth_default.conf`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/rpm/EXAMPLES/sth_default.conf)
+    [`sth_default.conf`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/sth_default.conf)
     file if a packaged version of the STH component is used.
 -   The [`config.js`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/config.js) file located at the root
     of the STH component code, a JSON formatted file including the configuration properties.
@@ -101,6 +101,7 @@ The environment variables accepted by the script (for which there exists counter
 -   `PROOF_OF_LIFE_INTERVAL`: The time in seconds between proof of life logging messages informing that the server is up
     and running normally. Default value: "60". `PROCESSED_REQUEST_LOG_STATISTICS_INTERVAL`: The time in seconds between
     processed requests statistics appear in the logs. Default value: "60".
+-   `CORS_ENABLED`: Boolean attribute (`true`|`false`) to enable cors configuration. Optional. Default value: "false".
 
 For example, to start the STH server listening on port 7777, connecting to a MongoDB instance listening on
 mymongo.com:27777 and without filtering out the empty results, use:
