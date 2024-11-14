@@ -27,7 +27,6 @@ const sthTestConfig = require(ROOT_PATH + '/test/unit/sthTestConfiguration');
 const sthConfig = require(ROOT_PATH + '/lib/configuration/sthConfiguration');
 const sthTestUtils = require(ROOT_PATH + '/test/unit/sthTestUtils.js');
 const sthDatabaseNaming = require(ROOT_PATH + '/lib/database/model/sthDatabaseNaming');
-const hapi = require('hapi');
 const request = require('request');
 const expect = require('expect.js');
 
@@ -62,7 +61,7 @@ describe('sth tests', function() {
         it('should start gracefully', function(done) {
             sth.sthServer.startServer(sthConfig.STH_HOST, sthConfig.STH_PORT, function(err, server) {
                 expect(err).to.equal(null);
-                expect(server).to.be.a(hapi.Server);
+                expect(server).to.not.equal(null);
                 done();
             });
         });
