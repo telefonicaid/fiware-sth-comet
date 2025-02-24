@@ -26,7 +26,7 @@ and MongoDB as the final database.
 Since the STH is a Node application and regarding the Web server, we opted for hapi as the module to use. Once again, we
 opted for flexibility and modularity over any other characteristic and hapi was the Web server which provided the best
 one (see [compare Express vs Hapi](https://strongloop.com/strongblog/compare-express-restify-hapi-loopback/) and
-[npm compare Express vs Hapi](https://npmcompare.com/compare/connect,express,hapi,koa) for further information).
+[npm compare Express vs Hapi](https://npm-compare.com/connect,express,hapi,koa) for further information).
 
 In the next figure we depict a high level view of the STH architecture including the concrete Web server and database
 currently used:

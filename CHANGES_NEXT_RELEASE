@@ -1,4 +1,4 @@
-- Fix: Updated isAggregated() to fix truncation expire (#606)
-- Set Nodejs 14 as minimum version in packages.json (effectively removing Nodev12 from supported versions)
 - Upgrade NodeJS version from 14-slim to 16-slim in Dockerfile
-- Add: CORS_ENABLED env var (boolean) to enable the cors configuration (of config.js file) in your docker image (#608)
+- Add: aggrMethod accept multiple values separated by comma (#432, step 2)
+- Add: aggrMethod 'all' to get all the possible aggregations (#432, step 2)
+- Remove: RPM stuff

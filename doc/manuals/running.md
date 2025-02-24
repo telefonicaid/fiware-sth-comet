@@ -9,7 +9,7 @@ To run the STH server, please execute the following command from the directory w
 The STH component provides the user with 2 mechanisms to configure the component to the concrete needs of the user:
 
 -   Environment variables, which can be set assigning values to them or using the
-    [`sth_default.conf`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/rpm/EXAMPLES/sth_default.conf)
+    [`sth_default.conf`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/sth_default.conf)
     file if a packaged version of the STH component is used.
 -   The [`config.js`](https://github.com/telefonicaid/fiware-sth-comet/blob/master/config.js) file located at the root
     of the STH component code, a JSON formatted file including the configuration properties.
