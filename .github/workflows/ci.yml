@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       mongodb:
-        image: mongo:4.4
+        image: mongo:6.0
         ports:
         - 27017:27017
     strategy:
@@ -67,7 +67,7 @@ jobs:
           - 14.x
           # FIXME: it seems problems with mongodb driver version preclude using Node 16+
           # see details at https://github.com/telefonicaid/fiware-sth-comet/pull/580#issuecomment-1160353123
-          #- 16.x
+          - 16.x
           #- 18.x 
     steps:
       - name: Git checkout

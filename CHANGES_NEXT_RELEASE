@@ -1,3 +1,4 @@
+- Upgrade NodeJS version from 14-slim to 16-slim in Dockerfile
 - Add: aggrMethod accept multiple values separated by comma (#432, step 2)
 - Add: aggrMethod 'all' to get all the possible aggregations (#432, step 2)
 - Remove: RPM stuff
