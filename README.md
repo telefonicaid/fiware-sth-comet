@@ -1,3 +1,5 @@
+⚠️**STH IS DEPRECATED SOFTWARE**.
+
 # <a name="top"></a>FIWARE Short Time Historic (STH) - Comet
 
 [![](https://nexus.lab.fiware.org/repository/raw/public/badges/chapters/core.svg)](https://www.fiware.org/developers/catalogue/)
