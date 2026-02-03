@@ -3,7 +3,7 @@
 [![](https://fiware.github.io/catalogue/badges/chapters/core.svg)](https://www.fiware.org/developers/catalogue/)
 [![](https://img.shields.io/badge/tag-fiware--sth--comet-orange.svg?logo=stackoverflow)](http://stackoverflow.com/questions/tagged/fiware-sth-comet)
 
-The Short Time Historic (STH, aka. Comet) is a component of the [FIWARE](https://www.fiware.org/) ecosystem in charge of
+The Short Time Historic (STH, aka. Comet) was a component of the [FIWARE](https://www.fiware.org/) ecosystem in charge of
 managing (storing and retrieving) historical raw and aggregated time series information about the evolution in time of
 context data (i.e., entity attribute values) registered in an
 [Orion Context Broker](https://github.com/telefonicaid/fiware-orion) instance.
