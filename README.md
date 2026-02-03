@@ -1,7 +1,7 @@
 # <a name="top"></a>FIWARE Short Time Historic (STH) - Comet
 
 [![](https://fiware.github.io/catalogue/badges/chapters/core.svg)](https://www.fiware.org/developers/catalogue/)
-[![License](https://img.shields.io/github/license/telefonicaid/fiware-sth-comet.svg)](https://opensource.org/licenses/AGPL-3.0)
+[![License](https://img.shields.io/github/license/telefonicaid/fiware-sth--comet.svg)](https://opensource.org/licenses/AGPL-3.0)
 [![](https://img.shields.io/badge/tag-fiware--sth-comet-orange.svg?logo=stackoverflow)](http://stackoverflow.com/questions/tagged/fiware-sth-comet)
 [![Support badge](https://img.shields.io/badge/support-askbot-yellowgreen.svg)](https://ask.fiware.org/questions/scope%3Aall/tags%3Asth-comet/)
 [![Join the chat at https://gitter.im/telefonicaid/fiware-sth-comet](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/telefonicaid/fiware-sth-comet?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
