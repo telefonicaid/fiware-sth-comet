@@ -1,8 +1,6 @@
-⚠️**STH IS DEPRECATED SOFTWARE**.
-
 # <a name="top"></a>FIWARE Short Time Historic (STH) - Comet
 
-[![](https://nexus.lab.fiware.org/repository/raw/public/badges/chapters/core.svg)](https://www.fiware.org/developers/catalogue/)
+[![](https://fiware.github.io/catalogue/badges/chapters/core.svg)](https://www.fiware.org/developers/catalogue/)
 [![License](https://img.shields.io/github/license/telefonicaid/fiware-sth-comet.svg)](https://opensource.org/licenses/AGPL-3.0)
 [![](https://img.shields.io/badge/tag-fiware--sth-comet-orange.svg?logo=stackoverflow)](http://stackoverflow.com/questions/tagged/fiware-sth-comet)
 [![Support badge](https://img.shields.io/badge/support-askbot-yellowgreen.svg)](https://ask.fiware.org/questions/scope%3Aall/tags%3Asth-comet/)
@@ -14,8 +12,10 @@
 [![Documentation badge](https://readthedocs.org/projects/fiware-sth-comet/badge/?version=latest)](https://fiware-sth-comet.readthedocs.io)
 [![CI](https://github.com/telefonicaid/fiware-sth-comet/workflows/CI/badge.svg)](https://github.com/telefonicaid/fiware-sth-comet/actions?query=workflow%3ACI)
 [![Coverage Status](https://coveralls.io/repos/github/telefonicaid/fiware-sth-comet/badge.svg?branch=master)](https://coveralls.io/github/telefonicaid/fiware-sth-comet?branch=master)
-![Status](https://nexus.lab.fiware.org/static/badges/statuses/cygnus.svg)
+![Status](https://fiware.github.io/catalogue/badges/statuses/status-deprecated.svg)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4878/badge)](https://bestpractices.coreinfrastructure.org/projects/4878)
+
+**This repository is now archived. STH is no longer supported and further development is not envisaged.**
 
 The **FIWARE Short Time Historic (STH) - Comet** is in charge of managing (storing and retrieving) historical raw and
 aggregated time series context information about the evolution in time of context data (i.e., entity attribute values)
@@ -26,7 +26,7 @@ All the communications between the STH and the Orion Context Broker as well as b
 [NGSI v1](https://openmobilealliance.org/release/NGSI/V1_0-20120529-A/OMA-TS-NGSI_Context_Management-V1_0-20120529-A.pdf)
 interfaces.
 
-This project is part of [FIWARE](https://www.fiware.org/). For more information check the FIWARE Catalogue entry for the
+Whilst active, this project was part of [FIWARE](https://www.fiware.org/). For more information check the FIWARE Catalogue entry for the
 [Core Context Management](https://github.com/Fiware/catalogue/tree/master/core).
 
 | :books: [Documentation](https://fiware-sth-comet.readthedocs.io) | :mortar_board: [Academy](https://fiware-academy.readthedocs.io/en/latest/core/sth-comet) | <img style="height:1em" src="https://quay.io/static/img/quay_favicon.png"/> [quay.io](https://quay.io/repository/fiware/sth-comet) | :whale: [Docker Hub](https://registry.hub.docker.com/r/telefonicaiot/fiware-sth-comet) | :dart: [Roadmap](https://github.com/telefonicaid/fiware-sth-comet/blob/master/doc/roadmap.md) |
